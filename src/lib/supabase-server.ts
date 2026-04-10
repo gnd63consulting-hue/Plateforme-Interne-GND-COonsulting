@@ -19,7 +19,10 @@ export async function createClient() {
         setAll(cookiesToSet) {
           try {
             cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
+              // See supabase-middleware.ts for the explanation of this cast:
+              // Supabase's CookieOptions has a broader shape than Next.js
+              // ResponseCookie (sameSite boolean, capitalized variants).
+              cookieStore.set(name, value, options as Parameters<typeof cookieStore.set>[2])
             );
           } catch {
             // Called from a Server Component: ignore, the middleware

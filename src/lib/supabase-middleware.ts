@@ -20,15 +20,20 @@ export async function updateSession(request: NextRequest) {
           return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value)
-          );
+          cookiesToSet.forEach(({ name, value }) => {
+            request.cookies.set(name, value);
+          });
           response = NextResponse.next({
             request,
           });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            response.cookies.set(name, value, options)
-          );
+          cookiesToSet.forEach(({ name, value, options }) => {
+            // Supabase's CookieOptions allows `sameSite: boolean` and
+            // capitalized priority/sameSite variants, while Next.js
+            // ResponseCookie only accepts the lowercase string forms.
+            // Supabase never emits invalid runtime values in practice,
+            // but we still need to calm strict TypeScript down.
+            response.cookies.set(name, value, options as Parameters<typeof response.cookies.set>[2]);
+          });
         },
       },
     }
