@@ -1,5 +1,7 @@
-import { createServerClient } from '@supabase/ssr';
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
+
+type CookieToSet = { name: string; value: string; options: CookieOptions };
 
 /**
  * Auth middleware helper: refreshes the Supabase session cookie on every
@@ -19,20 +21,21 @@ export async function updateSession(request: NextRequest) {
         getAll() {
           return request.cookies.getAll();
         },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) => {
+        setAll(cookiesToSet: CookieToSet[]) {
+          cookiesToSet.forEach(({ name, value }: CookieToSet) => {
             request.cookies.set(name, value);
           });
           response = NextResponse.next({
             request,
           });
-          cookiesToSet.forEach(({ name, value, options }) => {
+          cookiesToSet.forEach(({ name, value, options }: CookieToSet) => {
             // Supabase's CookieOptions allows `sameSite: boolean` and
             // capitalized priority/sameSite variants, while Next.js
             // ResponseCookie only accepts the lowercase string forms.
             // Supabase never emits invalid runtime values in practice,
             // but we still need to calm strict TypeScript down.
-            response.cookies.set(name, value, options as Parameters<typeof response.cookies.set>[2]);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            response.cookies.set(name, value, options as any);
           });
         },
       },
