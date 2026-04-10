@@ -1,15 +1,27 @@
 import { redirect } from 'next/navigation';
-import { createClient } from '@/lib/supabase-server';
+import { createClient, MissingSupabaseEnvError } from '@/lib/supabase-server';
 import LoginButton from './LoginButton';
 
 export default async function LoginPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  let missingEnv = false;
 
-  if (user) {
-    redirect('/dashboard');
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (user) {
+      redirect('/dashboard');
+    }
+  } catch (err) {
+    if (err instanceof MissingSupabaseEnvError) {
+      missingEnv = true;
+    } else {
+      // Let Next.js handle real errors (including NEXT_REDIRECT from
+      // the redirect() call above).
+      throw err;
+    }
   }
 
   return (
@@ -27,7 +39,19 @@ export default async function LoginPage() {
           </p>
         </div>
 
-        <LoginButton />
+        {missingEnv ? (
+          <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
+            <strong className="block">Configuration incomplète</strong>
+            Les variables d&apos;environnement Supabase ne sont pas encore
+            définies sur Vercel. Ajoute{' '}
+            <code className="rounded bg-amber-100 px-1">NEXT_PUBLIC_SUPABASE_URL</code>{' '}
+            et{' '}
+            <code className="rounded bg-amber-100 px-1">NEXT_PUBLIC_SUPABASE_ANON_KEY</code>{' '}
+            dans Settings → Environment Variables, puis redeploy.
+          </div>
+        ) : (
+          <LoginButton />
+        )}
 
         <p className="mt-6 text-center text-xs text-gnd-muted">
           Accès réservé aux commerciaux freelances de GND Consulting.
