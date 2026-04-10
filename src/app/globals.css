@@ -1,0 +1,84 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    @apply bg-gnd-bg text-gnd-primary;
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-2xl border border-slate-200 bg-white p-6 shadow-sm;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-lg bg-gnd-primary px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800 disabled:opacity-50;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-gnd-primary transition hover:bg-slate-50 disabled:opacity-50;
+  }
+
+  .btn-accent {
+    @apply inline-flex items-center justify-center rounded-lg bg-gnd-accent px-4 py-2 text-sm font-medium text-white transition hover:bg-amber-600 disabled:opacity-50;
+  }
+
+  .prose-module {
+    @apply max-w-none leading-relaxed text-slate-700;
+  }
+
+  .prose-module h1 {
+    @apply mt-0 mb-6 text-3xl font-bold text-gnd-primary;
+  }
+
+  .prose-module h2 {
+    @apply mt-10 mb-4 text-2xl font-semibold text-gnd-primary;
+  }
+
+  .prose-module h3 {
+    @apply mt-6 mb-3 text-xl font-semibold text-gnd-primary;
+  }
+
+  .prose-module p {
+    @apply my-4;
+  }
+
+  .prose-module ul {
+    @apply my-4 list-disc space-y-1 pl-6;
+  }
+
+  .prose-module ol {
+    @apply my-4 list-decimal space-y-1 pl-6;
+  }
+
+  .prose-module blockquote {
+    @apply my-4 border-l-4 border-gnd-accent bg-amber-50 px-4 py-2 italic text-slate-600;
+  }
+
+  .prose-module table {
+    @apply my-6 w-full border-collapse overflow-hidden rounded-lg border border-slate-200 text-sm;
+  }
+
+  .prose-module thead {
+    @apply bg-slate-100;
+  }
+
+  .prose-module th,
+  .prose-module td {
+    @apply border border-slate-200 px-3 py-2 text-left;
+  }
+
+  .prose-module code {
+    @apply rounded bg-slate-100 px-1 py-0.5 text-sm;
+  }
+
+  .prose-module a {
+    @apply text-gnd-accent underline-offset-2 hover:underline;
+  }
+}
