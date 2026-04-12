@@ -16,52 +16,59 @@ export type ModuleContent = {
 };
 
 /**
- * Authoritative list of the 6 onboarding modules, in order.
+ * Authoritative list of the 7 onboarding modules, in order.
  * Kept in sync with the MDX files in src/content.
  * Source of truth for the UI order and quiz URLs.
  */
 export const MODULES: ModuleMeta[] = [
   {
-    slug: 'module-01-bienvenue-gnd',
+    slug: 'module-01-decouverte-gnd',
     order: 1,
-    title: 'Bienvenue chez GND',
-    duration: 10,
+    title: 'Découverte GND Consulting',
+    duration: 15,
     tally_url: 'https://tally.so/r/PLACEHOLDER-01',
   },
   {
-    slug: 'module-02-offres-tarifs',
+    slug: 'module-02-offre-sites-vitrines',
     order: 2,
-    title: 'Nos offres et tarifs',
-    duration: 15,
+    title: "L'offre Sites Vitrines",
+    duration: 20,
     tally_url: 'https://tally.so/r/PLACEHOLDER-02',
   },
   {
-    slug: 'module-03-cibles-marche',
+    slug: 'module-03-process-de-vente',
     order: 3,
-    title: 'Cibles et marché',
-    duration: 10,
+    title: 'Maîtriser le process de vente',
+    duration: 20,
     tally_url: 'https://tally.so/r/PLACEHOLDER-03',
   },
   {
-    slug: 'module-04-prospection-pitch',
+    slug: 'module-04-techniques-de-vente',
     order: 4,
-    title: 'Prospection et pitch',
+    title: 'Techniques de vente & closing',
     duration: 20,
     tally_url: 'https://tally.so/r/PLACEHOLDER-04',
   },
   {
-    slug: 'module-05-closing-process',
+    slug: 'module-05-objections',
     order: 5,
-    title: 'Closing et process',
+    title: 'Traiter les objections',
     duration: 15,
     tally_url: 'https://tally.so/r/PLACEHOLDER-05',
   },
   {
-    slug: 'module-06-certification',
+    slug: 'module-06-bases-techniques',
     order: 6,
-    title: 'Validation finale',
-    duration: 10,
+    title: 'Bases techniques',
+    duration: 15,
     tally_url: 'https://tally.so/r/PLACEHOLDER-06',
+  },
+  {
+    slug: 'module-07-outils-process',
+    order: 7,
+    title: 'Outils & process quotidiens',
+    duration: 15,
+    tally_url: 'https://tally.so/r/PLACEHOLDER-07',
   },
 ];
 

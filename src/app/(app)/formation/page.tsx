@@ -34,7 +34,7 @@ export default async function FormationPage() {
       <section>
         <h1 className="text-3xl font-bold text-gnd-primary">Ma formation</h1>
         <p className="mt-1 text-gnd-muted">
-          Suis les 6 modules dans l'ordre. Chaque module se termine par un court quiz sur Tally.
+          Suis les 7 modules dans l'ordre. Chaque module se termine par un court quiz sur Tally.
         </p>
 
         <div className="mt-4 flex items-center gap-3">
