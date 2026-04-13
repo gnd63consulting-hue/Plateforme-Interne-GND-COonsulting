@@ -7,7 +7,6 @@ export type ModuleMeta = {
   order: number;
   title: string;
   duration: number; // minutes
-  tally_url: string;
 };
 
 export type ModuleContent = {
@@ -16,52 +15,61 @@ export type ModuleContent = {
 };
 
 /**
- * Authoritative list of the 6 onboarding modules, in order.
- * Kept in sync with the MDX files in src/content.
- * Source of truth for the UI order and quiz URLs.
+ * Liste de référence des 7 modules d'onboarding, dans l'ordre.
+ * Synchronisée avec les fichiers MDX de src/content.
+ * Source de vérité pour l'ordre, le titre et la durée affichée.
+ *
+ * Mapping volontaire (slug → thématique du brief Quiz Natif v1) :
+ *   module-01-decouverte-gnd       → M1 Découverte GND          (10 questions)
+ *   module-02-offre-sites-vitrines → M2 L'offre Sites Vitrines  (12 questions)
+ *   module-03-process-vente        → M3 Le process de vente     (12 questions)
+ *   module-04-techniques-vente     → M4 Techniques de vente     (10 questions)
+ *   module-05-objections           → M5 Traitement des objections (10 questions)
+ *   module-06-bases-techniques     → M6 Bases techniques        (10 questions)
+ *   module-07-outils-process       → M7 Outils & process        ( 8 questions)
  */
 export const MODULES: ModuleMeta[] = [
   {
-    slug: 'module-01-bienvenue-gnd',
+    slug: 'module-01-decouverte-gnd',
     order: 1,
-    title: 'Bienvenue chez GND',
-    duration: 10,
-    tally_url: 'https://tally.so/r/PLACEHOLDER-01',
+    title: 'Découverte GND',
+    duration: 12,
   },
   {
-    slug: 'module-02-offres-tarifs',
+    slug: 'module-02-offre-sites-vitrines',
     order: 2,
-    title: 'Nos offres et tarifs',
-    duration: 15,
-    tally_url: 'https://tally.so/r/PLACEHOLDER-02',
+    title: "L'offre Sites Vitrines",
+    duration: 17,
   },
   {
-    slug: 'module-03-cibles-marche',
+    slug: 'module-03-process-vente',
     order: 3,
-    title: 'Cibles et marché',
-    duration: 10,
-    tally_url: 'https://tally.so/r/PLACEHOLDER-03',
+    title: 'Le process de vente',
+    duration: 17,
   },
   {
-    slug: 'module-04-prospection-pitch',
+    slug: 'module-04-techniques-vente',
     order: 4,
-    title: 'Prospection et pitch',
-    duration: 20,
-    tally_url: 'https://tally.so/r/PLACEHOLDER-04',
+    title: 'Techniques de vente',
+    duration: 17,
   },
   {
-    slug: 'module-05-closing-process',
+    slug: 'module-05-objections',
     order: 5,
-    title: 'Closing et process',
+    title: 'Traitement des objections',
     duration: 15,
-    tally_url: 'https://tally.so/r/PLACEHOLDER-05',
   },
   {
-    slug: 'module-06-certification',
+    slug: 'module-06-bases-techniques',
     order: 6,
-    title: 'Validation finale',
-    duration: 10,
-    tally_url: 'https://tally.so/r/PLACEHOLDER-06',
+    title: 'Bases techniques',
+    duration: 15,
+  },
+  {
+    slug: 'module-07-outils-process',
+    order: 7,
+    title: 'Outils & process',
+    duration: 12,
   },
 ];
 
@@ -72,8 +80,8 @@ export function getModuleBySlug(slug: string): ModuleMeta | undefined {
 const CONTENT_DIR = path.join(process.cwd(), 'src', 'content');
 
 /**
- * Load a module's MDX file from disk, returning its frontmatter (merged
- * with the registry) and raw markdown body. Server-only.
+ * Charge le MDX d'un module depuis le disque, retourne le frontmatter
+ * fusionné avec le registry et le markdown brut. Server-only.
  */
 export function loadModuleContent(slug: string): ModuleContent | null {
   const meta = getModuleBySlug(slug);
@@ -88,7 +96,6 @@ export function loadModuleContent(slug: string): ModuleContent | null {
   return {
     meta: {
       ...meta,
-      // allow the MDX frontmatter to override registry values if needed
       ...(parsed.data as Partial<ModuleMeta>),
       slug,
     } as ModuleMeta,
@@ -97,9 +104,11 @@ export function loadModuleContent(slug: string): ModuleContent | null {
 }
 
 /**
- * Load an arbitrary MDX file from src/content (used for /ressources).
+ * Charge un MDX arbitraire de src/content (utilisé pour /ressources).
  */
-export function loadContentFile(fileName: string): { data: Record<string, unknown>; body: string } | null {
+export function loadContentFile(
+  fileName: string
+): { data: Record<string, unknown>; body: string } | null {
   const filePath = path.join(CONTENT_DIR, fileName);
   if (!fs.existsSync(filePath)) return null;
   const raw = fs.readFileSync(filePath, 'utf8');
