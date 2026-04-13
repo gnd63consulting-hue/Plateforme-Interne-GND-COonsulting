@@ -1,0 +1,36 @@
+-- =============================================
+-- GND Formation Commerciaux - Seed des 72 questions
+-- =============================================
+-- Source : BRIEF_CLAUDE_CODE_Quiz_Natif_v1.md (section 4)
+--
+-- À exécuter APRÈS 0002_quiz_native_v1.sql.
+-- Idempotent : ON CONFLICT (module_slug, position) DO NOTHING.
+--
+-- Répartition :
+--   M1 module-01-decouverte-gnd        → 10 questions
+--   M2 module-02-offre-sites-vitrines  → 12 questions
+--   M3 module-03-process-vente         → 12 questions
+--   M4 module-04-techniques-vente      → 10 questions
+--   M5 module-05-objections            → 10 questions
+--   M6 module-06-bases-techniques      → 10 questions
+--   M7 module-07-outils-process        →  8 questions
+--   Total : 72 questions
+-- =============================================
+
+-- TODO Scaary : coller ici les 72 INSERT issus du brief, en respectant
+-- les module_slug ci-dessus. Voir 0002_quiz_native_v1.sql pour le schéma
+-- de la table public.quiz_questions.
+--
+-- Chaque INSERT au format :
+--
+-- INSERT INTO public.quiz_questions
+--   (module_slug, position, question, kind, options, correct_ids)
+-- VALUES (
+--   'module-01-decouverte-gnd',
+--   1,
+--   'Texte de la question ?',
+--   'single',
+--   '[{"id":"a","label":"..."},{"id":"b","label":"..."}]'::jsonb,
+--   '["a"]'::jsonb
+-- )
+-- ON CONFLICT (module_slug, position) DO NOTHING;
