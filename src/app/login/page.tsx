@@ -39,9 +39,9 @@ export default async function LoginPage() {
         </div>
 
         <div className="rounded-xl border border-outline-variant/10 bg-surface-container-lowest p-10 shadow-editorial">
-          <div className="mb-10 text-center">
-            <p className="font-body text-lg font-medium leading-relaxed text-on-surface-variant">
-              Connectez-vous avec votre compte Google
+          <div className="mb-8 text-center">
+            <p className="font-body text-base font-medium leading-relaxed text-on-surface-variant">
+              Connecte-toi pour accéder à ton espace de formation.
             </p>
           </div>
 
