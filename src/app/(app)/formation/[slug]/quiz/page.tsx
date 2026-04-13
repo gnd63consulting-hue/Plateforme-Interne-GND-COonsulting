@@ -18,27 +18,46 @@ export default async function QuizPage({
     notFound();
   }
 
+  const orderLabel = String(module_.order).padStart(2, '0');
+
   return (
-    <div className="space-y-6">
-      <header className="flex flex-col gap-2 border-b border-slate-200 pb-6">
+    <div className="mx-auto max-w-4xl">
+      {/* Breadcrumb */}
+      <nav className="mb-8 flex items-center gap-2 text-sm text-on-surface-variant">
+        <Link href="/formation" className="transition-colors hover:text-primary">
+          Formation
+        </Link>
+        <span className="material-symbols-outlined text-[16px]">
+          chevron_right
+        </span>
         <Link
           href={`/formation/${slug}`}
-          className="text-sm text-gnd-muted hover:text-gnd-primary"
+          className="transition-colors hover:text-primary"
         >
-          ← Retour au module
+          Module {orderLabel}
         </Link>
+        <span className="material-symbols-outlined text-[16px]">
+          chevron_right
+        </span>
+        <span className="font-semibold text-on-surface">Quiz</span>
+      </nav>
 
-        <div className="flex items-baseline gap-3">
-          <span className="font-mono text-sm uppercase tracking-wider text-gnd-muted">
-            Quiz — Module {String(module_.order).padStart(2, '0')}
+      {/* Quiz Header */}
+      <header className="mb-12 flex flex-col justify-between gap-4 md:flex-row md:items-end">
+        <div>
+          <h1 className="font-headline text-[28px] font-bold tracking-tight text-on-surface">
+            Quiz : {module_.title}
+          </h1>
+          <p className="mt-1 font-label text-on-surface-variant">
+            Module {orderLabel} — Valide tes connaissances
+          </p>
+        </div>
+        <div className="inline-flex items-center gap-2 self-start rounded-full bg-surface-container-high px-4 py-2">
+          <span className="material-symbols-outlined text-primary">verified</span>
+          <span className="font-label text-sm font-semibold text-on-surface">
+            Seuil : {QUIZ_PASS_THRESHOLD}%
           </span>
         </div>
-
-        <h1 className="text-3xl font-bold text-gnd-primary">{module_.title}</h1>
-        <p className="text-sm text-gnd-muted">
-          Seuil de validation : {QUIZ_PASS_THRESHOLD}%. Tu peux retenter autant
-          que nécessaire.
-        </p>
       </header>
 
       <Quiz moduleSlug={slug} />
