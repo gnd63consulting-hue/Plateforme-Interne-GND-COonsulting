@@ -189,33 +189,45 @@ export async function POST(req: Request) {
       continue;
     }
 
-    const nom = `${prenomContact} ${nomContact}`.trim() || nomEntreprise;
-    if (!nom) {
+    // Schéma prod : company_name NOT NULL → on garantit une valeur.
+    const companyName = nomEntreprise || `${prenomContact} ${nomContact}`.trim();
+    if (!companyName) {
       skipped++;
       continue;
     }
+    const contactName = `${prenomContact} ${nomContact}`.trim() || null;
 
+    // Payload aligné sur le schéma EN réel de la prod :
+    // company_name (NN), contact_name, email, phone, city, sector, website, notes,
+    // notion_page_id, synced_at. `status` est volontairement omis pour laisser
+    // Postgres appliquer la DEFAULT 'prospecte' sur INSERT et ne pas écraser
+    // le statut saisi par un humain sur UPDATE (on ne connaît pas l'univers
+    // des valeurs du CHECK prod côté Notion → mapping dangereux ici).
     const payload: Record<string, unknown> = {
       notion_page_id: page.id,
-      nom,
-      nom_entreprise: nomEntreprise || null,
+      company_name: companyName,
+      contact_name: contactName,
       email: email || null,
-      telephone: telephone || null,
-      ville: adresse || null,
-      statut: STATUS_MAP[statutRaw] ?? 'a_contacter',
-      secteur_activite: secteur || null,
-      site_web: siteWeb || null,
-      classification: classification || null,
-      recommandation: recommandation || null,
-      notes: besoins ? `Besoins détectés : ${besoins}` : null,
+      phone: telephone || null,
+      city: adresse || null,
+      sector: secteur || null,
+      website: siteWeb || null,
+      notes: [
+        recommandation ? `Recommandation : ${recommandation}` : null,
+        classification ? `Classification : ${classification}` : null,
+        besoins ? `Besoins détectés : ${besoins}` : null,
+      ]
+        .filter(Boolean)
+        .join('\n\n') || null,
       synced_at: syncedAt,
     };
 
-    // Sur INSERT uniquement on fixe le user_id (impossible sur UPDATE à
-    // cause de la FK et du RLS attendu).
+    // Sur INSERT uniquement on fixe created_by (NOT NULL) et assigned_to.
+    // En UPDATE on ne touche pas à ces deux colonnes — l'assignation reste
+    // la propriété de l'admin et ne doit pas être réécrite par la sync.
     const { data: existing, error: lookupErr } = await admin
       .from('prospects')
-      .select('id, user_id')
+      .select('id')
       .eq('notion_page_id', page.id)
       .maybeSingle();
 
@@ -237,13 +249,14 @@ export async function POST(req: Request) {
     } else {
       if (!targetUserId) {
         // Pas de cible → on ne peut pas créer un prospect orphelin
-        // (user_id NOT NULL). On skip et on le signale.
+        // (created_by NOT NULL). On skip et on le signale.
         skipped++;
         continue;
       }
       const { error: insertErr } = await admin.from('prospects').insert({
         ...payload,
-        user_id: targetUserId,
+        created_by: targetUserId,
+        assigned_to: targetUserId,
       });
       if (insertErr) {
         errors.push({ page_id: page.id, error: insertErr.message });
