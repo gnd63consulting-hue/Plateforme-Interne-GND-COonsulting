@@ -14,7 +14,9 @@ export default async function ProspectsPage() {
 
   const { data: prospects } = await supabase
     .from('prospects')
-    .select('*')
+    .select(
+      'id, created_by, assigned_to, company_name, contact_name, email, phone, website, sector, city, postal_code, status, notes, next_action_at, notion_page_id, synced_at, created_at, updated_at'
+    )
     .order('updated_at', { ascending: false });
 
   return (

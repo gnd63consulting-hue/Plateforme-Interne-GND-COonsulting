@@ -4,11 +4,10 @@ import { useMemo, useState } from 'react';
 import { createClient } from '@/lib/supabase-client';
 import {
   formatDate,
-  labelForStatut,
-  STATUT_OPTIONS,
-  toneForStatut,
+  labelForStatus,
+  STATUS_OPTIONS,
+  toneForStatus,
   type Prospect,
-  type ProspectStatut,
 } from '@/lib/prospects';
 import ProspectModal, { type ProspectFormValues } from './ProspectModal';
 
@@ -22,7 +21,7 @@ export default function ProspectTable({
   currentUserId,
 }: ProspectTableProps) {
   const [prospects, setProspects] = useState<Prospect[]>(initialProspects);
-  const [filter, setFilter] = useState<ProspectStatut | 'all'>('all');
+  const [filter, setFilter] = useState<string>('all');
   const [createOpen, setCreateOpen] = useState(false);
   const [editing, setEditing] = useState<Prospect | null>(null);
   const [notesFor, setNotesFor] = useState<Prospect | null>(null);
@@ -33,18 +32,22 @@ export default function ProspectTable({
 
   const filtered = useMemo(() => {
     if (filter === 'all') return prospects;
-    return prospects.filter((p) => p.statut === filter);
+    return prospects.filter((p) => p.status === filter);
   }, [prospects, filter]);
 
   async function handleCreate(values: ProspectFormValues) {
     setError(null);
     const payload = {
-      user_id: currentUserId,
-      nom: values.nom.trim(),
-      telephone: values.telephone.trim() || null,
+      created_by: currentUserId,
+      assigned_to: currentUserId,
+      company_name: values.company_name.trim(),
+      contact_name: values.contact_name.trim() || null,
+      phone: values.phone.trim() || null,
       email: values.email.trim() || null,
-      ville: values.ville.trim() || null,
-      statut: values.statut,
+      website: values.website.trim() || null,
+      sector: values.sector.trim() || null,
+      city: values.city.trim() || null,
+      status: values.status,
       notes: values.notes.trim() || null,
     };
     const { data, error } = await supabase
@@ -64,11 +67,14 @@ export default function ProspectTable({
     if (!editing) return;
     setError(null);
     const patch = {
-      nom: values.nom.trim(),
-      telephone: values.telephone.trim() || null,
+      company_name: values.company_name.trim(),
+      contact_name: values.contact_name.trim() || null,
+      phone: values.phone.trim() || null,
       email: values.email.trim() || null,
-      ville: values.ville.trim() || null,
-      statut: values.statut,
+      website: values.website.trim() || null,
+      sector: values.sector.trim() || null,
+      city: values.city.trim() || null,
+      status: values.status,
       notes: values.notes.trim() || null,
     };
     const { data, error } = await supabase
@@ -89,11 +95,11 @@ export default function ProspectTable({
     }
   }
 
-  async function handleStatutChange(prospect: Prospect, statut: ProspectStatut) {
+  async function handleStatusChange(prospect: Prospect, status: string) {
     setError(null);
     const { data, error } = await supabase
       .from('prospects')
-      .update({ statut })
+      .update({ status })
       .eq('id', prospect.id)
       .select()
       .single();
@@ -110,7 +116,7 @@ export default function ProspectTable({
   }
 
   async function handleDelete(prospect: Prospect) {
-    if (!confirm(`Supprimer le prospect "${prospect.nom}" ?`)) return;
+    if (!confirm(`Supprimer le prospect "${prospect.company_name}" ?`)) return;
     setError(null);
     const { error } = await supabase
       .from('prospects')
@@ -156,11 +162,11 @@ export default function ProspectTable({
 
           <select
             value={filter}
-            onChange={(e) => setFilter(e.target.value as ProspectStatut | 'all')}
+            onChange={(e) => setFilter(e.target.value)}
             className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm"
           >
             <option value="all">Tous les statuts</option>
-            {STATUT_OPTIONS.map((opt) => (
+            {STATUS_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>
                 {opt.label}
               </option>
@@ -184,10 +190,12 @@ export default function ProspectTable({
         <table className="min-w-full divide-y divide-slate-200 text-sm">
           <thead className="bg-slate-50 text-xs uppercase tracking-wide text-gnd-muted">
             <tr>
-              <th className="px-4 py-3 text-left">Nom</th>
+              <th className="px-4 py-3 text-left">Entreprise</th>
+              <th className="px-4 py-3 text-left">Contact</th>
               <th className="px-4 py-3 text-left">Téléphone</th>
               <th className="px-4 py-3 text-left">Email</th>
               <th className="px-4 py-3 text-left">Ville</th>
+              <th className="px-4 py-3 text-left">Secteur</th>
               <th className="px-4 py-3 text-left">Statut</th>
               <th className="px-4 py-3 text-left">MAJ</th>
               <th className="px-4 py-3 text-left">Notes</th>
@@ -197,7 +205,7 @@ export default function ProspectTable({
           <tbody className="divide-y divide-slate-100">
             {filtered.length === 0 ? (
               <tr>
-                <td colSpan={8} className="px-4 py-10 text-center text-gnd-muted">
+                <td colSpan={10} className="px-4 py-10 text-center text-gnd-muted">
                   Aucun prospect pour le moment.
                 </td>
               </tr>
@@ -206,45 +214,74 @@ export default function ProspectTable({
                 <tr key={p.id} className="hover:bg-slate-50">
                   <td className="px-4 py-3 font-medium text-gnd-primary">
                     <div className="flex items-center gap-2">
-                      <span>{p.nom}</span>
+                      <span>{p.company_name}</span>
                       {p.notion_page_id && (
                         <span
-                          title="Prospect assigné depuis Notion"
-                          className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-blue-700"
+                          title="Prospect synchronisé depuis Notion"
+                          className="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-blue-700"
                         >
-                          Assigné
+                          Notion
                         </span>
                       )}
                     </div>
-                    {p.nom_entreprise && p.nom_entreprise !== p.nom && (
-                      <div className="text-xs font-normal text-gnd-muted">
-                        {p.nom_entreprise}
-                        {p.secteur_activite && ` · ${p.secteur_activite}`}
-                      </div>
+                  </td>
+                  <td className="px-4 py-3 text-slate-600">
+                    {p.contact_name ?? '—'}
+                  </td>
+                  <td className="px-4 py-3 text-slate-600">
+                    {p.phone ? (
+                      <a
+                        href={`tel:${p.phone}`}
+                        className="text-gnd-primary hover:underline"
+                      >
+                        {p.phone}
+                      </a>
+                    ) : (
+                      '—'
                     )}
                   </td>
-                  <td className="px-4 py-3 text-slate-600">{p.telephone ?? '—'}</td>
-                  <td className="px-4 py-3 text-slate-600">{p.email ?? '—'}</td>
-                  <td className="px-4 py-3 text-slate-600">{p.ville ?? '—'}</td>
+                  <td className="px-4 py-3 text-slate-600">
+                    {p.email ? (
+                      <a
+                        href={`mailto:${p.email}`}
+                        className="text-gnd-primary hover:underline"
+                      >
+                        {p.email}
+                      </a>
+                    ) : (
+                      '—'
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-slate-600">{p.city ?? '—'}</td>
+                  <td className="px-4 py-3 text-slate-600">
+                    {p.sector ?? '—'}
+                  </td>
                   <td className="px-4 py-3">
                     <select
-                      value={p.statut}
-                      onChange={(e) =>
-                        handleStatutChange(p, e.target.value as ProspectStatut)
-                      }
-                      className={`rounded-full border-0 px-2 py-1 text-xs font-medium ${toneForStatut(
-                        p.statut
+                      value={p.status}
+                      onChange={(e) => handleStatusChange(p, e.target.value)}
+                      className={`rounded-full border-0 px-2 py-1 text-xs font-medium ${toneForStatus(
+                        p.status
                       )}`}
-                      aria-label={`Statut de ${p.nom}`}
+                      aria-label={`Statut de ${p.company_name}`}
                     >
-                      {STATUT_OPTIONS.map((opt) => (
+                      {/* Si le statut courant n'est pas dans la liste,
+                          on l'ajoute en tête pour ne pas le perdre au save. */}
+                      {!STATUS_OPTIONS.some((o) => o.value === p.status) && (
+                        <option value={p.status}>
+                          {labelForStatus(p.status)}
+                        </option>
+                      )}
+                      {STATUS_OPTIONS.map((opt) => (
                         <option key={opt.value} value={opt.value}>
                           {opt.label}
                         </option>
                       ))}
                     </select>
                   </td>
-                  <td className="px-4 py-3 text-gnd-muted">{formatDate(p.updated_at)}</td>
+                  <td className="px-4 py-3 text-gnd-muted">
+                    {formatDate(p.updated_at)}
+                  </td>
                   <td className="px-4 py-3">
                     <button
                       onClick={() => {
@@ -298,16 +335,19 @@ export default function ProspectTable({
         initial={
           editing
             ? {
-                nom: editing.nom,
-                telephone: editing.telephone ?? '',
+                company_name: editing.company_name,
+                contact_name: editing.contact_name ?? '',
+                phone: editing.phone ?? '',
                 email: editing.email ?? '',
-                ville: editing.ville ?? '',
-                statut: editing.statut,
+                website: editing.website ?? '',
+                sector: editing.sector ?? '',
+                city: editing.city ?? '',
+                status: editing.status,
                 notes: editing.notes ?? '',
               }
             : undefined
         }
-        title={editing ? `Modifier : ${editing.nom}` : 'Modifier'}
+        title={editing ? `Modifier : ${editing.company_name}` : 'Modifier'}
         submitLabel="Enregistrer"
       />
 
@@ -316,7 +356,7 @@ export default function ProspectTable({
           <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold text-gnd-primary">
-                Notes · {notesFor.nom}
+                Notes · {notesFor.company_name}
               </h3>
               <button
                 onClick={() => setNotesFor(null)}
