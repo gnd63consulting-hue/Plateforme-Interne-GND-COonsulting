@@ -12,49 +12,83 @@ export default async function LoginPage() {
     } = await supabase.auth.getUser();
 
     if (user) {
-      redirect('/dashboard');
+      redirect('/formation');
     }
   } catch (err) {
     if (err instanceof MissingSupabaseEnvError) {
       missingEnv = true;
     } else {
-      // Let Next.js handle real errors (including NEXT_REDIRECT from
-      // the redirect() call above).
       throw err;
     }
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gnd-bg p-4">
-      <div className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-        <div className="mb-6 text-center">
-          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-gnd-primary text-lg font-bold text-white">
-            G
-          </div>
-          <h1 className="text-2xl font-bold text-gnd-primary">
-            Espace commerciaux GND
+    <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-background p-6">
+      {/* Blobs décoratifs Academic Atelier */}
+      <div className="pointer-events-none absolute inset-0 z-0">
+        <div className="absolute right-[-5%] top-[-10%] h-[40%] w-[40%] rounded-full bg-primary-fixed/20 blur-[120px]" />
+        <div className="absolute bottom-[-10%] left-[-5%] h-[40%] w-[40%] rounded-full bg-tertiary-fixed/10 blur-[120px]" />
+      </div>
+
+      <div className="z-10 w-full max-w-md">
+        <div className="mb-16 text-center">
+          <h1 className="mb-2 font-headline text-4xl font-extrabold tracking-tighter text-on-surface">
+            GND Formation
           </h1>
-          <p className="mt-2 text-sm text-gnd-muted">
-            Connecte-toi pour accéder à ta formation, tes ressources et tes prospects.
-          </p>
+          <div className="mx-auto h-1 w-12 rounded-full bg-primary" />
         </div>
 
-        {missingEnv ? (
-          <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
-            <strong className="block">Configuration incomplète</strong>
-            Les variables d&apos;environnement Supabase ne sont pas encore
-            définies sur Vercel. Ajoute{' '}
-            <code className="rounded bg-amber-100 px-1">NEXT_PUBLIC_SUPABASE_URL</code>{' '}
-            et{' '}
-            <code className="rounded bg-amber-100 px-1">NEXT_PUBLIC_SUPABASE_ANON_KEY</code>{' '}
-            dans Settings → Environment Variables, puis redeploy.
+        <div className="rounded-xl border border-outline-variant/10 bg-surface-container-lowest p-10 shadow-editorial">
+          <div className="mb-10 text-center">
+            <p className="font-body text-lg font-medium leading-relaxed text-on-surface-variant">
+              Connectez-vous avec votre compte Google
+            </p>
           </div>
-        ) : (
-          <LoginButton />
-        )}
 
-        <p className="mt-6 text-center text-xs text-gnd-muted">
-          Accès réservé aux commerciaux freelances de GND Consulting.
+          {missingEnv ? (
+            <div className="rounded-xl border border-tertiary-fixed/60 bg-tertiary-fixed/30 p-4 text-xs text-on-tertiary-fixed">
+              <strong className="block mb-1">Configuration incomplète</strong>
+              Les variables d&apos;environnement Supabase ne sont pas encore
+              définies sur Vercel. Ajoute{' '}
+              <code className="rounded bg-tertiary-fixed/50 px-1">
+                NEXT_PUBLIC_SUPABASE_URL
+              </code>{' '}
+              et{' '}
+              <code className="rounded bg-tertiary-fixed/50 px-1">
+                NEXT_PUBLIC_SUPABASE_ANON_KEY
+              </code>{' '}
+              dans Settings → Environment Variables, puis redeploy.
+            </div>
+          ) : (
+            <LoginButton />
+          )}
+
+          <div className="mt-12 border-t border-outline-variant/10 pt-8 text-center">
+            <p className="mb-4 font-body text-xs tracking-wide text-on-surface-variant">
+              Accès réservé aux commerciaux freelances de GND Consulting.
+            </p>
+            <a
+              href="mailto:contact@gndconsulting.fr"
+              className="text-xs font-semibold text-primary/80 underline underline-offset-4 transition-all hover:text-primary"
+            >
+              Besoin d&apos;aide ?
+            </a>
+          </div>
+        </div>
+
+        <div className="mt-16 text-center opacity-40">
+          <span className="material-symbols-outlined text-4xl text-outline">
+            menu_book
+          </span>
+        </div>
+      </div>
+
+      {/* Texte décoratif Academic Atelier */}
+      <div className="absolute bottom-12 left-12 hidden max-w-[240px] lg:block">
+        <p className="select-none font-headline text-6xl font-extrabold leading-none text-on-background/10">
+          LEARN
+          <br />
+          BETTER.
         </p>
       </div>
     </main>

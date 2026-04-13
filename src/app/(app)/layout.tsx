@@ -1,26 +1,15 @@
 import { redirect } from 'next/navigation';
 import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 import { createClient } from '@/lib/supabase-server';
 
 /**
- * Force every route under (app)/ to be rendered per-request at runtime.
- *
- * This layout hard-calls Supabase (createClient + auth.getUser + users
- * table read), which means it can never be pre-rendered at build time —
- * there's no stable output without a live session. Marking the layout
- * `force-dynamic` opts every nested page out of SSG even if the page
- * itself looks static (e.g. /ressources only reads a local MDX file).
- *
- * Without this, `next build` on a cold environment (no env vars set
- * yet, like the first Vercel deploy) fails at the "Generating static
- * pages" step with MissingSupabaseEnvError on /ressources.
+ * Force chaque route de (app)/ à être rendue per-request.
+ * Sans ça, `next build` sur un env sans vars d'env plante sur
+ * /ressources (MissingSupabaseEnvError).
  */
 export const dynamic = 'force-dynamic';
 
-/**
- * Layout wrapping every authenticated page. Ensures the user is logged in,
- * fetches their profile (to know if admin) and renders the Navbar.
- */
 export default async function AppLayout({
   children,
 }: {
@@ -37,16 +26,28 @@ export default async function AppLayout({
 
   const { data: profile } = await supabase
     .from('users')
-    .select('role, email')
+    .select('role, email, full_name')
     .eq('id', user.id)
     .maybeSingle();
 
   const isAdmin = profile?.role === 'admin';
+  const avatarUrl =
+    (user.user_metadata?.avatar_url as string | undefined) ??
+    (user.user_metadata?.picture as string | undefined) ??
+    null;
 
   return (
-    <div className="min-h-screen bg-gnd-bg">
-      <Navbar userEmail={profile?.email ?? user.email ?? null} isAdmin={isAdmin} />
-      <main className="mx-auto max-w-6xl px-4 py-8">{children}</main>
+    <div className="flex min-h-screen flex-col bg-background">
+      <Navbar
+        userEmail={profile?.email ?? user.email ?? null}
+        userName={profile?.full_name ?? (user.user_metadata?.full_name as string | undefined) ?? null}
+        avatarUrl={avatarUrl}
+        isAdmin={isAdmin}
+      />
+      <main className="flex-1 pt-24 pb-20">
+        <div className="mx-auto max-w-screen-2xl px-6 md:px-8">{children}</div>
+      </main>
+      <Footer />
     </div>
   );
 }
