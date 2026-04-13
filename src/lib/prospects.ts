@@ -15,6 +15,14 @@ export type Prospect = {
   ville: string | null;
   statut: ProspectStatut;
   notes: string | null;
+  // Champs remplis par la sync Notion (null pour les prospects créés à la main).
+  notion_page_id: string | null;
+  nom_entreprise: string | null;
+  secteur_activite: string | null;
+  site_web: string | null;
+  classification: string | null;
+  recommandation: string | null;
+  synced_at: string | null;
   created_at: string;
   updated_at: string;
 };

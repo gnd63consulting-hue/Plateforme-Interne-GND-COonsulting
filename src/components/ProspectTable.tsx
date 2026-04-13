@@ -204,7 +204,25 @@ export default function ProspectTable({
             ) : (
               filtered.map((p) => (
                 <tr key={p.id} className="hover:bg-slate-50">
-                  <td className="px-4 py-3 font-medium text-gnd-primary">{p.nom}</td>
+                  <td className="px-4 py-3 font-medium text-gnd-primary">
+                    <div className="flex items-center gap-2">
+                      <span>{p.nom}</span>
+                      {p.notion_page_id && (
+                        <span
+                          title="Prospect assigné depuis Notion"
+                          className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-blue-700"
+                        >
+                          Assigné
+                        </span>
+                      )}
+                    </div>
+                    {p.nom_entreprise && p.nom_entreprise !== p.nom && (
+                      <div className="text-xs font-normal text-gnd-muted">
+                        {p.nom_entreprise}
+                        {p.secteur_activite && ` · ${p.secteur_activite}`}
+                      </div>
+                    )}
+                  </td>
                   <td className="px-4 py-3 text-slate-600">{p.telephone ?? '—'}</td>
                   <td className="px-4 py-3 text-slate-600">{p.email ?? '—'}</td>
                   <td className="px-4 py-3 text-slate-600">{p.ville ?? '—'}</td>
