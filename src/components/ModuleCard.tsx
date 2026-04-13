@@ -6,6 +6,10 @@ type ModuleCardProps = {
   state: 'validated' | 'available' | 'locked';
   /** Nombre de questions seedées dans Supabase pour ce module. */
   questionsCount?: number;
+  /** Meilleur score (en %) si le module est validé. */
+  bestPercentage?: number | null;
+  /** Titre du module précédent à compléter — affiché sur les cartes verrouillées. */
+  previousOrder?: number;
 };
 
 const BASE_CARD =
@@ -15,6 +19,8 @@ export default function ModuleCard({
   module,
   state,
   questionsCount,
+  bestPercentage,
+  previousOrder,
 }: ModuleCardProps) {
   const numberLabel = String(module.order).padStart(2, '0');
 
@@ -30,7 +36,7 @@ export default function ModuleCard({
         >
           {numberLabel}
         </span>
-        <StatusBadge state={state} />
+        <StatusBadge state={state} bestPercentage={bestPercentage} />
       </div>
 
       <h3
@@ -62,12 +68,28 @@ export default function ModuleCard({
 
       {state === 'available' && (
         <div className="mt-6 rounded-full bg-primary px-4 py-3 text-center font-label text-sm font-bold text-on-primary transition-opacity group-hover:opacity-90">
-          Commencer le module →
+          Continuer le module →
         </div>
       )}
 
+      {state === 'locked' && previousOrder !== undefined && (
+        <p className="mt-6 flex items-center gap-1.5 text-xs font-medium text-on-surface-variant">
+          <span className="material-symbols-outlined text-[14px]">lock</span>
+          Complète le Module {String(previousOrder).padStart(2, '0')} pour
+          déverrouiller.
+        </p>
+      )}
+
       {state === 'validated' && (
-        <span className="absolute bottom-0 left-0 h-1 w-full rounded-b-xl bg-green-500" />
+        <span
+          className={
+            bestPercentage !== undefined && bestPercentage !== null && bestPercentage >= 90
+              ? 'absolute bottom-0 left-0 h-1 w-full rounded-b-xl bg-green-500'
+              : bestPercentage !== undefined && bestPercentage !== null && bestPercentage < 80
+              ? 'absolute bottom-0 left-0 h-1 w-full rounded-b-xl bg-amber-500'
+              : 'absolute bottom-0 left-0 h-1 w-full rounded-b-xl bg-green-500'
+          }
+        />
       )}
     </>
   );
@@ -95,11 +117,28 @@ export default function ModuleCard({
   );
 }
 
-function StatusBadge({ state }: { state: ModuleCardProps['state'] }) {
+function StatusBadge({
+  state,
+  bestPercentage,
+}: {
+  state: ModuleCardProps['state'];
+  bestPercentage?: number | null;
+}) {
   if (state === 'validated') {
+    const hasScore = bestPercentage !== undefined && bestPercentage !== null;
+    const tone = !hasScore
+      ? 'bg-green-100 text-green-700'
+      : bestPercentage! >= 90
+      ? 'bg-green-100 text-green-700'
+      : bestPercentage! < 80
+      ? 'bg-amber-100 text-amber-700'
+      : 'bg-green-100 text-green-700';
+
     return (
-      <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-bold uppercase tracking-wider text-green-700">
-        Validé
+      <span
+        className={`rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider ${tone}`}
+      >
+        {hasScore ? `Validé — ${bestPercentage}%` : 'Validé'}
       </span>
     );
   }

@@ -9,7 +9,9 @@ export default async function FormationPage() {
 
   const [{ data: progressions }, { data: user }, { data: questions }] =
     await Promise.all([
-      supabase.from('progressions').select('module_slug, completed'),
+      supabase
+        .from('progressions')
+        .select('module_slug, completed, best_percentage'),
       supabase.auth.getUser(),
       supabase.from('quiz_questions').select('module_slug'),
     ]);
@@ -19,6 +21,11 @@ export default async function FormationPage() {
       .filter((p) => p.completed)
       .map((p) => p.module_slug)
   );
+
+  const bestByModule = new Map<string, number | null>();
+  for (const p of progressions ?? []) {
+    bestByModule.set(p.module_slug, p.best_percentage ?? null);
+  }
 
   const questionCounts = new Map<string, number>();
   for (const row of questions ?? []) {
@@ -92,6 +99,8 @@ export default async function FormationPage() {
             module={mod}
             state={stateFor(idx)}
             questionsCount={questionCounts.get(mod.slug)}
+            bestPercentage={bestByModule.get(mod.slug) ?? null}
+            previousOrder={idx > 0 ? MODULES[idx - 1].order : undefined}
           />
         ))}
       </section>

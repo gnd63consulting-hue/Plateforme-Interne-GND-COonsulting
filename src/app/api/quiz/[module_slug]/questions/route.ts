@@ -9,6 +9,7 @@ type QuestionRow = {
   question: string;
   kind: 'single' | 'multiple';
   options: Array<{ id: string; label: string }>;
+  explanation: string | null;
 };
 
 /**
@@ -35,7 +36,7 @@ export async function GET(
 
   const { data, error } = await supabase
     .from('quiz_questions')
-    .select('id, position, question, kind, options')
+    .select('id, position, question, kind, options, explanation')
     .eq('module_slug', module_slug)
     .order('position', { ascending: true });
 
