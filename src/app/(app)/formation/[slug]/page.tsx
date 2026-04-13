@@ -26,11 +26,20 @@ export default async function ModulePage({
   }
 
   const supabase = await createClient();
-  const { data: progression } = await supabase
-    .from('progressions')
-    .select('completed, best_percentage')
-    .eq('module_slug', slug)
-    .maybeSingle();
+  const [{ data: progression }, { data: lastAttempt }] = await Promise.all([
+    supabase
+      .from('progressions')
+      .select('completed, best_percentage')
+      .eq('module_slug', slug)
+      .maybeSingle(),
+    supabase
+      .from('quiz_attempts')
+      .select('score, total, percentage, passed, created_at')
+      .eq('module_slug', slug)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+  ]);
 
   const isValidated = Boolean(progression?.completed);
   const orderLabel = String(loaded.meta.order).padStart(2, '0');
@@ -73,6 +82,42 @@ export default async function ModulePage({
         </h1>
         <div className="mt-6 h-1 w-24 rounded-full bg-primary" />
       </header>
+
+      {/* Récap dernière tentative (si le module a déjà été tenté) */}
+      {lastAttempt && (
+        <section
+          className={
+            isValidated
+              ? 'mb-12 flex flex-col gap-3 rounded-2xl border border-green-200 bg-green-50/50 p-6 sm:flex-row sm:items-center sm:justify-between'
+              : 'mb-12 flex flex-col gap-3 rounded-2xl border border-tertiary-fixed/60 bg-tertiary-fixed/20 p-6 sm:flex-row sm:items-center sm:justify-between'
+          }
+        >
+          <div>
+            <p className="font-label text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
+              Dernière tentative
+            </p>
+            <p className="font-headline text-xl font-bold text-on-surface">
+              {lastAttempt.score}/{lastAttempt.total} ({lastAttempt.percentage}%)
+              {isValidated && progression?.best_percentage != null && (
+                <span className="ml-2 text-sm font-medium text-on-surface-variant">
+                  · Meilleur : {progression.best_percentage}%
+                </span>
+              )}
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href={`/formation/${slug}/quiz`}
+              className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-bold text-on-primary hover:opacity-90"
+            >
+              <span className="material-symbols-outlined text-[16px]">
+                refresh
+              </span>
+              {isValidated ? 'Refaire le quiz' : 'Retenter le quiz'}
+            </Link>
+          </div>
+        </section>
+      )}
 
       {/* Reading canvas */}
       <section className="prose-academic">

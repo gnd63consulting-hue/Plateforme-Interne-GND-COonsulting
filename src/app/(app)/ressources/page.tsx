@@ -72,7 +72,27 @@ export default function RessourcesPage() {
                   <li>• Appel 1 court (2 min max) pour récupérer l&apos;email.</li>
                   <li>• Envoyer l&apos;Email 1 dans les 2 heures après l&apos;appel.</li>
                   <li>• Fixer un rendez-vous précis (date + heure).</li>
-                  <li>• Montrer le site démo <em>O Papa Poulet</em>.</li>
+                  <li>
+                    • Montrer les sites démo{' '}
+                    <a
+                      href="https://opapapoulet-marly-la-ville.vercel.app/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-semibold text-primary underline-offset-2 hover:underline"
+                    >
+                      O Papa Poulet
+                    </a>{' '}
+                    et{' '}
+                    <a
+                      href="https://faim-de-semaine-website-v2-qs3p.vercel.app/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-semibold text-primary underline-offset-2 hover:underline"
+                    >
+                      Faim de Semaine
+                    </a>
+                    .
+                  </li>
                   <li>• Mettre à jour la fiche Notion le jour même.</li>
                 </ul>
               </div>
@@ -110,13 +130,33 @@ export default function RessourcesPage() {
               </li>
               <li>
                 <strong className="text-on-surface">Template Email 1</strong> —
-                remerciement + lien site démo + rappel du rendez-vous.{' '}
-                <em>(Lien à ajouter par la direction.)</em>
+                remerciement + lien site démo + rappel du rendez-vous. Liens
+                démo à glisser dans l&apos;email :{' '}
+                <a
+                  href="https://opapapoulet-marly-la-ville.vercel.app/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-primary hover:underline"
+                >
+                  opapapoulet-marly-la-ville.vercel.app
+                </a>{' '}
+                ·{' '}
+                <a
+                  href="https://faim-de-semaine-website-v2-qs3p.vercel.app/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-primary hover:underline"
+                >
+                  faim-de-semaine-website-v2-qs3p.vercel.app
+                </a>
+                .
               </li>
               <li>
-                <strong className="text-on-surface">Template Email relance</strong>{' '}
-                — à envoyer 2-3 jours après si pas de retour.{' '}
-                <em>(Lien à ajouter par la direction.)</em>
+                <strong className="text-on-surface">
+                  Template Email relance
+                </strong>{' '}
+                — à envoyer 2-3 jours après si pas de retour. Reprendre les
+                mêmes liens démo pour relancer l&apos;intérêt.
               </li>
               <li>
                 <strong className="text-on-surface">Template déclaration contrat signé</strong>{' '}
