@@ -1,5 +1,12 @@
 import { MDXRemote } from 'next-mdx-remote/rsc';
+import remarkGfm from 'remark-gfm';
 import { loadContentFile } from '@/lib/modules-registry';
+
+const mdxOptions = {
+  mdxOptions: {
+    remarkPlugins: [remarkGfm],
+  },
+};
 
 export default function RessourcesPage() {
   const loaded = loadContentFile('ressources.mdx');
@@ -18,7 +25,7 @@ export default function RessourcesPage() {
   return (
     <article className="card">
       <div className="prose-module">
-        <MDXRemote source={loaded.body} />
+        <MDXRemote source={loaded.body} options={mdxOptions} />
       </div>
     </article>
   );

@@ -122,9 +122,14 @@ export default function Quiz({ moduleSlug }: QuizProps) {
       const data = (await res.json()) as SubmitResponse;
       setResult(data);
       setStatus('submitted');
-      // refresh data dans /formation et /dashboard si validé
+      // Si validé : on laisse la bannière verte s'afficher 2 secondes puis
+      // on renvoie le commercial vers la liste des modules (le module qu'il
+      // vient de valider est maintenant ✅ et le suivant est déverrouillé).
       if (data.passed) {
         router.refresh();
+        setTimeout(() => {
+          router.push('/formation');
+        }, 2000);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur inconnue');

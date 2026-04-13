@@ -118,7 +118,7 @@ base (trigger `handle_new_user`) avec le rôle `commercial`. Pour promouvoir
 l'admin, exécuter dans le SQL Editor :
 
 ```sql
-UPDATE public.users SET role = 'admin' WHERE email = 'roodnyp@gmail.com';
+UPDATE public.users SET role = 'admin' WHERE email = '<ton-email-google>';
 ```
 
 ## Contenu des modules
@@ -137,12 +137,12 @@ duration: 12
 # Découverte GND Consulting
 
 Contenu markdown…
-
-<Quiz moduleSlug="module-01-decouverte-gnd" />
 ```
 
-Le composant `<Quiz />` est exposé dans le scope MDX par
-`src/app/(app)/formation/[slug]/page.tsx`.
+Le rendu MDX est fait via `next-mdx-remote/rsc` avec `remark-gfm` activé
+(tables, task lists, strikethrough). Le quiz est sur une **page dédiée**
+`/formation/[slug]/quiz`, pas dans le MDX — le composant `<Quiz />` n'a
+pas besoin d'être exposé au scope MDX.
 
 Pour **mettre à jour un module** : éditer le `.mdx` → commit → push →
 redéploiement Vercel automatique.
