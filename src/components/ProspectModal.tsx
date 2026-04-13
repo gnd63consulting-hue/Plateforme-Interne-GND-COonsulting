@@ -1,23 +1,29 @@
 'use client';
 
 import { useState } from 'react';
-import { STATUT_OPTIONS, type ProspectStatut } from '@/lib/prospects';
+import { STATUS_OPTIONS } from '@/lib/prospects';
 
 export type ProspectFormValues = {
-  nom: string;
-  telephone: string;
+  company_name: string;
+  contact_name: string;
+  phone: string;
   email: string;
-  ville: string;
-  statut: ProspectStatut;
+  website: string;
+  sector: string;
+  city: string;
+  status: string;
   notes: string;
 };
 
 const EMPTY: ProspectFormValues = {
-  nom: '',
-  telephone: '',
+  company_name: '',
+  contact_name: '',
+  phone: '',
   email: '',
-  ville: '',
-  statut: 'a_contacter',
+  website: '',
+  sector: '',
+  city: '',
+  status: 'prospecte',
   notes: '',
 };
 
@@ -53,8 +59,8 @@ export default function ProspectModal({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!values.nom.trim()) {
-      setError('Le nom est obligatoire.');
+    if (!values.company_name.trim()) {
+      setError("Le nom d'entreprise est obligatoire.");
       return;
     }
     setSubmitting(true);
@@ -84,21 +90,30 @@ export default function ProspectModal({
         </div>
 
         <form onSubmit={handleSubmit} className="mt-4 space-y-4">
-          <Field label="Nom *">
+          <Field label="Nom entreprise *">
             <input
               required
-              value={values.nom}
-              onChange={(e) => update('nom', e.target.value)}
+              value={values.company_name}
+              onChange={(e) => update('company_name', e.target.value)}
               className="input"
               placeholder="Ex. Dupont SARL"
+            />
+          </Field>
+
+          <Field label="Contact">
+            <input
+              value={values.contact_name}
+              onChange={(e) => update('contact_name', e.target.value)}
+              className="input"
+              placeholder="Prénom Nom du décideur"
             />
           </Field>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field label="Téléphone">
               <input
-                value={values.telephone}
-                onChange={(e) => update('telephone', e.target.value)}
+                value={values.phone}
+                onChange={(e) => update('phone', e.target.value)}
                 className="input"
                 placeholder="06 12 34 56 78"
               />
@@ -115,21 +130,40 @@ export default function ProspectModal({
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Field label="Site web">
+              <input
+                value={values.website}
+                onChange={(e) => update('website', e.target.value)}
+                className="input"
+                placeholder="https://exemple.fr"
+              />
+            </Field>
+            <Field label="Secteur">
+              <input
+                value={values.sector}
+                onChange={(e) => update('sector', e.target.value)}
+                className="input"
+                placeholder="Restaurant, coiffeur…"
+              />
+            </Field>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field label="Ville">
               <input
-                value={values.ville}
-                onChange={(e) => update('ville', e.target.value)}
+                value={values.city}
+                onChange={(e) => update('city', e.target.value)}
                 className="input"
                 placeholder="Paris"
               />
             </Field>
             <Field label="Statut">
               <select
-                value={values.statut}
-                onChange={(e) => update('statut', e.target.value as ProspectStatut)}
+                value={values.status}
+                onChange={(e) => update('status', e.target.value)}
                 className="input"
               >
-                {STATUT_OPTIONS.map((opt) => (
+                {STATUS_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
                     {opt.label}
                   </option>

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { createClient } from '@/lib/supabase-server';
 import { createAdminClient } from '@/lib/supabase-admin';
 
 export const dynamic = 'force-dynamic';
@@ -8,32 +9,17 @@ const NOTION_DB_ID =
 const NOTION_API = 'https://api.notion.com/v1';
 const NOTION_VERSION = '2022-06-28';
 
-type ProspectStatut =
-  | 'a_contacter'
-  | 'contacte'
-  | 'rdv_pris'
-  | 'devis_envoye'
-  | 'gagne'
-  | 'perdu';
+/** Statuts Notion considérés comme « morts » (rejet / archivage). */
+const NOTION_DEAD_STATUSES = new Set([
+  'Rejeté',
+  'Non pertinent',
+  'REJECT',
+  'Archivé',
+  'Archive',
+]);
 
-// Mapping statuts Notion → statuts plateforme
-const STATUS_MAP: Record<string, ProspectStatut> = {
-  Qualifié: 'a_contacter',
-  Scoré: 'a_contacter',
-  GO: 'a_contacter',
-  Contacté: 'contacte',
-  'Email envoyé': 'contacte',
-  'Email généré': 'contacte',
-  'RDV réservé': 'rdv_pris',
-  'RDV réalisé': 'rdv_pris',
-  'Transféré vente': 'devis_envoye',
-  Opportunité: 'devis_envoye',
-  Gagné: 'gagne',
-  Perdu: 'perdu',
-  'Non pertinent': 'perdu',
-  Rejeté: 'perdu',
-  REJECT: 'perdu',
-};
+/** Statuts Notion totalement ignorés (non qualifiés). */
+const NOTION_IGNORED_STATUSES = new Set(['Détecté']);
 
 type NotionProps = Record<string, unknown>;
 
@@ -104,28 +90,62 @@ async function fetchAllNotionPages(token: string): Promise<NotionPage[]> {
 }
 
 /**
- * POST /api/admin/sync-prospects
- *
- * Headers : Authorization: Bearer <ADMIN_SYNC_SECRET>
- * Body    : { user_id?: string } — si fourni, les prospects sont assignés
- *           à ce commercial (à utiliser quand l'admin dispatche le pipeline).
- *
- * Upsert idempotent sur `notion_page_id`. Ne touche ni aux notes ni au
- * statut des prospects créés manuellement par le commercial (ils n'ont
- * pas de notion_page_id).
+ * Authentification :
+ *   - `Authorization: Bearer <ADMIN_SYNC_SECRET>` (orchestrateur, curl)
+ *   - OU session Supabase avec un user ayant `users.role = 'admin'`
+ *     (bouton Sync dans /admin)
  */
-export async function POST(req: Request) {
+async function authenticate(req: Request): Promise<
+  | { ok: true }
+  | { ok: false; status: number; message: string }
+> {
   const adminSecret = process.env.ADMIN_SYNC_SECRET;
-  if (!adminSecret) {
-    return NextResponse.json(
-      { error: 'ADMIN_SYNC_SECRET not configured on the server.' },
-      { status: 500 }
-    );
+  if (adminSecret) {
+    const authHeader = req.headers.get('authorization') ?? '';
+    if (authHeader === `Bearer ${adminSecret}`) return { ok: true };
   }
 
-  const authHeader = req.headers.get('authorization') ?? '';
-  if (authHeader !== `Bearer ${adminSecret}`) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (user) {
+      const { data: me } = await supabase
+        .from('users')
+        .select('role')
+        .eq('id', user.id)
+        .maybeSingle();
+      if (me?.role === 'admin') return { ok: true };
+    }
+  } catch {
+    // Continue en 401
+  }
+
+  return { ok: false, status: 401, message: 'Unauthorized' };
+}
+
+/**
+ * POST /api/admin/sync-prospects
+ *
+ * Sync bidirectionnelle Notion → Supabase.
+ *
+ * Comportement :
+ *   - Lignes Notion qualifiées (statut ≠ "Détecté" + ≠ morts) :
+ *       - existantes en DB → UPDATE (préserve notes manuelles, assigned_to,
+ *         status saisi à la main, created_by)
+ *       - nouvelles en DB → INSERT (nécessite body.user_id pour created_by)
+ *   - Lignes Notion mortes (Rejeté, Non pertinent, Archivé) ou pages
+ *     supprimées de Notion mais présentes en DB → UPDATE status='archived'.
+ *   - Prospects créés à la main dans /prospects (notion_page_id IS NULL)
+ *     ne sont jamais touchés.
+ *
+ * Body : { user_id?: string } — UUID du commercial cible pour les INSERT.
+ */
+export async function POST(req: Request) {
+  const auth = await authenticate(req);
+  if (!auth.ok) {
+    return NextResponse.json({ error: auth.message }, { status: auth.status });
   }
 
   const notionToken = process.env.NOTION_API_KEY;
@@ -157,13 +177,51 @@ export async function POST(req: Request) {
   const admin = createAdminClient();
   const syncedAt = new Date().toISOString();
 
+  // -------- Récupère l'état actuel côté DB pour calculer la diff --------
+  const { data: dbRowsRaw, error: dbQueryErr } = await admin
+    .from('prospects')
+    .select('id, notion_page_id, status')
+    .not('notion_page_id', 'is', null);
+
+  if (dbQueryErr) {
+    return NextResponse.json(
+      { error: `Failed to read existing prospects: ${dbQueryErr.message}` },
+      { status: 500 }
+    );
+  }
+
+  const dbByNotionId = new Map<string, { id: string; status: string }>();
+  for (const row of dbRowsRaw ?? []) {
+    if (!row.notion_page_id) continue;
+    dbByNotionId.set(row.notion_page_id, { id: row.id, status: row.status });
+  }
+
+  // Page IDs vus côté Notion à ce run
+  const seenNotionIds = new Set<string>();
+  const deadFromNotion = new Set<string>(); // à archiver
+
   let inserted = 0;
   let updated = 0;
+  let archived = 0;
   let skipped = 0;
   const errors: { page_id: string; error: string }[] = [];
 
+  // -------- Pass 1 : upserts & collecte des dead --------
   for (const page of pages) {
+    seenNotionIds.add(page.id);
     const props = page.properties;
+
+    const statutRaw = selectName(props['statut']);
+
+    if (!statutRaw || NOTION_IGNORED_STATUSES.has(statutRaw)) {
+      skipped++;
+      continue;
+    }
+
+    if (NOTION_DEAD_STATUSES.has(statutRaw)) {
+      deadFromNotion.add(page.id);
+      continue;
+    }
 
     const nomEntreprise = title(props['nom_entreprise']);
     const nomContact = richText(props['nom_contact']);
@@ -175,21 +233,12 @@ export async function POST(req: Request) {
       phoneField(props['telephone_direct']) ||
       phoneField(props['telephone_generique']);
     const adresse = richText(props['adresse']);
-    const statutRaw = selectName(props['statut']);
     const secteur = selectName(props['secteur_activite']);
     const siteWeb = urlField(props['site_web']);
     const classification = selectName(props['classification']);
     const recommandation = richText(props['recommandation_approche']);
     const besoins = multiSelectNames(props['besoins_detectes']).join(', ');
 
-    // On ne sync pas les prospects non qualifiés (Notion statut "Détecté"
-    // ou vide) — ils ne sont pas prêts pour le terrain.
-    if (!statutRaw || statutRaw === 'Détecté') {
-      skipped++;
-      continue;
-    }
-
-    // Schéma prod : company_name NOT NULL → on garantit une valeur.
     const companyName = nomEntreprise || `${prenomContact} ${nomContact}`.trim();
     if (!companyName) {
       skipped++;
@@ -197,12 +246,6 @@ export async function POST(req: Request) {
     }
     const contactName = `${prenomContact} ${nomContact}`.trim() || null;
 
-    // Payload aligné sur le schéma EN réel de la prod :
-    // company_name (NN), contact_name, email, phone, city, sector, website, notes,
-    // notion_page_id, synced_at. `status` est volontairement omis pour laisser
-    // Postgres appliquer la DEFAULT 'prospecte' sur INSERT et ne pas écraser
-    // le statut saisi par un humain sur UPDATE (on ne connaît pas l'univers
-    // des valeurs du CHECK prod côté Notion → mapping dangereux ici).
     const payload: Record<string, unknown> = {
       notion_page_id: page.id,
       company_name: companyName,
@@ -222,19 +265,7 @@ export async function POST(req: Request) {
       synced_at: syncedAt,
     };
 
-    // Sur INSERT uniquement on fixe created_by (NOT NULL) et assigned_to.
-    // En UPDATE on ne touche pas à ces deux colonnes — l'assignation reste
-    // la propriété de l'admin et ne doit pas être réécrite par la sync.
-    const { data: existing, error: lookupErr } = await admin
-      .from('prospects')
-      .select('id')
-      .eq('notion_page_id', page.id)
-      .maybeSingle();
-
-    if (lookupErr) {
-      errors.push({ page_id: page.id, error: lookupErr.message });
-      continue;
-    }
+    const existing = dbByNotionId.get(page.id);
 
     if (existing) {
       const { error: updateErr } = await admin
@@ -266,10 +297,37 @@ export async function POST(req: Request) {
     }
   }
 
+  // -------- Pass 2 : archivage --------
+  // 1) Lignes DB dont le notion_page_id n'a PAS été vu ce run.
+  // 2) Lignes DB dont la page Notion est en statut "mort".
+  const toArchiveIds = new Set<string>();
+  for (const [notionId, row] of dbByNotionId.entries()) {
+    if (row.status === 'archived') continue; // déjà archivé
+    if (!seenNotionIds.has(notionId)) toArchiveIds.add(row.id);
+    else if (deadFromNotion.has(notionId)) toArchiveIds.add(row.id);
+  }
+
+  if (toArchiveIds.size > 0) {
+    const ids = [...toArchiveIds];
+    const { error: archiveErr } = await admin
+      .from('prospects')
+      .update({ status: 'archived', synced_at: syncedAt })
+      .in('id', ids);
+    if (archiveErr) {
+      errors.push({
+        page_id: `archive:${ids.length}`,
+        error: archiveErr.message,
+      });
+    } else {
+      archived = ids.length;
+    }
+  }
+
   return NextResponse.json({
     total: pages.length,
     inserted,
     updated,
+    archived,
     skipped,
     errors,
   });
