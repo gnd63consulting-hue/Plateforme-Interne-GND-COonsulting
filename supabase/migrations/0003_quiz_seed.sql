@@ -17,7 +17,7 @@
 --   Total : 72 questions
 -- =============================================
 
--- TODO Scaary : coller ici les 72 INSERT issus du brief, en respectant
+-- TODO : coller ici les 72 INSERT issus du brief Quiz Natif v1, en respectant
 -- les module_slug ci-dessus. Voir 0002_quiz_native_v1.sql pour le schéma
 -- de la table public.quiz_questions.
 --
