@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { MDXRemote } from 'next-mdx-remote/rsc';
 import remarkGfm from 'remark-gfm';
+import { DriveVideoPlayer } from '@/components/DriveVideoPlayer';
 import { loadModuleContent } from '@/lib/modules-registry';
 import { createClient } from '@/lib/supabase-server';
 
@@ -12,6 +13,15 @@ const mdxOptions = {
     remarkPlugins: [remarkGfm],
   },
 };
+
+const VIDEO_MAP: Record<string, string> = {
+  'module-01': '1UN2vudbmgUlmF1bEf8MBa5vSbOFL84Gc',
+};
+
+function getVideoFileId(slug: string): string | undefined {
+  const prefix = slug.split('-').slice(0, 2).join('-');
+  return VIDEO_MAP[prefix];
+}
 
 export default async function ModulePage({
   params,
@@ -43,6 +53,7 @@ export default async function ModulePage({
 
   const isValidated = Boolean(progression?.completed);
   const orderLabel = String(loaded.meta.order).padStart(2, '0');
+  const videoFileId = getVideoFileId(slug);
 
   return (
     <article className="mx-auto max-w-3xl">
@@ -117,6 +128,14 @@ export default async function ModulePage({
             </Link>
           </div>
         </section>
+      )}
+
+      {/* Video player (if available for this module) */}
+      {videoFileId && (
+        <DriveVideoPlayer
+          fileId={videoFileId}
+          title={`Module ${orderLabel} : ${loaded.meta.title}`}
+        />
       )}
 
       {/* Reading canvas */}
