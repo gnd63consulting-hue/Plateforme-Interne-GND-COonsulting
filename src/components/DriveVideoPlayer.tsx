@@ -22,6 +22,19 @@ export function DriveVideoPlayer({ fileId, title = 'Vidéo du module' }: DriveVi
           title={title}
           loading="lazy"
         />
+        <div
+          aria-hidden
+          style={{
+            position: 'absolute',
+            top: 0,
+            right: 0,
+            width: 72,
+            height: 72,
+            background: '#000',
+            pointerEvents: 'auto',
+            zIndex: 2,
+          }}
+        />
       </div>
     </div>
   );
