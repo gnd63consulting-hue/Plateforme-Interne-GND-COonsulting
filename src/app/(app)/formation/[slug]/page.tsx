@@ -21,6 +21,7 @@ const VIDEO_MAP: Record<string, string> = {
   'module-04': '1vSBl6HQJDYkp3NUVVPkT5vK5_sFuiZiA',
   'module-05': '1XLujU9JeBMsBQSfaTOiGGExOkB-35H70',
   'module-06': '1KupM7Mi4sfYgatxlHlH6D1lXA23pSbhw',
+  'module-07': '1wdN4Ff52GAekhLzsrSvPX2985ZqYGVdZ',
 };
 
 function getVideoFileId(slug: string): string | undefined {
