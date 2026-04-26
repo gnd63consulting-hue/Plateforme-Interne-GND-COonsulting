@@ -37,6 +37,21 @@ export default function ProspectTable({
     return prospects.filter((p) => p.status === filter);
   }, [prospects, filter]);
 
+  /** Fire-and-forget : after a successful Supabase status update, push the
+   *  equivalent Notion statut back so the source DB stays in sync with field
+   *  reality. Errors are logged but never block the UI. */
+  function pushStatusToNotion(prospectId: string) {
+    fetch(`/api/prospects/${prospectId}/sync-status-to-notion`, {
+      method: 'POST',
+    }).catch((err) => {
+      // eslint-disable-next-line no-console
+      console.error(
+        `[sync-status-to-notion] failed for prospect ${prospectId}:`,
+        err
+      );
+    });
+  }
+
   async function handleCreate(values: ProspectFormValues) {
     setError(null);
     const payload = {
@@ -91,9 +106,14 @@ export default function ProspectTable({
       throw error;
     }
     if (data) {
+      const updated = data as Prospect;
       setProspects((prev) =>
-        prev.map((p) => (p.id === editing.id ? (data as Prospect) : p))
+        prev.map((p) => (p.id === editing.id ? updated : p))
       );
+      // Si le statut a été modifié dans la modal d'édition, propager à Notion
+      if (values.status !== editing.status && updated.notion_page_id) {
+        pushStatusToNotion(updated.id);
+      }
     }
   }
 
@@ -111,9 +131,15 @@ export default function ProspectTable({
       return;
     }
     if (data) {
+      const updated = data as Prospect;
       setProspects((prev) =>
-        prev.map((p) => (p.id === prospect.id ? (data as Prospect) : p))
+        prev.map((p) => (p.id === prospect.id ? updated : p))
       );
+      // Propage le nouveau statut vers Notion (fire-and-forget — la modale
+      // commerciale ne bloque pas si Notion répond lentement / échoue).
+      if (updated.notion_page_id) {
+        pushStatusToNotion(updated.id);
+      }
     }
   }
 
