@@ -60,7 +60,9 @@ export default async function AdminPage() {
 
   const users = (usersRaw ?? []) as AdminUser[];
   const progressions = (progressionsRaw ?? []) as AdminProgression[];
-  const prospects = (prospectsRaw ?? []) as Prospect[];
+  // PostgREST loses inference with a dynamic select string; runtime shape
+  // matches Prospect by construction (PROSPECT_SELECT_COLUMNS).
+  const prospects = (prospectsRaw ?? []) as unknown as Prospect[];
 
   // -------- Agrégats formation --------
   const completedByUser = new Map<string, Set<string>>();
