@@ -50,6 +50,10 @@ function multiSelectNames(prop: unknown): string[] {
     (prop as { multi_select?: { name?: string }[] })?.multi_select ?? [];
   return arr.map((o) => o.name ?? '').filter(Boolean);
 }
+function numberField(prop: unknown): number | null {
+  const n = (prop as { number?: number | null })?.number;
+  return typeof n === 'number' ? n : null;
+}
 
 type NotionPage = { id: string; properties: NotionProps };
 
@@ -134,8 +138,9 @@ async function authenticate(req: Request): Promise<
  *
  * Comportement :
  *   - Lignes Notion qualifiées (statut ≠ "Détecté" + ≠ morts) :
- *       - existantes en DB → UPDATE des champs synchronisés (préserve les
- *         notes manuelles, assigned_to, status saisi à la main, created_by)
+ *       - existantes en DB → UPDATE (préserve notes manuelles, assigned_to,
+ *         status saisi à la main, created_by). Resynchronise tous les autres
+ *         champs d'enrichissement Notion.
  *       - nouvelles en DB → INSERT (nécessite targetUserId pour created_by)
  *   - Lignes Notion mortes (Rejeté, Non pertinent, REJECT, Archivé, Archive,
  *     NURTURE) ou pages absentes de la query Notion mais présentes en DB
@@ -215,21 +220,46 @@ async function runSync(targetUserId?: string) {
       continue;
     }
 
+    // ---- Champs fondamentaux ----
     const nomEntreprise = title(props['nom_entreprise']);
     const nomContact = richText(props['nom_contact']);
     const prenomContact = richText(props['prenom_contact']);
-    const email =
-      emailField(props['email_decisionnaire']) ||
-      emailField(props['email_generique']);
-    const telephone =
-      phoneField(props['telephone_direct']) ||
-      phoneField(props['telephone_generique']);
+    const roleContact = selectName(props['role_contact']);
+    const emailDecisionnaire = emailField(props['email_decisionnaire']);
+    const emailGenerique = emailField(props['email_generique']);
+    const email = emailDecisionnaire || emailGenerique;
+    const telephoneDirect = phoneField(props['telephone_direct']);
+    const telephoneGenerique = phoneField(props['telephone_generique']);
+    const telephone = telephoneDirect || telephoneGenerique;
     const adresse = richText(props['adresse']);
     const secteur = selectName(props['secteur_activite']);
     const siteWeb = urlField(props['site_web']);
+
+    // ---- Social ----
+    const instagram = urlField(props['instagram']);
+    const facebook = urlField(props['facebook']);
+    const linkedinContact = urlField(props['linkedin_contact']);
+    const linkedinEntreprise = urlField(props['linkedin_entreprise']);
+    const tiktok = urlField(props['tiktok']);
+
+    // ---- Analyses long ----
+    const analyseBesoin = richText(props['analyse_besoin']);
+    const analyseBudget = richText(props['analyse_budget']);
+    const analyseTiming = richText(props['analyse_timing']);
+    const recommandationApproche = richText(props['recommandation_approche']);
+
+    // ---- Multi-select ----
+    const argumentsCles = multiSelectNames(props['arguments_cles']);
+    const besoinsDetectes = multiSelectNames(props['besoins_detectes']);
+
+    // ---- Qualif metadata ----
+    const caEstime = selectName(props['ca_estime']);
     const classification = selectName(props['classification']);
-    const recommandation = richText(props['recommandation_approche']);
-    const besoins = multiSelectNames(props['besoins_detectes']).join(', ');
+    const branche = selectName(props['branche']);
+    const noteGoogle = numberField(props['note_google']);
+    const nombreAvis = numberField(props['nombre_avis']);
+    const tailleEntreprise = selectName(props['taille_entreprise']);
+    const nombreEmployes = numberField(props['nombre_employes']);
 
     const companyName = nomEntreprise || `${prenomContact} ${nomContact}`.trim();
     if (!companyName) {
@@ -238,27 +268,56 @@ async function runSync(targetUserId?: string) {
     }
     const contactName = `${prenomContact} ${nomContact}`.trim() || null;
 
-    // Champs synchronisés à chaque run (UPDATE et INSERT)
+    // Champs synchronisés à chaque run (UPDATE et INSERT). Notion = source de
+    // vérité pour ces champs ; les éditions y sont propagées au sync suivant.
     const baseFields: Record<string, unknown> = {
       notion_page_id: page.id,
       company_name: companyName,
       contact_name: contactName,
+      prenom_contact: prenomContact || null,
+      role_contact: roleContact || null,
       email: email || null,
       phone: telephone || null,
       city: adresse || null,
+      address: adresse || null,
       sector: secteur || null,
       website: siteWeb || null,
+      instagram: instagram || null,
+      facebook: facebook || null,
+      linkedin_contact: linkedinContact || null,
+      linkedin_entreprise: linkedinEntreprise || null,
+      tiktok: tiktok || null,
+      analyse_besoin: analyseBesoin || null,
+      analyse_budget: analyseBudget || null,
+      analyse_timing: analyseTiming || null,
+      recommandation_approche: recommandationApproche || null,
+      arguments_cles: argumentsCles.length ? argumentsCles : null,
+      besoins_detectes: besoinsDetectes.length ? besoinsDetectes : null,
+      ca_estime: caEstime || null,
+      classification: classification || null,
+      branche: branche || null,
+      note_google: noteGoogle,
+      nombre_avis: nombreAvis,
+      taille_entreprise: tailleEntreprise || null,
+      nombre_employes: nombreEmployes,
       synced_at: syncedAt,
     };
 
-    // Notes générées depuis Notion. Utilisées UNIQUEMENT à l'INSERT pour
-    // ne pas écraser ce que les commerciaux ont écrit après dans la
-    // plateforme. Les UPDATE conservent intactes les notes existantes.
+    // Notes générées depuis Notion (legacy concat). Utilisées UNIQUEMENT à
+    // l'INSERT pour ne pas écraser ce que les commerciaux ont écrit après dans
+    // la plateforme. Les UPDATE conservent intactes les notes existantes.
+    // Les détails analytiques sont désormais stockés dans leurs propres
+    // colonnes — ce concat reste à titre informatif pour les commerciaux qui
+    // utilisent uniquement le panneau "Notes" historique.
     const notionDerivedNotes =
       [
-        recommandation ? `Recommandation : ${recommandation}` : null,
+        recommandationApproche
+          ? `Recommandation : ${recommandationApproche}`
+          : null,
         classification ? `Classification : ${classification}` : null,
-        besoins ? `Besoins détectés : ${besoins}` : null,
+        besoinsDetectes.length
+          ? `Besoins détectés : ${besoinsDetectes.join(', ')}`
+          : null,
       ]
         .filter(Boolean)
         .join('\n\n') || null;
@@ -266,7 +325,8 @@ async function runSync(targetUserId?: string) {
     const existing = dbByNotionId.get(page.id);
 
     if (existing) {
-      // UPDATE : on ne touche jamais à `notes` (préserve la saisie commerciale)
+      // UPDATE : on ne touche jamais à `notes` (préserve la saisie commerciale).
+      // Les autres champs d'enrichissement sont resynchronisés.
       const { error: updateErr } = await admin
         .from('prospects')
         .update(baseFields)

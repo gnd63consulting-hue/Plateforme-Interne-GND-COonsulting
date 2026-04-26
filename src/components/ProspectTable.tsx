@@ -10,6 +10,7 @@ import {
   type Prospect,
 } from '@/lib/prospects';
 import ProspectModal, { type ProspectFormValues } from './ProspectModal';
+import ProspectDetailsModal from './ProspectDetailsModal';
 
 type ProspectTableProps = {
   initialProspects: Prospect[];
@@ -24,6 +25,7 @@ export default function ProspectTable({
   const [filter, setFilter] = useState<string>('all');
   const [createOpen, setCreateOpen] = useState(false);
   const [editing, setEditing] = useState<Prospect | null>(null);
+  const [viewing, setViewing] = useState<Prospect | null>(null);
   const [notesFor, setNotesFor] = useState<Prospect | null>(null);
   const [notesDraft, setNotesDraft] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -152,6 +154,28 @@ export default function ProspectTable({
     setNotesFor(null);
   }
 
+  /** Un prospect issu de Notion possède au moins un champ analytique enrichi
+   *  (analyse_*, recommandation_approche, arguments_cles, besoins_detectes…).
+   *  On utilise ça pour décider d'afficher l'icône "Voir analyse". */
+  function hasEnrichment(p: Prospect): boolean {
+    return Boolean(
+      p.analyse_besoin ||
+        p.analyse_budget ||
+        p.analyse_timing ||
+        p.recommandation_approche ||
+        (p.arguments_cles && p.arguments_cles.length > 0) ||
+        (p.besoins_detectes && p.besoins_detectes.length > 0) ||
+        p.instagram ||
+        p.facebook ||
+        p.linkedin_contact ||
+        p.linkedin_entreprise ||
+        p.tiktok ||
+        p.ca_estime ||
+        p.classification ||
+        p.role_contact
+    );
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -226,7 +250,12 @@ export default function ProspectTable({
                     </div>
                   </td>
                   <td className="px-4 py-3 text-slate-600">
-                    {p.contact_name ?? '—'}
+                    <div>{p.contact_name ?? '—'}</div>
+                    {p.role_contact && (
+                      <div className="text-xs text-gnd-muted">
+                        {p.role_contact}
+                      </div>
+                    )}
                   </td>
                   <td className="px-4 py-3 text-slate-600">
                     {p.phone ? (
@@ -295,6 +324,16 @@ export default function ProspectTable({
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex justify-end gap-1">
+                      {hasEnrichment(p) && (
+                        <button
+                          onClick={() => setViewing(p)}
+                          className="rounded p-1 text-blue-600 hover:bg-blue-50"
+                          aria-label="Voir l'analyse complète"
+                          title="Voir l'analyse complète (gérant, social, recommandation, arguments…)"
+                        >
+                          🔍
+                        </button>
+                      )}
                       <button
                         onClick={() => setEditing(p)}
                         className="rounded p-1 text-gnd-muted hover:bg-slate-100 hover:text-gnd-primary"
@@ -349,6 +388,11 @@ export default function ProspectTable({
         }
         title={editing ? `Modifier : ${editing.company_name}` : 'Modifier'}
         submitLabel="Enregistrer"
+      />
+
+      <ProspectDetailsModal
+        prospect={viewing}
+        onClose={() => setViewing(null)}
       />
 
       {notesFor && (

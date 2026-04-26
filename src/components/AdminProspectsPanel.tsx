@@ -8,6 +8,7 @@ import {
   toneForStatus,
   type Prospect,
 } from '@/lib/prospects';
+import ProspectDetailsModal from './ProspectDetailsModal';
 
 type User = { id: string; label: string };
 
@@ -20,10 +21,14 @@ type Props = {
  * Vue admin : pipeline global avec colonne "Assigné à" + filtre par
  * commercial et par statut. Lecture seule — les modifs passent par
  * /prospects (commercial) ou Supabase Studio (admin).
+ *
+ * Le bouton 🔍 ouvre ProspectDetailsModal pour voir l'enrichissement
+ * Notion complet (gérant, social, analyses, recommandation, arguments).
  */
 export default function AdminProspectsPanel({ prospects, users }: Props) {
   const [assigneeFilter, setAssigneeFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [viewing, setViewing] = useState<Prospect | null>(null);
 
   const userLabel = useMemo(() => {
     const map = new Map(users.map((u) => [u.id, u.label]));
@@ -94,13 +99,14 @@ export default function AdminProspectsPanel({ prospects, users }: Props) {
               <th className="px-4 py-3 text-left">Statut</th>
               <th className="px-4 py-3 text-left">Source</th>
               <th className="px-4 py-3 text-left">MAJ</th>
+              <th className="px-4 py-3 text-right">Détails</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
             {filtered.length === 0 && (
               <tr>
                 <td
-                  colSpan={10}
+                  colSpan={11}
                   className="px-4 py-10 text-center text-gnd-muted"
                 >
                   Aucun prospect ne matche les filtres.
@@ -113,13 +119,47 @@ export default function AdminProspectsPanel({ prospects, users }: Props) {
                   {userLabel(p.assigned_to)}
                 </td>
                 <td className="px-4 py-3 font-medium text-gnd-primary">
-                  {p.company_name}
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <span>{p.company_name}</span>
+                    {p.classification && (
+                      <span className="inline-flex items-center rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-800">
+                        {p.classification}
+                      </span>
+                    )}
+                  </div>
                 </td>
                 <td className="px-4 py-3 text-slate-600">
-                  {p.contact_name ?? '—'}
+                  <div>{p.contact_name ?? '—'}</div>
+                  {p.role_contact && (
+                    <div className="text-xs text-gnd-muted">
+                      {p.role_contact}
+                    </div>
+                  )}
                 </td>
-                <td className="px-4 py-3 text-slate-600">{p.phone ?? '—'}</td>
-                <td className="px-4 py-3 text-slate-600">{p.email ?? '—'}</td>
+                <td className="px-4 py-3 text-slate-600">
+                  {p.phone ? (
+                    <a
+                      href={`tel:${p.phone}`}
+                      className="text-gnd-primary hover:underline"
+                    >
+                      {p.phone}
+                    </a>
+                  ) : (
+                    '—'
+                  )}
+                </td>
+                <td className="px-4 py-3 text-slate-600">
+                  {p.email ? (
+                    <a
+                      href={`mailto:${p.email}`}
+                      className="text-gnd-primary hover:underline"
+                    >
+                      {p.email}
+                    </a>
+                  ) : (
+                    '—'
+                  )}
+                </td>
                 <td className="px-4 py-3 text-slate-600">{p.city ?? '—'}</td>
                 <td className="px-4 py-3 text-slate-600">
                   {p.sector ?? '—'}
@@ -139,11 +179,26 @@ export default function AdminProspectsPanel({ prospects, users }: Props) {
                 <td className="px-4 py-3 text-gnd-muted">
                   {formatDate(p.updated_at)}
                 </td>
+                <td className="px-4 py-3 text-right">
+                  <button
+                    onClick={() => setViewing(p)}
+                    className="rounded p-1 text-blue-600 hover:bg-blue-50"
+                    aria-label={`Voir l'analyse complète de ${p.company_name}`}
+                    title="Voir l'analyse complète"
+                  >
+                    🔍
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      <ProspectDetailsModal
+        prospect={viewing}
+        onClose={() => setViewing(null)}
+      />
     </div>
   );
 }

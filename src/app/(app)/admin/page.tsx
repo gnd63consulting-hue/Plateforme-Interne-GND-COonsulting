@@ -5,6 +5,7 @@ import {
   formatDate,
   labelForStatus,
   toneForStatus,
+  PROSPECT_SELECT_COLUMNS,
   type Prospect,
 } from '@/lib/prospects';
 import AdminSyncButton from '@/components/AdminSyncButton';
@@ -53,15 +54,15 @@ export default async function AdminPage() {
         .select('user_id, module_slug, completed, completed_at'),
       supabase
         .from('prospects')
-        .select(
-          'id, created_by, assigned_to, company_name, contact_name, email, phone, website, sector, city, postal_code, status, notes, next_action_at, notion_page_id, synced_at, created_at, updated_at'
-        )
+        .select(PROSPECT_SELECT_COLUMNS)
         .order('updated_at', { ascending: false }),
     ]);
 
   const users = (usersRaw ?? []) as AdminUser[];
   const progressions = (progressionsRaw ?? []) as AdminProgression[];
-  const prospects = (prospectsRaw ?? []) as Prospect[];
+  // PostgREST loses inference with a dynamic select string; runtime shape
+  // matches Prospect by construction (PROSPECT_SELECT_COLUMNS).
+  const prospects = (prospectsRaw ?? []) as unknown as Prospect[];
 
   // -------- Agrégats formation --------
   const completedByUser = new Map<string, Set<string>>();
@@ -350,4 +351,3 @@ function StatCard({ label, value }: { label: string; value: number }) {
     </div>
   );
 }
-
