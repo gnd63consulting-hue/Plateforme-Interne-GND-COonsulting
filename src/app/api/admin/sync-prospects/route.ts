@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase-server';
 import { createAdminClient } from '@/lib/supabase-admin';
+import { notionStatusToSupabaseStatus } from '@/lib/status-mapping';
 
 export const dynamic = 'force-dynamic';
 
@@ -138,10 +139,11 @@ async function authenticate(req: Request): Promise<
  *
  * Comportement :
  *   - Lignes Notion qualifiées (statut ≠ "Détecté" + ≠ morts) :
- *       - existantes en DB → UPDATE (préserve notes manuelles, assigned_to,
- *         status saisi à la main, created_by). Resynchronise tous les autres
+ *       - existantes en DB → UPDATE (préserve notes manuelles, status saisi
+ *         à la main, assigned_to, created_by). Resynchronise tous les autres
  *         champs d'enrichissement Notion.
- *       - nouvelles en DB → INSERT (nécessite targetUserId pour created_by)
+ *       - nouvelles en DB → INSERT (nécessite targetUserId pour created_by ;
+ *         status initial calculé depuis Notion via notionStatusToSupabase()).
  *   - Lignes Notion mortes (Rejeté, Non pertinent, REJECT, Archivé, Archive,
  *     NURTURE) ou pages absentes de la query Notion mais présentes en DB
  *     (= déplacées hors database / supprimées) → DELETE physique.
@@ -270,6 +272,8 @@ async function runSync(targetUserId?: string) {
 
     // Champs synchronisés à chaque run (UPDATE et INSERT). Notion = source de
     // vérité pour ces champs ; les éditions y sont propagées au sync suivant.
+    // NOTE: `status` n'est PAS dans ce payload car il est préservé à l'UPDATE
+    // (commercial saisit) et ajouté uniquement à l'INSERT initial ci-dessous.
     const baseFields: Record<string, unknown> = {
       notion_page_id: page.id,
       company_name: companyName,
@@ -322,11 +326,19 @@ async function runSync(targetUserId?: string) {
         .filter(Boolean)
         .join('\n\n') || null;
 
+    // Statut initial calculé depuis Notion. Utilisé UNIQUEMENT à l'INSERT —
+    // l'UPDATE préserve toujours le status saisi par le commercial sur la
+    // plateforme (qui lui-même est propagé vers Notion via /api/prospects/[id]
+    // /sync-status-to-notion).
+    const initialStatus =
+      notionStatusToSupabaseStatus(statutRaw) ?? 'a_contacter';
+
     const existing = dbByNotionId.get(page.id);
 
     if (existing) {
-      // UPDATE : on ne touche jamais à `notes` (préserve la saisie commerciale).
-      // Les autres champs d'enrichissement sont resynchronisés.
+      // UPDATE : on ne touche jamais à `notes` ni à `status` (préserve la
+      // saisie commerciale). Les autres champs d'enrichissement sont
+      // resynchronisés.
       const { error: updateErr } = await admin
         .from('prospects')
         .update(baseFields)
@@ -346,6 +358,7 @@ async function runSync(targetUserId?: string) {
       const { error: insertErr } = await admin.from('prospects').insert({
         ...baseFields,
         notes: notionDerivedNotes,
+        status: initialStatus,
         created_by: targetUserId,
         assigned_to: targetUserId,
       });
