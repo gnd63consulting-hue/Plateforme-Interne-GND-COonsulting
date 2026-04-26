@@ -16,6 +16,7 @@ const NOTION_DEAD_STATUSES = new Set([
   'REJECT',
   'Archivé',
   'Archive',
+  'NURTURE',
 ]);
 
 /** Statuts Notion totalement ignorés (non qualifiés). */
@@ -91,7 +92,8 @@ async function fetchAllNotionPages(token: string): Promise<NotionPage[]> {
 
 /**
  * Authentification :
- *   - `Authorization: Bearer <ADMIN_SYNC_SECRET>` (orchestrateur, curl)
+ *   - `Authorization: Bearer <ADMIN_SYNC_SECRET>` (orchestrateur, curl manuel)
+ *   - `Authorization: Bearer <CRON_SECRET>` (Vercel Cron — auto-set)
  *   - OU session Supabase avec un user ayant `users.role = 'admin'`
  *     (bouton Sync dans /admin)
  */
@@ -99,11 +101,13 @@ async function authenticate(req: Request): Promise<
   | { ok: true }
   | { ok: false; status: number; message: string }
 > {
+  const authHeader = req.headers.get('authorization') ?? '';
+
   const adminSecret = process.env.ADMIN_SYNC_SECRET;
-  if (adminSecret) {
-    const authHeader = req.headers.get('authorization') ?? '';
-    if (authHeader === `Bearer ${adminSecret}`) return { ok: true };
-  }
+  if (adminSecret && authHeader === `Bearer ${adminSecret}`) return { ok: true };
+
+  const cronSecret = process.env.CRON_SECRET;
+  if (cronSecret && authHeader === `Bearer ${cronSecret}`) return { ok: true };
 
   try {
     const supabase = await createClient();
@@ -126,52 +130,40 @@ async function authenticate(req: Request): Promise<
 }
 
 /**
- * POST /api/admin/sync-prospects
- *
- * Sync bidirectionnelle Notion → Supabase.
+ * Logique partagée entre POST (manuel ou orchestrateur) et GET (cron Vercel).
  *
  * Comportement :
  *   - Lignes Notion qualifiées (statut ≠ "Détecté" + ≠ morts) :
- *       - existantes en DB → UPDATE (préserve notes manuelles, assigned_to,
- *         status saisi à la main, created_by)
- *       - nouvelles en DB → INSERT (nécessite body.user_id pour created_by)
- *   - Lignes Notion mortes (Rejeté, Non pertinent, Archivé) ou pages
- *     supprimées de Notion mais présentes en DB → UPDATE status='archived'.
+ *       - existantes en DB → UPDATE des champs synchronisés (préserve les
+ *         notes manuelles, assigned_to, status saisi à la main, created_by)
+ *       - nouvelles en DB → INSERT (nécessite targetUserId pour created_by)
+ *   - Lignes Notion mortes (Rejeté, Non pertinent, REJECT, Archivé, Archive,
+ *     NURTURE) ou pages absentes de la query Notion mais présentes en DB
+ *     (= déplacées hors database / supprimées) → DELETE physique.
  *   - Prospects créés à la main dans /prospects (notion_page_id IS NULL)
- *     ne sont jamais touchés.
+ *     ne sont jamais touchés (ni update, ni delete).
  *
- * Body : { user_id?: string } — UUID du commercial cible pour les INSERT.
+ * @param targetUserId UUID du commercial cible pour les INSERT (optionnel).
+ *                    Si non fourni, les nouveaux prospects sont skipped et
+ *                    seront onboardés au prochain clic manuel admin.
  */
-export async function POST(req: Request) {
-  const auth = await authenticate(req);
-  if (!auth.ok) {
-    return NextResponse.json({ error: auth.message }, { status: auth.status });
-  }
-
+async function runSync(targetUserId?: string) {
   const notionToken = process.env.NOTION_API_KEY;
   if (!notionToken) {
-    return NextResponse.json(
-      { error: 'NOTION_API_KEY not configured.' },
-      { status: 500 }
-    );
+    return {
+      error: 'NOTION_API_KEY not configured.',
+      status: 500 as const,
+    };
   }
-
-  let body: { user_id?: string } = {};
-  try {
-    body = (await req.json()) as { user_id?: string };
-  } catch {
-    // body vide toléré
-  }
-  const targetUserId = body.user_id;
 
   let pages: NotionPage[];
   try {
     pages = await fetchAllNotionPages(notionToken);
   } catch (err) {
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : 'Notion query failed' },
-      { status: 502 }
-    );
+    return {
+      error: err instanceof Error ? err.message : 'Notion query failed',
+      status: 502 as const,
+    };
   }
 
   const admin = createAdminClient();
@@ -184,10 +176,10 @@ export async function POST(req: Request) {
     .not('notion_page_id', 'is', null);
 
   if (dbQueryErr) {
-    return NextResponse.json(
-      { error: `Failed to read existing prospects: ${dbQueryErr.message}` },
-      { status: 500 }
-    );
+    return {
+      error: `Failed to read existing prospects: ${dbQueryErr.message}`,
+      status: 500 as const,
+    };
   }
 
   const dbByNotionId = new Map<string, { id: string; status: string }>();
@@ -198,11 +190,11 @@ export async function POST(req: Request) {
 
   // Page IDs vus côté Notion à ce run
   const seenNotionIds = new Set<string>();
-  const deadFromNotion = new Set<string>(); // à archiver
+  const deadFromNotion = new Set<string>(); // à supprimer
 
   let inserted = 0;
   let updated = 0;
-  let archived = 0;
+  let deleted = 0;
   let skipped = 0;
   const errors: { page_id: string; error: string }[] = [];
 
@@ -246,7 +238,8 @@ export async function POST(req: Request) {
     }
     const contactName = `${prenomContact} ${nomContact}`.trim() || null;
 
-    const payload: Record<string, unknown> = {
+    // Champs synchronisés à chaque run (UPDATE et INSERT)
+    const baseFields: Record<string, unknown> = {
       notion_page_id: page.id,
       company_name: companyName,
       contact_name: contactName,
@@ -255,22 +248,28 @@ export async function POST(req: Request) {
       city: adresse || null,
       sector: secteur || null,
       website: siteWeb || null,
-      notes: [
+      synced_at: syncedAt,
+    };
+
+    // Notes générées depuis Notion. Utilisées UNIQUEMENT à l'INSERT pour
+    // ne pas écraser ce que les commerciaux ont écrit après dans la
+    // plateforme. Les UPDATE conservent intactes les notes existantes.
+    const notionDerivedNotes =
+      [
         recommandation ? `Recommandation : ${recommandation}` : null,
         classification ? `Classification : ${classification}` : null,
         besoins ? `Besoins détectés : ${besoins}` : null,
       ]
         .filter(Boolean)
-        .join('\n\n') || null,
-      synced_at: syncedAt,
-    };
+        .join('\n\n') || null;
 
     const existing = dbByNotionId.get(page.id);
 
     if (existing) {
+      // UPDATE : on ne touche jamais à `notes` (préserve la saisie commerciale)
       const { error: updateErr } = await admin
         .from('prospects')
-        .update(payload)
+        .update(baseFields)
         .eq('id', existing.id);
       if (updateErr) {
         errors.push({ page_id: page.id, error: updateErr.message });
@@ -285,7 +284,8 @@ export async function POST(req: Request) {
         continue;
       }
       const { error: insertErr } = await admin.from('prospects').insert({
-        ...payload,
+        ...baseFields,
+        notes: notionDerivedNotes,
         created_by: targetUserId,
         assigned_to: targetUserId,
       });
@@ -297,38 +297,100 @@ export async function POST(req: Request) {
     }
   }
 
-  // -------- Pass 2 : archivage --------
-  // 1) Lignes DB dont le notion_page_id n'a PAS été vu ce run.
-  // 2) Lignes DB dont la page Notion est en statut "mort".
-  const toArchiveIds = new Set<string>();
+  // -------- Pass 2 : DELETE physique --------
+  // 1) Lignes DB dont le notion_page_id n'a PAS été vu ce run
+  //    (= prospect déplacé hors database Notion ou supprimé)
+  // 2) Lignes DB dont la page Notion est en statut "mort"
+  //    (Rejeté, Non pertinent, REJECT, Archivé, Archive, NURTURE)
+  //
+  // Les prospects manuels (notion_page_id IS NULL) sont préservés grâce au
+  // filtre `.not('notion_page_id', 'is', null)` au moment de la lecture.
+  const toDeleteIds = new Set<string>();
   for (const [notionId, row] of dbByNotionId.entries()) {
-    if (row.status === 'archived') continue; // déjà archivé
-    if (!seenNotionIds.has(notionId)) toArchiveIds.add(row.id);
-    else if (deadFromNotion.has(notionId)) toArchiveIds.add(row.id);
+    if (!seenNotionIds.has(notionId)) toDeleteIds.add(row.id);
+    else if (deadFromNotion.has(notionId)) toDeleteIds.add(row.id);
   }
 
-  if (toArchiveIds.size > 0) {
-    const ids = [...toArchiveIds];
-    const { error: archiveErr } = await admin
+  if (toDeleteIds.size > 0) {
+    const ids = [...toDeleteIds];
+    const { error: deleteErr } = await admin
       .from('prospects')
-      .update({ status: 'archived', synced_at: syncedAt })
+      .delete()
       .in('id', ids);
-    if (archiveErr) {
+    if (deleteErr) {
       errors.push({
-        page_id: `archive:${ids.length}`,
-        error: archiveErr.message,
+        page_id: `delete:${ids.length}`,
+        error: deleteErr.message,
       });
     } else {
-      archived = ids.length;
+      deleted = ids.length;
     }
   }
 
-  return NextResponse.json({
+  return {
     total: pages.length,
     inserted,
     updated,
-    archived,
+    deleted,
     skipped,
     errors,
-  });
+  };
+}
+
+/**
+ * POST /api/admin/sync-prospects
+ *
+ * Sync manuelle Notion → Supabase (bouton dans /admin ou orchestrateur curl).
+ *
+ * Body : { user_id?: string } — UUID du commercial cible pour les INSERT.
+ */
+export async function POST(req: Request) {
+  const auth = await authenticate(req);
+  if (!auth.ok) {
+    return NextResponse.json({ error: auth.message }, { status: auth.status });
+  }
+
+  let body: { user_id?: string } = {};
+  try {
+    body = (await req.json()) as { user_id?: string };
+  } catch {
+    // body vide toléré
+  }
+
+  const result = await runSync(body.user_id);
+  if ('error' in result) {
+    return NextResponse.json(
+      { error: result.error },
+      { status: result.status }
+    );
+  }
+  return NextResponse.json(result);
+}
+
+/**
+ * GET /api/admin/sync-prospects
+ *
+ * Sync automatique déclenchée par Vercel Cron (vercel.json).
+ * Vercel ajoute automatiquement `Authorization: Bearer ${CRON_SECRET}` quand
+ * `CRON_SECRET` est défini en env var.
+ *
+ * Pas de user_id transmis → les nouveaux prospects Notion non encore
+ * synchronisés sont skipped. L'admin doit cliquer le bouton manuel pour
+ * les onboarder avec un commercial cible. Les UPDATE et DELETE eux
+ * tournent automatiquement.
+ */
+export async function GET(req: Request) {
+  const auth = await authenticate(req);
+  if (!auth.ok) {
+    return NextResponse.json({ error: auth.message }, { status: auth.status });
+  }
+
+  const result = await runSync();
+  if ('error' in result) {
+    return NextResponse.json(
+      { error: result.error },
+      { status: result.status }
+    );
+  }
+  return NextResponse.json(result);
 }
