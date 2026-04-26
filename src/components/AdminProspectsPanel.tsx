@@ -10,6 +10,7 @@ import {
   type Prospect,
 } from '@/lib/prospects';
 import ProspectDetailsModal from './ProspectDetailsModal';
+import ProspectModal, { type ProspectFormValues } from './ProspectModal';
 
 type User = { id: string; label: string };
 
@@ -21,7 +22,13 @@ type Props = {
 /**
  * Vue admin : pipeline global avec filtres avancés (commercial, statut,
  * classification, secteur, branche, ca_estime). Statut éditable inline,
- * propagation fire-and-forget vers Notion.
+ * édition complète via le bouton ✎. Tous les changements de statut sont
+ * propagés fire-and-forget vers Notion via
+ * /api/prospects/[id]/sync-status-to-notion.
+ *
+ * Le bouton ✎ ouvre une modale d'édition complète (entreprise, contact,
+ * tél, email, site, secteur, ville, statut, notes). Le bouton 🔍 ouvre
+ * ProspectDetailsModal pour voir l'enrichissement Notion complet.
  */
 export default function AdminProspectsPanel({
   prospects: initialProspects,
@@ -36,6 +43,7 @@ export default function AdminProspectsPanel({
   const [brancheFilter, setBrancheFilter] = useState<string>('all');
   const [caFilter, setCaFilter] = useState<string>('all');
   const [viewing, setViewing] = useState<Prospect | null>(null);
+  const [editing, setEditing] = useState<Prospect | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const supabase = useMemo(() => createClient(), []);
@@ -131,6 +139,47 @@ export default function AdminProspectsPanel({
         prev.map((p) => (p.id === prospect.id ? updated : p))
       );
       if (updated.notion_page_id) {
+        pushStatusToNotion(updated.id);
+      }
+    }
+  }
+
+  /** Édition complète depuis la modale (champs business + statut + notes).
+   *  Réutilise ProspectModal pour cohérence avec /prospects (commercial). */
+  async function handleEdit(values: ProspectFormValues) {
+    if (!editing) return;
+    setError(null);
+
+    const patch = {
+      company_name: values.company_name.trim(),
+      contact_name: values.contact_name.trim() || null,
+      phone: values.phone.trim() || null,
+      email: values.email.trim() || null,
+      website: values.website.trim() || null,
+      sector: values.sector.trim() || null,
+      city: values.city.trim() || null,
+      status: values.status,
+      notes: values.notes.trim() || null,
+    };
+
+    const { data, error } = await supabase
+      .from('prospects')
+      .update(patch)
+      .eq('id', editing.id)
+      .select()
+      .single();
+
+    if (error) {
+      setError(error.message);
+      throw error;
+    }
+    if (data) {
+      const updated = data as Prospect;
+      setProspects((prev) =>
+        prev.map((p) => (p.id === editing.id ? updated : p))
+      );
+      // Si le statut a changé pendant l'édition, propager à Notion
+      if (values.status !== editing.status && updated.notion_page_id) {
         pushStatusToNotion(updated.id);
       }
     }
@@ -283,7 +332,7 @@ export default function AdminProspectsPanel({
               <th className="px-4 py-3 text-left">Statut</th>
               <th className="px-4 py-3 text-left">Source</th>
               <th className="px-4 py-3 text-left">MAJ</th>
-              <th className="px-4 py-3 text-right">Détails</th>
+              <th className="px-4 py-3 text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -376,14 +425,24 @@ export default function AdminProspectsPanel({
                   {formatDate(p.updated_at)}
                 </td>
                 <td className="px-4 py-3 text-right">
-                  <button
-                    onClick={() => setViewing(p)}
-                    className="rounded p-1 text-blue-600 hover:bg-blue-50"
-                    aria-label={`Voir l'analyse complète de ${p.company_name}`}
-                    title="Voir l'analyse complète"
-                  >
-                    🔍
-                  </button>
+                  <div className="flex justify-end gap-1">
+                    <button
+                      onClick={() => setViewing(p)}
+                      className="rounded p-1 text-blue-600 hover:bg-blue-50"
+                      aria-label={`Voir l'analyse complète de ${p.company_name}`}
+                      title="Voir l'analyse complète"
+                    >
+                      🔍
+                    </button>
+                    <button
+                      onClick={() => setEditing(p)}
+                      className="rounded p-1 text-gnd-muted hover:bg-slate-100 hover:text-gnd-primary"
+                      aria-label={`Modifier ${p.company_name}`}
+                      title="Modifier le prospect"
+                    >
+                      ✎
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -394,6 +453,29 @@ export default function AdminProspectsPanel({
       <ProspectDetailsModal
         prospect={viewing}
         onClose={() => setViewing(null)}
+      />
+
+      <ProspectModal
+        open={editing !== null}
+        onClose={() => setEditing(null)}
+        onSubmit={handleEdit}
+        initial={
+          editing
+            ? {
+                company_name: editing.company_name,
+                contact_name: editing.contact_name ?? '',
+                phone: editing.phone ?? '',
+                email: editing.email ?? '',
+                website: editing.website ?? '',
+                sector: editing.sector ?? '',
+                city: editing.city ?? '',
+                status: editing.status,
+                notes: editing.notes ?? '',
+              }
+            : undefined
+        }
+        title={editing ? `Modifier : ${editing.company_name}` : 'Modifier'}
+        submitLabel="Enregistrer"
       />
     </div>
   );
