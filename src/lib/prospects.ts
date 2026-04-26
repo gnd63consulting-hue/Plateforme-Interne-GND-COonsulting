@@ -128,7 +128,9 @@ export const PROSPECT_SELECT_COLUMNS = [
 
 /** Options proposées dans les dropdowns de statut (commercials + filtres).
  *  Ordre logique du pipeline commercial. 'prospecte' (legacy) est volontaire-
- *  ment absent — les anciennes rows ont été retag a_contacter par 0008. */
+ *  ment absent — les anciennes rows ont été retag a_contacter par 0008.
+ *  `gagne` porte le label "Devis signé" (vocabulaire commercial réel) —
+ *  même code Supabase, juste un label aligné sur Notion. */
 export const STATUS_OPTIONS: {
   value: ProspectStatus;
   label: string;
@@ -138,7 +140,7 @@ export const STATUS_OPTIONS: {
   { value: 'contacte', label: 'Contacté', tone: 'bg-blue-100 text-blue-700' },
   { value: 'rdv_pris', label: 'RDV pris', tone: 'bg-indigo-100 text-indigo-700' },
   { value: 'devis_envoye', label: 'Devis envoyé', tone: 'bg-amber-100 text-amber-700' },
-  { value: 'gagne', label: 'Gagné', tone: 'bg-emerald-100 text-emerald-700' },
+  { value: 'gagne', label: 'Devis signé', tone: 'bg-emerald-100 text-emerald-700' },
   { value: 'perdu', label: 'Perdu', tone: 'bg-rose-100 text-rose-700' },
   { value: 'archived', label: 'Archivé', tone: 'bg-zinc-200 text-zinc-600' },
 ];
