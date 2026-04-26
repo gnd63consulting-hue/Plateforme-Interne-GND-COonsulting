@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { createClient } from '@/lib/supabase-client';
 import {
   formatDate,
   labelForStatus,
@@ -19,16 +20,26 @@ type Props = {
 
 /**
  * Vue admin : pipeline global avec colonne "Assigné à" + filtre par
- * commercial et par statut. Lecture seule — les modifs passent par
- * /prospects (commercial) ou Supabase Studio (admin).
+ * commercial et par statut. Le statut est éditable directement (l'admin a
+ * une RLS policy qui lui permet d'updater n'importe quel prospect). Chaque
+ * changement est propagé fire-and-forget vers Notion via
+ * /api/prospects/[id]/sync-status-to-notion (même comportement que
+ * ProspectTable côté commercial).
  *
  * Le bouton 🔍 ouvre ProspectDetailsModal pour voir l'enrichissement
  * Notion complet (gérant, social, analyses, recommandation, arguments).
  */
-export default function AdminProspectsPanel({ prospects, users }: Props) {
+export default function AdminProspectsPanel({
+  prospects: initialProspects,
+  users,
+}: Props) {
+  const [prospects, setProspects] = useState<Prospect[]>(initialProspects);
   const [assigneeFilter, setAssigneeFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [viewing, setViewing] = useState<Prospect | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const supabase = useMemo(() => createClient(), []);
 
   const userLabel = useMemo(() => {
     const map = new Map(users.map((u) => [u.id, u.label]));
@@ -46,6 +57,45 @@ export default function AdminProspectsPanel({ prospects, users }: Props) {
     });
   }, [prospects, assigneeFilter, statusFilter]);
 
+  /** Fire-and-forget : after a successful Supabase status update, push the
+   *  equivalent Notion statut back so the source DB stays in sync with the
+   *  admin's action. Errors are logged but don't break the UI. */
+  function pushStatusToNotion(prospectId: string) {
+    fetch(`/api/prospects/${prospectId}/sync-status-to-notion`, {
+      method: 'POST',
+    }).catch((err) => {
+      // eslint-disable-next-line no-console
+      console.error(
+        `[admin sync-status-to-notion] failed for prospect ${prospectId}:`,
+        err
+      );
+    });
+  }
+
+  async function handleStatusChange(prospect: Prospect, status: string) {
+    setError(null);
+    const { data, error } = await supabase
+      .from('prospects')
+      .update({ status })
+      .eq('id', prospect.id)
+      .select()
+      .single();
+
+    if (error) {
+      setError(error.message);
+      return;
+    }
+    if (data) {
+      const updated = data as Prospect;
+      setProspects((prev) =>
+        prev.map((p) => (p.id === prospect.id ? updated : p))
+      );
+      if (updated.notion_page_id) {
+        pushStatusToNotion(updated.id);
+      }
+    }
+  }
+
   return (
     <div className="space-y-3">
       <p className="text-sm text-gnd-muted">
@@ -55,6 +105,12 @@ export default function AdminProspectsPanel({ prospects, users }: Props) {
           ` (${prospects.length} au total)`}
         .
       </p>
+
+      {error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+          {error}
+        </div>
+      )}
 
       <div className="flex flex-col gap-2 sm:flex-row">
         <select
@@ -165,13 +221,27 @@ export default function AdminProspectsPanel({ prospects, users }: Props) {
                   {p.sector ?? '—'}
                 </td>
                 <td className="px-4 py-3">
-                  <span
-                    className={`rounded-full px-2 py-1 text-xs font-medium ${toneForStatus(
+                  <select
+                    value={p.status}
+                    onChange={(e) => handleStatusChange(p, e.target.value)}
+                    className={`rounded-full border-0 px-2 py-1 text-xs font-medium ${toneForStatus(
                       p.status
                     )}`}
+                    aria-label={`Statut de ${p.company_name}`}
                   >
-                    {labelForStatus(p.status)}
-                  </span>
+                    {/* Si le statut courant n'est pas dans la liste,
+                        on l'ajoute en tête pour ne pas le perdre au save. */}
+                    {!STATUS_OPTIONS.some((o) => o.value === p.status) && (
+                      <option value={p.status}>
+                        {labelForStatus(p.status)}
+                      </option>
+                    )}
+                    {STATUS_OPTIONS.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
                 </td>
                 <td className="px-4 py-3 text-xs text-gnd-muted">
                   {p.notion_page_id ? 'Notion' : 'Manuel'}
