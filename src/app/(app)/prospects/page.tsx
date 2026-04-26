@@ -17,6 +17,11 @@ export default async function ProspectsPage() {
     .select(PROSPECT_SELECT_COLUMNS)
     .order('updated_at', { ascending: false });
 
+  // PostgREST loses inference with a dynamic select string; the runtime
+  // shape matches Prospect by construction (PROSPECT_SELECT_COLUMNS lists
+  // exactly the fields declared in the type), so cast via unknown.
+  const initialProspects = (prospects ?? []) as unknown as Prospect[];
+
   return (
     <div className="space-y-6">
       <section>
@@ -27,7 +32,7 @@ export default async function ProspectsPage() {
       </section>
 
       <ProspectTable
-        initialProspects={(prospects ?? []) as Prospect[]}
+        initialProspects={initialProspects}
         currentUserId={user.id}
       />
     </div>
