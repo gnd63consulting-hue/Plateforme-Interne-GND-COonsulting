@@ -14,8 +14,10 @@
  *   - Adresse        : address (rue précise) en complément de city
  */
 
-/** Statuts affichables. L'univers exact du CHECK côté prod est incertain,
- *  on couvre donc à la fois les valeurs EN (style prod) et FR (legacy). */
+/** Statuts affichables. Le legacy 'prospecte' n'est plus dans la liste
+ *  visible (cf. migration 0008 qui retag les rows existantes en
+ *  'a_contacter'), mais le type le couvre encore pour tolérer des lignes
+ *  héritées éventuelles côté BDD. */
 export type ProspectStatus =
   | 'prospecte'
   | 'a_contacter'
@@ -124,12 +126,14 @@ export const PROSPECT_SELECT_COLUMNS = [
   'updated_at',
 ].join(', ');
 
+/** Options proposées dans les dropdowns de statut (commercials + filtres).
+ *  Ordre logique du pipeline commercial. 'prospecte' (legacy) est volontaire-
+ *  ment absent — les anciennes rows ont été retag a_contacter par 0008. */
 export const STATUS_OPTIONS: {
   value: ProspectStatus;
   label: string;
   tone: string;
 }[] = [
-  { value: 'prospecte', label: 'Prospecté', tone: 'bg-slate-100 text-slate-700' },
   { value: 'a_contacter', label: 'À contacter', tone: 'bg-slate-100 text-slate-700' },
   { value: 'contacte', label: 'Contacté', tone: 'bg-blue-100 text-blue-700' },
   { value: 'rdv_pris', label: 'RDV pris', tone: 'bg-indigo-100 text-indigo-700' },
@@ -139,9 +143,19 @@ export const STATUS_OPTIONS: {
   { value: 'archived', label: 'Archivé', tone: 'bg-zinc-200 text-zinc-600' },
 ];
 
+/** Map du label "Prospecté" legacy pour les rows qui n'ont pas encore été
+ *  retaggées (rare après 0008, mais on tolère). */
+const LEGACY_LABELS: Record<string, string> = {
+  prospecte: 'Prospecté (legacy)',
+};
+
 export function labelForStatus(status: string | null | undefined): string {
   if (!status) return '—';
-  return STATUS_OPTIONS.find((o) => o.value === status)?.label ?? status;
+  return (
+    STATUS_OPTIONS.find((o) => o.value === status)?.label ??
+    LEGACY_LABELS[status] ??
+    status
+  );
 }
 
 export function toneForStatus(status: string | null | undefined): string {
