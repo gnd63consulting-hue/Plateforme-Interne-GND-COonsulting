@@ -23,7 +23,7 @@ const EMPTY: ProspectFormValues = {
   website: '',
   sector: '',
   city: '',
-  status: 'prospecte',
+  status: 'a_contacter',
   notes: '',
 };
 
