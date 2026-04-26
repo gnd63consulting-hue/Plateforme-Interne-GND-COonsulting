@@ -1,11 +1,16 @@
 /**
- * Bidirectional status mapping between Notion (~20 fine-grained values) and
+ * Bidirectional status mapping between Notion (~25 fine-grained values) and
  * Supabase (8 practical sales-pipeline values).
  *
  * Notion is the source of truth at INSERT time (sync-prospects route).
  * Supabase becomes the source of truth once a commercial moves the status on
  * the platform — the change is pushed back to Notion via
  * /api/prospects/[id]/sync-status-to-notion to keep them aligned.
+ *
+ * Vocabulary alignment (2026-04-26): we added `Devis envoyé` and `Devis signé`
+ * to Notion's statut select to give honest names to the late-funnel stages.
+ * The old labels `Opportunité` and `Gagné` are still recognised for back-
+ * compat (some rows pre-update may still carry them).
  */
 
 /**
@@ -69,13 +74,16 @@ export function notionStatusToSupabaseStatus(
     return 'rdv_pris';
   }
 
-  // Active opportunity (proposal sent / under negotiation)
-  if (s === 'Opportunité') {
+  // Proposal sent / under signature. Both new label and legacy label are
+  // accepted so existing rows tagged with `Opportunité` (e.g. Faim de
+  // Semaine) keep mapping cleanly until they're re-tagged.
+  if (s === 'Devis envoyé' || s === 'Opportunité') {
     return 'devis_envoye';
   }
 
-  // Won
-  if (s === 'Gagné' || s === 'Transféré vente') {
+  // Won — proposal signed by client. Both new label and legacy `Gagné`
+  // (and the historic `Transféré vente`) are accepted.
+  if (s === 'Devis signé' || s === 'Gagné' || s === 'Transféré vente') {
     return 'gagne';
   }
 
@@ -96,6 +104,11 @@ export function notionStatusToSupabaseStatus(
  *
  * Returns null when no Notion equivalent makes sense (the caller should skip
  * the Notion update in that case).
+ *
+ * Vocabulary aligned 2026-04-26: `devis_envoye` writes `Devis envoyé`
+ * (replaces `Opportunité`), and `gagne` writes `Devis signé` (replaces
+ * `Gagné`). Both new labels are guaranteed to exist in the Notion select
+ * thanks to the API ALTER applied at the same time as this PR.
  */
 export function supabaseStatusToNotionStatus(
   supabaseStatus: string | null | undefined
@@ -110,9 +123,9 @@ export function supabaseStatusToNotionStatus(
     case 'rdv_pris':
       return 'RDV réservé';
     case 'devis_envoye':
-      return 'Opportunité';
+      return 'Devis envoyé';
     case 'gagne':
-      return 'Gagné';
+      return 'Devis signé';
     case 'perdu':
       return 'Perdu';
     case 'archived':
