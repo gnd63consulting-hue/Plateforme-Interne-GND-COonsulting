@@ -20,16 +20,15 @@ type Props = {
 };
 
 /**
- * Vue admin : pipeline global avec colonne "Assigné à" + filtre par
- * commercial et par statut. Le statut est éditable directement (l'admin a
- * une RLS policy qui lui permet d'updater n'importe quel prospect).
+ * Vue admin : pipeline global avec filtres avancés (commercial, statut,
+ * classification, secteur, branche, ca_estime). Statut éditable inline,
+ * édition complète via le bouton ✎. Tous les changements de statut sont
+ * propagés fire-and-forget vers Notion via
+ * /api/prospects/[id]/sync-status-to-notion.
  *
  * Le bouton ✎ ouvre une modale d'édition complète (entreprise, contact,
  * tél, email, site, secteur, ville, statut, notes). Le bouton 🔍 ouvre
  * ProspectDetailsModal pour voir l'enrichissement Notion complet.
- *
- * Tous les changements de statut sont propagés fire-and-forget vers
- * Notion via /api/prospects/[id]/sync-status-to-notion.
  */
 export default function AdminProspectsPanel({
   prospects: initialProspects,
@@ -38,6 +37,11 @@ export default function AdminProspectsPanel({
   const [prospects, setProspects] = useState<Prospect[]>(initialProspects);
   const [assigneeFilter, setAssigneeFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [classificationFilter, setClassificationFilter] =
+    useState<string>('all');
+  const [sectorFilter, setSectorFilter] = useState<string>('all');
+  const [brancheFilter, setBrancheFilter] = useState<string>('all');
+  const [caFilter, setCaFilter] = useState<string>('all');
   const [viewing, setViewing] = useState<Prospect | null>(null);
   const [editing, setEditing] = useState<Prospect | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -50,15 +54,56 @@ export default function AdminProspectsPanel({
       !id ? '— non assigné' : map.get(id) ?? id.slice(0, 8);
   }, [users]);
 
+  // ---- Options dynamiques pour les filtres ---------------------------------
+  const classificationOptions = useMemo(() => {
+    const set = new Set<string>();
+    for (const p of prospects) if (p.classification) set.add(p.classification);
+    return [...set].sort();
+  }, [prospects]);
+
+  const sectorOptions = useMemo(() => {
+    const set = new Set<string>();
+    for (const p of prospects) if (p.sector) set.add(p.sector);
+    return [...set].sort();
+  }, [prospects]);
+
+  const brancheOptions = useMemo(() => {
+    const set = new Set<string>();
+    for (const p of prospects) if (p.branche) set.add(p.branche);
+    return [...set].sort();
+  }, [prospects]);
+
+  const caOptions = useMemo(() => {
+    const set = new Set<string>();
+    for (const p of prospects) if (p.ca_estime) set.add(p.ca_estime);
+    return [...set].sort();
+  }, [prospects]);
+
   const filtered = useMemo(() => {
     return prospects.filter((p) => {
       if (statusFilter !== 'all' && p.status !== statusFilter) return false;
+      if (
+        classificationFilter !== 'all' &&
+        p.classification !== classificationFilter
+      )
+        return false;
+      if (sectorFilter !== 'all' && p.sector !== sectorFilter) return false;
+      if (brancheFilter !== 'all' && p.branche !== brancheFilter) return false;
+      if (caFilter !== 'all' && p.ca_estime !== caFilter) return false;
       const owner = p.assigned_to ?? p.created_by;
       if (assigneeFilter === 'all') return true;
       if (assigneeFilter === 'unassigned') return !p.assigned_to;
       return owner === assigneeFilter;
     });
-  }, [prospects, assigneeFilter, statusFilter]);
+  }, [
+    prospects,
+    assigneeFilter,
+    statusFilter,
+    classificationFilter,
+    sectorFilter,
+    brancheFilter,
+    caFilter,
+  ]);
 
   /** Fire-and-forget : after a successful Supabase status update, push the
    *  equivalent Notion statut back so the source DB stays in sync with the
@@ -140,15 +185,42 @@ export default function AdminProspectsPanel({
     }
   }
 
+  function resetFilters() {
+    setAssigneeFilter('all');
+    setStatusFilter('all');
+    setClassificationFilter('all');
+    setSectorFilter('all');
+    setBrancheFilter('all');
+    setCaFilter('all');
+  }
+
+  const anyFilterActive =
+    assigneeFilter !== 'all' ||
+    statusFilter !== 'all' ||
+    classificationFilter !== 'all' ||
+    sectorFilter !== 'all' ||
+    brancheFilter !== 'all' ||
+    caFilter !== 'all';
+
   return (
     <div className="space-y-3">
-      <p className="text-sm text-gnd-muted">
-        {filtered.length} prospect{filtered.length > 1 ? 's' : ''} affiché
-        {filtered.length > 1 ? 's' : ''}
-        {filtered.length !== prospects.length &&
-          ` (${prospects.length} au total)`}
-        .
-      </p>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="text-sm text-gnd-muted">
+          {filtered.length} prospect{filtered.length > 1 ? 's' : ''} affiché
+          {filtered.length > 1 ? 's' : ''}
+          {filtered.length !== prospects.length &&
+            ` (${prospects.length} au total)`}
+          .
+        </p>
+        {anyFilterActive && (
+          <button
+            onClick={resetFilters}
+            className="text-xs text-gnd-accent hover:underline"
+          >
+            Réinitialiser les filtres
+          </button>
+        )}
+      </div>
 
       {error && (
         <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
@@ -156,7 +228,8 @@ export default function AdminProspectsPanel({
         </div>
       )}
 
-      <div className="flex flex-col gap-2 sm:flex-row">
+      {/* ---- Filtres --------------------------------------------------- */}
+      <div className="flex flex-wrap gap-2">
         <select
           value={assigneeFilter}
           onChange={(e) => setAssigneeFilter(e.target.value)}
@@ -183,6 +256,66 @@ export default function AdminProspectsPanel({
             </option>
           ))}
         </select>
+
+        {classificationOptions.length > 0 && (
+          <select
+            value={classificationFilter}
+            onChange={(e) => setClassificationFilter(e.target.value)}
+            className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm"
+          >
+            <option value="all">Toutes classifications</option>
+            {classificationOptions.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+        )}
+
+        {sectorOptions.length > 0 && (
+          <select
+            value={sectorFilter}
+            onChange={(e) => setSectorFilter(e.target.value)}
+            className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm"
+          >
+            <option value="all">Tous secteurs</option>
+            {sectorOptions.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
+        )}
+
+        {brancheOptions.length > 0 && (
+          <select
+            value={brancheFilter}
+            onChange={(e) => setBrancheFilter(e.target.value)}
+            className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm"
+          >
+            <option value="all">Toutes branches</option>
+            {brancheOptions.map((b) => (
+              <option key={b} value={b}>
+                {b}
+              </option>
+            ))}
+          </select>
+        )}
+
+        {caOptions.length > 0 && (
+          <select
+            value={caFilter}
+            onChange={(e) => setCaFilter(e.target.value)}
+            className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm"
+          >
+            <option value="all">Tous CA estimés</option>
+            {caOptions.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+        )}
       </div>
 
       <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white">
@@ -273,8 +406,6 @@ export default function AdminProspectsPanel({
                     )}`}
                     aria-label={`Statut de ${p.company_name}`}
                   >
-                    {/* Si le statut courant n'est pas dans la liste,
-                        on l'ajoute en tête pour ne pas le perdre au save. */}
                     {!STATUS_OPTIONS.some((o) => o.value === p.status) && (
                       <option value={p.status}>
                         {labelForStatus(p.status)}

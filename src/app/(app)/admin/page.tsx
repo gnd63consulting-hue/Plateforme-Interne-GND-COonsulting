@@ -8,6 +8,11 @@ import {
   PROSPECT_SELECT_COLUMNS,
   type Prospect,
 } from '@/lib/prospects';
+import {
+  caEstimeToMidpointEur,
+  formatEur,
+  sumCaMidpointEur,
+} from '@/lib/ca-utils';
 import AdminSyncButton from '@/components/AdminSyncButton';
 import AdminProspectsPanel from '@/components/AdminProspectsPanel';
 
@@ -26,6 +31,25 @@ type AdminProgression = {
   completed: boolean;
   completed_at: string | null;
 };
+
+/** Ordre logique du funnel commercial pour la visualisation conversion. */
+const FUNNEL_STAGES: { value: string; label: string; tone: string }[] = [
+  { value: 'a_contacter', label: 'À contacter', tone: 'bg-slate-200 text-slate-700' },
+  { value: 'contacte', label: 'Contacté', tone: 'bg-blue-200 text-blue-800' },
+  { value: 'rdv_pris', label: 'RDV pris', tone: 'bg-indigo-200 text-indigo-800' },
+  { value: 'devis_envoye', label: 'Devis envoyé', tone: 'bg-amber-200 text-amber-900' },
+  { value: 'gagne', label: 'Devis signé', tone: 'bg-emerald-200 text-emerald-900' },
+];
+
+/** Statuts considérés comme "actifs dans le funnel". Les autres (perdu,
+ *  archived) sont exclus de la majorité des stats CA / conversion. */
+const ACTIVE_PIPELINE_STATUSES = new Set([
+  'a_contacter',
+  'contacte',
+  'rdv_pris',
+  'devis_envoye',
+  'gagne',
+]);
 
 export default async function AdminPage() {
   const supabase = await createClient();
@@ -96,6 +120,9 @@ export default async function AdminPage() {
 
   const byStatus = new Map<string, number>();
   const byAssignee = new Map<string, number>();
+  const byClassification = new Map<string, number>();
+  const bySector = new Map<string, number>();
+  const byBranche = new Map<string, number>();
   let wonCount = 0;
   let rdvCount = 0;
   let contactedCount = 0;
@@ -104,6 +131,18 @@ export default async function AdminPage() {
     byStatus.set(p.status, (byStatus.get(p.status) ?? 0) + 1);
     const key = p.assigned_to ?? p.created_by;
     byAssignee.set(key, (byAssignee.get(key) ?? 0) + 1);
+    if (p.classification) {
+      byClassification.set(
+        p.classification,
+        (byClassification.get(p.classification) ?? 0) + 1
+      );
+    }
+    if (p.sector) {
+      bySector.set(p.sector, (bySector.get(p.sector) ?? 0) + 1);
+    }
+    if (p.branche) {
+      byBranche.set(p.branche, (byBranche.get(p.branche) ?? 0) + 1);
+    }
     if (p.status === 'gagne') wonCount++;
     if (p.status === 'rdv_pris') rdvCount++;
     if (
@@ -115,7 +154,23 @@ export default async function AdminPage() {
       contactedCount++;
   }
 
-  // Classement commerciaux : triés par nombre de prospects assignés DESC
+  // ---- CA stats ----
+  const activeProspects = prospects.filter((p) =>
+    ACTIVE_PIPELINE_STATUSES.has(p.status)
+  );
+  const wonProspects = prospects.filter((p) => p.status === 'gagne');
+
+  const caPotentielTotal = sumCaMidpointEur(activeProspects);
+  const caSigne = sumCaMidpointEur(wonProspects);
+
+  // ---- Funnel ----
+  const funnelCounts = FUNNEL_STAGES.map((stage) => ({
+    ...stage,
+    count: prospects.filter((p) => p.status === stage.value).length,
+  }));
+  const funnelMaxCount = Math.max(1, ...funnelCounts.map((s) => s.count));
+
+  // Classement commerciaux : triés par CA potentiel DESC, fallback total DESC
   const ranking = [...byAssignee.entries()]
     .map(([uid, total]) => {
       const assigned = prospects.filter(
@@ -130,9 +185,18 @@ export default async function AdminPage() {
       ).length;
       const rdv = assigned.filter((p) => p.status === 'rdv_pris').length;
       const won = assigned.filter((p) => p.status === 'gagne').length;
-      return { uid, total, contacted, rdv, won };
+      const caPotentiel = sumCaMidpointEur(
+        assigned.filter((p) => ACTIVE_PIPELINE_STATUSES.has(p.status))
+      );
+      const caSigneCom = sumCaMidpointEur(
+        assigned.filter((p) => p.status === 'gagne')
+      );
+      return { uid, total, contacted, rdv, won, caPotentiel, caSigneCom };
     })
-    .sort((a, b) => b.total - a.total);
+    .sort((a, b) => {
+      if (b.caPotentiel !== a.caPotentiel) return b.caPotentiel - a.caPotentiel;
+      return b.total - a.total;
+    });
 
   const commercialOptions = sortedUsers
     .filter((u) => u.role === 'commercial' || u.role === 'admin')
@@ -158,7 +222,7 @@ export default async function AdminPage() {
         <AdminSyncButton options={commercialOptions} />
       </section>
 
-      {/* ---------- Stats prospects ---------- */}
+      {/* ---------- KPI cards : CA + counts ---------- */}
       <section className="space-y-3">
         <h2 className="text-xl font-semibold text-gnd-primary">
           Vue d&apos;ensemble prospects
@@ -166,11 +230,92 @@ export default async function AdminPage() {
 
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
           <StatCard label="Total prospects" value={prospects.length} />
-          <StatCard label="Contactés+" value={contactedCount} />
-          <StatCard label="RDV pris" value={rdvCount} />
-          <StatCard label="Gagnés" value={wonCount} />
+          <StatCard
+            label="CA potentiel pipeline"
+            valueText={formatEur(caPotentielTotal)}
+            tone="text-amber-700"
+          />
+          <StatCard
+            label="CA signé"
+            valueText={formatEur(caSigne)}
+            tone="text-emerald-700"
+          />
+          <StatCard label="Devis signés" value={wonCount} />
         </div>
 
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+          <StatCard label="Contactés+" value={contactedCount} />
+          <StatCard label="RDV pris" value={rdvCount} />
+          <StatCard
+            label="Taux contact"
+            valueText={
+              prospects.length > 0
+                ? `${Math.round((contactedCount / prospects.length) * 100)} %`
+                : '—'
+            }
+          />
+          <StatCard
+            label="Taux conversion"
+            valueText={
+              prospects.length > 0
+                ? `${Math.round((wonCount / prospects.length) * 100)} %`
+                : '—'
+            }
+          />
+        </div>
+      </section>
+
+      {/* ---------- Funnel de conversion ---------- */}
+      <section className="space-y-3">
+        <h2 className="text-xl font-semibold text-gnd-primary">
+          Funnel de conversion
+        </h2>
+        <div className="rounded-2xl border border-slate-200 bg-white p-5">
+          <div className="space-y-3">
+            {funnelCounts.map((stage, idx) => {
+              const widthPct = (stage.count / funnelMaxCount) * 100;
+              const prev = idx > 0 ? funnelCounts[idx - 1].count : null;
+              const conversionFromPrev =
+                prev && prev > 0
+                  ? Math.round((stage.count / prev) * 100)
+                  : null;
+              return (
+                <div key={stage.value} className="flex items-center gap-3">
+                  <div className="w-32 shrink-0">
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-xs font-medium ${stage.tone}`}
+                    >
+                      {stage.label}
+                    </span>
+                  </div>
+                  <div className="relative h-7 flex-1 overflow-hidden rounded bg-slate-100">
+                    <div
+                      className={`absolute inset-y-0 left-0 ${stage.tone}`}
+                      style={{ width: `${Math.max(2, widthPct)}%` }}
+                    />
+                    <div className="relative flex h-full items-center justify-end pr-2 text-xs font-mono font-semibold text-slate-700">
+                      {stage.count}
+                    </div>
+                  </div>
+                  <div className="w-24 shrink-0 text-right text-xs text-gnd-muted">
+                    {conversionFromPrev != null
+                      ? `↳ ${conversionFromPrev} %`
+                      : '—'}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <p className="mt-3 text-xs text-gnd-muted">
+            Le pourcentage à droite indique le taux de passage depuis l&apos;étape
+            précédente. Les statuts <em>perdu</em> et <em>archivé</em> sont
+            exclus du funnel.
+          </p>
+        </div>
+      </section>
+
+      {/* ---------- Classement commerciaux + Répartition par statut ---------- */}
+      <section className="space-y-3">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           {/* Répartition par statut */}
           <div className="rounded-xl border border-slate-200 bg-white p-4">
@@ -201,23 +346,24 @@ export default async function AdminPage() {
           {/* Classement commerciaux */}
           <div className="rounded-xl border border-slate-200 bg-white p-4">
             <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gnd-muted">
-              Classement par commercial
+              Classement par commercial (tri par CA potentiel)
             </h3>
             <table className="w-full text-sm">
               <thead className="text-xs uppercase tracking-wide text-gnd-muted">
                 <tr>
                   <th className="py-1 text-left">Commercial</th>
                   <th className="py-1 text-right">Total</th>
-                  <th className="py-1 text-right">Contacté+</th>
                   <th className="py-1 text-right">RDV</th>
                   <th className="py-1 text-right">Gagné</th>
+                  <th className="py-1 text-right">CA pot.</th>
+                  <th className="py-1 text-right">CA signé</th>
                 </tr>
               </thead>
               <tbody>
                 {ranking.length === 0 && (
                   <tr>
                     <td
-                      colSpan={5}
+                      colSpan={6}
                       className="py-3 text-center text-gnd-muted"
                     >
                       Aucun prospect assigné pour l&apos;instant.
@@ -232,14 +378,17 @@ export default async function AdminPage() {
                     <td className="py-1.5 text-right font-mono font-semibold">
                       {r.total}
                     </td>
-                    <td className="py-1.5 text-right font-mono text-blue-700">
-                      {r.contacted}
-                    </td>
                     <td className="py-1.5 text-right font-mono text-indigo-700">
                       {r.rdv}
                     </td>
                     <td className="py-1.5 text-right font-mono text-emerald-700">
                       {r.won}
+                    </td>
+                    <td className="py-1.5 text-right font-mono text-amber-700">
+                      {formatEur(r.caPotentiel)}
+                    </td>
+                    <td className="py-1.5 text-right font-mono text-emerald-700">
+                      {formatEur(r.caSigneCom)}
                     </td>
                   </tr>
                 ))}
@@ -249,7 +398,30 @@ export default async function AdminPage() {
         </div>
       </section>
 
-      {/* ---------- Pipeline prospects (avec filtre commercial) ---------- */}
+      {/* ---------- Distributions classification / secteur / branche ---------- */}
+      <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <DistributionCard
+          title="Classification"
+          entries={byClassification}
+          total={prospects.length}
+          tone="bg-amber-100 text-amber-800"
+        />
+        <DistributionCard
+          title="Top secteurs"
+          entries={bySector}
+          total={prospects.length}
+          tone="bg-blue-100 text-blue-700"
+          limit={8}
+        />
+        <DistributionCard
+          title="Branche"
+          entries={byBranche}
+          total={prospects.length}
+          tone="bg-purple-100 text-purple-700"
+        />
+      </section>
+
+      {/* ---------- Pipeline prospects (avec filtres avancés) ---------- */}
       <section className="space-y-3">
         <h2 className="text-xl font-semibold text-gnd-primary">
           Pipeline prospects global
@@ -334,20 +506,81 @@ export default async function AdminPage() {
       </section>
 
       <p className="text-xs text-gnd-muted">
-        Lecture seule (sauf bouton Sync). Pour corriger une donnée, passer par
-        Supabase Studio directement.
+        CA calculé à partir des fourchettes Notion (`ca_estime`) en prenant le
+        midpoint. Les prospects dont la fourchette est vide ou non reconnue
+        sont exclus du total.
       </p>
     </div>
   );
 }
 
-function StatCard({ label, value }: { label: string; value: number }) {
+function StatCard({
+  label,
+  value,
+  valueText,
+  tone,
+}: {
+  label: string;
+  value?: number;
+  valueText?: string;
+  tone?: string;
+}) {
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-4">
-      <div className="text-2xl font-bold text-gnd-primary">{value}</div>
+      <div className={`text-2xl font-bold ${tone ?? 'text-gnd-primary'}`}>
+        {valueText ?? value ?? '—'}
+      </div>
       <div className="text-xs uppercase tracking-wide text-gnd-muted">
         {label}
       </div>
+    </div>
+  );
+}
+
+function DistributionCard({
+  title,
+  entries,
+  total,
+  tone,
+  limit,
+}: {
+  title: string;
+  entries: Map<string, number>;
+  total: number;
+  tone: string;
+  limit?: number;
+}) {
+  const sorted = [...entries.entries()].sort((a, b) => b[1] - a[1]);
+  const display = limit ? sorted.slice(0, limit) : sorted;
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white p-4">
+      <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gnd-muted">
+        {title}
+      </h3>
+      {display.length === 0 ? (
+        <p className="text-xs text-gnd-muted">Aucune donnée.</p>
+      ) : (
+        <ul className="space-y-1 text-sm">
+          {display.map(([key, n]) => (
+            <li key={key} className="flex items-center justify-between gap-2">
+              <span
+                className={`truncate rounded-full px-2 py-0.5 text-xs font-medium ${tone}`}
+                title={key}
+              >
+                {key}
+              </span>
+              <span className="shrink-0 font-mono text-gnd-primary">
+                {n}
+                {total > 0 && (
+                  <span className="ml-1 text-xs text-gnd-muted">
+                    ({Math.round((n / total) * 100)} %)
+                  </span>
+                )}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
