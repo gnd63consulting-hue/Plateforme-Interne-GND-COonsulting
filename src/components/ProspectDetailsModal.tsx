@@ -1,6 +1,34 @@
 'use client';
 
-import type { Prospect } from '@/lib/prospects';
+import { useEffect } from 'react';
+import {
+  Banknote,
+  Building2,
+  ExternalLink,
+  Facebook,
+  FileText,
+  Globe,
+  Instagram,
+  Lightbulb,
+  Linkedin,
+  Mail,
+  MapPin,
+  Music2,
+  Phone,
+  Sparkles,
+  Star,
+  Tag,
+  Target,
+  TrendingUp,
+  User,
+  Users,
+  X,
+} from 'lucide-react';
+import {
+  labelForStatus,
+  toneForStatus,
+  type Prospect,
+} from '@/lib/prospects';
 
 type ProspectDetailsModalProps = {
   prospect: Prospect | null;
@@ -8,222 +36,415 @@ type ProspectDetailsModalProps = {
 };
 
 /**
- * Modal en lecture seule affichant l'enrichissement Notion complet d'un prospect.
+ * Modal en lecture seule affichant l'enrichissement Notion complet d'un
+ * prospect.
  *
- * Source de vérité : Notion (cf. base "Pipeline Prospects GND"). Pour modifier
- * un de ces champs, éditer la page Notion correspondante puis lancer le sync
- * (ou attendre le cron Vercel 6h).
+ * Source de vérité : Notion (cf. base "Pipeline Prospects GND"). Pour
+ * modifier un de ces champs, éditer la page Notion correspondante puis
+ * lancer le sync (ou attendre le cron Vercel 6h).
  *
- * Volontairement read-only : les commerciaux saisissent leurs ajouts dans le
- * panneau "Notes" (préservé au sync). Les analyses Notion restent intactes.
+ * Volontairement read-only : les commerciaux saisissent leurs ajouts dans
+ * le panneau "Notes" (préservé au sync). Les analyses Notion restent
+ * intactes.
  */
 export default function ProspectDetailsModal({
   prospect,
   onClose,
 }: ProspectDetailsModalProps) {
+  // Lock body scroll + handle Escape key while the modal is mounted.
+  useEffect(() => {
+    if (!prospect) return;
+    const original = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handler);
+    return () => {
+      document.body.style.overflow = original;
+      window.removeEventListener('keydown', handler);
+    };
+  }, [prospect, onClose]);
+
   if (!prospect) return null;
 
-  const decisionnaire = [
-    prospect.prenom_contact,
-    prospect.contact_name && !prospect.prenom_contact
-      ? prospect.contact_name
-      : null,
-  ]
-    .filter(Boolean)
-    .join(' ');
-
+  const decisionnaireDisplay =
+    prospect.contact_name?.trim() ||
+    prospect.prenom_contact?.trim() ||
+    null;
   const adressePrecise = prospect.address ?? prospect.city;
+  const avatarColor = colorFromName(prospect.company_name);
+  const avatarInitials = initials(prospect.company_name);
+  const notionUrl = prospect.notion_page_id
+    ? `https://www.notion.so/${prospect.notion_page_id.replace(/-/g, '')}`
+    : null;
+
+  // ---- Quick action URLs --------------------------------------------------
+  const telHref = prospect.phone
+    ? `tel:${prospect.phone.replace(/\s/g, '')}`
+    : null;
+  const mailHref = prospect.email ? `mailto:${prospect.email}` : null;
+  const igHref = prospect.instagram
+    ? prospect.instagram.startsWith('http')
+      ? prospect.instagram
+      : `https://www.instagram.com/${prospect.instagram.replace(/^@/, '')}/`
+    : null;
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/60 backdrop-blur-sm sm:items-center sm:p-4"
       onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label={`Détails du prospect ${prospect.company_name}`}
     >
       <div
-        className="w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl"
+        className="relative flex h-[95vh] w-full flex-col overflow-hidden rounded-t-2xl bg-white shadow-2xl ring-1 ring-slate-900/5 sm:h-auto sm:max-h-[90vh] sm:max-w-4xl sm:rounded-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-start justify-between gap-4 border-b border-slate-200 pb-4">
-          <div>
-            <h2 className="text-2xl font-bold text-gnd-primary">
+        {/* ============================================================== */}
+        {/* STICKY HEADER                                                   */}
+        {/* ============================================================== */}
+        <header className="flex shrink-0 items-start gap-4 border-b border-slate-200 bg-white px-5 py-4 sm:px-6">
+          {/* Hash-color avatar with initials */}
+          <div
+            className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-xl text-lg font-bold text-white shadow-md ring-2 ring-white ${avatarColor}`}
+            aria-hidden="true"
+          >
+            {avatarInitials}
+          </div>
+
+          {/* Title + meta + badges */}
+          <div className="min-w-0 flex-1">
+            <h2 className="text-xl font-bold leading-tight text-gnd-primary sm:text-2xl">
               {prospect.company_name}
             </h2>
-            <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-gnd-muted">
-              {prospect.sector && <span>{prospect.sector}</span>}
+
+            {/* Sector + Address */}
+            <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gnd-muted sm:text-sm">
+              {prospect.sector && (
+                <span className="inline-flex items-center gap-1">
+                  <Building2 className="h-3.5 w-3.5" aria-hidden />
+                  {prospect.sector}
+                </span>
+              )}
               {adressePrecise && (
-                <>
-                  <span>·</span>
-                  <span>{adressePrecise}</span>
-                </>
+                <span className="inline-flex min-w-0 items-center gap-1">
+                  <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                  <span className="truncate">{adressePrecise}</span>
+                </span>
+              )}
+            </div>
+
+            {/* Badges row */}
+            <div className="mt-2 flex flex-wrap items-center gap-1.5">
+              {prospect.classification && (
+                <span
+                  className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide ring-1 ${classificationTone(
+                    prospect.classification
+                  )}`}
+                >
+                  <Target className="h-3 w-3" aria-hidden />
+                  {prospect.classification}
+                </span>
+              )}
+              {prospect.branche && (
+                <span className="inline-flex items-center rounded-full bg-purple-50 px-2 py-0.5 text-[11px] font-medium text-purple-700 ring-1 ring-purple-200">
+                  {prospect.branche}
+                </span>
+              )}
+              {prospect.status && (
+                <span
+                  className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${toneForStatus(
+                    prospect.status
+                  )}`}
+                >
+                  {labelForStatus(prospect.status)}
+                </span>
               )}
               {prospect.notion_page_id && (
-                <span className="ml-1 inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-blue-700">
+                <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-medium text-blue-700 ring-1 ring-blue-200">
+                  <Sparkles className="h-3 w-3" aria-hidden />
                   Synchro Notion
                 </span>
               )}
             </div>
           </div>
+
+          {/* Close button */}
           <button
             onClick={onClose}
-            className="text-gnd-muted hover:text-gnd-primary"
-            aria-label="Fermer"
+            className="-m-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-gnd-accent"
+            aria-label="Fermer la modale"
           >
-            ×
+            <X className="h-5 w-5" />
           </button>
+        </header>
+
+        {/* ============================================================== */}
+        {/* SCROLLABLE BODY                                                  */}
+        {/* ============================================================== */}
+        <div className="flex-1 overflow-y-auto bg-slate-50/40 px-5 py-5 sm:px-6 sm:py-6">
+          <div className="space-y-4">
+            {/* Row 1 : Décisionnaire & canal | Présence digitale */}
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <Card
+                icon={<User className="h-4 w-4" />}
+                title="Décisionnaire & canal"
+              >
+                <KV label="Contact" value={decisionnaireDisplay} />
+                <KV label="Rôle" value={prospect.role_contact} />
+                <KV label="Téléphone" value={prospect.phone} href={telHref} />
+                <KV label="Email" value={prospect.email} href={mailHref} />
+                <KV
+                  label="Site web"
+                  value={prospect.website}
+                  href={prospect.website}
+                  isExternal
+                />
+              </Card>
+
+              <Card
+                icon={<Globe className="h-4 w-4" />}
+                title="Présence digitale"
+              >
+                <SocialLink
+                  icon={<Instagram className="h-4 w-4" />}
+                  label="Instagram"
+                  value={prospect.instagram}
+                  buildHref={(v) =>
+                    v.startsWith('http')
+                      ? v
+                      : `https://www.instagram.com/${v.replace(/^@/, '')}/`
+                  }
+                />
+                <SocialLink
+                  icon={<Facebook className="h-4 w-4" />}
+                  label="Facebook"
+                  value={prospect.facebook}
+                  buildHref={(v) => v}
+                />
+                <SocialLink
+                  icon={<Linkedin className="h-4 w-4" />}
+                  label="LinkedIn entreprise"
+                  value={prospect.linkedin_entreprise}
+                  buildHref={(v) => v}
+                />
+                <SocialLink
+                  icon={<Linkedin className="h-4 w-4" />}
+                  label="LinkedIn contact"
+                  value={prospect.linkedin_contact}
+                  buildHref={(v) => v}
+                />
+                <SocialLink
+                  icon={<Music2 className="h-4 w-4" />}
+                  label="TikTok"
+                  value={prospect.tiktok}
+                  buildHref={(v) =>
+                    v.startsWith('http')
+                      ? v
+                      : `https://www.tiktok.com/@${v.replace(/^@/, '')}`
+                  }
+                />
+                {!prospect.instagram &&
+                  !prospect.facebook &&
+                  !prospect.linkedin_contact &&
+                  !prospect.linkedin_entreprise &&
+                  !prospect.tiktok && (
+                    <p className="text-xs italic text-gnd-muted">
+                      Aucune présence sociale renseignée.
+                    </p>
+                  )}
+              </Card>
+            </div>
+
+            {/* Row 2 : Qualification (full-width grid of stat tiles) */}
+            <Card
+              icon={<TrendingUp className="h-4 w-4" />}
+              title="Qualification"
+            >
+              <div className="grid grid-cols-2 gap-2.5 md:grid-cols-4">
+                <Stat
+                  label="CA estimé"
+                  value={prospect.ca_estime}
+                  icon={<Banknote className="h-3.5 w-3.5" />}
+                />
+                <Stat
+                  label="Taille"
+                  value={prospect.taille_entreprise}
+                  icon={<Users className="h-3.5 w-3.5" />}
+                />
+                <Stat
+                  label="Note Google"
+                  value={
+                    prospect.note_google != null
+                      ? `${prospect.note_google}${
+                          prospect.nombre_avis != null
+                            ? ` · ${prospect.nombre_avis}`
+                            : ''
+                        }`
+                      : null
+                  }
+                  icon={<Star className="h-3.5 w-3.5" />}
+                />
+                <Stat
+                  label="Nb employés"
+                  value={
+                    prospect.nombre_employes != null
+                      ? String(prospect.nombre_employes)
+                      : null
+                  }
+                />
+              </div>
+            </Card>
+
+            {/* Row 3 : Tags (besoins + arguments) */}
+            {((prospect.besoins_detectes &&
+              prospect.besoins_detectes.length > 0) ||
+              (prospect.arguments_cles &&
+                prospect.arguments_cles.length > 0)) && (
+              <Card icon={<Tag className="h-4 w-4" />} title="Tags">
+                {prospect.besoins_detectes &&
+                  prospect.besoins_detectes.length > 0 && (
+                    <div>
+                      <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-gnd-muted">
+                        Besoins détectés
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {prospect.besoins_detectes.map((b) => (
+                          <span
+                            key={b}
+                            className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700 ring-1 ring-blue-200"
+                          >
+                            {b}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                {prospect.arguments_cles &&
+                  prospect.arguments_cles.length > 0 && (
+                    <div className="mt-3">
+                      <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-gnd-muted">
+                        Arguments clés
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {prospect.arguments_cles.map((a) => (
+                          <span
+                            key={a}
+                            className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 ring-1 ring-emerald-200"
+                          >
+                            {a}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+              </Card>
+            )}
+
+            {/* Row 4 : Analyses */}
+            {(prospect.analyse_besoin ||
+              prospect.analyse_budget ||
+              prospect.analyse_timing) && (
+              <Card
+                icon={<FileText className="h-4 w-4" />}
+                title="Analyses Notion"
+              >
+                <Analyse label="Besoin" value={prospect.analyse_besoin} />
+                <Analyse label="Budget" value={prospect.analyse_budget} />
+                <Analyse label="Timing" value={prospect.analyse_timing} />
+              </Card>
+            )}
+
+            {/* Row 5 : Recommandation commerciale (highlight) */}
+            {prospect.recommandation_approche && (
+              <Card
+                icon={<Lightbulb className="h-4 w-4 text-amber-700" />}
+                title="Recommandation commerciale"
+                tone="highlight"
+              >
+                <p className="whitespace-pre-wrap text-sm leading-relaxed text-amber-950">
+                  {prospect.recommandation_approche}
+                </p>
+              </Card>
+            )}
+
+            <p className="pt-1 text-center text-[11px] italic text-gnd-muted">
+              Données issues de Notion (Pipeline Prospects GND). Les notes et
+              le statut saisis sur la plateforme sont préservés au sync.
+            </p>
+          </div>
         </div>
 
-        {/* ---- Décisionnaire + canal ---- */}
-        <Section title="Décisionnaire & canal">
-          <KV label="Contact" value={decisionnaire || prospect.contact_name} />
-          <KV label="Rôle" value={prospect.role_contact} />
-          <KV label="Téléphone" value={prospect.phone} />
-          <KV label="Email" value={prospect.email} />
-          <KV label="Site web" value={prospect.website} isLink />
-        </Section>
-
-        {/* ---- Présence digitale ---- */}
-        {(prospect.instagram ||
-          prospect.facebook ||
-          prospect.linkedin_contact ||
-          prospect.linkedin_entreprise ||
-          prospect.tiktok) && (
-          <Section title="Présence digitale">
-            <KV label="Instagram" value={prospect.instagram} isLink />
-            <KV label="Facebook" value={prospect.facebook} isLink />
-            <KV
-              label="LinkedIn entreprise"
-              value={prospect.linkedin_entreprise}
-              isLink
-            />
-            <KV
-              label="LinkedIn contact"
-              value={prospect.linkedin_contact}
-              isLink
-            />
-            <KV label="TikTok" value={prospect.tiktok} isLink />
-          </Section>
-        )}
-
-        {/* ---- Qualification ---- */}
-        <Section title="Qualification">
-          <KV label="Classification" value={prospect.classification} />
-          <KV label="Branche" value={prospect.branche} />
-          <KV label="CA estimé" value={prospect.ca_estime} />
-          <KV label="Taille" value={prospect.taille_entreprise} />
-          <KV
-            label="Nb employés"
-            value={
-              prospect.nombre_employes != null
-                ? String(prospect.nombre_employes)
-                : null
-            }
-          />
-          <KV
-            label="Note Google"
-            value={
-              prospect.note_google != null
-                ? `${prospect.note_google}${
-                    prospect.nombre_avis != null
-                      ? ` (${prospect.nombre_avis} avis)`
-                      : ''
-                  }`
-                : null
-            }
-          />
-        </Section>
-
-        {/* ---- Tags ---- */}
-        {(prospect.besoins_detectes?.length ||
-          prospect.arguments_cles?.length) ? (
-          <Section title="Tags">
-            {prospect.besoins_detectes &&
-              prospect.besoins_detectes.length > 0 && (
-                <div className="col-span-full">
-                  <div className="text-xs uppercase tracking-wide text-gnd-muted">
-                    Besoins détectés
-                  </div>
-                  <div className="mt-1 flex flex-wrap gap-1">
-                    {prospect.besoins_detectes.map((b) => (
-                      <span
-                        key={b}
-                        className="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700"
-                      >
-                        {b}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            {prospect.arguments_cles &&
-              prospect.arguments_cles.length > 0 && (
-                <div className="col-span-full mt-2">
-                  <div className="text-xs uppercase tracking-wide text-gnd-muted">
-                    Arguments clés
-                  </div>
-                  <div className="mt-1 flex flex-wrap gap-1">
-                    {prospect.arguments_cles.map((a) => (
-                      <span
-                        key={a}
-                        className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700"
-                      >
-                        {a}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-          </Section>
-        ) : null}
-
-        {/* ---- Analyses Notion ---- */}
-        {(prospect.analyse_besoin ||
-          prospect.analyse_budget ||
-          prospect.analyse_timing) && (
-          <Section title="Analyses">
-            <Long label="Besoin" value={prospect.analyse_besoin} />
-            <Long label="Budget" value={prospect.analyse_budget} />
-            <Long label="Timing" value={prospect.analyse_timing} />
-          </Section>
-        )}
-
-        {/* ---- Recommandation d'approche ---- */}
-        {prospect.recommandation_approche && (
-          <Section title="Recommandation commerciale">
-            <p className="col-span-full whitespace-pre-wrap rounded-lg bg-amber-50 p-3 text-sm text-amber-900">
-              {prospect.recommandation_approche}
-            </p>
-          </Section>
-        )}
-
-        <p className="mt-6 text-xs text-gnd-muted">
-          Données issues de Notion (Pipeline Prospects GND). Pour modifier ces
-          champs, éditer la page Notion correspondante. Les notes et le statut
-          saisis dans cette plateforme sont préservés au sync.
-        </p>
+        {/* ============================================================== */}
+        {/* STICKY FOOTER ACTIONS                                            */}
+        {/* ============================================================== */}
+        <footer className="flex shrink-0 flex-wrap items-center justify-end gap-2 border-t border-slate-200 bg-white px-5 py-3 sm:px-6">
+          {telHref && (
+            <FooterAction href={telHref} icon={<Phone className="h-4 w-4" />}>
+              Appeler
+            </FooterAction>
+          )}
+          {mailHref && (
+            <FooterAction href={mailHref} icon={<Mail className="h-4 w-4" />}>
+              Email
+            </FooterAction>
+          )}
+          {igHref && (
+            <FooterAction
+              href={igHref}
+              external
+              icon={<Instagram className="h-4 w-4" />}
+            >
+              DM Instagram
+            </FooterAction>
+          )}
+          {notionUrl && (
+            <FooterAction
+              href={notionUrl}
+              external
+              icon={<ExternalLink className="h-4 w-4" />}
+            >
+              Voir Notion
+            </FooterAction>
+          )}
+        </footer>
       </div>
     </div>
   );
 }
 
 // =====================================================================
-// Petits sous-composants utilitaires (pas exportés)
+// Sous-composants utilitaires (non exportés)
 // =====================================================================
 
-function Section({
+function Card({
+  icon,
   title,
+  tone = 'default',
   children,
 }: {
+  icon: React.ReactNode;
   title: string;
+  tone?: 'default' | 'highlight';
   children: React.ReactNode;
 }) {
+  const baseClasses =
+    tone === 'highlight'
+      ? 'rounded-xl bg-gradient-to-br from-amber-50 to-amber-100/60 p-4 ring-1 ring-amber-200/70 shadow-sm'
+      : 'rounded-xl bg-white p-4 ring-1 ring-slate-200 shadow-sm';
   return (
-    <section className="mt-6">
-      <h3 className="text-sm font-semibold uppercase tracking-wide text-gnd-muted">
+    <section className={baseClasses}>
+      <header
+        className={`mb-3 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide ${
+          tone === 'highlight' ? 'text-amber-800' : 'text-gnd-muted'
+        }`}
+      >
+        <span aria-hidden>{icon}</span>
         {title}
-      </h3>
-      <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
-        {children}
-      </div>
+      </header>
+      {children}
     </section>
   );
 }
@@ -231,60 +452,92 @@ function Section({
 function KV({
   label,
   value,
-  isLink = false,
+  href,
+  isExternal,
 }: {
   label: string;
   value: string | null | undefined;
-  isLink?: boolean;
+  href?: string | null;
+  isExternal?: boolean;
 }) {
   if (!value) return null;
-
-  let display: React.ReactNode = value;
-  if (isLink) {
-    let href = value;
-    if (
-      label === 'Instagram' &&
-      !value.startsWith('http')
-    ) {
-      const handle = value.replace(/^@/, '');
-      href = `https://www.instagram.com/${handle}/`;
-    } else if (label === 'TikTok' && !value.startsWith('http')) {
-      const handle = value.replace(/^@/, '');
-      href = `https://www.tiktok.com/@${handle}`;
-    } else if (
-      (label === 'Email' || label.includes('mail')) &&
-      !value.startsWith('mailto:')
-    ) {
-      href = `mailto:${value}`;
-    } else if (
-      label === 'Téléphone' &&
-      !value.startsWith('tel:')
-    ) {
-      href = `tel:${value}`;
-    }
-    display = (
-      <a
-        href={href}
-        target={href.startsWith('http') ? '_blank' : undefined}
-        rel={href.startsWith('http') ? 'noopener noreferrer' : undefined}
-        className="text-gnd-primary hover:underline"
-      >
-        {value}
-      </a>
-    );
-  }
-
+  const content = href ? (
+    <a
+      href={href}
+      target={isExternal ? '_blank' : undefined}
+      rel={isExternal ? 'noopener noreferrer' : undefined}
+      className="text-gnd-primary hover:underline"
+    >
+      {value}
+    </a>
+  ) : (
+    <span className="text-slate-800">{value}</span>
+  );
   return (
-    <div>
-      <div className="text-xs uppercase tracking-wide text-gnd-muted">
+    <div className="mb-2 last:mb-0">
+      <div className="text-[11px] font-semibold uppercase tracking-wide text-gnd-muted">
         {label}
       </div>
-      <div className="mt-0.5 text-sm text-slate-800 break-words">{display}</div>
+      <div className="mt-0.5 break-words text-sm">{content}</div>
     </div>
   );
 }
 
-function Long({
+function SocialLink({
+  icon,
+  label,
+  value,
+  buildHref,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string | null | undefined;
+  buildHref: (v: string) => string;
+}) {
+  if (!value) return null;
+  const href = buildHref(value);
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="-mx-1 mb-1 flex items-center gap-2 rounded-lg px-1.5 py-1 transition hover:bg-slate-100 last:mb-0"
+    >
+      <span className="shrink-0 text-slate-500">{icon}</span>
+      <div className="min-w-0 flex-1">
+        <div className="text-[11px] font-semibold uppercase tracking-wide text-gnd-muted">
+          {label}
+        </div>
+        <div className="truncate text-sm text-gnd-primary">{value}</div>
+      </div>
+      <ExternalLink className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+    </a>
+  );
+}
+
+function Stat({
+  label,
+  value,
+  icon,
+}: {
+  label: string;
+  value: string | null | undefined;
+  icon?: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-lg bg-slate-50 p-2.5 ring-1 ring-slate-200">
+      <div className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-gnd-muted">
+        {icon}
+        {label}
+      </div>
+      <div className="mt-1 break-words text-sm font-semibold text-slate-800">
+        {value ?? '—'}
+      </div>
+    </div>
+  );
+}
+
+function Analyse({
   label,
   value,
 }: {
@@ -293,11 +546,101 @@ function Long({
 }) {
   if (!value) return null;
   return (
-    <div className="col-span-full">
-      <div className="text-xs uppercase tracking-wide text-gnd-muted">
+    <div className="mb-3 last:mb-0">
+      <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-gnd-muted">
         {label}
       </div>
-      <p className="mt-1 whitespace-pre-wrap text-sm text-slate-700">{value}</p>
+      <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-700">
+        {value}
+      </p>
     </div>
+  );
+}
+
+function FooterAction({
+  href,
+  icon,
+  external,
+  children,
+}: {
+  href: string;
+  icon: React.ReactNode;
+  external?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <a
+      href={href}
+      target={external ? '_blank' : undefined}
+      rel={external ? 'noopener noreferrer' : undefined}
+      className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 hover:text-gnd-primary"
+    >
+      {icon}
+      {children}
+    </a>
+  );
+}
+
+// =====================================================================
+// Visual helpers
+// =====================================================================
+
+const AVATAR_COLORS = [
+  'bg-rose-500',
+  'bg-pink-500',
+  'bg-fuchsia-500',
+  'bg-purple-500',
+  'bg-violet-500',
+  'bg-indigo-500',
+  'bg-blue-500',
+  'bg-sky-500',
+  'bg-cyan-500',
+  'bg-teal-500',
+  'bg-emerald-500',
+  'bg-green-500',
+  'bg-lime-500',
+  'bg-amber-500',
+  'bg-orange-500',
+  'bg-red-500',
+];
+
+function colorFromName(name: string): string {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+}
+
+function initials(name: string): string {
+  return (
+    name
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((w) => w.charAt(0).toUpperCase())
+      .join('') || '?'
+  );
+}
+
+const CLASSIFICATION_TONES: Record<string, string> = {
+  'Lead A': 'bg-amber-100 text-amber-800 ring-amber-200',
+  'Lead B': 'bg-blue-100 text-blue-800 ring-blue-200',
+  'Lead C': 'bg-slate-100 text-slate-700 ring-slate-200',
+  A: 'bg-emerald-100 text-emerald-800 ring-emerald-200',
+  'A (80-100)': 'bg-emerald-100 text-emerald-800 ring-emerald-200',
+  B: 'bg-blue-100 text-blue-800 ring-blue-200',
+  'B (65-79)': 'bg-blue-100 text-blue-800 ring-blue-200',
+  C: 'bg-slate-100 text-slate-700 ring-slate-200',
+  'C (50-64)': 'bg-slate-100 text-slate-700 ring-slate-200',
+  Rejeté: 'bg-rose-100 text-rose-800 ring-rose-200',
+  'Rejeté (<50)': 'bg-rose-100 text-rose-800 ring-rose-200',
+};
+
+function classificationTone(classification: string | null): string {
+  if (!classification) return 'bg-slate-100 text-slate-700 ring-slate-200';
+  return (
+    CLASSIFICATION_TONES[classification] ??
+    'bg-slate-100 text-slate-700 ring-slate-200'
   );
 }
