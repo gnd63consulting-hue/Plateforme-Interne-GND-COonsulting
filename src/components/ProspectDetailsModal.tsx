@@ -357,16 +357,14 @@ export default function ProspectDetailsModal({
               </Card>
             )}
 
-            {/* Row 5 : Recommandation commerciale (highlight) */}
+            {/* Row 5 : Recommandation commerciale (highlight + smart parser) */}
             {prospect.recommandation_approche && (
               <Card
                 icon={<Lightbulb className="h-4 w-4 text-amber-700" />}
                 title="Recommandation commerciale"
                 tone="highlight"
               >
-                <p className="whitespace-pre-wrap text-sm leading-relaxed text-amber-950">
-                  {prospect.recommandation_approche}
-                </p>
+                <RecommendationContent text={prospect.recommandation_approche} />
               </Card>
             )}
 
@@ -579,6 +577,231 @@ function FooterAction({
       {children}
     </a>
   );
+}
+
+// =====================================================================
+// RecommendationContent : smart parser for recommandation_approche
+//
+// Detects section markers ("Canal optimal :", "Angle :", "Pièges :", etc.)
+// to break the wall-of-text into labeled blocks. Linkifies phones, emails,
+// URLs, @handles, SIREN. Renders **bold** Markdown segments.
+// =====================================================================
+
+const SECTION_MARKERS = [
+  // Order matters : longer markers first to avoid prefix shadowing
+  "STRATÉGIE D'APPROCHE RECOMMANDÉE",
+  "STRATÉGIE D'APPROCHE",
+  'STRUCTURE CAPITALISTIQUE RÉVÉLÉE',
+  'STRUCTURE CAPITALISTIQUE',
+  'ANGLE COMMERCIAL',
+  'CONTRAINTES PHYSIQUES',
+  'COORDONNÉES DIRIK NON RETROUVÉES VIA API',
+  'EMAIL ET TÉL DIRECT JULIE/RAYMOND',
+  'EMAIL ET TÉL DIRECT',
+  "4 ENTITÉS OPÉRATIONNELLES TAO TAO",
+  "4 ENTITÉS OPÉRATIONNELLES",
+  'TÉLÉPHONES PUBLICS CONFIRMÉS',
+  'TÉLÉPHONES PUBLICS',
+  'JACKPOT TIMING',
+  'IMPORTANT',
+  'IMPÉRATIF',
+  'IMPÉRATIF AU 1ER CONTACT',
+  'LINKEDIN',
+  'Canal de contact recommandé',
+  'Canal optimal',
+  'Angle commercial GND',
+  'Angle commercial',
+  'Angle',
+  'Pièges/notes',
+  'Pièges',
+  "Stratégie d'approche",
+  'Décisionnaires',
+  'Décisionnaire',
+  'Décisionnaire identifié',
+  'Identité juridique',
+  'Backup',
+  'Particularité',
+  'Note',
+  'Args clés',
+  'Arguments clés',
+  'Besoins détectés',
+  'Besoins',
+];
+
+function escapeRegex(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
+ * Insert paragraph breaks before known section markers, then split into
+ * paragraphs. Preserves the original text unchanged otherwise.
+ */
+function splitParagraphs(text: string): string[] {
+  let processed = text.trim();
+  for (const marker of SECTION_MARKERS) {
+    // Match marker as standalone token followed by ':' (not inside a word).
+    // Matches "Canal optimal :" or "Canal optimal:" or "**Canal optimal :**" etc.
+    const pattern = new RegExp(
+      `(?<!\\n)(?<!^)(\\*{0,2}\\b${escapeRegex(marker)}\\b\\*{0,2}\\s*:)`,
+      'gu'
+    );
+    processed = processed.replace(pattern, '\n\n$1');
+  }
+  return processed
+    .split(/\n{2,}/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+}
+
+/**
+ * If the paragraph starts with a known section marker, returns
+ * { label, body }. Otherwise label is null and body is the full text.
+ */
+function matchSectionLabel(text: string): { label: string | null; body: string } {
+  for (const marker of SECTION_MARKERS) {
+    const re = new RegExp(
+      `^\\*{0,2}\\b${escapeRegex(marker)}\\b\\*{0,2}\\s*:\\s*`,
+      'iu'
+    );
+    const m = text.match(re);
+    if (m) {
+      return {
+        label: marker,
+        body: text.slice(m[0].length).trim(),
+      };
+    }
+  }
+  return { label: null, body: text };
+}
+
+function RecommendationContent({ text }: { text: string }) {
+  const paragraphs = splitParagraphs(text);
+  return (
+    <div className="max-w-3xl space-y-3">
+      {paragraphs.map((p, i) => (
+        <RecommendationParagraph key={i} text={p} />
+      ))}
+    </div>
+  );
+}
+
+function RecommendationParagraph({ text }: { text: string }) {
+  const { label, body } = matchSectionLabel(text);
+  if (label) {
+    return (
+      <div>
+        <div className="mb-1 text-[11px] font-bold uppercase tracking-wider text-amber-700">
+          {label}
+        </div>
+        <p className="text-sm leading-7 text-amber-950">{renderInline(body)}</p>
+      </div>
+    );
+  }
+  return <p className="text-sm leading-7 text-amber-950">{renderInline(text)}</p>;
+}
+
+/**
+ * Render a string with inline transformations:
+ * - **bold** -> <strong>
+ * - URLs (http/https) -> external links
+ * - emails -> mailto links
+ * - French phones (+33 ... or 0 X XX XX XX XX) -> tel: links (monospace)
+ * - @handles -> Instagram links
+ * - SIREN [9 digits] -> monospace span
+ */
+function renderInline(text: string): React.ReactNode[] {
+  const PATTERN =
+    /(\*\*[^*\n]+\*\*)|(https?:\/\/[^\s)\]]+)|([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})|(\+33\s?\d(?:[\s.-]?\d{2}){4}|\b0[1-9](?:[\s.-]?\d{2}){4}\b)|(@[a-zA-Z][a-zA-Z0-9._]{1,30})|(\bSIREN\s+(?:\d{3}\s?){2}\d{3}\b)/gu;
+
+  const out: React.ReactNode[] = [];
+  let lastIndex = 0;
+  let key = 0;
+  let match: RegExpExecArray | null;
+
+  // Reset regex state
+  PATTERN.lastIndex = 0;
+
+  while ((match = PATTERN.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      out.push(text.slice(lastIndex, match.index));
+    }
+
+    if (match[1]) {
+      // **bold**
+      out.push(
+        <strong key={`b${key++}`} className="font-semibold text-amber-950">
+          {match[1].slice(2, -2)}
+        </strong>
+      );
+    } else if (match[2]) {
+      // URL
+      out.push(
+        <a
+          key={`u${key++}`}
+          href={match[2]}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="break-all font-medium text-amber-700 underline-offset-2 hover:underline"
+        >
+          {match[2]}
+        </a>
+      );
+    } else if (match[3]) {
+      // email
+      out.push(
+        <a
+          key={`e${key++}`}
+          href={`mailto:${match[3]}`}
+          className="font-medium text-amber-700 underline-offset-2 hover:underline"
+        >
+          {match[3]}
+        </a>
+      );
+    } else if (match[4]) {
+      // phone
+      const cleanPhone = match[4].replace(/[\s.-]/g, '');
+      out.push(
+        <a
+          key={`p${key++}`}
+          href={`tel:${cleanPhone}`}
+          className="whitespace-nowrap rounded bg-amber-100/60 px-1 py-0.5 font-mono text-[13px] font-semibold text-amber-800 underline-offset-2 hover:underline"
+        >
+          {match[4]}
+        </a>
+      );
+    } else if (match[5]) {
+      // @handle (assume Instagram)
+      out.push(
+        <a
+          key={`h${key++}`}
+          href={`https://www.instagram.com/${match[5].slice(1)}/`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-medium text-amber-700 underline-offset-2 hover:underline"
+        >
+          {match[5]}
+        </a>
+      );
+    } else if (match[6]) {
+      // SIREN
+      out.push(
+        <span
+          key={`s${key++}`}
+          className="rounded bg-slate-100 px-1 py-0.5 font-mono text-[12px] text-slate-700"
+        >
+          {match[6]}
+        </span>
+      );
+    }
+
+    lastIndex = match.index + match[0].length;
+  }
+
+  if (lastIndex < text.length) {
+    out.push(text.slice(lastIndex));
+  }
+
+  return out;
 }
 
 // =====================================================================
