@@ -581,14 +581,6 @@ function FooterAction({
 
 // =====================================================================
 // RecommendationContent : smart parser for recommandation_approche
-//
-// 1. Detects section markers ("Canal optimal :", "Angle :", etc.) and
-//    breaks the text into labeled blocks.
-// 2. Splits each block on sentence boundaries (period followed by an
-//    uppercase letter, emoji or digit) and renders each sentence as a
-//    bulleted line for maximum scannability.
-// 3. Linkifies inline tokens : phones (tel:), emails (mailto:),
-//    URLs, @handles (Instagram), SIREN. Renders **bold**.
 // =====================================================================
 
 const SECTION_MARKERS = [
@@ -636,14 +628,9 @@ function escapeRegex(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-/**
- * Insert paragraph breaks before known section markers, then split into
- * paragraphs. Preserves the original text unchanged otherwise.
- */
 function splitParagraphs(text: string): string[] {
   let processed = text.trim();
   for (const marker of SECTION_MARKERS) {
-    // Match marker as standalone token followed by ':' (not inside a word).
     const pattern = new RegExp(
       `(?<!\\n)(?<!^)(\\*{0,2}\\b${escapeRegex(marker)}\\b\\*{0,2}\\s*:)`,
       'gu'
@@ -656,10 +643,6 @@ function splitParagraphs(text: string): string[] {
     .filter(Boolean);
 }
 
-/**
- * If the paragraph starts with a known section marker, return
- * { label, body }. Otherwise label is null and body is the full text.
- */
 function matchSectionLabel(text: string): { label: string | null; body: string } {
   for (const marker of SECTION_MARKERS) {
     const re = new RegExp(
@@ -677,14 +660,7 @@ function matchSectionLabel(text: string): { label: string | null; body: string }
   return { label: null, body: text };
 }
 
-/**
- * Split a paragraph body on sentence boundaries: a period (or ! or ?)
- * followed by whitespace, then an uppercase letter, an emoji, or a
- * digit. Keeps the punctuation attached to the previous sentence.
- */
 function splitSentences(text: string): string[] {
-  // Use Unicode property escapes to recognize "start of new sentence"
-  // markers : uppercase Latin/accented, common emojis, digits.
   const SENTENCE_BOUNDARY =
     /(?<=[.!?])\s+(?=[A-ZÀ-ÜŒŽ\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\d])/u;
   return text
@@ -743,14 +719,20 @@ function RecommendationParagraph({ text }: { text: string }) {
  * Render a string with inline transformations:
  * - **bold** -> <strong>
  * - URLs (http/https) -> external links
+ * - bare domains (xxx.vercel.app, xxx.fr, xxx.com, etc.) -> external links
+ *   with auto-prepended https://
  * - emails -> mailto links
  * - French phones (+33 ... or 0 X XX XX XX XX) -> tel: links (monospace)
  * - @handles -> Instagram links
  * - SIREN [9 digits] -> monospace span
  */
 function renderInline(text: string): React.ReactNode[] {
+  // The bare-domain alternative MUST come AFTER the http(s):// one but BEFORE
+  // any other token, otherwise it would steal characters from absolute URLs.
+  // Common TLDs are listed explicitly to avoid false positives on dates
+  // ("26.04.2026") or version numbers ("v2.0").
   const PATTERN =
-    /(\*\*[^*\n]+\*\*)|(https?:\/\/[^\s)\]]+)|([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})|(\+33\s?\d(?:[\s.-]?\d{2}){4}|\b0[1-9](?:[\s.-]?\d{2}){4}\b)|(@[a-zA-Z][a-zA-Z0-9._]{1,30})|(\bSIREN\s+(?:\d{3}\s?){2}\d{3}\b)/gu;
+    /(\*\*[^*\n]+\*\*)|(https?:\/\/[^\s)\]]+)|((?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+(?:vercel\.app|com|fr|org|net|io|eu|app|me|tv|design|store|restaurant|earth|digital|tech|coffee|pro|biz|info|website|space|ai|dev|cloud|page)\b)|([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})|(\+33\s?\d(?:[\s.-]?\d{2}){4}|\b0[1-9](?:[\s.-]?\d{2}){4}\b)|(@[a-zA-Z][a-zA-Z0-9._]{1,30})|(\bSIREN\s+(?:\d{3}\s?){2}\d{3}\b)/giu;
 
   const out: React.ReactNode[] = [];
   let lastIndex = 0;
@@ -765,12 +747,14 @@ function renderInline(text: string): React.ReactNode[] {
     }
 
     if (match[1]) {
+      // **bold**
       out.push(
         <strong key={`b${key++}`} className="font-semibold text-amber-950">
           {match[1].slice(2, -2)}
         </strong>
       );
     } else if (match[2]) {
+      // http(s):// URL
       out.push(
         <a
           key={`u${key++}`}
@@ -783,45 +767,63 @@ function renderInline(text: string): React.ReactNode[] {
         </a>
       );
     } else if (match[3]) {
+      // bare domain (e.g. faim-de-semaine-website-v2-qs3p.vercel.app)
+      const href = `https://${match[3]}`;
       out.push(
         <a
-          key={`e${key++}`}
-          href={`mailto:${match[3]}`}
-          className="font-medium text-amber-700 underline-offset-2 hover:underline"
+          key={`d${key++}`}
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="break-all font-medium text-amber-700 underline-offset-2 hover:underline"
         >
           {match[3]}
         </a>
       );
     } else if (match[4]) {
-      const cleanPhone = match[4].replace(/[\s.-]/g, '');
+      // email
+      out.push(
+        <a
+          key={`e${key++}`}
+          href={`mailto:${match[4]}`}
+          className="font-medium text-amber-700 underline-offset-2 hover:underline"
+        >
+          {match[4]}
+        </a>
+      );
+    } else if (match[5]) {
+      // phone
+      const cleanPhone = match[5].replace(/[\s.-]/g, '');
       out.push(
         <a
           key={`p${key++}`}
           href={`tel:${cleanPhone}`}
           className="whitespace-nowrap rounded bg-amber-100/60 px-1 py-0.5 font-mono text-[13px] font-semibold text-amber-800 underline-offset-2 hover:underline"
         >
-          {match[4]}
-        </a>
-      );
-    } else if (match[5]) {
-      out.push(
-        <a
-          key={`h${key++}`}
-          href={`https://www.instagram.com/${match[5].slice(1)}/`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="font-medium text-amber-700 underline-offset-2 hover:underline"
-        >
           {match[5]}
         </a>
       );
     } else if (match[6]) {
+      // @handle (assume Instagram)
+      out.push(
+        <a
+          key={`h${key++}`}
+          href={`https://www.instagram.com/${match[6].slice(1)}/`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-medium text-amber-700 underline-offset-2 hover:underline"
+        >
+          {match[6]}
+        </a>
+      );
+    } else if (match[7]) {
+      // SIREN
       out.push(
         <span
           key={`s${key++}`}
           className="rounded bg-slate-100 px-1 py-0.5 font-mono text-[12px] text-slate-700"
         >
-          {match[6]}
+          {match[7]}
         </span>
       );
     }
