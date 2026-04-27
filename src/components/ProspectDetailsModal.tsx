@@ -4,9 +4,9 @@ import { useEffect } from 'react';
 import {
   Banknote,
   Building2,
+  Clock,
   ExternalLink,
   Facebook,
-  FileText,
   Globe,
   Instagram,
   Lightbulb,
@@ -33,6 +33,86 @@ import {
 type ProspectDetailsModalProps = {
   prospect: Prospect | null;
   onClose: () => void;
+};
+
+// =====================================================================
+// Themes — used by ParsedAnalysis / ThemedCard to render section header,
+// bullets, and inline highlights consistently across the 4 analysis
+// cards (Besoin, Timing, Budget, Recommandation).
+// =====================================================================
+
+type AnalysisTheme = {
+  cardClass: string;
+  headerColor: string;
+  iconColor: string;
+  bodyColor: string;
+  sectionLabelColor: string;
+  bulletColor: string;
+  boldColor: string;
+  linkColor: string;
+  phoneBg: string;
+  phoneText: string;
+  handleColor: string;
+};
+
+const RECOMMENDATION_THEME: AnalysisTheme = {
+  cardClass:
+    'rounded-xl bg-gradient-to-br from-amber-50 to-amber-100/60 p-4 ring-1 ring-amber-200/70 shadow-sm',
+  headerColor: 'text-amber-800',
+  iconColor: 'text-amber-700',
+  bodyColor: 'text-amber-950',
+  sectionLabelColor: 'text-amber-700',
+  bulletColor: 'bg-amber-500/70',
+  boldColor: 'text-amber-950',
+  linkColor: 'text-amber-700',
+  phoneBg: 'bg-amber-100/60',
+  phoneText: 'text-amber-800',
+  handleColor: 'text-amber-700',
+};
+
+const BESOIN_THEME: AnalysisTheme = {
+  cardClass:
+    'rounded-xl bg-gradient-to-br from-sky-50 to-sky-100/60 p-4 ring-1 ring-sky-200/70 shadow-sm',
+  headerColor: 'text-sky-800',
+  iconColor: 'text-sky-700',
+  bodyColor: 'text-sky-950',
+  sectionLabelColor: 'text-sky-700',
+  bulletColor: 'bg-sky-500/70',
+  boldColor: 'text-sky-950',
+  linkColor: 'text-sky-700',
+  phoneBg: 'bg-sky-100/60',
+  phoneText: 'text-sky-800',
+  handleColor: 'text-sky-700',
+};
+
+const TIMING_THEME: AnalysisTheme = {
+  cardClass:
+    'rounded-xl bg-gradient-to-br from-violet-50 to-violet-100/60 p-4 ring-1 ring-violet-200/70 shadow-sm',
+  headerColor: 'text-violet-800',
+  iconColor: 'text-violet-700',
+  bodyColor: 'text-violet-950',
+  sectionLabelColor: 'text-violet-700',
+  bulletColor: 'bg-violet-500/70',
+  boldColor: 'text-violet-950',
+  linkColor: 'text-violet-700',
+  phoneBg: 'bg-violet-100/60',
+  phoneText: 'text-violet-800',
+  handleColor: 'text-violet-700',
+};
+
+const BUDGET_THEME: AnalysisTheme = {
+  cardClass:
+    'rounded-xl bg-gradient-to-br from-emerald-50 to-emerald-100/60 p-4 ring-1 ring-emerald-200/70 shadow-sm',
+  headerColor: 'text-emerald-800',
+  iconColor: 'text-emerald-700',
+  bodyColor: 'text-emerald-950',
+  sectionLabelColor: 'text-emerald-700',
+  bulletColor: 'bg-emerald-500/70',
+  boldColor: 'text-emerald-950',
+  linkColor: 'text-emerald-700',
+  phoneBg: 'bg-emerald-100/60',
+  phoneText: 'text-emerald-800',
+  handleColor: 'text-emerald-700',
 };
 
 /**
@@ -348,29 +428,60 @@ export default function ProspectDetailsModal({
               </Card>
             )}
 
-            {/* Row 4 : Analyses */}
-            {(prospect.analyse_besoin ||
-              prospect.analyse_budget ||
-              prospect.analyse_timing) && (
-              <Card
-                icon={<FileText className="h-4 w-4" />}
-                title="Analyses Notion"
+            {/* Row 4 : Analyse du besoin */}
+            {prospect.analyse_besoin && (
+              <ThemedCard
+                icon={<Target className="h-4 w-4" />}
+                title="Analyse du besoin"
+                theme={BESOIN_THEME}
               >
-                <Analyse label="Besoin" value={prospect.analyse_besoin} />
-                <Analyse label="Budget" value={prospect.analyse_budget} />
-                <Analyse label="Timing" value={prospect.analyse_timing} />
-              </Card>
+                <ParsedAnalysis
+                  text={prospect.analyse_besoin}
+                  theme={BESOIN_THEME}
+                />
+              </ThemedCard>
             )}
 
-            {/* Row 5 : Recommandation commerciale (highlight + smart parser) */}
-            {prospect.recommandation_approche && (
-              <Card
-                icon={<Lightbulb className="h-4 w-4 text-amber-700" />}
-                title="Recommandation commerciale"
-                tone="highlight"
+            {/* Row 5 : Analyse du timing */}
+            {prospect.analyse_timing && (
+              <ThemedCard
+                icon={<Clock className="h-4 w-4" />}
+                title="Analyse du timing"
+                theme={TIMING_THEME}
               >
-                <RecommendationContent text={prospect.recommandation_approche} />
-              </Card>
+                <ParsedAnalysis
+                  text={prospect.analyse_timing}
+                  theme={TIMING_THEME}
+                />
+              </ThemedCard>
+            )}
+
+            {/* Row 6 : Analyse du budget */}
+            {prospect.analyse_budget && (
+              <ThemedCard
+                icon={<Banknote className="h-4 w-4" />}
+                title="Analyse du budget"
+                theme={BUDGET_THEME}
+              >
+                <ParsedAnalysis
+                  text={prospect.analyse_budget}
+                  theme={BUDGET_THEME}
+                />
+              </ThemedCard>
+            )}
+
+            {/* Row 7 : Recommandation commerciale (highlight) */}
+            {prospect.recommandation_approche && (
+              <ThemedCard
+                icon={<Lightbulb className="h-4 w-4" />}
+                title="Recommandation commerciale"
+                theme={RECOMMENDATION_THEME}
+              >
+                <ParsedAnalysis
+                  text={prospect.recommandation_approche}
+                  theme={RECOMMENDATION_THEME}
+                />
+              </ThemedCard>
             )}
 
             <p className="pt-1 text-center text-[11px] italic text-gnd-muted">
@@ -425,26 +536,42 @@ export default function ProspectDetailsModal({
 function Card({
   icon,
   title,
-  tone = 'default',
   children,
 }: {
   icon: React.ReactNode;
   title: string;
-  tone?: 'default' | 'highlight';
   children: React.ReactNode;
 }) {
-  const baseClasses =
-    tone === 'highlight'
-      ? 'rounded-xl bg-gradient-to-br from-amber-50 to-amber-100/60 p-4 ring-1 ring-amber-200/70 shadow-sm'
-      : 'rounded-xl bg-white p-4 ring-1 ring-slate-200 shadow-sm';
   return (
-    <section className={baseClasses}>
-      <header
-        className={`mb-3 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide ${
-          tone === 'highlight' ? 'text-amber-800' : 'text-gnd-muted'
-        }`}
-      >
+    <section className="rounded-xl bg-white p-4 ring-1 ring-slate-200 shadow-sm">
+      <header className="mb-3 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gnd-muted">
         <span aria-hidden>{icon}</span>
+        {title}
+      </header>
+      {children}
+    </section>
+  );
+}
+
+function ThemedCard({
+  icon,
+  title,
+  theme,
+  children,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  theme: AnalysisTheme;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className={theme.cardClass}>
+      <header
+        className={`mb-3 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide ${theme.headerColor}`}
+      >
+        <span aria-hidden className={theme.iconColor}>
+          {icon}
+        </span>
         {title}
       </header>
       {children}
@@ -540,26 +667,6 @@ function Stat({
   );
 }
 
-function Analyse({
-  label,
-  value,
-}: {
-  label: string;
-  value: string | null | undefined;
-}) {
-  if (!value) return null;
-  return (
-    <div className="mb-3 last:mb-0">
-      <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-gnd-muted">
-        {label}
-      </div>
-      <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-700">
-        {value}
-      </p>
-    </div>
-  );
-}
-
 function FooterAction({
   href,
   icon,
@@ -585,10 +692,28 @@ function FooterAction({
 }
 
 // =====================================================================
-// RecommendationContent : smart parser for recommandation_approche
+// ParsedAnalysis : smart parser used by all 4 analysis cards.
+// Detects section markers, splits body into bullet sentences, and
+// renders inline highlights (bold, URLs, emails, phones, handles, SIREN).
 // =====================================================================
 
 const SECTION_MARKERS = [
+  // New 2026-04-28 markers (canonical writing convention)
+  "Identité de l'entreprise",
+  'Présence digitale actuelle',
+  'Manques identifiés',
+  'Pic de notoriété',
+  'Signal commercial fort',
+  'Contexte récent',
+  'Fenêtre commerciale',
+  'Capacité d\'investissement',
+  'Indicateurs financiers',
+  'Sensibilité prix',
+  'Canal optimal',
+  'Canal de backup',
+  "Angle d'accroche",
+  'Argument clé',
+  // Legacy markers (kept for compatibility with older fiches)
   "STRATÉGIE D'APPROCHE RECOMMANDÉE",
   "STRATÉGIE D'APPROCHE",
   'STRUCTURE CAPITALISTIQUE RÉVÉLÉE',
@@ -608,7 +733,6 @@ const SECTION_MARKERS = [
   'IMPÉRATIF',
   'LINKEDIN',
   'Canal de contact recommandé',
-  'Canal optimal',
   'Angle commercial GND',
   'Angle commercial',
   'Angle',
@@ -634,12 +758,23 @@ function escapeRegex(s: string): string {
 
 function splitParagraphs(text: string): string[] {
   let processed = text.trim();
+  // Inject a blank line before any inline marker to allow paragraph split.
+  // Markers can be either "**Marker.**" (markdown bold + period) or
+  // "**Marker:**" / "Marker:" (legacy colon style).
   for (const marker of SECTION_MARKERS) {
-    const pattern = new RegExp(
-      `(?<!\\n)(?<!^)(\\*{0,2}\\b${escapeRegex(marker)}\\b\\*{0,2}\\s*:)`,
+    const escaped = escapeRegex(marker);
+    // Bold + period style (new convention 2026-04-28)
+    const periodPattern = new RegExp(
+      `(?<!\\n)(?<!^)(\\*{2}\\b${escaped}\\b\\.\\*{2})`,
       'gu'
     );
-    processed = processed.replace(pattern, '\n\n$1');
+    processed = processed.replace(periodPattern, '\n\n$1');
+    // Bold + colon style (legacy)
+    const colonPattern = new RegExp(
+      `(?<!\\n)(?<!^)(\\*{0,2}\\b${escaped}\\b\\*{0,2}\\s*:)`,
+      'gu'
+    );
+    processed = processed.replace(colonPattern, '\n\n$1');
   }
   return processed
     .split(/\n{2,}/)
@@ -649,15 +784,29 @@ function splitParagraphs(text: string): string[] {
 
 function matchSectionLabel(text: string): { label: string | null; body: string } {
   for (const marker of SECTION_MARKERS) {
-    const re = new RegExp(
-      `^\\*{0,2}\\b${escapeRegex(marker)}\\b\\*{0,2}\\s*:\\s*`,
+    const escaped = escapeRegex(marker);
+    // New convention: **Marker.** [body...]
+    const periodRe = new RegExp(
+      `^\\*{2}\\b${escaped}\\b\\.\\*{2}\\s*`,
       'iu'
     );
-    const m = text.match(re);
-    if (m) {
+    const periodMatch = text.match(periodRe);
+    if (periodMatch) {
       return {
         label: marker,
-        body: text.slice(m[0].length).trim(),
+        body: text.slice(periodMatch[0].length).trim(),
+      };
+    }
+    // Legacy: **Marker:** [body...] or Marker: [body...]
+    const colonRe = new RegExp(
+      `^\\*{0,2}\\b${escaped}\\b\\*{0,2}\\s*:\\s*`,
+      'iu'
+    );
+    const colonMatch = text.match(colonRe);
+    if (colonMatch) {
+      return {
+        label: marker,
+        body: text.slice(colonMatch[0].length).trim(),
       };
     }
   }
@@ -673,44 +822,58 @@ function splitSentences(text: string): string[] {
     .filter(Boolean);
 }
 
-function RecommendationContent({ text }: { text: string }) {
+function ParsedAnalysis({
+  text,
+  theme,
+}: {
+  text: string;
+  theme: AnalysisTheme;
+}) {
   const paragraphs = splitParagraphs(text);
   return (
     <div className="max-w-3xl space-y-4">
       {paragraphs.map((p, i) => (
-        <RecommendationParagraph key={i} text={p} />
+        <ParsedParagraph key={i} text={p} theme={theme} />
       ))}
     </div>
   );
 }
 
-function RecommendationParagraph({ text }: { text: string }) {
+function ParsedParagraph({
+  text,
+  theme,
+}: {
+  text: string;
+  theme: AnalysisTheme;
+}) {
   const { label, body } = matchSectionLabel(text);
   const sentences = splitSentences(body);
 
   return (
     <div>
       {label && (
-        <div className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-amber-700">
+        <div
+          className={`mb-1.5 text-[11px] font-bold uppercase tracking-wider ${theme.sectionLabelColor}`}
+        >
           {label}
         </div>
       )}
       {sentences.length <= 1 ? (
-        <p className="text-sm leading-7 text-amber-950">
-          {renderInline(body)}
+        <p className={`text-sm leading-7 ${theme.bodyColor}`}>
+          {renderInline(body, theme)}
         </p>
       ) : (
         <ul className="space-y-1.5">
           {sentences.map((s, i) => (
             <li
               key={i}
-              className="flex gap-2 text-sm leading-7 text-amber-950"
+              className={`flex gap-2 text-sm leading-7 ${theme.bodyColor}`}
             >
               <span
-                className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500/70"
+                className={`mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full ${theme.bulletColor}`}
                 aria-hidden
               />
-              <span className="min-w-0 flex-1">{renderInline(s)}</span>
+              <span className="min-w-0 flex-1">{renderInline(s, theme)}</span>
             </li>
           ))}
         </ul>
@@ -719,7 +882,7 @@ function RecommendationParagraph({ text }: { text: string }) {
   );
 }
 
-function renderInline(text: string): React.ReactNode[] {
+function renderInline(text: string, theme: AnalysisTheme): React.ReactNode[] {
   const PATTERN =
     /(\*\*[^*\n]+\*\*)|(https?:\/\/[^\s)\]]+)|((?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+(?:vercel\.app|com|fr|org|net|io|eu|app|me|tv|design|store|restaurant|earth|digital|tech|coffee|pro|biz|info|website|space|ai|dev|cloud|page))(?![a-zA-Z0-9])|([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})|(\+33\s?\d(?:[\s.-]?\d{2}){4}|\b0[1-9](?:[\s.-]?\d{2}){4}\b)|(@[a-zA-Z][a-zA-Z0-9._]{1,30})|(\bSIREN\s+(?:\d{3}\s?){2}\d{3}\b)/gu;
 
@@ -737,7 +900,7 @@ function renderInline(text: string): React.ReactNode[] {
 
     if (match[1]) {
       out.push(
-        <strong key={`b${key++}`} className="font-semibold text-amber-950">
+        <strong key={`b${key++}`} className={`font-semibold ${theme.boldColor}`}>
           {match[1].slice(2, -2)}
         </strong>
       );
@@ -748,7 +911,7 @@ function renderInline(text: string): React.ReactNode[] {
           href={match[2]}
           target="_blank"
           rel="noopener noreferrer"
-          className="break-all font-medium text-amber-700 underline-offset-2 hover:underline"
+          className={`break-all font-medium underline-offset-2 hover:underline ${theme.linkColor}`}
         >
           {match[2]}
         </a>
@@ -761,7 +924,7 @@ function renderInline(text: string): React.ReactNode[] {
           href={`https://${match[3]}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="break-all font-medium text-amber-700 underline-offset-2 hover:underline"
+          className={`break-all font-medium underline-offset-2 hover:underline ${theme.linkColor}`}
         >
           {match[3]}
         </a>
@@ -771,7 +934,7 @@ function renderInline(text: string): React.ReactNode[] {
         <a
           key={`e${key++}`}
           href={`mailto:${match[4]}`}
-          className="font-medium text-amber-700 underline-offset-2 hover:underline"
+          className={`font-medium underline-offset-2 hover:underline ${theme.linkColor}`}
         >
           {match[4]}
         </a>
@@ -782,7 +945,7 @@ function renderInline(text: string): React.ReactNode[] {
         <a
           key={`p${key++}`}
           href={`tel:${cleanPhone}`}
-          className="whitespace-nowrap rounded bg-amber-100/60 px-1 py-0.5 font-mono text-[13px] font-semibold text-amber-800 underline-offset-2 hover:underline"
+          className={`whitespace-nowrap rounded px-1 py-0.5 font-mono text-[13px] font-semibold underline-offset-2 hover:underline ${theme.phoneBg} ${theme.phoneText}`}
         >
           {match[5]}
         </a>
@@ -794,7 +957,7 @@ function renderInline(text: string): React.ReactNode[] {
           href={`https://www.instagram.com/${match[6].slice(1)}/`}
           target="_blank"
           rel="noopener noreferrer"
-          className="font-medium text-amber-700 underline-offset-2 hover:underline"
+          className={`font-medium underline-offset-2 hover:underline ${theme.handleColor}`}
         >
           {match[6]}
         </a>
