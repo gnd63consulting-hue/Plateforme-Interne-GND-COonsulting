@@ -42,10 +42,6 @@ type ProspectDetailsModalProps = {
  * Source de vérité : Notion (cf. base "Pipeline Prospects GND"). Pour
  * modifier un de ces champs, éditer la page Notion correspondante puis
  * lancer le sync (ou attendre le cron Vercel 6h).
- *
- * Volontairement read-only : les commerciaux saisissent leurs ajouts dans
- * le panneau "Notes" (préservé au sync). Les analyses Notion restent
- * intactes.
  */
 export default function ProspectDetailsModal({
   prospect,
@@ -140,16 +136,25 @@ export default function ProspectDetailsModal({
             <div className="mt-2 flex flex-wrap items-center gap-1.5">
               {prospect.classification && (
                 <span
-                  className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide ring-1 ${classificationTone(
+                  title={
+                    classificationTooltip(prospect.classification) ?? undefined
+                  }
+                  className={`inline-flex cursor-help items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide ring-1 ${classificationTone(
                     prospect.classification
                   )}`}
                 >
-                  <Target className="h-3 w-3" aria-hidden />
+                  {/* Don't repeat the emoji icon if it's already in the value */}
+                  {!/^[\p{Emoji}]/u.test(prospect.classification) && (
+                    <Target className="h-3 w-3" aria-hidden />
+                  )}
                   {prospect.classification}
                 </span>
               )}
               {prospect.branche && (
-                <span className="inline-flex items-center rounded-full bg-purple-50 px-2 py-0.5 text-[11px] font-medium text-purple-700 ring-1 ring-purple-200">
+                <span
+                  title="Type de service GND : A = Agence Créative (sites web), B = Production Audiovisuelle, C = Solutions IA"
+                  className="inline-flex cursor-help items-center rounded-full bg-purple-50 px-2 py-0.5 text-[11px] font-medium text-purple-700 ring-1 ring-purple-200"
+                >
                   {prospect.branche}
                 </span>
               )}
@@ -584,7 +589,6 @@ function FooterAction({
 // =====================================================================
 
 const SECTION_MARKERS = [
-  // Order matters : longer markers first to avoid prefix shadowing.
   "STRATÉGIE D'APPROCHE RECOMMANDÉE",
   "STRATÉGIE D'APPROCHE",
   'STRUCTURE CAPITALISTIQUE RÉVÉLÉE',
@@ -715,24 +719,9 @@ function RecommendationParagraph({ text }: { text: string }) {
   );
 }
 
-/**
- * Render a string with inline transformations:
- * - **bold** -> <strong>
- * - URLs (http/https) -> external links
- * - bare domains (xxx.vercel.app, xxx.fr, xxx.com, etc.) -> external links
- *   with auto-prepended https://
- * - emails -> mailto links
- * - French phones (+33 ... or 0 X XX XX XX XX) -> tel: links (monospace)
- * - @handles -> Instagram links
- * - SIREN [9 digits] -> monospace span
- */
 function renderInline(text: string): React.ReactNode[] {
-  // The bare-domain alternative MUST come AFTER the http(s):// one but BEFORE
-  // any other token, otherwise it would steal characters from absolute URLs.
-  // Common TLDs are listed explicitly to avoid false positives on dates
-  // ("26.04.2026") or version numbers ("v2.0").
   const PATTERN =
-    /(\*\*[^*\n]+\*\*)|(https?:\/\/[^\s)\]]+)|((?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+(?:vercel\.app|com|fr|org|net|io|eu|app|me|tv|design|store|restaurant|earth|digital|tech|coffee|pro|biz|info|website|space|ai|dev|cloud|page)\b)|([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})|(\+33\s?\d(?:[\s.-]?\d{2}){4}|\b0[1-9](?:[\s.-]?\d{2}){4}\b)|(@[a-zA-Z][a-zA-Z0-9._]{1,30})|(\bSIREN\s+(?:\d{3}\s?){2}\d{3}\b)/giu;
+    /(\*\*[^*\n]+\*\*)|(https?:\/\/[^\s)\]]+)|((?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+(?:vercel\.app|com|fr|org|net|io|eu|app|me|tv|design|store|restaurant|earth|digital|tech|coffee|pro|biz|info|website|space|ai|dev|cloud|page))(?![a-zA-Z0-9])|([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})|(\+33\s?\d(?:[\s.-]?\d{2}){4}|\b0[1-9](?:[\s.-]?\d{2}){4}\b)|(@[a-zA-Z][a-zA-Z0-9._]{1,30})|(\bSIREN\s+(?:\d{3}\s?){2}\d{3}\b)/gu;
 
   const out: React.ReactNode[] = [];
   let lastIndex = 0;
@@ -747,14 +736,12 @@ function renderInline(text: string): React.ReactNode[] {
     }
 
     if (match[1]) {
-      // **bold**
       out.push(
         <strong key={`b${key++}`} className="font-semibold text-amber-950">
           {match[1].slice(2, -2)}
         </strong>
       );
     } else if (match[2]) {
-      // http(s):// URL
       out.push(
         <a
           key={`u${key++}`}
@@ -767,12 +754,11 @@ function renderInline(text: string): React.ReactNode[] {
         </a>
       );
     } else if (match[3]) {
-      // bare domain (e.g. faim-de-semaine-website-v2-qs3p.vercel.app)
-      const href = `https://${match[3]}`;
+      // Bare domain (no http://) -> prepend https:// for the href
       out.push(
         <a
           key={`d${key++}`}
-          href={href}
+          href={`https://${match[3]}`}
           target="_blank"
           rel="noopener noreferrer"
           className="break-all font-medium text-amber-700 underline-offset-2 hover:underline"
@@ -781,7 +767,6 @@ function renderInline(text: string): React.ReactNode[] {
         </a>
       );
     } else if (match[4]) {
-      // email
       out.push(
         <a
           key={`e${key++}`}
@@ -792,7 +777,6 @@ function renderInline(text: string): React.ReactNode[] {
         </a>
       );
     } else if (match[5]) {
-      // phone
       const cleanPhone = match[5].replace(/[\s.-]/g, '');
       out.push(
         <a
@@ -804,7 +788,6 @@ function renderInline(text: string): React.ReactNode[] {
         </a>
       );
     } else if (match[6]) {
-      // @handle (assume Instagram)
       out.push(
         <a
           key={`h${key++}`}
@@ -817,7 +800,6 @@ function renderInline(text: string): React.ReactNode[] {
         </a>
       );
     } else if (match[7]) {
-      // SIREN
       out.push(
         <span
           key={`s${key++}`}
@@ -880,7 +862,23 @@ function initials(name: string): string {
   );
 }
 
+// =====================================================================
+// Classification — colors + tooltips
+//
+// New canonical values (since 2026-04-27):
+//   🔥 Chaud  — priority lead, contact NOW
+//   🌡️ Tiède  — good profile but with friction
+//   ❄️ Froid  — requalify later, NURTURE
+//
+// Legacy values (Lead A/B/C, A, B, C, A (80-100), etc.) are kept as
+// fallback during the migration window.
+// =====================================================================
+
 const CLASSIFICATION_TONES: Record<string, string> = {
+  '🔥 Chaud': 'bg-rose-100 text-rose-800 ring-rose-200',
+  '🌡️ Tiède': 'bg-amber-100 text-amber-800 ring-amber-200',
+  '❄️ Froid': 'bg-sky-100 text-sky-800 ring-sky-200',
+  // Legacy fallbacks
   'Lead A': 'bg-amber-100 text-amber-800 ring-amber-200',
   'Lead B': 'bg-blue-100 text-blue-800 ring-blue-200',
   'Lead C': 'bg-slate-100 text-slate-700 ring-slate-200',
@@ -894,10 +892,26 @@ const CLASSIFICATION_TONES: Record<string, string> = {
   'Rejeté (<50)': 'bg-rose-100 text-rose-800 ring-rose-200',
 };
 
+const CLASSIFICATION_TOOLTIPS: Record<string, string> = {
+  '🔥 Chaud':
+    'Lead à contacter en priorité. Décisionnaire identifié, canal direct, signal timing fort.',
+  '🌡️ Tiède':
+    'Bon profil mais avec friction. Identité floue, dirigeant senior, ou à éduquer / requalifier.',
+  '❄️ Froid':
+    'À requalifier ultérieurement. NURTURE / non urgent / signal timing faible.',
+};
+
 function classificationTone(classification: string | null): string {
   if (!classification) return 'bg-slate-100 text-slate-700 ring-slate-200';
   return (
     CLASSIFICATION_TONES[classification] ??
     'bg-slate-100 text-slate-700 ring-slate-200'
   );
+}
+
+function classificationTooltip(
+  classification: string | null
+): string | null {
+  if (!classification) return null;
+  return CLASSIFICATION_TOOLTIPS[classification] ?? null;
 }

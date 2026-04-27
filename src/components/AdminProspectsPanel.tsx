@@ -35,13 +35,6 @@ type Props = {
   users: User[];
 };
 
-/**
- * Vue admin : pipeline global avec filtres avancés (commercial, statut,
- * classification, secteur, branche, ca_estime). Statut éditable inline,
- * édition complète via le bouton ✎. Tous les changements de statut sont
- * propagés fire-and-forget vers Notion via
- * /api/prospects/[id]/sync-status-to-notion.
- */
 export default function AdminProspectsPanel({
   prospects: initialProspects,
   users,
@@ -66,7 +59,6 @@ export default function AdminProspectsPanel({
       !id ? '— non assigné' : map.get(id) ?? id.slice(0, 8);
   }, [users]);
 
-  // ---- Options dynamiques pour les filtres ---------------------------------
   const classificationOptions = useMemo(() => {
     const set = new Set<string>();
     for (const p of prospects) if (p.classification) set.add(p.classification);
@@ -272,7 +264,7 @@ export default function AdminProspectsPanel({
             value={classificationFilter}
             onChange={setClassificationFilter}
             options={[
-              { value: 'all', label: 'Toutes classifications' },
+              { value: 'all', label: 'Toutes priorités' },
               ...classificationOptions.map((c) => ({ value: c, label: c })),
             ]}
           />
@@ -468,7 +460,6 @@ function ProspectRow({
 
   return (
     <tr className="group transition hover:bg-slate-50/70">
-      {/* Assigné à */}
       <td className="px-3 py-3 first:pl-4">
         <div className="flex items-center gap-2">
           <UserAvatar name={assigneeLabel} />
@@ -478,7 +469,6 @@ function ProspectRow({
         </div>
       </td>
 
-      {/* Entreprise + classification */}
       <td className="px-3 py-3 align-top">
         <div className="flex flex-col gap-1">
           <span className="font-medium text-gnd-primary line-clamp-2">
@@ -486,7 +476,8 @@ function ProspectRow({
           </span>
           {p.classification && (
             <span
-              className={`inline-flex w-fit items-center rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider ring-1 ${classificationToneClass(
+              title={classificationTooltip(p.classification) ?? undefined}
+              className={`inline-flex w-fit cursor-help items-center rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider ring-1 ${classificationToneClass(
                 p.classification
               )}`}
             >
@@ -496,7 +487,6 @@ function ProspectRow({
         </div>
       </td>
 
-      {/* Contact */}
       <td className="px-3 py-3 align-top">
         <div className="flex flex-col">
           <span className="text-slate-800 line-clamp-1">
@@ -508,7 +498,6 @@ function ProspectRow({
         </div>
       </td>
 
-      {/* Coordonnées : phone + mail */}
       <td className="px-3 py-3 align-top">
         <div className="flex flex-col gap-1">
           {tel ? (
@@ -535,7 +524,6 @@ function ProspectRow({
         </div>
       </td>
 
-      {/* Adresse (line-clamp-2) */}
       <td className="max-w-[260px] px-3 py-3 align-top">
         <span
           className="line-clamp-2 text-xs text-slate-600"
@@ -545,7 +533,6 @@ function ProspectRow({
         </span>
       </td>
 
-      {/* Secteur */}
       <td className="px-3 py-3 align-top">
         {p.sector ? (
           <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-700">
@@ -556,7 +543,6 @@ function ProspectRow({
         )}
       </td>
 
-      {/* Statut (editable) */}
       <td className="px-3 py-3 align-top">
         <div className="flex items-center gap-1.5">
           <span
@@ -586,7 +572,6 @@ function ProspectRow({
         </div>
       </td>
 
-      {/* Source */}
       <td className="px-3 py-3 align-top">
         {p.notion_page_id ? (
           <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-1.5 py-0.5 text-[10px] font-medium text-blue-700 ring-1 ring-blue-200">
@@ -601,12 +586,10 @@ function ProspectRow({
         )}
       </td>
 
-      {/* MAJ */}
       <td className="whitespace-nowrap px-3 py-3 align-top text-xs text-gnd-muted">
         {formatRelativeDate(p.updated_at)}
       </td>
 
-      {/* Actions */}
       <td className="whitespace-nowrap px-3 py-3 align-top text-right last:pr-4">
         <div className="flex justify-end gap-1">
           <button
@@ -656,7 +639,34 @@ function statusIcon(status: string) {
   }
 }
 
+// =====================================================================
+// Classification — colors + tooltips (mirror of ProspectDetailsModal)
+// New canonical values (since 2026-04-27): 🔥 Chaud / 🌡️ Tiède / ❄️ Froid.
+// Legacy fallbacks kept for backward compatibility during migration.
+// =====================================================================
+
+const CLASSIFICATION_TOOLTIPS_TABLE: Record<string, string> = {
+  '🔥 Chaud':
+    'Lead à contacter en priorité. Décisionnaire identifié, canal direct, signal timing fort.',
+  '🌡️ Tiède':
+    'Bon profil mais avec friction. Identité floue, dirigeant senior, ou à éduquer / requalifier.',
+  '❄️ Froid':
+    'À requalifier ultérieurement. NURTURE / non urgent / signal timing faible.',
+};
+
+function classificationTooltip(
+  classification: string | null
+): string | null {
+  if (!classification) return null;
+  return CLASSIFICATION_TOOLTIPS_TABLE[classification] ?? null;
+}
+
 function classificationToneClass(c: string): string {
+  // New canonical values
+  if (c.startsWith('🔥')) return 'bg-rose-100 text-rose-800 ring-rose-200';
+  if (c.startsWith('🌡️')) return 'bg-amber-100 text-amber-800 ring-amber-200';
+  if (c.startsWith('❄️')) return 'bg-sky-100 text-sky-800 ring-sky-200';
+  // Legacy fallbacks
   if (c.startsWith('Lead A') || c === 'A' || c.startsWith('A (')) {
     return 'bg-amber-100 text-amber-800 ring-amber-200';
   }
@@ -723,10 +733,6 @@ function UserAvatar({ name }: { name: string }) {
   );
 }
 
-/**
- * Format a date as a relative label if recent ("Aujourd'hui", "Hier",
- * "il y a Nj"), or fallback to the standard short format from prospects lib.
- */
 function formatRelativeDate(iso: string | null | undefined): string {
   if (!iso) return '—';
   try {
