@@ -582,13 +582,17 @@ function FooterAction({
 // =====================================================================
 // RecommendationContent : smart parser for recommandation_approche
 //
-// Detects section markers ("Canal optimal :", "Angle :", "Pièges :", etc.)
-// to break the wall-of-text into labeled blocks. Linkifies phones, emails,
-// URLs, @handles, SIREN. Renders **bold** Markdown segments.
+// 1. Detects section markers ("Canal optimal :", "Angle :", etc.) and
+//    breaks the text into labeled blocks.
+// 2. Splits each block on sentence boundaries (period followed by an
+//    uppercase letter, emoji or digit) and renders each sentence as a
+//    bulleted line for maximum scannability.
+// 3. Linkifies inline tokens : phones (tel:), emails (mailto:),
+//    URLs, @handles (Instagram), SIREN. Renders **bold**.
 // =====================================================================
 
 const SECTION_MARKERS = [
-  // Order matters : longer markers first to avoid prefix shadowing
+  // Order matters : longer markers first to avoid prefix shadowing.
   "STRATÉGIE D'APPROCHE RECOMMANDÉE",
   "STRATÉGIE D'APPROCHE",
   'STRUCTURE CAPITALISTIQUE RÉVÉLÉE',
@@ -598,14 +602,14 @@ const SECTION_MARKERS = [
   'COORDONNÉES DIRIK NON RETROUVÉES VIA API',
   'EMAIL ET TÉL DIRECT JULIE/RAYMOND',
   'EMAIL ET TÉL DIRECT',
-  "4 ENTITÉS OPÉRATIONNELLES TAO TAO",
-  "4 ENTITÉS OPÉRATIONNELLES",
+  '4 ENTITÉS OPÉRATIONNELLES TAO TAO',
+  '4 ENTITÉS OPÉRATIONNELLES',
   'TÉLÉPHONES PUBLICS CONFIRMÉS',
   'TÉLÉPHONES PUBLICS',
   'JACKPOT TIMING',
   'IMPORTANT',
-  'IMPÉRATIF',
   'IMPÉRATIF AU 1ER CONTACT',
+  'IMPÉRATIF',
   'LINKEDIN',
   'Canal de contact recommandé',
   'Canal optimal',
@@ -615,9 +619,9 @@ const SECTION_MARKERS = [
   'Pièges/notes',
   'Pièges',
   "Stratégie d'approche",
+  'Décisionnaire identifié',
   'Décisionnaires',
   'Décisionnaire',
-  'Décisionnaire identifié',
   'Identité juridique',
   'Backup',
   'Particularité',
@@ -640,7 +644,6 @@ function splitParagraphs(text: string): string[] {
   let processed = text.trim();
   for (const marker of SECTION_MARKERS) {
     // Match marker as standalone token followed by ':' (not inside a word).
-    // Matches "Canal optimal :" or "Canal optimal:" or "**Canal optimal :**" etc.
     const pattern = new RegExp(
       `(?<!\\n)(?<!^)(\\*{0,2}\\b${escapeRegex(marker)}\\b\\*{0,2}\\s*:)`,
       'gu'
@@ -654,7 +657,7 @@ function splitParagraphs(text: string): string[] {
 }
 
 /**
- * If the paragraph starts with a known section marker, returns
+ * If the paragraph starts with a known section marker, return
  * { label, body }. Otherwise label is null and body is the full text.
  */
 function matchSectionLabel(text: string): { label: string | null; body: string } {
@@ -674,10 +677,26 @@ function matchSectionLabel(text: string): { label: string | null; body: string }
   return { label: null, body: text };
 }
 
+/**
+ * Split a paragraph body on sentence boundaries: a period (or ! or ?)
+ * followed by whitespace, then an uppercase letter, an emoji, or a
+ * digit. Keeps the punctuation attached to the previous sentence.
+ */
+function splitSentences(text: string): string[] {
+  // Use Unicode property escapes to recognize "start of new sentence"
+  // markers : uppercase Latin/accented, common emojis, digits.
+  const SENTENCE_BOUNDARY =
+    /(?<=[.!?])\s+(?=[A-ZÀ-ÜŒŽ\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\d])/u;
+  return text
+    .split(SENTENCE_BOUNDARY)
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
 function RecommendationContent({ text }: { text: string }) {
   const paragraphs = splitParagraphs(text);
   return (
-    <div className="max-w-3xl space-y-3">
+    <div className="max-w-3xl space-y-4">
       {paragraphs.map((p, i) => (
         <RecommendationParagraph key={i} text={p} />
       ))}
@@ -687,17 +706,37 @@ function RecommendationContent({ text }: { text: string }) {
 
 function RecommendationParagraph({ text }: { text: string }) {
   const { label, body } = matchSectionLabel(text);
-  if (label) {
-    return (
-      <div>
-        <div className="mb-1 text-[11px] font-bold uppercase tracking-wider text-amber-700">
+  const sentences = splitSentences(body);
+
+  return (
+    <div>
+      {label && (
+        <div className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-amber-700">
           {label}
         </div>
-        <p className="text-sm leading-7 text-amber-950">{renderInline(body)}</p>
-      </div>
-    );
-  }
-  return <p className="text-sm leading-7 text-amber-950">{renderInline(text)}</p>;
+      )}
+      {sentences.length <= 1 ? (
+        <p className="text-sm leading-7 text-amber-950">
+          {renderInline(body)}
+        </p>
+      ) : (
+        <ul className="space-y-1.5">
+          {sentences.map((s, i) => (
+            <li
+              key={i}
+              className="flex gap-2 text-sm leading-7 text-amber-950"
+            >
+              <span
+                className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500/70"
+                aria-hidden
+              />
+              <span className="min-w-0 flex-1">{renderInline(s)}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
 }
 
 /**
@@ -718,7 +757,6 @@ function renderInline(text: string): React.ReactNode[] {
   let key = 0;
   let match: RegExpExecArray | null;
 
-  // Reset regex state
   PATTERN.lastIndex = 0;
 
   while ((match = PATTERN.exec(text)) !== null) {
@@ -727,14 +765,12 @@ function renderInline(text: string): React.ReactNode[] {
     }
 
     if (match[1]) {
-      // **bold**
       out.push(
         <strong key={`b${key++}`} className="font-semibold text-amber-950">
           {match[1].slice(2, -2)}
         </strong>
       );
     } else if (match[2]) {
-      // URL
       out.push(
         <a
           key={`u${key++}`}
@@ -747,7 +783,6 @@ function renderInline(text: string): React.ReactNode[] {
         </a>
       );
     } else if (match[3]) {
-      // email
       out.push(
         <a
           key={`e${key++}`}
@@ -758,7 +793,6 @@ function renderInline(text: string): React.ReactNode[] {
         </a>
       );
     } else if (match[4]) {
-      // phone
       const cleanPhone = match[4].replace(/[\s.-]/g, '');
       out.push(
         <a
@@ -770,7 +804,6 @@ function renderInline(text: string): React.ReactNode[] {
         </a>
       );
     } else if (match[5]) {
-      // @handle (assume Instagram)
       out.push(
         <a
           key={`h${key++}`}
@@ -783,7 +816,6 @@ function renderInline(text: string): React.ReactNode[] {
         </a>
       );
     } else if (match[6]) {
-      // SIREN
       out.push(
         <span
           key={`s${key++}`}
