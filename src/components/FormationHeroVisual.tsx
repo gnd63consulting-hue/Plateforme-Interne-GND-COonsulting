@@ -15,13 +15,10 @@ type FormationHeroVisualProps = {
 /**
  * Scène 3D éditoriale qui occupe la moitié droite du hero Formation.
  *
- * Idée : montrer visuellement le parcours sous forme d'une pile de cards
- * en perspective. Card du fond = module validé, card du milieu = module
- * actif (highlight bronze), card du devant = module à venir. Une orbe
- * amber pulse derrière, des particules flottent, et toute la scène
- * s'incline subtilement avec la position de la souris (parallax).
- *
- * Volontairement loin du "3D agressif" : reste éditorial, warm, premium.
+ * Architecture des cards : chaque carte = OUTER static div (perspective
+ * placement via style.transform) > INNER motion.div (float anim + opacity
+ * reveal). Cette séparation empêche framer-motion de wiper le transform
+ * 3D static quand il anime y/opacity.
  */
 export default function FormationHeroVisual({
   percent,
@@ -116,124 +113,136 @@ export default function FormationHeroVisual({
         style={{ rotateX, rotateY, transformStyle: 'preserve-3d' }}
         className="relative h-full w-full"
       >
-        {/* Back card — previous validated module */}
-        <motion.div
-          initial={{ opacity: 0, y: 32 }}
-          animate={{ opacity: 1, y: [0, -6, 0] }}
-          transition={{
-            opacity: { duration: 0.8, delay: 0.1 },
-            y: { duration: 6, repeat: Infinity, ease: 'easeInOut', delay: 1.2 },
-          }}
+        {/* ----- Back card — previous validated module ----- */}
+        <div
+          className="absolute left-0 top-0 h-[60%] w-[68%]"
           style={{ transform: 'translateZ(-80px) translateY(-12%) translateX(-18%) rotate(-6deg)' }}
-          className="absolute left-0 top-0 h-[60%] w-[68%] rounded-3xl border border-gnd-bronze/10 bg-gnd-paper p-5 shadow-warm-lg"
         >
-          <div className="flex items-center justify-between">
-            <span className="font-mono text-[9px] font-semibold uppercase tracking-[0.18em] text-gnd-bronze-faded">
-              Module {prevOrderLabel}
-            </span>
-            <CheckCircle2 className="h-3.5 w-3.5 text-gnd-bronze-faded" aria-hidden />
-          </div>
-          <p className="mt-4 font-display text-base font-medium leading-tight text-gnd-bronze-soft">
-            Validé
-          </p>
-          <span
-            aria-hidden
-            className="absolute -bottom-2 right-3 font-display text-7xl font-medium italic leading-none text-gnd-bronze/[0.06]"
+          <motion.div
+            initial={{ opacity: 0, y: 32 }}
+            animate={{ opacity: 1, y: [0, -6, 0] }}
+            transition={{
+              opacity: { duration: 0.8, delay: 0.1 },
+              y: { duration: 6, repeat: Infinity, ease: 'easeInOut', delay: 1.2 },
+            }}
+            className="relative h-full w-full rounded-3xl border border-gnd-bronze/10 bg-gnd-paper p-5 shadow-warm-lg"
           >
-            {prevOrderLabel}
-          </span>
-        </motion.div>
+            <div className="flex items-center justify-between">
+              <span className="font-mono text-[9px] font-semibold uppercase tracking-[0.18em] text-gnd-bronze-faded">
+                Module {prevOrderLabel}
+              </span>
+              <CheckCircle2 className="h-3.5 w-3.5 text-gnd-bronze-faded" aria-hidden />
+            </div>
+            <p className="mt-4 font-display text-base font-medium leading-tight text-gnd-bronze-soft">
+              Validé
+            </p>
+            <span
+              aria-hidden
+              className="absolute -bottom-2 right-3 font-display text-7xl font-medium italic leading-none text-gnd-bronze/[0.06]"
+            >
+              {prevOrderLabel}
+            </span>
+          </motion.div>
+        </div>
 
-        {/* Middle card — current active module (HERO) */}
-        <motion.div
-          initial={{ opacity: 0, y: 40, scale: 0.92 }}
-          animate={{ opacity: 1, y: [0, -10, 0], scale: 1 }}
-          transition={{
-            opacity: { duration: 0.9, delay: 0.25 },
-            scale: { duration: 0.9, delay: 0.25, ease: [0.22, 1, 0.36, 1] },
-            y: { duration: 7, repeat: Infinity, ease: 'easeInOut', delay: 0.4 },
-          }}
-          style={{ transform: 'translateZ(0px)' }}
-          className="relative left-1/2 top-1/2 h-[58%] w-[78%] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-3xl border border-gnd-bronze/15 bg-gradient-to-br from-gnd-bronze via-gnd-bronze to-gnd-ink p-6 text-gnd-cream shadow-warm-xl"
+        {/* ----- Middle card — current active module (HERO) ----- */}
+        <div
+          className="absolute left-1/2 top-1/2 h-[58%] w-[78%]"
+          style={{ transform: 'translate(-50%, -50%) translateZ(0px)' }}
         >
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -right-12 -top-12 h-32 w-32 rounded-full bg-gnd-amber/30 blur-2xl"
-          />
-          <div className="relative flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Sparkles className="h-3.5 w-3.5 text-gnd-amber" aria-hidden />
-              <span className="font-mono text-[9px] font-semibold uppercase tracking-[0.2em] text-gnd-amber">
-                Module {orderLabel}
+          <motion.div
+            initial={{ opacity: 0, y: 40, scale: 0.92 }}
+            animate={{ opacity: 1, y: [0, -10, 0], scale: 1 }}
+            transition={{
+              opacity: { duration: 0.9, delay: 0.25 },
+              scale: { duration: 0.9, delay: 0.25, ease: [0.22, 1, 0.36, 1] },
+              y: { duration: 7, repeat: Infinity, ease: 'easeInOut', delay: 0.4 },
+            }}
+            className="relative h-full w-full overflow-hidden rounded-3xl border border-gnd-bronze/15 bg-gradient-to-br from-gnd-bronze via-gnd-bronze to-gnd-ink p-6 text-gnd-cream shadow-warm-xl"
+          >
+            <div
+              aria-hidden
+              className="pointer-events-none absolute -right-12 -top-12 h-32 w-32 rounded-full bg-gnd-amber/30 blur-2xl"
+            />
+            <div className="relative flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-3.5 w-3.5 text-gnd-amber" aria-hidden />
+                <span className="font-mono text-[9px] font-semibold uppercase tracking-[0.2em] text-gnd-amber">
+                  Module {orderLabel}
+                </span>
+              </div>
+              <span className="rounded-full bg-gnd-amber/15 px-2 py-0.5 font-mono text-[8px] font-semibold uppercase tracking-[0.18em] text-gnd-amber">
+                En cours
               </span>
             </div>
-            <span className="rounded-full bg-gnd-amber/15 px-2 py-0.5 font-mono text-[8px] font-semibold uppercase tracking-[0.18em] text-gnd-amber">
-              En cours
+
+            <p className="mt-5 font-display text-lg font-medium leading-tight text-gnd-cream sm:text-xl">
+              {nextModuleTitle}
+            </p>
+
+            {/* Shimmer progress bar */}
+            <div className="mt-6">
+              <div className="flex items-center justify-between font-mono text-[9px] uppercase tracking-[0.15em] text-gnd-cream/60">
+                <span>Progression</span>
+                <span className="text-gnd-amber">{percent}%</span>
+              </div>
+              <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-gnd-cream/10">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${percent}%` }}
+                  transition={{ duration: 1.4, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                  className="relative h-full rounded-full bg-gradient-to-r from-gnd-amber-dim via-gnd-amber to-gnd-amber-glow"
+                >
+                  <span
+                    aria-hidden
+                    className="absolute inset-0 animate-shimmer bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.35),transparent)] bg-[length:200%_100%]"
+                  />
+                </motion.div>
+              </div>
+            </div>
+
+            <span
+              aria-hidden
+              className="absolute -bottom-3 right-4 font-display text-8xl font-medium italic leading-none text-gnd-amber/15"
+            >
+              {orderLabel}
             </span>
-          </div>
+          </motion.div>
+        </div>
 
-          <p className="mt-5 font-display text-lg font-medium leading-tight text-gnd-cream sm:text-xl">
-            {nextModuleTitle}
-          </p>
-
-          {/* Shimmer progress bar */}
-          <div className="mt-6">
-            <div className="flex items-center justify-between font-mono text-[9px] uppercase tracking-[0.15em] text-gnd-cream/60">
-              <span>Progression</span>
-              <span className="text-gnd-amber">{percent}%</span>
-            </div>
-            <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-gnd-cream/10">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${percent}%` }}
-                transition={{ duration: 1.4, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                className="relative h-full rounded-full bg-gradient-to-r from-gnd-amber-dim via-gnd-amber to-gnd-amber-glow"
-              >
-                <span
-                  aria-hidden
-                  className="absolute inset-0 animate-shimmer bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.35),transparent)] bg-[length:200%_100%]"
-                />
-              </motion.div>
-            </div>
-          </div>
-
-          <span
-            aria-hidden
-            className="absolute -bottom-3 right-4 font-display text-8xl font-medium italic leading-none text-gnd-amber/15"
-          >
-            {orderLabel}
-          </span>
-        </motion.div>
-
-        {/* Front card — upcoming module */}
-        <motion.div
-          initial={{ opacity: 0, y: 32 }}
-          animate={{ opacity: 1, y: [0, -4, 0] }}
-          transition={{
-            opacity: { duration: 0.8, delay: 0.4 },
-            y: { duration: 8, repeat: Infinity, ease: 'easeInOut', delay: 0.2 },
-          }}
+        {/* ----- Front card — upcoming module ----- */}
+        <div
+          className="absolute right-0 top-0 h-[52%] w-[60%]"
           style={{ transform: 'translateZ(80px) translateY(38%) translateX(22%) rotate(7deg)' }}
-          className="absolute right-0 top-0 h-[52%] w-[60%] rounded-3xl border border-gnd-bronze/10 bg-gnd-cream/95 p-5 backdrop-blur-sm shadow-warm-lg"
         >
-          <span className="font-mono text-[9px] font-semibold uppercase tracking-[0.18em] text-gnd-bronze-faded">
-            Module {nextOrderLabel}
-          </span>
-          <p className="mt-3 font-display text-sm font-medium leading-tight text-gnd-bronze-soft">
-            À venir
-          </p>
-          <div className="mt-4 flex items-center gap-2">
-            <span className="h-1 w-1 rounded-full bg-gnd-bronze/20" />
-            <span className="h-1 w-1 rounded-full bg-gnd-bronze/20" />
-            <span className="h-1 w-1 rounded-full bg-gnd-bronze/20" />
-          </div>
-          <span
-            aria-hidden
-            className="absolute -bottom-2 right-3 font-display text-6xl font-medium italic leading-none text-gnd-bronze/[0.05]"
+          <motion.div
+            initial={{ opacity: 0, y: 32 }}
+            animate={{ opacity: 1, y: [0, -4, 0] }}
+            transition={{
+              opacity: { duration: 0.8, delay: 0.4 },
+              y: { duration: 8, repeat: Infinity, ease: 'easeInOut', delay: 0.2 },
+            }}
+            className="relative h-full w-full rounded-3xl border border-gnd-bronze/10 bg-gnd-cream/95 p-5 backdrop-blur-sm shadow-warm-lg"
           >
-            {nextOrderLabel}
-          </span>
-        </motion.div>
+            <span className="font-mono text-[9px] font-semibold uppercase tracking-[0.18em] text-gnd-bronze-faded">
+              Module {nextOrderLabel}
+            </span>
+            <p className="mt-3 font-display text-sm font-medium leading-tight text-gnd-bronze-soft">
+              À venir
+            </p>
+            <div className="mt-4 flex items-center gap-2">
+              <span className="h-1 w-1 rounded-full bg-gnd-bronze/20" />
+              <span className="h-1 w-1 rounded-full bg-gnd-bronze/20" />
+              <span className="h-1 w-1 rounded-full bg-gnd-bronze/20" />
+            </div>
+            <span
+              aria-hidden
+              className="absolute -bottom-2 right-3 font-display text-6xl font-medium italic leading-none text-gnd-bronze/[0.05]"
+            >
+              {nextOrderLabel}
+            </span>
+          </motion.div>
+        </div>
       </motion.div>
 
       {/* ============================================== */}
