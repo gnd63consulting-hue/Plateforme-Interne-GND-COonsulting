@@ -3,6 +3,7 @@
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
 import ModuleCard from '@/components/ModuleCard';
+import FormationHeroVisual from '@/components/FormationHeroVisual';
 
 type ModuleWithState = {
   slug: string;
@@ -49,11 +50,11 @@ export default function FormationClient({
   return (
     <div className="relative">
       {/* ====================================================== */}
-      {/* Hero with parallax watermark                             */}
+      {/* Hero — split in 2: text+dial left, 3D scene right        */}
       {/* ====================================================== */}
       <header
         ref={heroRef}
-        className="relative mb-20 flex min-h-[60vh] flex-col justify-end overflow-hidden"
+        className="relative mb-20 grid min-h-[70vh] grid-cols-1 items-center gap-12 overflow-hidden lg:grid-cols-[7fr_5fr] lg:gap-16"
       >
         {/* Watermark FORMATION */}
         <motion.span
@@ -64,8 +65,8 @@ export default function FormationClient({
           Formation.
         </motion.span>
 
-        <div className="relative z-10 flex flex-col gap-12 md:flex-row md:items-end md:justify-between">
-          {/* Title + intro */}
+        {/* Left column — title + intro + dial */}
+        <div className="relative z-10 flex flex-col gap-10">
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
@@ -90,20 +91,44 @@ export default function FormationClient({
             </p>
           </motion.div>
 
-          {/* Progression dial */}
+          {/* Progression dial sits below title on mobile, beside on tablet */}
           <motion.div
             initial={{ opacity: 0, scale: 0.92 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-            className="relative"
+            className="flex items-center gap-6"
           >
             <ProgressionDial
               percent={progressPercent}
               completed={completedCount}
               total={totalCount}
             />
+            <div className="flex flex-col gap-1">
+              <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-gnd-bronze-soft">
+                Avancement global
+              </span>
+              <span className="font-display text-lg font-medium text-gnd-bronze">
+                {isComplete ? 'Parcours terminé' : 'En progression'}
+              </span>
+            </div>
           </motion.div>
         </div>
+
+        {/* Right column — 3D scene */}
+        <motion.div
+          initial={{ opacity: 0, x: 30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.9, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+          className="relative z-10"
+        >
+          <FormationHeroVisual
+            percent={progressPercent}
+            completed={completedCount}
+            total={totalCount}
+            nextModuleTitle={heroModule?.title ?? 'Tous les modules sont validés'}
+            nextModuleOrder={heroModule?.order ?? totalCount}
+          />
+        </motion.div>
       </header>
 
       {/* ====================================================== */}
@@ -211,7 +236,7 @@ export default function FormationClient({
           </h2>
           <p className="mt-5 max-w-xl text-pretty text-base leading-relaxed text-gnd-cream/70">
             {isComplete
-              ? "Tu peux revenir à tout moment sur les modules pour réviser. Le savóir reste accessible."
+              ? "Tu peux revenir à tout moment sur les modules pour réviser. Le savoir reste accessible."
               : "Chaque module se valide avec un quiz à 70 % minimum. Tu peux retenter autant de fois que nécessaire."}
           </p>
         </div>
@@ -229,21 +254,21 @@ function ProgressionDial({
   completed: number;
   total: number;
 }) {
-  const radius = 70;
+  const radius = 56;
   const circumference = 2 * Math.PI * radius;
   const dashOffset = circumference - (percent / 100) * circumference;
 
   return (
-    <div className="relative inline-flex h-44 w-44 items-center justify-center md:h-52 md:w-52">
+    <div className="relative inline-flex h-32 w-32 items-center justify-center md:h-36 md:w-36">
       <svg
         className="absolute inset-0 -rotate-90"
-        viewBox="0 0 160 160"
+        viewBox="0 0 130 130"
         aria-hidden
       >
         {/* Background ring */}
         <circle
-          cx="80"
-          cy="80"
+          cx="65"
+          cy="65"
           r={radius}
           fill="none"
           stroke="#3D1F1E"
@@ -252,11 +277,11 @@ function ProgressionDial({
         />
         {/* Progress ring */}
         <motion.circle
-          cx="80"
-          cy="80"
+          cx="65"
+          cy="65"
           r={radius}
           fill="none"
-          stroke="url(#progress-gradient)"
+          stroke="url(#progress-gradient-inline)"
           strokeWidth="3"
           strokeLinecap="round"
           strokeDasharray={circumference}
@@ -265,7 +290,7 @@ function ProgressionDial({
           transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1], delay: 0.4 }}
         />
         <defs>
-          <linearGradient id="progress-gradient" x1="0" y1="0" x2="1" y2="1">
+          <linearGradient id="progress-gradient-inline" x1="0" y1="0" x2="1" y2="1">
             <stop offset="0%" stopColor="#D4732A" />
             <stop offset="100%" stopColor="#FFA060" />
           </linearGradient>
@@ -273,12 +298,12 @@ function ProgressionDial({
       </svg>
 
       <div className="flex flex-col items-center text-center">
-        <span className="font-display text-5xl font-medium leading-none text-gnd-bronze md:text-6xl">
+        <span className="font-display text-3xl font-medium leading-none text-gnd-bronze md:text-4xl">
           {percent}
-          <span className="text-2xl text-gnd-bronze-soft">%</span>
+          <span className="text-lg text-gnd-bronze-soft">%</span>
         </span>
-        <span className="mt-2 font-mono text-[10px] uppercase tracking-[0.2em] text-gnd-bronze-soft">
-          {completed} / {total} modules
+        <span className="mt-1 font-mono text-[9px] uppercase tracking-[0.18em] text-gnd-bronze-soft">
+          {completed} / {total}
         </span>
       </div>
     </div>
