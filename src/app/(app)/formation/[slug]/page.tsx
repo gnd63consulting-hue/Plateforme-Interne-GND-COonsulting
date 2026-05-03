@@ -2,6 +2,13 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { MDXRemote } from 'next-mdx-remote/rsc';
 import remarkGfm from 'remark-gfm';
+import {
+  ArrowRight,
+  ArrowUpRight,
+  CheckCircle2,
+  ChevronRight,
+  RefreshCw,
+} from 'lucide-react';
 import { DriveVideoPlayer } from '@/components/DriveVideoPlayer';
 import { loadModuleContent } from '@/lib/modules-registry';
 import { createClient } from '@/lib/supabase-server';
@@ -63,116 +70,136 @@ export default async function ModulePage({
 
   return (
     <article className="mx-auto max-w-3xl">
-      {/* Breadcrumb */}
-      <nav className="mb-10 flex items-center gap-2 text-sm text-on-surface-variant">
-        <Link href="/formation" className="transition-colors hover:text-primary">
+      {/* ====================================================== */}
+      {/* Breadcrumb — minimal mono                                 */}
+      {/* ====================================================== */}
+      <nav className="mb-12 flex items-center gap-2 font-mono text-[11px] font-medium uppercase tracking-[0.15em] text-gnd-bronze-soft">
+        <Link
+          href="/formation"
+          className="transition-colors hover:text-gnd-amber"
+        >
           Formation
         </Link>
-        <span className="material-symbols-outlined text-[16px]">
-          chevron_right
-        </span>
-        <span className="font-semibold text-on-surface">
-          Module {orderLabel}
-        </span>
+        <ChevronRight className="h-3 w-3" aria-hidden />
+        <span className="text-gnd-bronze">Module {orderLabel}</span>
       </nav>
 
-      {/* Editorial title */}
-      <header className="mb-12">
-        <div className="mb-4 flex items-center gap-3">
-          <span className="rounded-full bg-primary-fixed px-3 py-1 font-label text-[10px] font-bold uppercase tracking-widest text-on-primary-fixed-variant">
-            E-Learning Path
+      {/* ====================================================== */}
+      {/* Editorial header                                          */}
+      {/* ====================================================== */}
+      <header className="mb-14">
+        <div className="mb-5 flex flex-wrap items-center gap-3">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-gnd-amber/12 px-3 py-1 font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-gnd-amber-dim">
+            E-learning path
           </span>
-          <span className="text-xs font-medium text-on-surface-variant">
-            Temps de lecture : {loaded.meta.duration} min
+          <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-gnd-bronze-soft">
+            Lecture — {loaded.meta.duration} min
           </span>
           {isValidated && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-green-700">
-              <span className="material-symbols-outlined text-[14px]">
-                check_circle
-              </span>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-gnd-bronze/8 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-gnd-bronze">
+              <CheckCircle2 className="h-3 w-3" aria-hidden />
               Validé
             </span>
           )}
         </div>
-        <h1 className="font-headline text-[36px] font-bold leading-tight tracking-tight text-on-surface md:text-[48px]">
-          Module {orderLabel} : {loaded.meta.title}
+
+        <p className="mb-3 font-display text-2xl italic font-medium text-gnd-amber">
+          Module {orderLabel}
+        </p>
+        <h1 className="font-display text-display-lg font-medium leading-[1.05] tracking-tight text-gnd-bronze">
+          {loaded.meta.title}
         </h1>
-        <div className="mt-6 h-1 w-24 rounded-full bg-primary" />
+        <div className="mt-6 h-px w-16 bg-gnd-amber" />
       </header>
 
-      {/* Récap dernière tentative (si le module a déjà été tenté) */}
+      {/* ====================================================== */}
+      {/* Last attempt card                                          */}
+      {/* ====================================================== */}
       {lastAttempt && (
-        <section
-          className={
-            isValidated
-              ? 'mb-12 flex flex-col gap-3 rounded-2xl border border-green-200 bg-green-50/50 p-6 sm:flex-row sm:items-center sm:justify-between'
-              : 'mb-12 flex flex-col gap-3 rounded-2xl border border-tertiary-fixed/60 bg-tertiary-fixed/20 p-6 sm:flex-row sm:items-center sm:justify-between'
-          }
-        >
+        <section className="mb-12 flex flex-col gap-4 rounded-3xl border border-gnd-bronze/8 bg-white p-6 shadow-warm sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="font-label text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
+            <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-gnd-bronze-soft">
               Dernière tentative
             </p>
-            <p className="font-headline text-xl font-bold text-on-surface">
-              {lastAttempt.score}/{lastAttempt.total} ({lastAttempt.percentage}%)
+            <p className="mt-1 font-display text-2xl font-medium text-gnd-bronze">
+              {lastAttempt.score}
+              <span className="text-gnd-bronze-soft">/{lastAttempt.total}</span>
+              <span className="ml-3 text-base text-gnd-bronze-soft">
+                {lastAttempt.percentage}%
+              </span>
               {isValidated && progression?.best_percentage != null && (
-                <span className="ml-2 text-sm font-medium text-on-surface-variant">
+                <span className="ml-3 text-xs font-medium text-gnd-bronze-soft">
                   · Meilleur : {progression.best_percentage}%
                 </span>
               )}
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <Link
-              href={`/formation/${slug}/quiz`}
-              className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-bold text-on-primary hover:opacity-90"
-            >
-              <span className="material-symbols-outlined text-[16px]">
-                refresh
-              </span>
-              {isValidated ? 'Refaire le quiz' : 'Retenter le quiz'}
-            </Link>
-          </div>
+          <Link
+            href={`/formation/${slug}/quiz`}
+            className="inline-flex items-center gap-2 rounded-full bg-gnd-bronze px-5 py-2.5 text-xs font-semibold text-gnd-cream transition-all hover:bg-gnd-ink hover:gap-3"
+          >
+            <RefreshCw className="h-3.5 w-3.5" aria-hidden />
+            {isValidated ? 'Refaire le quiz' : 'Retenter le quiz'}
+          </Link>
         </section>
       )}
 
-      {/* Video player (if available for this module) */}
+      {/* ====================================================== */}
+      {/* Video player                                              */}
+      {/* ====================================================== */}
       {videoFileId && (
-        <DriveVideoPlayer
-          fileId={videoFileId}
-          title={`Module ${orderLabel} : ${loaded.meta.title}`}
-        />
+        <div className="mb-14 overflow-hidden rounded-3xl border border-gnd-bronze/8 bg-white shadow-warm">
+          <DriveVideoPlayer
+            fileId={videoFileId}
+            title={`Module ${orderLabel} : ${loaded.meta.title}`}
+          />
+        </div>
       )}
 
-      {/* Reading canvas */}
-      <section className="prose-academic">
+      {/* ====================================================== */}
+      {/* MDX content — styled via prose-gnd                        */}
+      {/* ====================================================== */}
+      <section className="prose prose-gnd prose-lg max-w-none">
         <MDXRemote source={loaded.body} options={mdxOptions} />
       </section>
 
-      {/* Quiz CTA */}
-      <section className="relative mt-20 overflow-hidden rounded-2xl border border-outline-variant/10 bg-surface-container-low p-10">
-        <div className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-primary/5 blur-3xl" />
-        <div className="relative z-10 flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
-          <div>
-            <h3 className="mb-2 font-headline text-[24px] font-bold text-on-surface">
+      {/* ====================================================== */}
+      {/* Quiz CTA                                                  */}
+      {/* ====================================================== */}
+      <section className="relative mt-20 overflow-hidden rounded-3xl border border-gnd-bronze/8 bg-gradient-to-br from-gnd-cream via-white to-gnd-cream-dim p-10">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-gnd-amber/15 blur-3xl"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -bottom-20 -left-10 h-48 w-48 rounded-full bg-gnd-bronze/8 blur-3xl"
+        />
+        <div className="relative flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
+          <div className="max-w-md">
+            <p className="mb-3 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-gnd-amber">
+              Quiz Module {orderLabel}
+            </p>
+            <h3 className="font-display text-2xl font-medium leading-tight text-gnd-bronze">
               {isValidated
-                ? 'Module déjà validé ✅'
+                ? 'Module déjà validé.'
                 : 'Prêt à valider tes acquis ?'}
             </h3>
-            <p className="text-on-surface-variant">
+            <p className="mt-2 text-sm text-gnd-bronze-soft">
               {isValidated
-                ? `Meilleur score : ${progression?.best_percentage ?? 0}%. Tu peux retenter le quiz, ça ne remplacera pas la date de validation initiale.`
-                : `Teste tes connaissances sur le Module ${orderLabel} avant de passer à la suite. Seuil : 70%.`}
+                ? `Meilleur score : ${progression?.best_percentage ?? 0}%. Tu peux retenter le quiz à tout moment.`
+                : `Teste tes connaissances avant de passer à la suite. Seuil de validation : 70 %.`}
             </p>
           </div>
           <Link
             href={`/formation/${slug}/quiz`}
-            className="group inline-flex shrink-0 items-center gap-3 rounded-full bg-gradient-to-r from-primary to-primary-container px-8 py-4 font-headline font-bold text-on-primary shadow-lg shadow-primary/20 transition-all hover:scale-105 active:scale-95"
+            className="group inline-flex shrink-0 items-center gap-3 rounded-full bg-gnd-bronze px-7 py-4 text-sm font-semibold text-gnd-cream shadow-warm-lg transition-all hover:bg-gnd-ink hover:shadow-warm-xl"
           >
-            <span>
-              {isValidated ? 'Refaire le quiz' : 'Passer au quiz'}
-            </span>
-            <span className="material-symbols-outlined">arrow_forward</span>
+            <span>{isValidated ? 'Refaire le quiz' : 'Passer au quiz'}</span>
+            <ArrowRight
+              className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
+              aria-hidden
+            />
           </Link>
         </div>
       </section>
