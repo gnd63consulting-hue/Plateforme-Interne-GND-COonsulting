@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase-server';
-import ProspectTable from '@/components/ProspectTable';
+import ProspectsClient from './ProspectsClient';
 import { PROSPECT_SELECT_COLUMNS, type Prospect } from '@/lib/prospects';
 
 export const dynamic = 'force-dynamic';
@@ -12,29 +12,32 @@ export default async function ProspectsPage() {
 
   if (!user) return null;
 
+  // Show prospects assigned to OR created by current user
   const { data: prospects } = await supabase
     .from('prospects')
     .select(PROSPECT_SELECT_COLUMNS)
+    .or(`assigned_to.eq.${user.id},created_by.eq.${user.id}`)
     .order('updated_at', { ascending: false });
 
-  // PostgREST loses inference with a dynamic select string; the runtime
-  // shape matches Prospect by construction (PROSPECT_SELECT_COLUMNS lists
-  // exactly the fields declared in the type), so cast via unknown.
   const initialProspects = (prospects ?? []) as unknown as Prospect[];
 
-  return (
-    <div className="space-y-6">
-      <section>
-        <h1 className="text-3xl font-bold text-gnd-primary">Mes prospects</h1>
-        <p className="mt-1 text-gnd-muted">
-          Ton carnet de bord personnel. Crée, édite, fais évoluer tes prospects au fil des contacts.
-        </p>
-      </section>
+  // Best name for header (display_name first, then email local-part)
+  const { data: profile } = await supabase
+    .from('users')
+    .select('display_name, email')
+    .eq('id', user.id)
+    .maybeSingle();
 
-      <ProspectTable
-        initialProspects={initialProspects}
-        currentUserId={user.id}
-      />
-    </div>
+  const firstName =
+    (profile?.display_name as string | undefined)?.split(' ')[0] ??
+    (profile?.email as string | undefined)?.split('@')[0] ??
+    'Toi';
+
+  return (
+    <ProspectsClient
+      initialProspects={initialProspects}
+      currentUserId={user.id}
+      firstName={firstName}
+    />
   );
 }
