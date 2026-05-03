@@ -41,7 +41,7 @@ export default async function LoginPage() {
         <div className="rounded-xl border border-outline-variant/10 bg-surface-container-lowest p-10 shadow-editorial">
           <div className="mb-8 text-center">
             <p className="font-body text-base font-medium leading-relaxed text-on-surface-variant">
-              Connecte-toi pour accéder à ton espace de formation.
+              Connecte-toi pour accéder à ton espace.
             </p>
           </div>
 
@@ -65,7 +65,7 @@ export default async function LoginPage() {
 
           <div className="mt-12 border-t border-outline-variant/10 pt-8 text-center">
             <p className="mb-4 font-body text-xs tracking-wide text-on-surface-variant">
-              Accès réservé aux commerciaux freelances de GND Consulting.
+              Accès réservé aux membres invités de GND Consulting.
             </p>
             <a
               href="mailto:contact@gndconsulting.fr"

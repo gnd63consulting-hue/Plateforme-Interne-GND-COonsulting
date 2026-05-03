@@ -1,59 +1,22 @@
 'use client';
 
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase-client';
 
 /**
- * Formulaire d'authentification hybride :
- *   - email / mot de passe (principal)
- *   - Google OAuth (secondaire)
+ * Bouton de connexion Google OAuth uniquement.
  *
- * Les comptes sont créés par l'admin côté Supabase (pas d'auto-inscription).
+ * L'auth de la plateforme est gatée par un whitelist de la table
+ * `invitations` (trigger handle_new_user). Le sign-up email/password
+ * a été retiré pour rester cohérent : seuls les emails invités peuvent
+ * créer un compte, via leur compte Google.
  */
 export default function LoginButton() {
-  const router = useRouter();
-
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loadingEmail, setLoadingEmail] = useState(false);
-  const [loadingGoogle, setLoadingGoogle] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function handleEmailLogin(e: React.FormEvent) {
-    e.preventDefault();
-    if (!email.trim() || !password) {
-      setError('Email et mot de passe requis.');
-      return;
-    }
-    setLoadingEmail(true);
-    setError(null);
-
-    const supabase = createClient();
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email: email.trim(),
-      password,
-    });
-
-    if (signInError) {
-      setError(
-        signInError.message === 'Invalid login credentials'
-          ? 'Email ou mot de passe incorrect.'
-          : signInError.message
-      );
-      setLoadingEmail(false);
-      return;
-    }
-
-    // Supabase a posé les cookies de session — on rafraîchit la route
-    // pour que le middleware voie la session et que le redirect fonctionne.
-    router.refresh();
-    router.push('/formation');
-  }
-
   async function handleGoogleLogin() {
-    setLoadingGoogle(true);
+    setLoading(true);
     setError(null);
     const supabase = createClient();
 
@@ -70,83 +33,22 @@ export default function LoginButton() {
 
     if (oauthError) {
       setError(oauthError.message);
-      setLoadingGoogle(false);
+      setLoading(false);
     }
     // Sur succès, la redirection OAuth prend le relais.
   }
 
-  const busy = loadingEmail || loadingGoogle;
-
   return (
-    <div className="flex flex-col gap-5">
-      <form onSubmit={handleEmailLogin} className="flex flex-col gap-4">
-        <label className="block">
-          <span className="mb-1 block font-label text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
-            Email
-          </span>
-          <input
-            type="email"
-            autoComplete="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            disabled={busy}
-            placeholder="prenom.nom@email.fr"
-            className="w-full rounded-xl border border-outline-variant bg-surface-container-lowest px-4 py-3 font-body text-sm text-on-surface outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
-          />
-        </label>
-
-        <label className="block">
-          <span className="mb-1 block font-label text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
-            Mot de passe
-          </span>
-          <input
-            type="password"
-            autoComplete="current-password"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            disabled={busy}
-            placeholder="••••••••"
-            className="w-full rounded-xl border border-outline-variant bg-surface-container-lowest px-4 py-3 font-body text-sm text-on-surface outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
-          />
-        </label>
-
-        <button
-          type="submit"
-          disabled={busy}
-          className="mt-2 inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3.5 font-label text-sm font-bold text-on-primary shadow-lg shadow-primary/20 transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-50"
-        >
-          {loadingEmail ? 'Connexion…' : 'Se connecter'}
-        </button>
-
-        <div className="text-center">
-          <Link
-            href="/reset-password"
-            className="text-xs font-medium text-on-surface-variant underline-offset-4 transition-colors hover:text-primary hover:underline"
-          >
-            Mot de passe oublié ?
-          </Link>
-        </div>
-      </form>
-
-      <div className="flex items-center gap-3">
-        <span className="h-px flex-1 bg-outline-variant/30" />
-        <span className="font-label text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
-          ou
-        </span>
-        <span className="h-px flex-1 bg-outline-variant/30" />
-      </div>
-
+    <div className="flex flex-col gap-4">
       <button
         type="button"
         onClick={handleGoogleLogin}
-        disabled={busy}
-        className="group flex w-full items-center justify-center gap-3 rounded-full border border-outline-variant bg-surface-container-lowest px-6 py-3.5 transition-all duration-300 hover:border-primary/30 hover:bg-surface-container-low active:scale-[0.98] disabled:opacity-50"
+        disabled={loading}
+        className="group flex w-full items-center justify-center gap-3 rounded-full border border-outline-variant bg-surface-container-lowest px-6 py-4 shadow-sm transition-all duration-300 hover:border-primary/40 hover:bg-surface-container-low hover:shadow-md active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
       >
         <GoogleIcon />
-        <span className="font-label text-sm font-semibold text-on-surface">
-          {loadingGoogle ? 'Redirection…' : 'Se connecter avec Google'}
+        <span className="font-label text-base font-semibold text-on-surface">
+          {loading ? 'Redirection…' : 'Se connecter avec Google'}
         </span>
       </button>
 

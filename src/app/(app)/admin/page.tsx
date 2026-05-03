@@ -29,6 +29,7 @@ import {
 import { formatEur, sumCaMidpointEur } from '@/lib/ca-utils';
 import AdminSyncButton from '@/components/AdminSyncButton';
 import AdminProspectsPanel from '@/components/AdminProspectsPanel';
+import { RoleBadge } from '@/components/RoleBadge';
 
 export const dynamic = 'force-dynamic';
 
@@ -112,6 +113,8 @@ const ACTIVE_PIPELINE_STATUSES = new Set([
   'gagne',
 ]);
 
+const ADMIN_ROLES = new Set(['admin', 'admin_limited']);
+
 export default async function AdminPage() {
   const supabase = await createClient();
   const {
@@ -126,7 +129,7 @@ export default async function AdminPage() {
     .eq('id', user.id)
     .maybeSingle();
 
-  if (me?.role !== 'admin') {
+  if (!me || !ADMIN_ROLES.has(me.role)) {
     redirect('/dashboard');
   }
 
@@ -167,8 +170,16 @@ export default async function AdminPage() {
     }
   }
 
+  // Sort: admins en premier (admin > admin_limited > freelance), puis nom
+  const roleRank: Record<string, number> = {
+    admin: 0,
+    admin_limited: 1,
+    freelance: 2,
+  };
   const sortedUsers = [...users].sort((a, b) => {
-    if (a.role !== b.role) return a.role === 'admin' ? 1 : -1;
+    const ra = roleRank[a.role] ?? 99;
+    const rb = roleRank[b.role] ?? 99;
+    if (ra !== rb) return ra - rb;
     return (a.full_name ?? a.email).localeCompare(b.full_name ?? b.email);
   });
 
@@ -258,12 +269,28 @@ export default async function AdminPage() {
 
   const rankingMaxCa = Math.max(1, ...ranking.map((r) => r.caPotentiel));
 
+  // Tous les users qui peuvent être commerciaux (freelance OU admin/co-admin
+  // qui peuvent prospecter aussi)
+  const COMMERCIAL_ELIGIBLE_ROLES = new Set([
+    'freelance',
+    'admin',
+    'admin_limited',
+    'commercial', // legacy au cas où
+  ]);
   const commercialOptions = sortedUsers
-    .filter((u) => u.role === 'commercial' || u.role === 'admin')
-    .map((u) => ({
-      id: u.id,
-      label: `${u.full_name ?? u.email}${u.role === 'admin' ? ' (admin)' : ''}`,
-    }));
+    .filter((u) => COMMERCIAL_ELIGIBLE_ROLES.has(u.role))
+    .map((u) => {
+      const suffix =
+        u.role === 'admin'
+          ? ' (admin)'
+          : u.role === 'admin_limited'
+            ? ' (co-admin)'
+            : '';
+      return {
+        id: u.id,
+        label: `${u.full_name ?? u.email}${suffix}`,
+      };
+    });
 
   return (
     <div className="space-y-8 pb-12">
@@ -419,7 +446,7 @@ export default async function AdminPage() {
             })}
           </div>
           <p className="mt-4 border-t border-slate-100 pt-3 text-xs text-gnd-muted">
-            Le pourcentage à droite indique le taux de passage depuis l'étape
+            Le pourcentage à droite indique le taux de passage depuis l&apos;étape
             précédente. Les statuts <em>perdu</em> et <em>archivé</em> sont
             exclus du funnel.
           </p>
@@ -438,7 +465,7 @@ export default async function AdminPage() {
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           {ranking.length === 0 ? (
             <div className="px-5 py-10 text-center text-sm text-gnd-muted">
-              Aucun prospect assigné pour l'instant.
+              Aucun prospect assigné pour l&apos;instant.
             </div>
           ) : (
             <ul className="divide-y divide-slate-100">
@@ -641,14 +668,14 @@ export default async function AdminPage() {
                           name={u.full_name ?? u.email}
                           size="sm"
                         />
-                        <div>
+                        <div className="min-w-0">
                           <div className="font-medium text-gnd-primary">
                             {u.full_name ?? '—'}
                           </div>
-                          {u.role === 'admin' && (
-                            <span className="text-xs text-gnd-accent">
-                              admin
-                            </span>
+                          {u.role !== 'freelance' && (
+                            <div className="mt-0.5">
+                              <RoleBadge role={u.role} size="xs" />
+                            </div>
                           )}
                         </div>
                       </div>
