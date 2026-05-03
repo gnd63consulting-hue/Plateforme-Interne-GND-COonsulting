@@ -1,23 +1,38 @@
 'use client';
 
 import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useSearchParams } from 'next/navigation';
+import { AlertCircle } from 'lucide-react';
 import { createClient } from '@/lib/supabase-client';
 
-/**
- * Bouton de connexion Google OAuth uniquement.
- *
- * L'auth de la plateforme est gatée par un whitelist de la table
- * `invitations` (trigger handle_new_user). Le sign-up email/password
- * a été retiré pour rester cohérent : seuls les emails invités peuvent
- * créer un compte, via leur compte Google.
- */
+const ERROR_MESSAGES: Record<
+  string,
+  { title: string; description: string }
+> = {
+  not_invited: {
+    title: 'Email non autorisé',
+    description:
+      "Cet email ne fait pas partie de la liste des membres invités. Demande une invitation à un administrateur de la plateforme.",
+  },
+  auth_failed: {
+    title: 'Authentification interrompue',
+    description:
+      "Une erreur est survenue côté Google ou Supabase. Réessaie dans quelques secondes.",
+  },
+};
+
 export default function LoginButton() {
+  const searchParams = useSearchParams();
+  const errorParam = searchParams.get('error');
+  const errorContent = errorParam ? ERROR_MESSAGES[errorParam] : null;
+
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [clientError, setClientError] = useState<string | null>(null);
 
   async function handleGoogleLogin() {
     setLoading(true);
-    setError(null);
+    setClientError(null);
     const supabase = createClient();
 
     const appUrl =
@@ -32,31 +47,60 @@ export default function LoginButton() {
     });
 
     if (oauthError) {
-      setError(oauthError.message);
+      setClientError(oauthError.message);
       setLoading(false);
     }
-    // Sur succès, la redirection OAuth prend le relais.
   }
 
   return (
     <div className="flex flex-col gap-4">
-      <button
+      <motion.button
         type="button"
         onClick={handleGoogleLogin}
         disabled={loading}
-        className="group flex w-full items-center justify-center gap-3 rounded-full border border-outline-variant bg-surface-container-lowest px-6 py-4 shadow-sm transition-all duration-300 hover:border-primary/40 hover:bg-surface-container-low hover:shadow-md active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+        whileHover={{ scale: 1.01 }}
+        whileTap={{ scale: 0.985 }}
+        transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+        className="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-full border border-gnd-bronze/12 bg-white px-6 py-4 shadow-warm transition-all duration-300 hover:border-gnd-bronze/25 hover:shadow-warm-lg disabled:cursor-not-allowed disabled:opacity-50"
       >
+        {/* Subtle warm gradient on hover */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-gnd-amber/0 via-gnd-amber/5 to-gnd-amber/0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
         <GoogleIcon />
-        <span className="font-label text-base font-semibold text-on-surface">
+        <span className="relative font-sans text-base font-semibold text-gnd-bronze">
           {loading ? 'Redirection…' : 'Se connecter avec Google'}
         </span>
-      </button>
+      </motion.button>
 
-      {error && (
-        <p className="rounded-lg border border-error/20 bg-error-container px-3 py-2 text-center text-xs text-on-error-container">
-          {error}
-        </p>
-      )}
+      <AnimatePresence>
+        {(errorContent || clientError) && (
+          <motion.div
+            initial={{ opacity: 0, y: -8, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, scale: 0.98 }}
+            transition={{ duration: 0.25 }}
+            className="flex gap-3 rounded-2xl border border-gnd-amber/25 bg-gnd-amber-pale/40 p-4"
+          >
+            <AlertCircle
+              className="mt-0.5 h-4 w-4 shrink-0 text-gnd-amber-dim"
+              aria-hidden
+            />
+            <div className="flex-1">
+              {errorContent ? (
+                <>
+                  <p className="text-sm font-semibold text-gnd-bronze">
+                    {errorContent.title}
+                  </p>
+                  <p className="mt-1 text-xs leading-relaxed text-gnd-bronze-soft">
+                    {errorContent.description}
+                  </p>
+                </>
+              ) : (
+                <p className="text-xs text-gnd-bronze-soft">{clientError}</p>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -64,7 +108,7 @@ export default function LoginButton() {
 function GoogleIcon() {
   return (
     <svg
-      className="h-5 w-5"
+      className="relative h-5 w-5"
       viewBox="0 0 24 24"
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"

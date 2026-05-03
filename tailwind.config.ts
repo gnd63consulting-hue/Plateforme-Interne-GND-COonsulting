@@ -1,14 +1,15 @@
 import type { Config } from 'tailwindcss';
 
 /**
- * GND Formation — Academic Atelier design system (avril 2026).
+ * GND Formation — Design System v2 (mai 2026).
  *
- * Deux namespaces cohabitent :
- * - `gnd-*` (legacy) : encore utilisé sur /prospects, /admin, /dashboard
+ * Trois namespaces cohabitent maintenant :
+ * - `gnd-*` (legacy avril) : encore utilisé sur /prospects, /admin, /dashboard
  *   et quelques composants. À retirer progressivement.
- * - Tokens DS `primary`, `surface`, `on-surface`, etc. : base du nouveau
- *   design. Voir https://m3.material.io/styles/color/system pour la
- *   sémantique.
+ * - Tokens DS Material 3 (`primary`, `surface`, etc.) : Academic Atelier
+ *   layer (login historique). À conserver comme palette neutre.
+ * - **`gnd-warm-*` (NEW v2)** : palette chaude GND officielle (cream / bronze /
+ *   amber) alignée sur les PDFs commerciaux et la nouvelle identité plateforme.
  */
 const config: Config = {
   content: [
@@ -28,7 +29,7 @@ const config: Config = {
           bg: '#F8FAFC',
         },
 
-        // Academic Atelier — M3-style tokens
+        // Academic Atelier — M3-style tokens (conservé comme palette neutre)
         primary: '#0058be',
         'primary-container': '#2170e4',
         'primary-fixed': '#d8e2ff',
@@ -82,22 +83,91 @@ const config: Config = {
         'inverse-surface': '#313030',
         'inverse-on-surface': '#f3f0ef',
         'inverse-primary': '#adc6ff',
+
+        // ============================================================
+        // GND warm v2 (NEW) — charte chaude officielle
+        // ============================================================
+        'gnd-cream': '#FDF6EE',
+        'gnd-cream-dim': '#F5EBD9',
+        'gnd-paper': '#FBF7F1',
+        'gnd-bronze': '#3D1F1E',
+        'gnd-bronze-soft': '#5C3A38',
+        'gnd-bronze-faded': '#8A6D6B',
+        'gnd-amber': '#E8853D',
+        'gnd-amber-dim': '#D4732A',
+        'gnd-amber-glow': '#FFA060',
+        'gnd-amber-pale': '#FFE3CC',
+        'gnd-ink': '#1A0F0E',
+        'gnd-clay': '#A0735C',
+        'gnd-sand': '#EFE2D2',
       },
       fontFamily: {
+        // Legacy (Google Fonts CDN, conservé pour compat)
         headline: ['Epilogue', 'sans-serif'],
         body: ['Inter', 'sans-serif'],
         label: ['Inter', 'sans-serif'],
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+
+        // v2 (next/font)
+        sans: ['var(--font-geist-sans)', 'Inter', 'system-ui', 'sans-serif'],
+        mono: ['var(--font-geist-mono)', 'ui-monospace', 'monospace'],
+        display: ['var(--font-fraunces)', 'Georgia', 'serif'],
+      },
+      fontSize: {
+        'display-xl': ['clamp(3rem, 6vw, 5rem)', { lineHeight: '1', letterSpacing: '-0.03em' }],
+        'display-lg': ['clamp(2.25rem, 4.5vw, 3.5rem)', { lineHeight: '1.05', letterSpacing: '-0.025em' }],
+        'display-md': ['clamp(1.75rem, 3vw, 2.5rem)', { lineHeight: '1.1', letterSpacing: '-0.02em' }],
       },
       borderRadius: {
         DEFAULT: '0.25rem',
         lg: '0.5rem',
         xl: '0.75rem',
         '2xl': '1.5rem',
+        '3xl': '2rem',
         full: '9999px',
       },
       boxShadow: {
         editorial: '0 32px 64px -12px rgba(28, 27, 27, 0.08)',
+        warm: '0 1px 2px rgba(61, 31, 30, 0.04), 0 8px 24px rgba(61, 31, 30, 0.06)',
+        'warm-lg': '0 2px 4px rgba(61, 31, 30, 0.04), 0 24px 48px rgba(61, 31, 30, 0.10)',
+        'warm-xl': '0 4px 8px rgba(61, 31, 30, 0.04), 0 40px 80px rgba(61, 31, 30, 0.14)',
+        'glow-amber': '0 0 0 1px rgba(232, 133, 61, 0.10), 0 8px 32px rgba(232, 133, 61, 0.18)',
+        'inset-warm': 'inset 0 1px 0 rgba(255, 255, 255, 0.6)',
+      },
+      backgroundImage: {
+        'gradient-warm': 'linear-gradient(135deg, #FDF6EE 0%, #F5EBD9 100%)',
+        'gradient-amber': 'linear-gradient(135deg, #E8853D 0%, #D4732A 100%)',
+        'gradient-bronze': 'linear-gradient(135deg, #3D1F1E 0%, #1A0F0E 100%)',
+        'noise': "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E\")",
+      },
+      animation: {
+        'fade-in': 'fadeIn 600ms ease-out forwards',
+        'fade-in-up': 'fadeInUp 700ms cubic-bezier(0.22, 1, 0.36, 1) forwards',
+        'fade-in-down': 'fadeInDown 700ms cubic-bezier(0.22, 1, 0.36, 1) forwards',
+        shimmer: 'shimmer 2.5s linear infinite',
+        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'float-slow': 'float 8s ease-in-out infinite',
+      },
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        fadeInUp: {
+          '0%': { opacity: '0', transform: 'translateY(16px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        fadeInDown: {
+          '0%': { opacity: '0', transform: 'translateY(-16px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        shimmer: {
+          '0%': { backgroundPosition: '-200% 0' },
+          '100%': { backgroundPosition: '200% 0' },
+        },
+        float: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-8px)' },
+        },
       },
     },
   },
