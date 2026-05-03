@@ -75,7 +75,8 @@ export default async function InvitationsPage() {
                     {new Date(inv.expires_at).toLocaleDateString('fr-FR')}
                   </td>
                   <td className="py-2 px-3">
-                    <form action={revokeInvitation.bind(null, inv.id)}>
+                    <form action={revokeInvitation}>
+                      <input type="hidden" name="id" value={inv.id} />
                       <button
                         type="submit"
                         className="text-red-600 hover:text-red-800 text-xs underline"
@@ -101,8 +102,10 @@ export default async function InvitationsPage() {
           <ul className="text-sm text-gray-600 space-y-1">
             {consumed.slice(0, 20).map((inv) => (
               <li key={inv.id}>
-                <span className="font-mono">{inv.email}</span> — {inv.role} — consumée le{' '}
-                {new Date(inv.consumed_at!).toLocaleDateString('fr-FR')}
+                <span className="font-mono">{inv.email}</span> — {inv.role} — consommée le{' '}
+                {inv.consumed_at
+                  ? new Date(inv.consumed_at).toLocaleDateString('fr-FR')
+                  : '—'}
               </li>
             ))}
           </ul>

@@ -50,7 +50,10 @@ export async function createInvitation(
   return { error: null };
 }
 
-export async function revokeInvitation(id: string): Promise<void> {
+export async function revokeInvitation(formData: FormData): Promise<void> {
+  const id = formData.get('id');
+  if (typeof id !== 'string') return;
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return;

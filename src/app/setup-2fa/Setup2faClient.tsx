@@ -5,6 +5,13 @@ import { createBrowserClient } from '@supabase/ssr';
 import { useRouter } from 'next/navigation';
 import { markTotpEnabled } from '@/app/(app)/admin/invitations/actions';
 
+function getSupabaseClient() {
+  return createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+}
+
 export function Setup2faClient() {
   const router = useRouter();
   const [factorId, setFactorId] = useState<string | null>(null);
@@ -16,10 +23,7 @@ export function Setup2faClient() {
 
   useEffect(() => {
     async function enroll() {
-      const supabase = createBrowserClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      );
+      const supabase = getSupabaseClient();
 
       // Si un factor TOTP non vérifié existe déjà, le réutiliser
       const { data: factors } = await supabase.auth.mfa.listFactors();
@@ -35,8 +39,8 @@ export function Setup2faClient() {
         friendlyName: `GND Plateforme — ${new Date().toISOString()}`,
       });
 
-      if (enrollError) {
-        setError(enrollError.message);
+      if (enrollError || !data) {
+        setError(enrollError?.message ?? 'Erreur d\'enrollment TOTP');
         return;
       }
 
@@ -54,16 +58,13 @@ export function Setup2faClient() {
     setError(null);
 
     startTransition(async () => {
-      const supabase = createBrowserClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      );
+      const supabase = getSupabaseClient();
 
       const { data: challenge, error: challengeError } = await supabase.auth.mfa.challenge({
         factorId,
       });
-      if (challengeError) {
-        setError(challengeError.message);
+      if (challengeError || !challenge) {
+        setError(challengeError?.message ?? 'Erreur lors du challenge TOTP');
         return;
       }
 
