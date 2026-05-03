@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { GeistSans } from 'geist/font/sans';
 import { GeistMono } from 'geist/font/mono';
 import { Fraunces } from 'next/font/google';
+import SmoothScroll from '@/components/SmoothScroll';
 import './globals.css';
 
 const fraunces = Fraunces({
@@ -28,7 +29,6 @@ export default function RootLayout({
       className={`${GeistSans.variable} ${GeistMono.variable} ${fraunces.variable}`}
     >
       <head>
-        {/* Material Symbols (legacy, encore utilisé sur certaines pages) */}
         <link
           rel="preconnect"
           href="https://fonts.googleapis.com"
@@ -44,6 +44,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen bg-background font-sans text-on-surface antialiased">
+        <SmoothScroll />
         {children}
       </body>
     </html>
