@@ -3,6 +3,7 @@
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useMemo, useRef, useState } from 'react';
 import {
+  Activity,
   ChevronLeft,
   ChevronRight,
   Edit3,
@@ -15,6 +16,7 @@ import {
   StickyNote,
   Trash2,
   TrendingUp,
+  Zap,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase-client';
 import {
@@ -62,7 +64,7 @@ export default function ProspectsClient({
   const watermarkY = useTransform(scrollYProgress, [0, 1], ['0%', '40%']);
   const watermarkOpacity = useTransform(scrollYProgress, [0, 1], [1, 0.3]);
 
-  // ============== Stats personnelles ==============
+  // Stats personnelles
   const stats = useMemo(() => {
     const total = prospects.length;
     const byStatus = prospects.reduce<Record<string, number>>((acc, p) => {
@@ -74,10 +76,11 @@ export default function ProspectsClient({
     const signed = byStatus.gagne ?? 0;
     const conversionRate = total > 0 ? (signed / total) * 100 : 0;
     const contactRate = total > 0 ? (contacted / total) * 100 : 0;
-    return { total, byStatus, contacted, rdv, signed, conversionRate, contactRate };
+    const rdvRate = total > 0 ? (rdv / total) * 100 : 0;
+    return { total, byStatus, contacted, rdv, signed, conversionRate, contactRate, rdvRate };
   }, [prospects]);
 
-  // ============== Filter + search + pagination ==============
+  // Filter + search + pagination
   const filtered = useMemo(() => {
     let list = prospects;
     if (filter !== 'all') list = list.filter((p) => p.status === filter);
@@ -101,11 +104,9 @@ export default function ProspectsClient({
     [filtered, safePage, pageSize]
   );
 
-  // ============== Mutations (preserved from old table) ==============
+  // Mutations
   function pushStatusToNotion(prospectId: string) {
-    fetch(`/api/prospects/${prospectId}/sync-status-to-notion`, {
-      method: 'POST',
-    }).catch((err) => {
+    fetch(`/api/prospects/${prospectId}/sync-status-to-notion`, { method: 'POST' }).catch((err) => {
       // eslint-disable-next-line no-console
       console.error(`[sync-status-to-notion] failed for prospect ${prospectId}:`, err);
     });
@@ -126,11 +127,7 @@ export default function ProspectsClient({
       status: values.status,
       notes: values.notes.trim() || null,
     };
-    const { data, error } = await supabase
-      .from('prospects')
-      .insert(payload)
-      .select()
-      .single();
+    const { data, error } = await supabase.from('prospects').insert(payload).select().single();
     if (error) { setError(error.message); throw error; }
     if (data) setProspects((prev) => [data as Prospect, ...prev]);
   }
@@ -149,26 +146,18 @@ export default function ProspectsClient({
       status: values.status,
       notes: values.notes.trim() || null,
     };
-    const { data, error } = await supabase
-      .from('prospects')
-      .update(patch)
-      .eq('id', editing.id)
-      .select()
-      .single();
+    const { data, error } = await supabase.from('prospects').update(patch).eq('id', editing.id).select().single();
     if (error) { setError(error.message); throw error; }
     if (data) {
       const updated = data as Prospect;
       setProspects((prev) => prev.map((p) => (p.id === editing.id ? updated : p)));
-      if (values.status !== editing.status && updated.notion_page_id) {
-        pushStatusToNotion(updated.id);
-      }
+      if (values.status !== editing.status && updated.notion_page_id) pushStatusToNotion(updated.id);
     }
   }
 
   async function handleStatusChange(prospect: Prospect, status: string) {
     setError(null);
-    const { data, error } = await supabase
-      .from('prospects').update({ status }).eq('id', prospect.id).select().single();
+    const { data, error } = await supabase.from('prospects').update({ status }).eq('id', prospect.id).select().single();
     if (error) { setError(error.message); return; }
     if (data) {
       const updated = data as Prospect;
@@ -188,8 +177,7 @@ export default function ProspectsClient({
   async function handleSaveNotes() {
     if (!notesFor) return;
     setError(null);
-    const { data, error } = await supabase
-      .from('prospects').update({ notes: notesDraft.trim() || null }).eq('id', notesFor.id).select().single();
+    const { data, error } = await supabase.from('prospects').update({ notes: notesDraft.trim() || null }).eq('id', notesFor.id).select().single();
     if (error) { setError(error.message); return; }
     if (data) setProspects((prev) => prev.map((p) => (p.id === notesFor.id ? (data as Prospect) : p)));
     setNotesFor(null);
@@ -205,14 +193,23 @@ export default function ProspectsClient({
     );
   }
 
+  // Bonus calculation
+  const TIERS = [
+    { threshold: 5, bonus: 200 },
+    { threshold: 10, bonus: 500 },
+    { threshold: 15, bonus: 1000 },
+    { threshold: 20, bonus: 2500 },
+  ];
+  const earnedBonus = TIERS.filter((t) => stats.signed >= t.threshold).reduce((sum, t) => sum + t.bonus, 0);
+  const nextTier = TIERS.find((t) => stats.signed < t.threshold);
+  const tierProgress = nextTier ? (stats.signed / nextTier.threshold) * 100 : 100;
+
   return (
     <div className="relative">
-      {/* ====================================================== */}
-      {/* Hero — split 7/5                                          */}
-      {/* ====================================================== */}
+      {/* Hero */}
       <header
         ref={heroRef}
-        className="relative mb-16 grid min-h-[60vh] grid-cols-1 items-center gap-12 overflow-hidden lg:grid-cols-[7fr_5fr] lg:gap-16"
+        className="relative mb-12 grid min-h-[60vh] grid-cols-1 items-center gap-12 overflow-hidden lg:grid-cols-[7fr_5fr] lg:gap-16"
       >
         <motion.span
           aria-hidden
@@ -235,14 +232,12 @@ export default function ProspectsClient({
             </span>
           </div>
           <h1 className="font-display text-display-xl font-medium leading-[0.95] tracking-tight text-gnd-bronze">
-            Tes{' '}
-            <span className="italic text-gnd-amber">prospects</span>,
+            Tes <span className="italic text-gnd-amber">prospects</span>,
             <br />
             {firstName}.
           </h1>
           <p className="mt-6 max-w-xl text-pretty text-base leading-relaxed text-gnd-bronze-soft sm:text-lg">
-            Carnet de bord personnel. Crée, édite, fais évoluer tes prospects au
-            fil des contacts. Ta progression et tes paliers de bonus en direct.
+            Carnet de bord personnel. Crée, édite, fais évoluer tes prospects au fil des contacts. Ta progression et tes paliers de bonus en direct.
           </p>
         </motion.div>
 
@@ -252,87 +247,154 @@ export default function ProspectsClient({
           transition={{ duration: 0.9, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
           className="relative z-10"
         >
-          <ProspectsHeroVisual
-            total={stats.total}
-            contacted={stats.contacted}
-            signed={stats.signed}
-          />
+          <ProspectsHeroVisual total={stats.total} contacted={stats.contacted} signed={stats.signed} />
         </motion.div>
       </header>
 
-      {/* ====================================================== */}
-      {/* Dashboard de progression — speedo + rocket + KPIs        */}
-      {/* ====================================================== */}
+      {/* ==================================================================== */}
+      {/* Dashboard cockpit — dark bronze/ink avec glow amber                    */}
+      {/* ==================================================================== */}
       <motion.section
         initial={{ opacity: 0, y: 32 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-50px' }}
         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        className="mb-12"
+        className="relative mb-12 overflow-hidden rounded-3xl border border-gnd-amber/15 bg-gradient-to-br from-gnd-bronze via-gnd-bronze to-gnd-ink p-6 shadow-warm-xl sm:p-8"
+        style={{
+          backgroundImage: `
+            radial-gradient(circle at 20% 0%, rgba(232, 133, 61, 0.12) 0%, transparent 50%),
+            radial-gradient(circle at 80% 100%, rgba(232, 133, 61, 0.08) 0%, transparent 50%),
+            linear-gradient(135deg, #3D1F1E 0%, #1A0F0E 100%)
+          `,
+        }}
       >
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        {/* HUD top bar */}
+        <div className="mb-6 flex items-center justify-between border-b border-gnd-amber/15 pb-4">
+          <div className="flex items-center gap-3">
+            <span className="flex h-2 w-2 animate-pulse rounded-full bg-gnd-amber shadow-[0_0_8px_rgba(232,133,61,0.8)]" />
+            <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.25em] text-gnd-amber">
+              Console Personnelle · Live
+            </span>
+          </div>
+          <div className="flex items-center gap-4">
+            <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-gnd-cream/50">
+              {new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase()}
+            </span>
+            <span className="flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.2em] text-gnd-cream/70">
+              <Activity className="h-3 w-3 text-gnd-amber" aria-hidden />
+              {stats.total} sig.
+            </span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[auto_1fr]">
           {/* SPEEDOMETER */}
-          <div className="flex flex-col items-center justify-between rounded-3xl border border-gnd-bronze/8 bg-gnd-paper p-6 shadow-warm">
+          <div className="flex flex-col items-center justify-center rounded-2xl border border-gnd-amber/10 bg-gnd-ink/40 p-6 backdrop-blur-sm">
             <div className="mb-2 flex items-center gap-2">
-              <TrendingUp className="h-3.5 w-3.5 text-gnd-amber-dim" aria-hidden />
-              <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-gnd-amber-dim">
+              <TrendingUp className="h-3.5 w-3.5 text-gnd-amber" aria-hidden />
+              <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-gnd-amber">
                 Conversion
               </span>
             </div>
             <SpeedometerGauge
               value={stats.conversionRate}
-              label="Signés / total"
-              subtitle={`${stats.signed} / ${stats.total}`}
+              label="Taux conversion"
+              formatValue={(v) => `${Math.round(v)}`}
+              subtitle="%"
+              subLeft={{ value: stats.contactRate, label: 'CTC' }}
+              subRight={{ value: stats.rdvRate, label: 'RDV' }}
             />
+            {/* Footer stats */}
+            <div className="mt-4 flex w-full items-center justify-between border-t border-gnd-amber/10 pt-3 text-center">
+              <div>
+                <p className="font-mono text-[8px] uppercase tracking-[0.18em] text-gnd-cream/50">
+                  Signés
+                </p>
+                <p className="font-display text-lg font-medium text-gnd-cream">{stats.signed}</p>
+              </div>
+              <div className="h-6 w-px bg-gnd-amber/20" />
+              <div>
+                <p className="font-mono text-[8px] uppercase tracking-[0.18em] text-gnd-cream/50">
+                  Total
+                </p>
+                <p className="font-display text-lg font-medium text-gnd-cream">{stats.total}</p>
+              </div>
+              <div className="h-6 w-px bg-gnd-amber/20" />
+              <div>
+                <p className="font-mono text-[8px] uppercase tracking-[0.18em] text-gnd-cream/50">
+                  Bonus
+                </p>
+                <p className="font-display text-lg font-medium text-gnd-amber">
+                  {earnedBonus} €
+                </p>
+              </div>
+            </div>
           </div>
 
-          {/* ROCKET PROGRESS */}
-          <div className="relative flex flex-col rounded-3xl border border-gnd-bronze/8 bg-gradient-to-br from-gnd-paper via-gnd-cream to-gnd-cream-dim p-6 shadow-warm lg:col-span-2">
+          {/* ROCKET + BONUS PANEL */}
+          <div className="relative flex flex-col rounded-2xl border border-gnd-amber/10 bg-gnd-ink/40 p-6 backdrop-blur-sm">
             <div className="mb-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Sparkles className="h-3.5 w-3.5 text-gnd-amber" aria-hidden />
-                <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-gnd-amber">
-                  Paliers de bonus
+                <Zap className="h-3.5 w-3.5 text-gnd-amber" aria-hidden />
+                <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-gnd-amber">
+                  Trajectoire bonus
                 </span>
               </div>
-              <span className="rounded-full bg-gnd-amber/15 px-2.5 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-[0.18em] text-gnd-amber-dim">
+              <span className="rounded-full border border-gnd-amber/30 bg-gnd-amber/10 px-2.5 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-[0.18em] text-gnd-amber-glow">
                 {stats.signed} signé{stats.signed > 1 ? 's' : ''}
               </span>
             </div>
-            <h3 className="mb-1 font-display text-xl font-medium text-gnd-bronze">
+            <h3 className="mb-1 font-display text-2xl font-medium text-gnd-cream">
               Décolle vers ton{' '}
               <span className="italic text-gnd-amber">prochain palier</span>
             </h3>
-            <p className="mb-6 max-w-md text-sm text-gnd-bronze-soft">
-              Chaque contrat signé te rapproche d'un bonus. La fusée monte en
-              continu, les paliers atteints s'allument.
+            <p className="mb-6 max-w-md text-sm text-gnd-cream/60">
+              La fusée progresse en continu. Chaque palier débloqué ajoute son bonus au
+              compteur.
             </p>
-            <div className="flex h-44 items-stretch">
+
+            <div className="flex h-52 items-stretch">
               <RocketProgress signed={stats.signed} />
             </div>
+
+            {/* Mini progress to next tier */}
+            {nextTier && (
+              <div className="mt-4 border-t border-gnd-amber/10 pt-4">
+                <div className="flex items-center justify-between font-mono text-[9px] uppercase tracking-[0.18em] text-gnd-cream/60">
+                  <span>Prochain palier</span>
+                  <span className="text-gnd-amber">
+                    {stats.signed} / {nextTier.threshold}
+                  </span>
+                </div>
+                <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-gnd-bronze/40">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${tierProgress}%` }}
+                    transition={{ duration: 1.4, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                    className="h-full rounded-full bg-gradient-to-r from-gnd-amber-dim via-gnd-amber to-gnd-amber-glow shadow-[0_0_8px_rgba(232,133,61,0.6)]"
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* 4 KPI cards under */}
-        <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
-          <KpiCard label="Total" value={stats.total} accent="bronze" />
-          <KpiCard label="Contactés" value={stats.contacted} accent="amber" />
-          <KpiCard label="RDV pris" value={stats.rdv} accent="amber" />
-          <KpiCard label="Devis signés" value={stats.signed} accent="emerald" />
+        {/* HUD bottom bar with KPIs */}
+        <div className="mt-6 grid grid-cols-2 gap-3 border-t border-gnd-amber/15 pt-4 sm:grid-cols-4">
+          <HudKpi label="Total" value={stats.total} />
+          <HudKpi label="Contactés" value={stats.contacted} highlight />
+          <HudKpi label="RDV pris" value={stats.rdv} highlight />
+          <HudKpi label="Signés" value={stats.signed} accent />
         </div>
       </motion.section>
 
-      {/* ====================================================== */}
-      {/* Filters + actions                                         */}
-      {/* ====================================================== */}
+      {/* ==================================================================== */}
+      {/* Filters + actions                                                      */}
+      {/* ==================================================================== */}
       <div className="mb-6 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center">
-          {/* Search */}
           <div className="relative flex-1 sm:max-w-sm">
-            <Search
-              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gnd-bronze-soft"
-              aria-hidden
-            />
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gnd-bronze-soft" aria-hidden />
             <input
               type="text"
               value={search}
@@ -341,13 +403,8 @@ export default function ProspectsClient({
               className="w-full rounded-full border border-gnd-bronze/10 bg-white py-2.5 pl-10 pr-4 text-sm text-gnd-bronze placeholder:text-gnd-bronze-faded focus:border-gnd-amber focus:outline-none focus:ring-1 focus:ring-gnd-amber"
             />
           </div>
-
-          {/* Filter status */}
           <div className="relative">
-            <Filter
-              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gnd-bronze-soft"
-              aria-hidden
-            />
+            <Filter className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gnd-bronze-soft" aria-hidden />
             <select
               value={filter}
               onChange={(e) => { setFilter(e.target.value); setPage(1); }}
@@ -355,14 +412,10 @@ export default function ProspectsClient({
             >
               <option value="all">Tous statuts</option>
               {STATUS_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
               ))}
             </select>
           </div>
-
-          {/* Page size */}
           <select
             value={pageSize}
             onChange={(e) => { setPageSize(Number(e.target.value)); setPage(1); }}
@@ -373,7 +426,6 @@ export default function ProspectsClient({
             <option value={40}>40 par page</option>
           </select>
         </div>
-
         <div className="flex items-center gap-3">
           <span className="font-mono text-[11px] uppercase tracking-[0.15em] text-gnd-bronze-soft">
             {filtered.length} prospect{filtered.length > 1 ? 's' : ''}
@@ -395,15 +447,11 @@ export default function ProspectsClient({
         </div>
       )}
 
-      {/* ====================================================== */}
-      {/* Prospect cards (replaces the old HTML table)              */}
-      {/* ====================================================== */}
+      {/* Prospect cards */}
       {paginated.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-3xl border border-gnd-bronze/8 bg-gnd-paper p-16 text-center shadow-warm">
           <p className="font-display text-xl text-gnd-bronze">Aucun prospect trouvé.</p>
-          <p className="mt-2 text-sm text-gnd-bronze-soft">
-            Ajuste tes filtres ou crée ton premier prospect.
-          </p>
+          <p className="mt-2 text-sm text-gnd-bronze-soft">Ajuste tes filtres ou crée ton premier prospect.</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -423,14 +471,11 @@ export default function ProspectsClient({
         </div>
       )}
 
-      {/* ====================================================== */}
-      {/* Pagination                                                */}
-      {/* ====================================================== */}
+      {/* Pagination */}
       {totalPages > 1 && (
         <div className="mt-8 flex items-center justify-between rounded-2xl border border-gnd-bronze/8 bg-gnd-paper px-4 py-3 shadow-warm sm:px-6">
           <p className="font-mono text-[11px] uppercase tracking-[0.15em] text-gnd-bronze-soft">
-            Page <span className="font-semibold text-gnd-bronze">{safePage}</span>{' '}
-            sur <span className="text-gnd-bronze">{totalPages}</span>
+            Page <span className="font-semibold text-gnd-bronze">{safePage}</span> sur <span className="text-gnd-bronze">{totalPages}</span>
           </p>
           <div className="flex items-center gap-1">
             <button
@@ -443,17 +488,13 @@ export default function ProspectsClient({
             </button>
             {pageNumbers(safePage, totalPages).map((n, idx) =>
               n === '…' ? (
-                <span key={`gap-${idx}`} className="px-2 text-xs text-gnd-bronze-faded">
-                  …
-                </span>
+                <span key={`gap-${idx}`} className="px-2 text-xs text-gnd-bronze-faded">…</span>
               ) : (
                 <button
                   key={n}
                   onClick={() => setPage(n as number)}
                   className={`inline-flex h-9 min-w-[2.25rem] items-center justify-center rounded-full px-2 text-sm font-semibold transition-colors ${
-                    n === safePage
-                      ? 'bg-gnd-bronze text-gnd-cream'
-                      : 'text-gnd-bronze hover:bg-gnd-amber/10'
+                    n === safePage ? 'bg-gnd-bronze text-gnd-cream' : 'text-gnd-bronze hover:bg-gnd-amber/10'
                   }`}
                 >
                   {n}
@@ -472,35 +513,23 @@ export default function ProspectsClient({
         </div>
       )}
 
-      {/* ====================================================== */}
-      {/* Modals                                                    */}
-      {/* ====================================================== */}
-      <ProspectModal
-        open={createOpen}
-        onClose={() => setCreateOpen(false)}
-        onSubmit={handleCreate}
-        title="Nouveau prospect"
-        submitLabel="Créer le prospect"
-      />
+      {/* Modals */}
+      <ProspectModal open={createOpen} onClose={() => setCreateOpen(false)} onSubmit={handleCreate} title="Nouveau prospect" submitLabel="Créer le prospect" />
       <ProspectModal
         open={editing !== null}
         onClose={() => setEditing(null)}
         onSubmit={handleEdit}
-        initial={
-          editing
-            ? {
-                company_name: editing.company_name,
-                contact_name: editing.contact_name ?? '',
-                phone: editing.phone ?? '',
-                email: editing.email ?? '',
-                website: editing.website ?? '',
-                sector: editing.sector ?? '',
-                city: editing.city ?? '',
-                status: editing.status,
-                notes: editing.notes ?? '',
-              }
-            : undefined
-        }
+        initial={editing ? {
+          company_name: editing.company_name,
+          contact_name: editing.contact_name ?? '',
+          phone: editing.phone ?? '',
+          email: editing.email ?? '',
+          website: editing.website ?? '',
+          sector: editing.sector ?? '',
+          city: editing.city ?? '',
+          status: editing.status,
+          notes: editing.notes ?? '',
+        } : undefined}
         title={editing ? `Modifier : ${editing.company_name}` : 'Modifier'}
         submitLabel="Enregistrer"
       />
@@ -513,20 +542,10 @@ export default function ProspectsClient({
             <div className="p-7">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-gnd-amber-dim">
-                    Notes privées
-                  </p>
-                  <h3 className="mt-1 font-display text-xl font-medium text-gnd-bronze">
-                    {notesFor.company_name}
-                  </h3>
+                  <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-gnd-amber-dim">Notes privées</p>
+                  <h3 className="mt-1 font-display text-xl font-medium text-gnd-bronze">{notesFor.company_name}</h3>
                 </div>
-                <button
-                  onClick={() => setNotesFor(null)}
-                  className="rounded-full p-2 text-gnd-bronze-soft transition-colors hover:bg-gnd-bronze/8 hover:text-gnd-bronze"
-                  aria-label="Fermer"
-                >
-                  ✕
-                </button>
+                <button onClick={() => setNotesFor(null)} className="rounded-full p-2 text-gnd-bronze-soft transition-colors hover:bg-gnd-bronze/8 hover:text-gnd-bronze" aria-label="Fermer">✕</button>
               </div>
               <textarea
                 rows={8}
@@ -536,18 +555,8 @@ export default function ProspectsClient({
                 placeholder="Contexte, historique, prochaines actions…"
               />
               <div className="mt-4 flex justify-end gap-2">
-                <button
-                  onClick={() => setNotesFor(null)}
-                  className="rounded-full border border-gnd-bronze/10 bg-white px-5 py-2.5 text-sm font-semibold text-gnd-bronze transition-colors hover:bg-gnd-cream"
-                >
-                  Annuler
-                </button>
-                <button
-                  onClick={handleSaveNotes}
-                  className="rounded-full bg-gnd-bronze px-5 py-2.5 text-sm font-semibold text-gnd-cream transition-colors hover:bg-gnd-ink"
-                >
-                  Enregistrer
-                </button>
+                <button onClick={() => setNotesFor(null)} className="rounded-full border border-gnd-bronze/10 bg-white px-5 py-2.5 text-sm font-semibold text-gnd-bronze transition-colors hover:bg-gnd-cream">Annuler</button>
+                <button onClick={handleSaveNotes} className="rounded-full bg-gnd-bronze px-5 py-2.5 text-sm font-semibold text-gnd-cream transition-colors hover:bg-gnd-ink">Enregistrer</button>
               </div>
             </div>
           </div>
@@ -557,64 +566,22 @@ export default function ProspectsClient({
   );
 }
 
-// ===========================================================
-// Sub-components
-// ===========================================================
-
-function KpiCard({
-  label,
-  value,
-  accent,
-}: {
-  label: string;
-  value: number;
-  accent: 'bronze' | 'amber' | 'emerald';
-}) {
-  const tones = {
-    bronze: { fg: 'text-gnd-bronze', accent: 'text-gnd-bronze-soft' },
-    amber: { fg: 'text-gnd-amber-dim', accent: 'text-gnd-amber-dim' },
-    emerald: { fg: 'text-emerald-700', accent: 'text-emerald-700' },
-  } as const;
-  const t = tones[accent];
+function HudKpi({ label, value, highlight, accent }: { label: string; value: number; highlight?: boolean; accent?: boolean }) {
+  const fg = accent ? 'text-gnd-amber-glow' : highlight ? 'text-gnd-amber' : 'text-gnd-cream';
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-      className="flex flex-col rounded-2xl border border-gnd-bronze/8 bg-gnd-paper p-5 shadow-warm transition-all hover:-translate-y-0.5 hover:shadow-warm-lg"
-    >
-      <p className={`font-mono text-[10px] font-semibold uppercase tracking-[0.18em] ${t.accent}`}>
+    <div className="flex flex-col items-center gap-1 rounded-xl border border-gnd-amber/10 bg-gnd-ink/40 p-3 backdrop-blur-sm">
+      <p className="font-mono text-[8px] font-semibold uppercase tracking-[0.22em] text-gnd-cream/60">
         {label}
       </p>
-      <p className={`mt-2 font-display text-3xl font-medium ${t.fg}`}>
-        {value}
-      </p>
-    </motion.div>
+      <p className={`font-display text-2xl font-medium ${fg}`}>{value}</p>
+    </div>
   );
 }
 
-function ProspectRow({
-  prospect: p,
-  index,
-  onView,
-  onEdit,
-  onDelete,
-  onNotes,
-  onStatusChange,
-  hasEnrichment,
-}: {
-  prospect: Prospect;
-  index: number;
-  onView: () => void;
-  onEdit: () => void;
-  onDelete: () => void;
-  onNotes: () => void;
-  onStatusChange: (status: string) => void;
-  hasEnrichment: boolean;
+function ProspectRow({ prospect: p, index, onView, onEdit, onDelete, onNotes, onStatusChange, hasEnrichment }: {
+  prospect: Prospect; index: number; onView: () => void; onEdit: () => void; onDelete: () => void; onNotes: () => void; onStatusChange: (status: string) => void; hasEnrichment: boolean;
 }) {
   const statusTone = toneForStatus(p.status);
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
@@ -622,14 +589,11 @@ function ProspectRow({
       transition={{ duration: 0.4, delay: Math.min(index * 0.03, 0.4), ease: 'easeOut' }}
       className="group flex flex-col gap-4 rounded-2xl border border-gnd-bronze/8 bg-gnd-paper p-5 shadow-warm transition-all hover:-translate-y-0.5 hover:border-gnd-amber/30 hover:shadow-warm-lg sm:p-6 lg:flex-row lg:items-center"
     >
-      {/* Left : company + contact */}
       <div className="flex flex-1 items-start gap-4 lg:max-w-[28%]">
         <Avatar text={p.company_name} />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <p className="truncate font-display text-base font-medium text-gnd-bronze">
-              {p.company_name}
-            </p>
+            <p className="truncate font-display text-base font-medium text-gnd-bronze">{p.company_name}</p>
             {p.notion_page_id && (
               <span className="inline-flex items-center gap-1 rounded-full bg-gnd-amber/15 px-2 py-0.5 font-mono text-[8px] font-semibold uppercase tracking-[0.18em] text-gnd-amber-dim">
                 <Sparkles className="h-2.5 w-2.5" aria-hidden />
@@ -640,51 +604,24 @@ function ProspectRow({
           {p.contact_name && (
             <p className="mt-0.5 text-sm text-gnd-bronze-soft">
               {p.contact_name}
-              {p.role_contact && (
-                <span className="text-gnd-bronze-faded"> · {p.role_contact}</span>
-              )}
+              {p.role_contact && <span className="text-gnd-bronze-faded"> · {p.role_contact}</span>}
             </p>
           )}
         </div>
       </div>
-
-      {/* Middle : contacts (phone/email) */}
       <div className="flex flex-col gap-1 text-sm lg:max-w-[22%] lg:flex-1">
-        {p.phone && (
-          <a
-            href={`tel:${p.phone}`}
-            className="inline-flex items-center gap-1.5 font-mono text-xs text-gnd-amber-dim transition-colors hover:text-gnd-amber"
-          >
-            {p.phone}
-          </a>
-        )}
+        {p.phone && <a href={`tel:${p.phone}`} className="inline-flex items-center gap-1.5 font-mono text-xs text-gnd-amber-dim transition-colors hover:text-gnd-amber">{p.phone}</a>}
         {p.email && (
-          <a
-            href={`mailto:${p.email}`}
-            className="inline-flex items-center gap-1.5 truncate font-mono text-xs text-gnd-bronze-soft transition-colors hover:text-gnd-amber"
-          >
+          <a href={`mailto:${p.email}`} className="inline-flex items-center gap-1.5 truncate font-mono text-xs text-gnd-bronze-soft transition-colors hover:text-gnd-amber">
             {p.email}
             <ExternalLink className="h-3 w-3" aria-hidden />
           </a>
         )}
       </div>
-
-      {/* City + sector */}
       <div className="flex flex-col gap-1 text-xs lg:max-w-[18%] lg:flex-1">
-        {p.city && (
-          <span className="inline-flex items-center gap-1 text-gnd-bronze-soft">
-            <MapPin className="h-3 w-3 text-gnd-bronze-faded" aria-hidden />
-            {p.city}
-          </span>
-        )}
-        {p.sector && (
-          <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-gnd-bronze-faded">
-            {p.sector}
-          </span>
-        )}
+        {p.city && <span className="inline-flex items-center gap-1 text-gnd-bronze-soft"><MapPin className="h-3 w-3 text-gnd-bronze-faded" aria-hidden />{p.city}</span>}
+        {p.sector && <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-gnd-bronze-faded">{p.sector}</span>}
       </div>
-
-      {/* Status pill (editable) */}
       <div className="lg:max-w-[16%]">
         <select
           value={p.status}
@@ -696,50 +633,24 @@ function ProspectRow({
             <option value={p.status}>{labelForStatus(p.status)}</option>
           )}
           {STATUS_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
           ))}
         </select>
-        <p className="mt-1 font-mono text-[9px] uppercase tracking-[0.15em] text-gnd-bronze-faded">
-          MAJ {formatDate(p.updated_at)}
-        </p>
+        <p className="mt-1 font-mono text-[9px] uppercase tracking-[0.15em] text-gnd-bronze-faded">MAJ {formatDate(p.updated_at)}</p>
       </div>
-
-      {/* Actions */}
       <div className="flex shrink-0 items-center gap-1">
         {hasEnrichment && (
-          <button
-            onClick={onView}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-full text-gnd-amber-dim transition-colors hover:bg-gnd-amber/10 hover:text-gnd-amber"
-            aria-label="Voir l'analyse complète"
-            title="Voir l'analyse complète"
-          >
+          <button onClick={onView} className="inline-flex h-9 w-9 items-center justify-center rounded-full text-gnd-amber-dim transition-colors hover:bg-gnd-amber/10 hover:text-gnd-amber" aria-label="Voir l'analyse complète" title="Voir l'analyse complète">
             <Sparkles className="h-4 w-4" aria-hidden />
           </button>
         )}
-        <button
-          onClick={onNotes}
-          className="inline-flex h-9 w-9 items-center justify-center rounded-full text-gnd-bronze-soft transition-colors hover:bg-gnd-bronze/8 hover:text-gnd-bronze"
-          aria-label={p.notes ? 'Voir les notes' : 'Ajouter des notes'}
-          title={p.notes ? 'Voir les notes' : 'Ajouter des notes'}
-        >
+        <button onClick={onNotes} className="inline-flex h-9 w-9 items-center justify-center rounded-full text-gnd-bronze-soft transition-colors hover:bg-gnd-bronze/8 hover:text-gnd-bronze" aria-label={p.notes ? 'Voir les notes' : 'Ajouter des notes'} title={p.notes ? 'Voir les notes' : 'Ajouter des notes'}>
           <StickyNote className="h-4 w-4" aria-hidden />
         </button>
-        <button
-          onClick={onEdit}
-          className="inline-flex h-9 w-9 items-center justify-center rounded-full text-gnd-bronze-soft transition-colors hover:bg-gnd-bronze/8 hover:text-gnd-bronze"
-          aria-label="Modifier"
-          title="Modifier"
-        >
+        <button onClick={onEdit} className="inline-flex h-9 w-9 items-center justify-center rounded-full text-gnd-bronze-soft transition-colors hover:bg-gnd-bronze/8 hover:text-gnd-bronze" aria-label="Modifier" title="Modifier">
           <Edit3 className="h-4 w-4" aria-hidden />
         </button>
-        <button
-          onClick={onDelete}
-          className="inline-flex h-9 w-9 items-center justify-center rounded-full text-rose-500/70 transition-colors hover:bg-rose-50 hover:text-rose-600"
-          aria-label="Supprimer"
-          title="Supprimer"
-        >
+        <button onClick={onDelete} className="inline-flex h-9 w-9 items-center justify-center rounded-full text-rose-500/70 transition-colors hover:bg-rose-50 hover:text-rose-600" aria-label="Supprimer" title="Supprimer">
           <Trash2 className="h-4 w-4" aria-hidden />
         </button>
       </div>
@@ -748,7 +659,6 @@ function ProspectRow({
 }
 
 function Avatar({ text }: { text: string }) {
-  // Hash for stable color
   const hash = useMemo(() => {
     let h = 0;
     for (let i = 0; i < text.length; i++) h = (h << 5) - h + text.charCodeAt(i);
@@ -762,25 +672,16 @@ function Avatar({ text }: { text: string }) {
     'from-gnd-clay to-gnd-amber-dim',
   ];
   const grad = palette[hash % palette.length];
-  const initials = text
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((w) => w[0]?.toUpperCase() ?? '')
-    .join('');
+  const initials = text.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase() ?? '').join('');
   return (
-    <div
-      className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br font-display text-sm font-medium text-gnd-cream shadow-warm ${grad}`}
-    >
+    <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br font-display text-sm font-medium text-gnd-cream shadow-warm ${grad}`}>
       {initials || '?'}
     </div>
   );
 }
 
 function pageNumbers(current: number, total: number): (number | '…')[] {
-  if (total <= 7) {
-    return Array.from({ length: total }, (_, i) => i + 1);
-  }
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
   const out: (number | '…')[] = [];
   out.push(1);
   if (current > 3) out.push('…');
