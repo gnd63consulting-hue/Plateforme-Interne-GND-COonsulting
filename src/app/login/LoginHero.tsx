@@ -62,7 +62,7 @@ export default function LoginHero() {
       >
         <Stat label="Modules" value="7" />
         <Divider />
-        <Stat label="Acquisition + closing" value="Clé en main" />
+        <Stat label="De l&apos;appel à la signature" value="Process commercial" />
         <Divider />
         <Stat label="Pilotés en temps réel" value="Notion sync" />
       </motion.div>
