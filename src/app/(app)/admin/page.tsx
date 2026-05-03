@@ -33,7 +33,6 @@ import AdminProspectsPanel from '@/components/AdminProspectsPanel';
 import SpeedometerGauge from '@/components/SpeedometerGauge';
 import RocketProgress from '@/components/RocketProgress';
 import AnimatedNumber from '@/components/cockpit/AnimatedNumber';
-import ScanLine from '@/components/cockpit/ScanLine';
 import HudBlob from '@/components/cockpit/HudBlob';
 import ChromeBezel from '@/components/cockpit/ChromeBezel';
 import { RoleBadge } from '@/components/RoleBadge';
@@ -171,7 +170,6 @@ export default async function AdminPage() {
 
   return (
     <div className="relative">
-      {/* Hero */}
       <header className="relative mb-12 flex min-h-[36vh] flex-col justify-end overflow-hidden">
         <span
           aria-hidden
@@ -195,8 +193,7 @@ export default async function AdminPage() {
         </div>
       </header>
 
-      {/* CONSOLE PLATEFORME */}
-      <CockpitPanel className="mb-10" withScanLine>
+      <CockpitPanel className="mb-10">
         <HudBlob position="top-right" size="lg" />
         <HudBlob position="bottom-left" size="md" />
 
@@ -222,7 +219,6 @@ export default async function AdminPage() {
           </div>
         </div>
 
-        {/* SPEEDOMETER + ROCKET row */}
         <div className="relative z-10 mb-6 grid grid-cols-1 gap-6 lg:grid-cols-[auto_1fr]">
           <div className="flex flex-col items-center justify-between rounded-2xl border border-gnd-amber/10 bg-gnd-ink/40 p-6 backdrop-blur-sm">
             <div className="mb-3 flex items-center gap-2">
@@ -287,7 +283,6 @@ export default async function AdminPage() {
           </div>
         </div>
 
-        {/* Hero KPIs */}
         <div className="relative z-10 grid grid-cols-2 gap-3 md:grid-cols-4">
           <CockpitKpi label="Total prospects" value={prospects.length} sub="actifs dans le pipeline" icon={<Users className="h-4 w-4" />} />
           <CockpitKpi label="CA potentiel" valueStr={formatEur(caPotentielTotal)} sub="midpoint pipeline" icon={<TrendingUp className="h-4 w-4" />} accent />
@@ -308,7 +303,7 @@ export default async function AdminPage() {
       </CockpitSection>
 
       <CockpitSection number="02" icon={<Filter className="h-4 w-4" />} label="Funnel de" accent="conversion">
-        <CockpitPanel withScanLine>
+        <CockpitPanel>
           <HudCornerLabel label="FNL.001" />
           <div className="relative z-10 space-y-3">
             {funnelCounts.map((stage, idx) => {
@@ -359,7 +354,7 @@ export default async function AdminPage() {
       </CockpitSection>
 
       <CockpitSection number="03" icon={<Trophy className="h-4 w-4" />} label="Classement" accent="commerciaux" hint="tri par CA potentiel">
-        <CockpitPanel padding="none" withScanLine>
+        <CockpitPanel padding="none">
           <HudCornerLabel label="RNK.001" />
           {ranking.length === 0 ? (
             <div className="px-5 py-12 text-center font-display text-base text-gnd-cream/60">
@@ -447,7 +442,7 @@ export default async function AdminPage() {
       </CockpitSection>
 
       <CockpitSection number="07" icon={<GraduationCap className="h-4 w-4" />} label="Suivi" accent="formation">
-        <CockpitPanel padding="none" withScanLine>
+        <CockpitPanel padding="none">
           <HudCornerLabel label="FRM.001" />
           {sortedUsers.length === 0 ? (
             <p className="px-5 py-12 text-center font-display text-base text-gnd-cream/60">Aucun utilisateur pour le moment.</p>
@@ -507,19 +502,17 @@ export default async function AdminPage() {
 }
 
 // =====================================================================
-// Cockpit primitives — enriched with 21st.dev patterns
+// Cockpit primitives
 // =====================================================================
 
 function CockpitPanel({
   children,
   className,
   padding = 'normal',
-  withScanLine,
 }: {
   children: React.ReactNode;
   className?: string;
   padding?: 'normal' | 'none';
-  withScanLine?: boolean;
 }) {
   const padClass = padding === 'none' ? '' : 'p-6 sm:p-8';
   return (
@@ -533,7 +526,6 @@ function CockpitPanel({
         `,
       }}
     >
-      {withScanLine && <ScanLine />}
       {children}
     </section>
   );
@@ -572,7 +564,6 @@ function CockpitSection({
   );
 }
 
-/** KPI hero card avec AnimatedNumber + HudBlob + shine sweep */
 function CockpitKpi({
   label, value, valueStr, sub, icon, accent, highlight,
 }: {
@@ -695,7 +686,6 @@ function CockpitDistribution({ title, entries, total, limit, hudId }: { title: s
         `,
       }}
     >
-      <ScanLine duration={6} delay={1.2} />
       <HudCornerLabel label={hudId} />
       <h3 className="relative z-10 mb-4 font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-gnd-amber">{title}</h3>
       {display.length === 0 ? (
