@@ -4,6 +4,7 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import Link from 'next/link';
 import { useRef } from 'react';
 import {
+  AlertTriangle,
   ArrowUpRight,
   BookOpen,
   CheckCircle2,
@@ -11,24 +12,19 @@ import {
   CreditCard,
   ExternalLink,
   FolderOpen,
+  Lock,
   Mail,
   MessageSquare,
+  PhoneCall,
   Phone,
+  Shield,
   Sparkles,
   Target,
   XCircle,
 } from 'lucide-react';
 import RessourcesHeroVisual from '@/components/RessourcesHeroVisual';
+import ScriptsAppelTabs from '@/components/ScriptsAppelTabs';
 
-/**
- * Page Ressources — redesign warm éditorial v2 (mai 2026).
- *
- * v2.1 corrige 3 retours Roodny :
- *   1. Hero plus vide à droite → RessourcesHeroVisual intégré
- *   2. Sidebar Contacts plus en sticky (le CTA flottait sur la grille)
- *   3. Pricing aligné sur le PDF Grille_Tarifaire_Visuelle_GND :
- *      tarifs réels à partir de + sections Pour qui / Pourquoi
- */
 export default function RessourcesClient() {
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
@@ -40,9 +36,7 @@ export default function RessourcesClient() {
 
   return (
     <div className="relative">
-      {/* ====================================================== */}
-      {/* Hero — split 7/5 : title left + 3D visual right           */}
-      {/* ====================================================== */}
+      {/* Hero — split 7/5 */}
       <header
         ref={heroRef}
         className="relative mb-20 grid min-h-[60vh] grid-cols-1 items-center gap-12 overflow-hidden lg:grid-cols-[7fr_5fr] lg:gap-16"
@@ -55,7 +49,6 @@ export default function RessourcesClient() {
           Ressources.
         </motion.span>
 
-        {/* Left column — title + intro */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
@@ -78,7 +71,6 @@ export default function RessourcesClient() {
           </p>
         </motion.div>
 
-        {/* Right column — 3D scene */}
         <motion.div
           initial={{ opacity: 0, x: 30 }}
           animate={{ opacity: 1, x: 0 }}
@@ -89,11 +81,10 @@ export default function RessourcesClient() {
         </motion.div>
       </header>
 
-      {/* ====================================================== */}
-      {/* Main grid — content (8) + sidebar (4)                     */}
-      {/* ====================================================== */}
+      {/* Main grid */}
       <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-10">
         <section className="space-y-12 lg:col-span-8">
+          {/* 01 · Argumentaire */}
           <SectionCard
             label="01 · Argumentaire clé"
             icon={<MessageSquare className="h-5 w-5" aria-hidden />}
@@ -102,37 +93,23 @@ export default function RessourcesClient() {
           >
             <ArgGrid
               items={[
-                {
-                  bold: 'Visibilité Google',
-                  body: "76 % des recherches mobiles locales aboutissent à une visite dans la journée. Sans site, le commerçant est invisible.",
-                },
-                {
-                  bold: 'Zéro dépendance',
-                  body: "Le client est propriétaire du site et du nom de domaine. Pas d'abonnement, pas de plateforme qui peut changer les règles.",
-                },
-                {
-                  bold: '3 à 5 fois moins cher',
-                  body: "Qu'une agence classique, 2 à 3 fois plus rapide qu'un freelance.",
-                },
-                {
-                  bold: '1 à 2 semaines',
-                  body: 'De délai de livraison contre 6 à 16 semaines ailleurs.',
-                },
-                {
-                  bold: 'Paiement en 2 fois',
-                  body: '50 % à la commande, 50 % à la livraison. Aucun frais caché.',
-                },
+                { bold: 'Visibilité Google', body: "76 % des recherches mobiles locales aboutissent à une visite dans la journée. Sans site, le commerçant est invisible." },
+                { bold: 'Zéro dépendance', body: "Le client est propriétaire du site et du nom de domaine. Pas d'abonnement, pas de plateforme qui peut changer les règles." },
+                { bold: '3 à 5 fois moins cher', body: "Qu'une agence classique, 2 à 3 fois plus rapide qu'un freelance." },
+                { bold: '1 à 2 semaines', body: 'De délai de livraison contre 6 à 16 semaines ailleurs.' },
+                { bold: 'Paiement en 2 fois', body: '50 % à la commande, 50 % à la livraison. Aucun frais caché.' },
               ]}
             />
           </SectionCard>
 
+          {/* 02 · Do's & Don'ts — now 3 columns */}
           <SectionCard
             label="02 · Do's & Don'ts"
             icon={<Target className="h-5 w-5" aria-hidden />}
             title="Les réflexes"
-            subtitle="Les bons gestes pour cadencer un cycle de vente — et les pièges qui coûtent un deal."
+            subtitle="Les bons gestes pour cadencer un cycle de vente, les pièges qui coûtent un deal, et les phrases interdites en interne."
           >
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               <DosDontsCard
                 tone="do"
                 title="À privilégier"
@@ -169,11 +146,58 @@ export default function RessourcesClient() {
                   { node: "Contacter un prospect « En cours » d'un collègue." },
                 ]}
               />
+              <DosDontsCard
+                tone="never"
+                title="À ne JAMAIS dire"
+                items={[
+                  { node: <><span className="italic">« Tarifs de lancement »</span> ou <span className="italic">« les prix vont remonter »</span> (fausse urgence).</> },
+                  { node: <><span className="italic">« Tarifs préférentiels »</span> ou <span className="italic">« spécialement pour vous »</span>.</> },
+                  { node: 'Promettre un délai sans avoir validé avec Roodny.' },
+                  { node: 'Comparer ouvertement à un concurrent nommé.' },
+                ]}
+              />
             </div>
           </SectionCard>
 
+          {/* 03 · Scripts d'appel (NEW) */}
           <SectionCard
-            label="03 · Scripts & templates"
+            label="03 · Scripts d'appel"
+            icon={<PhoneCall className="h-5 w-5" aria-hidden />}
+            title="Les 3 temps d'un cycle de vente"
+            subtitle="Trois appels, trois objectifs distincts. Chacun a un rôle précis dans le processus de vente — ne pas les confondre."
+          >
+            {/* Internal banner */}
+            <div className="mb-6 flex items-start gap-3 rounded-2xl border border-gnd-amber/30 bg-gnd-amber-pale/30 px-4 py-3">
+              <Lock className="mt-0.5 h-4 w-4 shrink-0 text-gnd-amber-dim" aria-hidden />
+              <p className="text-xs leading-relaxed text-gnd-bronze-soft">
+                <span className="font-semibold text-gnd-bronze">
+                  Document interne équipe.
+                </span>{' '}
+                Partageable avec les commerciaux freelances uniquement. Ne JAMAIS
+                partager avec un client ou un prospect.
+              </p>
+            </div>
+
+            <ScriptsAppelTabs />
+          </SectionCard>
+
+          {/* 04 · Objections (NEW) */}
+          <SectionCard
+            label="04 · Objections fréquentes"
+            icon={<Shield className="h-5 w-5" aria-hidden />}
+            title="Les 6 réponses prêtes"
+            subtitle="Les objections les plus courantes et la réponse-pivot à utiliser pour rouvrir la conversation. Répéter, pas réciter."
+          >
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              {OBJECTIONS.map((o, i) => (
+                <ObjectionCard key={o.title} index={i} {...o} />
+              ))}
+            </div>
+          </SectionCard>
+
+          {/* 05 · Scripts & templates (was 03) */}
+          <SectionCard
+            label="05 · Templates prêts-à-envoyer"
             icon={<FolderOpen className="h-5 w-5" aria-hidden />}
             title="Prêt-à-envoyer"
             subtitle="Les templates utilisés en interne. Copier-coller assumé, personnaliser le prénom + le nom de l'établissement."
@@ -186,7 +210,7 @@ export default function RessourcesClient() {
           </SectionCard>
         </section>
 
-        {/* ============= SIDEBAR (no longer sticky) ============= */}
+        {/* Sidebar */}
         <aside className="space-y-8 lg:col-span-4">
           <motion.div
             initial={{ opacity: 0, y: 24 }}
@@ -208,10 +232,7 @@ export default function RessourcesClient() {
               </h2>
               <div className="space-y-5">
                 {CONTACTS.map((c) => (
-                  <div
-                    key={c.name}
-                    className="border-l-2 border-gnd-amber/30 pl-4"
-                  >
+                  <div key={c.name} className="border-l-2 border-gnd-amber/30 pl-4">
                     <p className="font-display text-base font-medium text-gnd-bronze">
                       {c.name}
                     </p>
@@ -259,11 +280,11 @@ export default function RessourcesClient() {
                 Module 03
               </div>
               <h3 className="font-display text-xl font-medium leading-tight">
-                Besoin du script <span className="italic text-gnd-amber">Appel 1</span> ?
+                Process de vente <span className="italic text-gnd-amber">complet</span>
               </h3>
               <p className="mt-2 text-sm leading-relaxed text-gnd-cream/70">
-                Tout est dans le Module 03 — process de vente. Scénario A,
-                scénario B, et les 6 étapes.
+                Le module 03 déroule l'intégralité du process commercial.
+                Scénario A, scénario B, et les 6 étapes.
               </p>
               <Link
                 href="/formation/module-03-process-vente"
@@ -283,9 +304,7 @@ export default function RessourcesClient() {
         </aside>
       </div>
 
-      {/* ====================================================== */}
-      {/* Pricing — aligné PDF kit commercial                       */}
-      {/* ====================================================== */}
+      {/* Pricing */}
       <motion.section
         initial={{ opacity: 0, y: 32 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -306,8 +325,8 @@ export default function RessourcesClient() {
               <span className="italic text-gnd-amber">trois ambitions</span>
             </h2>
             <p className="mt-3 max-w-2xl text-pretty text-base leading-relaxed text-gnd-bronze-soft">
-              Sites vitrines pour commerces et PME locales. Paiement unique en
-              2 fois (50/50). Aucun abonnement.
+              Sites vitrines pour commerces et PME locales. Paiement unique en 2
+              fois (50/50). Aucun abonnement.
             </p>
           </div>
           <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-gnd-bronze-soft lg:max-w-xs lg:text-right">
@@ -323,9 +342,7 @@ export default function RessourcesClient() {
         </div>
       </motion.section>
 
-      {/* ====================================================== */}
-      {/* Modalités & engagement                                    */}
-      {/* ====================================================== */}
+      {/* Modalités */}
       <motion.section
         initial={{ opacity: 0, y: 32 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -369,7 +386,6 @@ export default function RessourcesClient() {
           />
         </div>
 
-        {/* CTA contact */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -426,11 +442,7 @@ export default function RessourcesClient() {
 // ===========================================================
 
 function SectionCard({
-  label,
-  icon,
-  title,
-  subtitle,
-  children,
+  label, icon, title, subtitle, children,
 }: {
   label: string;
   icon: React.ReactNode;
@@ -498,33 +510,22 @@ function ArgGrid({ items }: { items: { bold: string; body: string }[] }) {
 }
 
 function DosDontsCard({
-  tone,
-  title,
-  items,
+  tone, title, items,
 }: {
-  tone: 'do' | 'dont';
+  tone: 'do' | 'dont' | 'never';
   title: string;
   items: { node: React.ReactNode }[];
 }) {
-  const isDo = tone === 'do';
+  const styles = {
+    do: { border: 'border-emerald-700/15', bg: 'bg-emerald-50/40', label: 'text-emerald-800', dot: 'bg-emerald-700/60', icon: <CheckCircle2 className="h-4 w-4" aria-hidden /> },
+    dont: { border: 'border-gnd-bronze/15', bg: 'bg-gnd-bronze/[0.025]', label: 'text-gnd-bronze', dot: 'bg-gnd-bronze/40', icon: <XCircle className="h-4 w-4" aria-hidden /> },
+    never: { border: 'border-rose-700/20', bg: 'bg-rose-50/40', label: 'text-rose-800', dot: 'bg-rose-700/60', icon: <AlertTriangle className="h-4 w-4" aria-hidden /> },
+  } as const;
+  const s = styles[tone];
   return (
-    <div
-      className={`rounded-2xl border p-6 ${
-        isDo
-          ? 'border-emerald-700/15 bg-emerald-50/40'
-          : 'border-gnd-bronze/15 bg-gnd-bronze/[0.025]'
-      }`}
-    >
-      <div
-        className={`mb-4 flex items-center gap-2 font-display text-base font-medium ${
-          isDo ? 'text-emerald-800' : 'text-gnd-bronze'
-        }`}
-      >
-        {isDo ? (
-          <CheckCircle2 className="h-4 w-4" aria-hidden />
-        ) : (
-          <XCircle className="h-4 w-4" aria-hidden />
-        )}
+    <div className={`rounded-2xl border p-6 ${s.border} ${s.bg}`}>
+      <div className={`mb-4 flex items-center gap-2 font-display text-base font-medium ${s.label}`}>
+        {s.icon}
         <span>{title}</span>
       </div>
       <ul className="space-y-2.5">
@@ -537,12 +538,7 @@ function DosDontsCard({
             transition={{ duration: 0.4, delay: i * 0.05, ease: 'easeOut' }}
             className="flex gap-2.5 text-sm leading-relaxed text-gnd-bronze-soft"
           >
-            <span
-              aria-hidden
-              className={`mt-2 h-1 w-1 shrink-0 rounded-full ${
-                isDo ? 'bg-emerald-700/60' : 'bg-gnd-bronze/40'
-              }`}
-            />
+            <span aria-hidden className={`mt-2 h-1 w-1 shrink-0 rounded-full ${s.dot}`} />
             <span>{item.node}</span>
           </motion.li>
         ))}
@@ -551,15 +547,41 @@ function DosDontsCard({
   );
 }
 
-function TemplateCard({
-  title,
-  body,
-  index,
+function ObjectionCard({
+  index, title, prospect, response,
 }: {
-  title: string;
-  body: React.ReactNode;
   index: number;
+  title: string;
+  prospect: string;
+  response: React.ReactNode;
 }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-30px' }}
+      transition={{ duration: 0.5, delay: index * 0.06, ease: [0.22, 1, 0.36, 1] }}
+      className="group flex flex-col rounded-2xl border border-gnd-bronze/8 bg-white/40 p-5 transition-all hover:border-gnd-amber/30 hover:bg-white"
+    >
+      <div className="mb-3 flex items-baseline gap-3">
+        <span className="font-display text-2xl font-medium italic leading-none text-gnd-amber">
+          {String(index + 1).padStart(2, '0')}
+        </span>
+        <h4 className="font-display text-base font-medium text-gnd-bronze">
+          {title}
+        </h4>
+      </div>
+      <p className="mb-3 text-xs italic leading-relaxed text-gnd-bronze-soft">
+        « {prospect} »
+      </p>
+      <div className="border-t border-gnd-bronze/8 pt-3 text-sm leading-relaxed text-gnd-bronze-soft">
+        {response}
+      </div>
+    </motion.div>
+  );
+}
+
+function TemplateCard({ title, body, index }: { title: string; body: React.ReactNode; index: number }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
@@ -568,19 +590,12 @@ function TemplateCard({
       transition={{ duration: 0.5, delay: index * 0.08, ease: 'easeOut' }}
       className="group flex gap-4 rounded-2xl border border-gnd-bronze/8 bg-white/40 p-5 transition-all hover:border-gnd-amber/30 hover:bg-white"
     >
-      <span
-        aria-hidden
-        className="shrink-0 font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-gnd-amber-dim"
-      >
+      <span aria-hidden className="shrink-0 font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-gnd-amber-dim">
         T{String(index + 1).padStart(2, '0')}
       </span>
       <div>
-        <p className="font-display text-base font-medium leading-tight text-gnd-bronze">
-          {title}
-        </p>
-        <p className="mt-1.5 text-sm leading-relaxed text-gnd-bronze-soft">
-          {body}
-        </p>
+        <p className="font-display text-base font-medium leading-tight text-gnd-bronze">{title}</p>
+        <p className="mt-1.5 text-sm leading-relaxed text-gnd-bronze-soft">{body}</p>
       </div>
     </motion.div>
   );
@@ -603,73 +618,33 @@ function DemoLink({ href, children }: { href: string; children: React.ReactNode 
 // =============== PRICING (PDF-aligned) ===============
 
 type Pack = {
-  num: string;
-  name: string;
-  priceLabel: string; // "800" or "1 200 – 1 500" or "2 500 +"
-  highlight?: boolean;
-  forWho: string;
-  why: string;
-  features: string[];
+  num: string; name: string; priceLabel: string; highlight?: boolean;
+  forWho: string; why: string; features: string[];
 };
 
 const PACKS: Pack[] = [
   {
-    num: '01',
-    name: 'Vitrine Essentiel',
-    priceLabel: '800',
-    forWho:
-      'Restaurateur de quartier, coiffeur, petit institut de beauté, artisan qui démarre, vidéaste vitrine simple, coach indépendant.',
+    num: '01', name: 'Vitrine Essentiel', priceLabel: '800',
+    forWho: 'Restaurateur de quartier, coiffeur, petit institut de beauté, artisan qui démarre, vidéaste vitrine simple, coach indépendant.',
     why: "Solution clé en main pour les commerces qui n'ont pas encore de présence en ligne. Mise en place rapide, prix accessible.",
-    features: [
-      'Site vitrine 3 à 5 pages',
-      'Présentation activité, coordonnées, formulaire de contact',
-      'Intégration Google Maps',
-      'Design responsive mobile et desktop',
-      'Hébergement et nom de domaine 1ère année inclus',
-      'Optimisation des performances et de la vitesse',
-      'Formation rapide à la prise en main',
-    ],
+    features: ['Site vitrine 3 à 5 pages', 'Présentation activité, coordonnées, formulaire de contact', 'Intégration Google Maps', 'Design responsive mobile et desktop', 'Hébergement et nom de domaine 1ère année inclus', 'Optimisation des performances et de la vitesse', 'Formation rapide à la prise en main'],
   },
   {
-    num: '02',
-    name: 'Vitrine + Réservation',
-    priceLabel: '1 200 – 1 500',
-    highlight: true,
-    forWho:
-      "Restaurateur ambitieux, coach sportif, institut bien établi, vidéaste mariage, professions qui ont besoin d'un agenda en ligne.",
+    num: '02', name: 'Vitrine + Réservation', priceLabel: '1 200 – 1 500', highlight: true,
+    forWho: "Restaurateur ambitieux, coach sportif, institut bien établi, vidéaste mariage, professions qui ont besoin d'un agenda en ligne.",
     why: 'Vous transformez vos visiteurs en clients directement réservés depuis le site. Plus de coups de fil pour les rendez-vous.',
-    features: [
-      "Tout ce qui est dans Vitrine Essentiel",
-      'Module de réservation en ligne intégré (rendez-vous ou tables)',
-      'Galerie photo professionnelle',
-      'Page menu / prestations détaillées',
-      'Optimisation SEO local de base',
-      'Notifications automatiques par email',
-      'Tableau de bord pour gérer vos disponibilités',
-    ],
+    features: ['Tout ce qui est dans Vitrine Essentiel', 'Module de réservation en ligne intégré (rendez-vous ou tables)', 'Galerie photo professionnelle', 'Page menu / prestations détaillées', 'Optimisation SEO local de base', 'Notifications automatiques par email', 'Tableau de bord pour gérer vos disponibilités'],
   },
   {
-    num: '03',
-    name: 'Pack Complet',
-    priceLabel: '2 500 +',
-    forWho:
-      'PME locale structurée, artisan ambitieux, commerce multi-sites, professionnel établi qui veut piloter sa visibilité.',
+    num: '03', name: 'Pack Complet', priceLabel: '2 500 +',
+    forWho: 'PME locale structurée, artisan ambitieux, commerce multi-sites, professionnel établi qui veut piloter sa visibilité.',
     why: "Vous prenez le contrôle de votre référencement local et de vos performances. Le site devient un vrai levier business.",
-    features: [
-      'Tout ce qui est dans Vitrine + Réservation',
-      'SEO avancé multi-pages + Google My Business optimisé',
-      'Intégrations sur-mesure (CRM, paiement, calendar, mailing)',
-      'Module e-commerce léger si pertinent',
-      'Suivi analytics et tableau de bord performance',
-      'Pages enrichies (blog, FAQ, témoignages clients)',
-      "Accompagnement éditorial pour le lancement",
-    ],
+    features: ['Tout ce qui est dans Vitrine + Réservation', 'SEO avancé multi-pages + Google My Business optimisé', 'Intégrations sur-mesure (CRM, paiement, calendar, mailing)', 'Module e-commerce léger si pertinent', 'Suivi analytics et tableau de bord performance', 'Pages enrichies (blog, FAQ, témoignages clients)', "Accompagnement éditorial pour le lancement"],
   },
 ];
 
 function PricingCard({ pack, index }: { pack: Pack; index: number }) {
   const { num, name, priceLabel, highlight, forWho, why, features } = pack;
-
   if (highlight) {
     return (
       <motion.div
@@ -679,70 +654,39 @@ function PricingCard({ pack, index }: { pack: Pack; index: number }) {
         transition={{ duration: 0.7, delay: index * 0.1, ease: [0.22, 1, 0.36, 1] }}
         className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-gnd-amber/30 bg-gradient-to-br from-gnd-bronze via-gnd-bronze to-gnd-ink p-8 text-gnd-cream shadow-warm-xl lg:scale-[1.03] lg:z-10"
       >
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-gnd-amber/25 blur-3xl"
-        />
+        <div aria-hidden className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-gnd-amber/25 blur-3xl" />
         <div className="absolute right-6 top-0 -translate-y-1/2">
           <span className="inline-flex items-center gap-1 rounded-full bg-gnd-amber px-3 py-1 font-mono text-[9px] font-semibold uppercase tracking-[0.18em] text-gnd-bronze shadow-warm-lg">
             <Sparkles className="h-2.5 w-2.5" aria-hidden />
             Recommandé
           </span>
         </div>
-
         <div className="relative">
-          <p className="mb-1 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-gnd-amber">
-            Pack {num}
-          </p>
-          <h3 className="font-display text-2xl font-medium leading-tight tracking-tight">
-            {name}
-          </h3>
-          <p className="mt-5 font-mono text-[10px] uppercase tracking-[0.18em] text-gnd-cream/50">
-            À partir de
-          </p>
+          <p className="mb-1 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-gnd-amber">Pack {num}</p>
+          <h3 className="font-display text-2xl font-medium leading-tight tracking-tight">{name}</h3>
+          <p className="mt-5 font-mono text-[10px] uppercase tracking-[0.18em] text-gnd-cream/50">À partir de</p>
           <div className="mt-1 flex items-baseline gap-1.5">
-            <span className="font-display text-4xl font-medium leading-none text-gnd-cream md:text-5xl">
-              {priceLabel}
-            </span>
+            <span className="font-display text-4xl font-medium leading-none text-gnd-cream md:text-5xl">{priceLabel}</span>
             <span className="font-display text-2xl text-gnd-amber">€</span>
-            <span className="ml-1 font-mono text-[10px] uppercase tracking-[0.15em] text-gnd-cream/50">
-              TTC
-            </span>
+            <span className="ml-1 font-mono text-[10px] uppercase tracking-[0.15em] text-gnd-cream/50">TTC</span>
           </div>
         </div>
-
-        <p className="relative mt-6 border-l-2 border-gnd-amber/40 pl-3 text-xs italic leading-relaxed text-gnd-cream/70">
-          {forWho}
-        </p>
-
+        <p className="relative mt-6 border-l-2 border-gnd-amber/40 pl-3 text-xs italic leading-relaxed text-gnd-cream/70">{forWho}</p>
         <ul className="relative mt-6 flex-grow space-y-2.5">
           {features.map((f, i) => (
-            <motion.li
-              key={f}
-              initial={{ opacity: 0, x: -4 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: 0.3 + i * 0.04 }}
-              className="flex items-start gap-2.5 text-sm leading-relaxed text-gnd-cream/85"
-            >
+            <motion.li key={f} initial={{ opacity: 0, x: -4 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.4, delay: 0.3 + i * 0.04 }} className="flex items-start gap-2.5 text-sm leading-relaxed text-gnd-cream/85">
               <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-gnd-amber" aria-hidden />
               <span>{f}</span>
             </motion.li>
           ))}
         </ul>
-
         <div className="relative mt-6 rounded-2xl bg-gnd-amber/10 p-4">
-          <p className="font-mono text-[9px] font-semibold uppercase tracking-[0.2em] text-gnd-amber">
-            Pourquoi le choisir
-          </p>
-          <p className="mt-1.5 text-xs italic leading-relaxed text-gnd-cream/80">
-            {why}
-          </p>
+          <p className="font-mono text-[9px] font-semibold uppercase tracking-[0.2em] text-gnd-amber">Pourquoi le choisir</p>
+          <p className="mt-1.5 text-xs italic leading-relaxed text-gnd-cream/80">{why}</p>
         </div>
       </motion.div>
     );
   }
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 24 }}
@@ -752,69 +696,33 @@ function PricingCard({ pack, index }: { pack: Pack; index: number }) {
       className="group flex h-full flex-col rounded-3xl border border-gnd-bronze/8 bg-gnd-paper p-8 shadow-warm transition-all hover:-translate-y-1 hover:border-gnd-amber/30 hover:shadow-warm-lg"
     >
       <div>
-        <p className="mb-1 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-gnd-bronze-soft">
-          Pack {num}
-        </p>
-        <h3 className="font-display text-2xl font-medium leading-tight tracking-tight text-gnd-bronze">
-          {name}
-        </h3>
-        <p className="mt-5 font-mono text-[10px] uppercase tracking-[0.18em] text-gnd-bronze-soft">
-          À partir de
-        </p>
+        <p className="mb-1 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-gnd-bronze-soft">Pack {num}</p>
+        <h3 className="font-display text-2xl font-medium leading-tight tracking-tight text-gnd-bronze">{name}</h3>
+        <p className="mt-5 font-mono text-[10px] uppercase tracking-[0.18em] text-gnd-bronze-soft">À partir de</p>
         <div className="mt-1 flex items-baseline gap-1.5">
-          <span className="font-display text-4xl font-medium leading-none text-gnd-bronze md:text-5xl">
-            {priceLabel}
-          </span>
+          <span className="font-display text-4xl font-medium leading-none text-gnd-bronze md:text-5xl">{priceLabel}</span>
           <span className="font-display text-2xl text-gnd-amber">€</span>
-          <span className="ml-1 font-mono text-[10px] uppercase tracking-[0.15em] text-gnd-bronze-soft">
-            TTC
-          </span>
+          <span className="ml-1 font-mono text-[10px] uppercase tracking-[0.15em] text-gnd-bronze-soft">TTC</span>
         </div>
       </div>
-
-      <p className="mt-6 border-l-2 border-gnd-amber/40 pl-3 text-xs italic leading-relaxed text-gnd-bronze-soft">
-        {forWho}
-      </p>
-
+      <p className="mt-6 border-l-2 border-gnd-amber/40 pl-3 text-xs italic leading-relaxed text-gnd-bronze-soft">{forWho}</p>
       <ul className="mt-6 flex-grow space-y-2.5">
         {features.map((f, i) => (
-          <motion.li
-            key={f}
-            initial={{ opacity: 0, x: -4 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.4, delay: 0.3 + i * 0.04 }}
-            className="flex items-start gap-2.5 text-sm leading-relaxed text-gnd-bronze-soft"
-          >
+          <motion.li key={f} initial={{ opacity: 0, x: -4 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.4, delay: 0.3 + i * 0.04 }} className="flex items-start gap-2.5 text-sm leading-relaxed text-gnd-bronze-soft">
             <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-gnd-amber-dim" aria-hidden />
             <span>{f}</span>
           </motion.li>
         ))}
       </ul>
-
       <div className="mt-6 rounded-2xl bg-gnd-amber/10 p-4">
-        <p className="font-mono text-[9px] font-semibold uppercase tracking-[0.2em] text-gnd-amber-dim">
-          Pourquoi le choisir
-        </p>
-        <p className="mt-1.5 text-xs italic leading-relaxed text-gnd-bronze-soft">
-          {why}
-        </p>
+        <p className="font-mono text-[9px] font-semibold uppercase tracking-[0.2em] text-gnd-amber-dim">Pourquoi le choisir</p>
+        <p className="mt-1.5 text-xs italic leading-relaxed text-gnd-bronze-soft">{why}</p>
       </div>
     </motion.div>
   );
 }
 
-function ModalityCard({
-  icon,
-  title,
-  lines,
-  footnote,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  lines: { strong: string; text: string }[];
-  footnote?: string;
-}) {
+function ModalityCard({ icon, title, lines, footnote }: { icon: React.ReactNode; title: string; lines: { strong: string; text: string }[]; footnote?: string }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
@@ -824,26 +732,17 @@ function ModalityCard({
       className="flex flex-col gap-4 rounded-3xl border border-gnd-bronze/8 bg-gnd-paper p-7 shadow-warm"
     >
       <div className="flex items-center gap-3">
-        <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gnd-amber/15 text-gnd-amber-dim">
-          {icon}
-        </span>
-        <h3 className="font-display text-xl font-medium text-gnd-bronze">
-          {title}
-        </h3>
+        <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gnd-amber/15 text-gnd-amber-dim">{icon}</span>
+        <h3 className="font-display text-xl font-medium text-gnd-bronze">{title}</h3>
       </div>
       <div className="space-y-1.5">
         {lines.map((l) => (
           <p key={l.strong} className="text-sm leading-relaxed text-gnd-bronze-soft">
-            <span className="font-semibold text-gnd-amber-dim">{l.strong}</span>{' '}
-            {l.text}
+            <span className="font-semibold text-gnd-amber-dim">{l.strong}</span> {l.text}
           </p>
         ))}
       </div>
-      {footnote && (
-        <p className="text-xs italic leading-relaxed text-gnd-bronze-soft">
-          {footnote}
-        </p>
-      )}
+      {footnote && <p className="text-xs italic leading-relaxed text-gnd-bronze-soft">{footnote}</p>}
     </motion.div>
   );
 }
@@ -853,66 +752,72 @@ function ModalityCard({
 // ===========================================================
 
 const CONTACTS = [
-  {
-    name: 'Roodny Pierre',
-    role: 'Direction commerciale',
-    email: 'contact@gndconsulting.fr',
-  },
-  {
-    name: 'Production / livraison',
-    role: 'Via la direction commerciale',
-  },
-  {
-    name: 'Facturation / admin',
-    role: 'contact@gndconsulting.fr',
-  },
+  { name: 'Roodny Pierre', role: 'Direction commerciale', email: 'contact@gndconsulting.fr' },
+  { name: 'Production / livraison', role: 'Via la direction commerciale' },
+  { name: 'Facturation / admin', role: 'contact@gndconsulting.fr' },
 ];
 
 const TEMPLATES = [
+  { title: 'Script Appel 1', body: <>Ouverture + accroche + qualification + engagement inversé (2 min). Voir section <span className="font-semibold text-gnd-amber-dim">03 · Scripts d'appel</span>.</> },
+  { title: 'Template Email 1', body: <>Remerciement + lien site démo + rappel du rendez-vous. Liens démo : <DemoLink href="https://opapapoulet-marly-la-ville.vercel.app/">opapapoulet</DemoLink> · <DemoLink href="https://faim-de-semaine-website-v2-qs3p.vercel.app/">faim-de-semaine</DemoLink>.</> },
+  { title: 'Template Email relance', body: <>À envoyer 2-3 jours après si pas de retour. Reprendre les mêmes liens démo pour relancer l'intérêt.</> },
+  { title: 'Template déclaration contrat signé', body: <>Email à <code className="rounded bg-gnd-bronze/8 px-1.5 py-0.5 font-mono text-[11px] text-gnd-bronze">contact@gndconsulting.fr</code> avec les 5 infos obligatoires. Détail dans le Module 07.</> },
+];
+
+// 6 objections from the PPTX
+type Objection = { title: string; prospect: string; response: React.ReactNode };
+const OBJECTIONS: Objection[] = [
   {
-    title: 'Script Appel 1',
-    body: (
+    title: 'Prix — « C’est trop cher »',
+    prospect: 'Je trouve ça cher.',
+    response: (
       <>
-        Ouverture + accroche + qualification + engagement inversé (2 min).
-        Détail dans le Module 03.
+        <span className="italic">« Je comprends, le budget c’est important. C’est quoi votre fourchette idéale ? »</span> → écouter → expliquer la structure légère, pas de frais cachés, pas d’abonnement. Proposer l’étalement <span className="font-semibold text-gnd-amber-dim">50/50</span>.
       </>
     ),
   },
   {
-    title: 'Template Email 1',
-    body: (
+    title: 'Besoin pas clair',
+    prospect: 'Je sais pas si c’est utile pour moi.',
+    response: (
       <>
-        Remerciement + lien site démo + rappel du rendez-vous. Liens démo à
-        glisser :{' '}
-        <DemoLink href="https://opapapoulet-marly-la-ville.vercel.app/">
-          opapapoulet
-        </DemoLink>{' '}
-        ·{' '}
-        <DemoLink href="https://faim-de-semaine-website-v2-qs3p.vercel.app/">
-          faim-de-semaine
-        </DemoLink>
-        .
+        <span className="italic">« Concrètement, aujourd’hui vos clients ils vous trouvent comment ? »</span> → écouter → <span className="italic">« Ceux qui entendent parler de vous par bouche-à-oreille, s’ils veulent en savoir plus, ils tapent votre nom sur Google. Et là, qu’est-ce qu’ils trouvent ? »</span>
       </>
     ),
   },
   {
-    title: 'Template Email relance',
-    body: (
+    title: 'Confiance — « Je vous connais pas »',
+    prospect: 'Je vous connais pas, je sais pas si je peux faire confiance.',
+    response: (
       <>
-        À envoyer 2-3 jours après si pas de retour. Reprendre les mêmes liens
-        démo pour relancer l'intérêt.
+        <span className="italic">« On est une agence de communication digitale basée à Paris. Une fois livré, le site est à vous. Vous avez tous les accès, l’hébergement est à votre nom. On disparaît pas, mais même si c’était le cas, votre site continue de tourner. »</span>
       </>
     ),
   },
   {
-    title: 'Template déclaration contrat signé',
-    body: (
+    title: 'Timing — « Je vais y réfléchir »',
+    prospect: 'Je vais y réfléchir.',
+    response: (
       <>
-        Email à{' '}
-        <code className="rounded bg-gnd-bronze/8 px-1.5 py-0.5 font-mono text-[11px] text-gnd-bronze">
-          contact@gndconsulting.fr
-        </code>{' '}
-        avec les 5 infos obligatoires. Détail dans le Module 07.
+        <span className="italic">« Je comprends, y’a toujours des priorités. Après, le site c’est le genre de truc où une fois que c’est fait, vous n’y pensez plus. Ça travaille pour vous en continu. »</span> → <span className="italic">« Qu’est-ce qui vous ferait dire oui aujourd’hui ? »</span>
+      </>
+    ),
+  },
+  {
+    title: 'Sur-mesure — besoin spécifique',
+    prospect: 'J’ai besoin d’un truc spécifique, pas un site standard.',
+    response: (
+      <>
+        <span className="italic">« OK, vous avez des besoins spécifiques. Dites-moi exactement ce qu’il vous faudrait. »</span> → écouter → <span className="italic">« D’accord. Ça, c’est faisable. Ça sort du site vitrine classique, donc je vous fais un devis adapté. »</span>
+      </>
+    ),
+  },
+  {
+    title: 'Questions techniques pures',
+    prospect: 'J’ai des questions techniques précises.',
+    response: (
+      <>
+        <span className="italic">« Allez-y, posez-moi vos questions, je vous réponds directement. »</span> → répondre simplement, sans jargon. Si trop technique → mettre en lien avec le fondateur.
       </>
     ),
   },
