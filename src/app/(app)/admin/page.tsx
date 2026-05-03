@@ -235,7 +235,6 @@ export default async function AdminPage() {
               <SpeedometerGauge
                 value={conversionRate}
                 label="Taux conversion"
-                formatValue={(v) => `${Math.round(v)}`}
                 subtitle="%"
                 subLeft={{ value: contactRate, label: 'CTC' }}
                 subRight={{ value: rdvRate, label: 'RDV' }}
