@@ -8,7 +8,6 @@ const fraunces = Fraunces({
   subsets: ['latin'],
   variable: '--font-fraunces',
   display: 'swap',
-  weight: ['400', '500', '600', '700', '800', '900'],
   axes: ['SOFT', 'WONK', 'opsz'],
 });
 
@@ -29,7 +28,7 @@ export default function RootLayout({
       className={`${GeistSans.variable} ${GeistMono.variable} ${fraunces.variable}`}
     >
       <head>
-        {/* Material Symbols (legacy, encore utilisé sur /login historique) */}
+        {/* Material Symbols (legacy, encore utilisé sur certaines pages) */}
         <link
           rel="preconnect"
           href="https://fonts.googleapis.com"
