@@ -5,8 +5,10 @@ import {
   Archive,
   CalendarCheck,
   CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
   Edit3,
-  ExternalLink,
+  FileSignature,
   Filter,
   Mail,
   Phone,
@@ -15,7 +17,6 @@ import {
   UserPlus,
   X,
   XCircle,
-  FileSignature,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase-client';
 import {
@@ -43,6 +44,8 @@ export default function AdminProspectsPanel({
   const [sectorFilter, setSectorFilter] = useState<string>('all');
   const [brancheFilter, setBrancheFilter] = useState<string>('all');
   const [caFilter, setCaFilter] = useState<string>('all');
+  const [pageSize, setPageSize] = useState<number>(50);
+  const [page, setPage] = useState<number>(1);
   const [viewing, setViewing] = useState<Prospect | null>(null);
   const [editing, setEditing] = useState<Prospect | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -93,6 +96,14 @@ export default function AdminProspectsPanel({
     });
   }, [prospects, assigneeFilter, statusFilter, classificationFilter, sectorFilter, brancheFilter, caFilter]);
 
+  // Pagination
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const safePage = Math.min(page, totalPages);
+  const paginated = useMemo(
+    () => filtered.slice((safePage - 1) * pageSize, safePage * pageSize),
+    [filtered, safePage, pageSize]
+  );
+
   function pushStatusToNotion(prospectId: string) {
     fetch(`/api/prospects/${prospectId}/sync-status-to-notion`, { method: 'POST' }).catch((err) => {
       // eslint-disable-next-line no-console
@@ -141,6 +152,7 @@ export default function AdminProspectsPanel({
     setSectorFilter('all');
     setBrancheFilter('all');
     setCaFilter('all');
+    setPage(1);
   }
 
   const activeFilterCount =
@@ -150,6 +162,13 @@ export default function AdminProspectsPanel({
     (sectorFilter !== 'all' ? 1 : 0) +
     (brancheFilter !== 'all' ? 1 : 0) +
     (caFilter !== 'all' ? 1 : 0);
+
+  function setAndResetPage<T>(setter: (v: T) => void): (v: T) => void {
+    return (v: T) => {
+      setter(v);
+      setPage(1);
+    };
+  }
 
   return (
     <div className="space-y-3">
@@ -176,13 +195,13 @@ export default function AdminProspectsPanel({
       </div>
 
       {error && (
-        <div className="flex items-start gap-2 rounded-2xl border border-rose-400/30 bg-rose-500/10 p-3 text-sm text-rose-300">
+        <div className="flex items-start gap-2 rounded-2xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800">
           <XCircle className="mt-0.5 h-4 w-4 shrink-0" />
           <span>{error}</span>
         </div>
       )}
 
-      {/* ===== Filters bar (dark cockpit) ================================== */}
+      {/* ===== Filters bar (dark cockpit kept for identity) ===================== */}
       <div
         className="relative overflow-hidden rounded-2xl border border-gnd-amber/15 p-3 shadow-warm-xl"
         style={{
@@ -200,80 +219,81 @@ export default function AdminProspectsPanel({
 
           <FilterSelect
             value={assigneeFilter}
-            onChange={setAssigneeFilter}
+            onChange={setAndResetPage(setAssigneeFilter)}
             options={[
               { value: 'all', label: 'Tous les commerciaux' },
               { value: 'unassigned', label: 'Non assignés' },
               ...users.map((u) => ({ value: u.id, label: u.label })),
             ]}
           />
-
           <FilterSelect
             value={statusFilter}
-            onChange={setStatusFilter}
+            onChange={setAndResetPage(setStatusFilter)}
             options={[
               { value: 'all', label: 'Tous les statuts' },
               ...STATUS_OPTIONS.map((o) => ({ value: o.value, label: o.label })),
             ]}
           />
-
           {classificationOptions.length > 0 && (
             <FilterSelect
               value={classificationFilter}
-              onChange={setClassificationFilter}
+              onChange={setAndResetPage(setClassificationFilter)}
               options={[
                 { value: 'all', label: 'Toutes priorités' },
                 ...classificationOptions.map((c) => ({ value: c, label: c })),
               ]}
             />
           )}
-
           {sectorOptions.length > 0 && (
             <FilterSelect
               value={sectorFilter}
-              onChange={setSectorFilter}
+              onChange={setAndResetPage(setSectorFilter)}
               options={[
                 { value: 'all', label: 'Tous secteurs' },
                 ...sectorOptions.map((s) => ({ value: s, label: s })),
               ]}
             />
           )}
-
           {brancheOptions.length > 0 && (
             <FilterSelect
               value={brancheFilter}
-              onChange={setBrancheFilter}
+              onChange={setAndResetPage(setBrancheFilter)}
               options={[
                 { value: 'all', label: 'Toutes branches' },
                 ...brancheOptions.map((b) => ({ value: b, label: b })),
               ]}
             />
           )}
-
           {caOptions.length > 0 && (
             <FilterSelect
               value={caFilter}
-              onChange={setCaFilter}
+              onChange={setAndResetPage(setCaFilter)}
               options={[
                 { value: 'all', label: 'Tous CA estimés' },
                 ...caOptions.map((c) => ({ value: c, label: c })),
               ]}
             />
           )}
+
+          {/* Page size selector */}
+          <select
+            value={pageSize}
+            onChange={(e) => { setPageSize(Number(e.target.value)); setPage(1); }}
+            className="ml-auto rounded-full border border-gnd-amber/15 bg-gnd-ink/40 px-3 py-1.5 font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-gnd-cream/80 backdrop-blur-sm transition focus:border-gnd-amber focus:outline-none focus:ring-1 focus:ring-gnd-amber"
+          >
+            <option value={30} className="bg-gnd-ink text-gnd-cream normal-case tracking-normal">30 par page</option>
+            <option value={50} className="bg-gnd-ink text-gnd-cream normal-case tracking-normal">50 par page</option>
+            <option value={100} className="bg-gnd-ink text-gnd-cream normal-case tracking-normal">100 par page</option>
+          </select>
         </div>
       </div>
 
-      {/* ===== Table (dark cockpit) ====================================== */}
-      <div
-        className="relative overflow-hidden rounded-3xl border border-gnd-amber/15 shadow-warm-xl"
-        style={{
-          backgroundImage: 'linear-gradient(135deg, #3D1F1E 0%, #1A0F0E 100%)',
-        }}
-      >
+      {/* ===== Table (warm paper for readability) ====================== */}
+      <div className="overflow-hidden rounded-3xl border border-gnd-bronze/8 bg-gnd-paper shadow-warm">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gnd-amber/10 text-sm">
-            <thead className="sticky top-0 z-10 bg-gnd-bronze/70 backdrop-blur-sm">
-              <tr>
+          <table className="min-w-full divide-y divide-gnd-bronze/8 text-sm">
+            <thead className="sticky top-0 z-10 bg-gnd-cream backdrop-blur-sm">
+              <tr className="border-b border-gnd-amber/15">
                 <Th className="w-44">Assigné à</Th>
                 <Th>Entreprise</Th>
                 <Th>Contact</Th>
@@ -286,21 +306,21 @@ export default function AdminProspectsPanel({
                 <Th className="text-right">Actions</Th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gnd-amber/8">
-              {filtered.length === 0 && (
+            <tbody className="divide-y divide-gnd-bronze/8">
+              {paginated.length === 0 && (
                 <tr>
                   <td colSpan={10} className="px-4 py-16">
                     <div className="flex flex-col items-center gap-2 text-center">
                       <div className="flex h-12 w-12 items-center justify-center rounded-full border border-gnd-amber/20 bg-gnd-amber/10">
-                        <Filter className="h-5 w-5 text-gnd-amber" />
+                        <Filter className="h-5 w-5 text-gnd-amber-dim" />
                       </div>
-                      <p className="font-display text-base text-gnd-cream">
+                      <p className="font-display text-base text-gnd-bronze">
                         Aucun prospect ne matche les filtres.
                       </p>
                       {activeFilterCount > 0 && (
                         <button
                           onClick={resetFilters}
-                          className="mt-1 font-mono text-[10px] font-semibold uppercase tracking-[0.15em] text-gnd-amber hover:text-gnd-amber-glow hover:underline"
+                          className="mt-1 font-mono text-[10px] font-semibold uppercase tracking-[0.15em] text-gnd-amber-dim hover:text-gnd-amber hover:underline"
                         >
                           Réinitialiser les filtres
                         </button>
@@ -309,7 +329,7 @@ export default function AdminProspectsPanel({
                   </td>
                 </tr>
               )}
-              {filtered.map((p) => (
+              {paginated.map((p) => (
                 <ProspectRow
                   key={p.id}
                   prospect={p}
@@ -323,6 +343,52 @@ export default function AdminProspectsPanel({
           </table>
         </div>
       </div>
+
+      {/* ===== Pagination ====================== */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between rounded-2xl border border-gnd-bronze/8 bg-gnd-paper px-4 py-3 shadow-warm sm:px-6">
+          <p className="font-mono text-[11px] uppercase tracking-[0.15em] text-gnd-bronze-soft">
+            Page <span className="font-semibold text-gnd-bronze">{safePage}</span> sur{' '}
+            <span className="text-gnd-bronze">{totalPages}</span>
+            <span className="ml-2 text-gnd-bronze-faded">
+              · {(safePage - 1) * pageSize + 1}–{Math.min(safePage * pageSize, filtered.length)} / {filtered.length}
+            </span>
+          </p>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={safePage === 1}
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full text-gnd-bronze transition-colors hover:bg-gnd-amber/10 disabled:cursor-not-allowed disabled:opacity-30"
+              aria-label="Page précédente"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            {pageNumbers(safePage, totalPages).map((n, idx) =>
+              n === '…' ? (
+                <span key={`gap-${idx}`} className="px-2 text-xs text-gnd-bronze-faded">…</span>
+              ) : (
+                <button
+                  key={n}
+                  onClick={() => setPage(n as number)}
+                  className={`inline-flex h-9 min-w-[2.25rem] items-center justify-center rounded-full px-2 text-sm font-semibold tabular-nums transition-colors ${
+                    n === safePage ? 'bg-gnd-bronze text-gnd-cream' : 'text-gnd-bronze hover:bg-gnd-amber/10'
+                  }`}
+                >
+                  {n}
+                </button>
+              )
+            )}
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={safePage === totalPages}
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full text-gnd-bronze transition-colors hover:bg-gnd-amber/10 disabled:cursor-not-allowed disabled:opacity-30"
+              aria-label="Page suivante"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      )}
 
       <ProspectDetailsModal prospect={viewing} onClose={() => setViewing(null)} />
 
@@ -365,7 +431,7 @@ function Th({
 }) {
   return (
     <th
-      className={`whitespace-nowrap px-3 py-3 text-left font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-gnd-amber/80 first:pl-4 last:pr-4 ${className}`}
+      className={`whitespace-nowrap px-3 py-3 text-left font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-gnd-amber-dim first:pl-4 last:pr-4 ${className}`}
     >
       {children}
     </th>
@@ -420,17 +486,17 @@ function ProspectRow({
   const StatusIcon = statusIcon(p.status);
 
   return (
-    <tr className="group transition hover:bg-gnd-amber/[0.03]">
+    <tr className="group transition hover:bg-gnd-cream-dim/40">
       <td className="px-3 py-3 first:pl-4">
         <div className="flex items-center gap-2">
           <UserAvatar name={assigneeLabel} />
-          <span className="truncate text-xs text-gnd-cream/80">{assigneeLabel}</span>
+          <span className="truncate text-xs text-gnd-bronze">{assigneeLabel}</span>
         </div>
       </td>
 
       <td className="px-3 py-3 align-top">
         <div className="flex flex-col gap-1">
-          <span className="font-display text-base font-medium text-gnd-cream line-clamp-2">
+          <span className="font-display text-base font-medium text-gnd-bronze line-clamp-2">
             {p.company_name}
           </span>
           {p.classification && (
@@ -446,9 +512,9 @@ function ProspectRow({
 
       <td className="px-3 py-3 align-top">
         <div className="flex flex-col">
-          <span className="text-sm text-gnd-cream line-clamp-1">{p.contact_name ?? '—'}</span>
+          <span className="text-sm text-gnd-bronze line-clamp-1">{p.contact_name ?? '—'}</span>
           {p.role_contact && (
-            <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-gnd-cream/50">{p.role_contact}</span>
+            <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-gnd-bronze-faded">{p.role_contact}</span>
           )}
         </div>
       </td>
@@ -458,18 +524,18 @@ function ProspectRow({
           {tel ? (
             <a
               href={`tel:${tel.replace(/\s/g, '')}`}
-              className="inline-flex items-center gap-1.5 font-mono text-xs text-gnd-amber-dim transition-colors hover:text-gnd-amber-glow"
+              className="inline-flex items-center gap-1.5 font-mono text-xs text-gnd-amber-dim transition-colors hover:text-gnd-amber"
             >
               <Phone className="h-3 w-3 text-gnd-amber/70" />
               {tel}
             </a>
           ) : (
-            <span className="text-xs text-gnd-cream/30">—</span>
+            <span className="text-xs text-gnd-bronze-faded">—</span>
           )}
           {mail ? (
             <a
               href={`mailto:${mail}`}
-              className="inline-flex max-w-[180px] items-center gap-1.5 font-mono text-xs text-gnd-cream/70 transition-colors hover:text-gnd-amber-glow"
+              className="inline-flex max-w-[180px] items-center gap-1.5 font-mono text-xs text-gnd-bronze-soft transition-colors hover:text-gnd-amber"
               title={mail}
             >
               <Mail className="h-3 w-3 shrink-0 text-gnd-amber/70" />
@@ -480,18 +546,18 @@ function ProspectRow({
       </td>
 
       <td className="max-w-[260px] px-3 py-3 align-top">
-        <span className="line-clamp-2 text-xs text-gnd-cream/70" title={p.address ?? p.city ?? undefined}>
+        <span className="line-clamp-2 text-xs text-gnd-bronze-soft" title={p.address ?? p.city ?? undefined}>
           {p.address ?? p.city ?? '—'}
         </span>
       </td>
 
       <td className="px-3 py-3 align-top">
         {p.sector ? (
-          <span className="inline-flex items-center rounded-full border border-gnd-amber/20 bg-gnd-amber/10 px-2 py-0.5 font-mono text-[10px] font-medium uppercase tracking-[0.12em] text-gnd-amber-glow">
+          <span className="inline-flex items-center rounded-full border border-gnd-amber/20 bg-gnd-amber/10 px-2 py-0.5 font-mono text-[10px] font-medium uppercase tracking-[0.12em] text-gnd-amber-dim">
             {p.sector}
           </span>
         ) : (
-          <span className="text-xs text-gnd-cream/30">—</span>
+          <span className="text-xs text-gnd-bronze-faded">—</span>
         )}
       </td>
 
@@ -520,19 +586,19 @@ function ProspectRow({
 
       <td className="px-3 py-3 align-top">
         {p.notion_page_id ? (
-          <span className="inline-flex items-center gap-1 rounded-full bg-gnd-amber/15 px-2 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-[0.15em] text-gnd-amber-glow ring-1 ring-gnd-amber/30">
+          <span className="inline-flex items-center gap-1 rounded-full bg-gnd-amber/15 px-2 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-[0.15em] text-gnd-amber-dim ring-1 ring-gnd-amber/30">
             <Sparkles className="h-2.5 w-2.5" />
             Notion
           </span>
         ) : (
-          <span className="inline-flex items-center gap-1 rounded-full bg-gnd-cream/8 px-2 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-[0.15em] text-gnd-cream/70 ring-1 ring-gnd-cream/15">
+          <span className="inline-flex items-center gap-1 rounded-full bg-gnd-cream-dim/60 px-2 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-[0.15em] text-gnd-bronze-soft ring-1 ring-gnd-bronze/15">
             <UserPlus className="h-2.5 w-2.5" />
             Manuel
           </span>
         )}
       </td>
 
-      <td className="whitespace-nowrap px-3 py-3 align-top font-mono text-[10px] uppercase tracking-[0.12em] text-gnd-cream/50">
+      <td className="whitespace-nowrap px-3 py-3 align-top font-mono text-[10px] uppercase tracking-[0.12em] text-gnd-bronze-soft">
         {formatRelativeDate(p.updated_at)}
       </td>
 
@@ -540,7 +606,7 @@ function ProspectRow({
         <div className="flex justify-end gap-1">
           <button
             onClick={onView}
-            className="flex h-8 w-8 items-center justify-center rounded-full border border-gnd-amber/20 bg-gnd-ink/60 text-gnd-amber transition hover:border-gnd-amber/40 hover:bg-gnd-amber/10 hover:text-gnd-amber-glow"
+            className="flex h-8 w-8 items-center justify-center rounded-full border border-gnd-amber/20 bg-white text-gnd-amber-dim transition hover:border-gnd-amber/40 hover:bg-gnd-amber/10 hover:text-gnd-amber"
             aria-label={`Voir l'analyse complète de ${p.company_name}`}
             title="Voir l'analyse complète"
           >
@@ -548,7 +614,7 @@ function ProspectRow({
           </button>
           <button
             onClick={onEdit}
-            className="flex h-8 w-8 items-center justify-center rounded-full border border-gnd-cream/15 bg-gnd-ink/60 text-gnd-cream/70 transition hover:border-gnd-amber/30 hover:text-gnd-cream"
+            className="flex h-8 w-8 items-center justify-center rounded-full border border-gnd-bronze/10 bg-white text-gnd-bronze-soft transition hover:border-gnd-amber/30 hover:text-gnd-bronze"
             aria-label={`Modifier ${p.company_name}`}
             title="Modifier le prospect"
           >
@@ -589,14 +655,14 @@ function classificationTooltip(classification: string | null): string | null {
 }
 
 function classificationToneClass(c: string): string {
-  if (c.startsWith('🔥')) return 'bg-rose-500/15 text-rose-300 ring-rose-400/30';
-  if (c.startsWith('🌡️')) return 'bg-gnd-amber/15 text-gnd-amber-glow ring-gnd-amber/30';
-  if (c.startsWith('❄️')) return 'bg-sky-400/15 text-sky-300 ring-sky-400/30';
-  if (c.startsWith('Lead A') || c === 'A' || c.startsWith('A (')) return 'bg-gnd-amber/15 text-gnd-amber-glow ring-gnd-amber/30';
-  if (c.startsWith('Lead B') || c === 'B' || c.startsWith('B (')) return 'bg-gnd-cream/8 text-gnd-cream/70 ring-gnd-cream/15';
-  if (c.startsWith('Lead C') || c === 'C' || c.startsWith('C (')) return 'bg-gnd-bronze/40 text-gnd-cream/60 ring-gnd-cream/10';
-  if (c.startsWith('Rejet')) return 'bg-rose-500/15 text-rose-300 ring-rose-400/30';
-  return 'bg-gnd-cream/8 text-gnd-cream/70 ring-gnd-cream/15';
+  if (c.startsWith('🔥')) return 'bg-rose-50 text-rose-700 ring-rose-200';
+  if (c.startsWith('🌡️')) return 'bg-amber-50 text-amber-800 ring-amber-200';
+  if (c.startsWith('❄️')) return 'bg-sky-50 text-sky-700 ring-sky-200';
+  if (c.startsWith('Lead A') || c === 'A' || c.startsWith('A (')) return 'bg-amber-50 text-amber-800 ring-amber-200';
+  if (c.startsWith('Lead B') || c === 'B' || c.startsWith('B (')) return 'bg-sky-50 text-sky-700 ring-sky-200';
+  if (c.startsWith('Lead C') || c === 'C' || c.startsWith('C (')) return 'bg-slate-100 text-slate-700 ring-slate-200';
+  if (c.startsWith('Rejet')) return 'bg-rose-50 text-rose-700 ring-rose-200';
+  return 'bg-slate-100 text-slate-700 ring-slate-200';
 }
 
 const AVATAR_GRADIENTS = [
@@ -629,7 +695,7 @@ function initials(name: string): string {
 function UserAvatar({ name }: { name: string }) {
   return (
     <div
-      className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br font-mono text-[10px] font-bold text-gnd-cream shadow-warm ring-2 ring-gnd-bronze/40 ${colorFromName(name)}`}
+      className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br font-mono text-[10px] font-bold text-gnd-cream shadow-warm ring-2 ring-gnd-paper ${colorFromName(name)}`}
       aria-hidden
     >
       {initials(name)}
@@ -652,4 +718,17 @@ function formatRelativeDate(iso: string | null | undefined): string {
   } catch {
     return formatDate(iso);
   }
+}
+
+function pageNumbers(current: number, total: number): (number | '…')[] {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+  const out: (number | '…')[] = [];
+  out.push(1);
+  if (current > 3) out.push('…');
+  const start = Math.max(2, current - 1);
+  const end = Math.min(total - 1, current + 1);
+  for (let i = start; i <= end; i++) out.push(i);
+  if (current < total - 2) out.push('…');
+  out.push(total);
+  return out;
 }
