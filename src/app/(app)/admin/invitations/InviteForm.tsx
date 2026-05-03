@@ -58,7 +58,7 @@ export function InviteForm() {
         disabled={isPending}
         className="px-4 py-2 bg-blue-600 text-white rounded text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
       >
-        {isPending ? 'Envoi...' : 'Envoyer l'invitation'}
+        {isPending ? 'Envoi...' : "Envoyer l'invitation"}
       </button>
 
       {message && (

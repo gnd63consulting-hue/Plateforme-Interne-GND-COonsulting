@@ -3,7 +3,7 @@
 import { useEffect, useState, useTransition } from 'react';
 import { createBrowserClient } from '@supabase/ssr';
 import { useRouter } from 'next/navigation';
-import { markTotpEnabled } from '../(app)/admin/invitations/actions';
+import { markTotpEnabled } from '@/app/(app)/admin/invitations/actions';
 
 export function Setup2faClient() {
   const router = useRouter();
@@ -104,6 +104,7 @@ export function Setup2faClient() {
   return (
     <form onSubmit={handleVerify} className="space-y-4">
       <div className="flex flex-col items-center">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={qrCode} alt="QR Code TOTP" className="w-48 h-48 border" />
         <p className="text-xs text-gray-500 mt-2">
           Scanne avec ton authenticator (Google Authenticator, Authy…)
