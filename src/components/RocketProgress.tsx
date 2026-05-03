@@ -21,23 +21,12 @@ const DEFAULT_TIERS: Tier[] = [
   { threshold: 20, bonus: '+2 500 €', label: 'Platine' },
 ];
 
-/**
- * Pipeline cockpit avec vraie fusée SVG détaillée qui monte.
- *
- * Inspiré des refs Roodny (cockpit HUD + fusée cartoon détaillée),
- * adapté à la palette warm GND. Pipeline vertical avec marqueurs
- * hexagonaux clip-path, lignes de visée diagonales aux extrémités,
- * fusée SVG complet avec hublot + ailerons + 3 flammes oscillantes.
- */
 export default function RocketProgress({
   signed,
   tiers = DEFAULT_TIERS,
 }: RocketProgressProps) {
   const maxThreshold = tiers[tiers.length - 1].threshold;
   const rocketProgress = Math.min(100, (signed / maxThreshold) * 100);
-  const nextTier = tiers.find((t) => signed < t.threshold);
-  const remaining = nextTier ? nextTier.threshold - signed : 0;
-  const allUnlocked = !nextTier;
 
   return (
     <div className="relative flex h-full gap-6">
@@ -157,7 +146,6 @@ export default function RocketProgress({
           }}
           className="absolute bottom-3 left-1/2 -translate-x-1/2"
         >
-          {/* Smoke trail */}
           <div
             aria-hidden
             className="pointer-events-none absolute left-1/2 top-full h-16 w-4 -translate-x-1/2 bg-gradient-to-b from-gnd-amber/60 via-gnd-amber-glow/30 to-transparent blur-md"
@@ -206,25 +194,6 @@ export default function RocketProgress({
           );
         })}
       </div>
-
-      {/* ==================================================== */}
-      {/* Status footer                                          */}
-      {/* ==================================================== */}
-      <div className="absolute -bottom-1 left-0 right-0 text-center">
-        {allUnlocked ? (
-          <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-gnd-amber-glow">
-            ✨ TOUS PALIERS DÉBLOQUÉS ✨
-          </p>
-        ) : (
-          <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-gnd-cream/70">
-            Encore{' '}
-            <span className="font-semibold text-gnd-amber">
-              {remaining} contrat{remaining > 1 ? 's' : ''}
-            </span>{' '}
-            pour <span className="text-gnd-amber-glow">{nextTier!.bonus}</span>
-          </p>
-        )}
-      </div>
     </div>
   );
 }
@@ -254,51 +223,18 @@ function DetailedRocket() {
           </radialGradient>
         </defs>
 
-        {/* Left fin */}
-        <path
-          d="M 14 32 L 6 44 L 14 42 Z"
-          fill="url(#fin-grad)"
-          stroke="#3D1F1E"
-          strokeWidth="0.5"
-        />
-        {/* Right fin */}
-        <path
-          d="M 30 32 L 38 44 L 30 42 Z"
-          fill="url(#fin-grad)"
-          stroke="#3D1F1E"
-          strokeWidth="0.5"
-        />
-
-        {/* Body */}
-        <path
-          d="M 22 4 L 30 16 L 30 40 L 14 40 L 14 16 Z"
-          fill="url(#body-grad)"
-          stroke="#3D1F1E"
-          strokeWidth="0.7"
-        />
-
-        {/* Nose cone */}
-        <path
-          d="M 22 4 L 14 16 L 30 16 Z"
-          fill="url(#nose-grad)"
-          stroke="#3D1F1E"
-          strokeWidth="0.7"
-        />
-
-        {/* Body bands */}
+        <path d="M 14 32 L 6 44 L 14 42 Z" fill="url(#fin-grad)" stroke="#3D1F1E" strokeWidth="0.5" />
+        <path d="M 30 32 L 38 44 L 30 42 Z" fill="url(#fin-grad)" stroke="#3D1F1E" strokeWidth="0.5" />
+        <path d="M 22 4 L 30 16 L 30 40 L 14 40 L 14 16 Z" fill="url(#body-grad)" stroke="#3D1F1E" strokeWidth="0.7" />
+        <path d="M 22 4 L 14 16 L 30 16 Z" fill="url(#nose-grad)" stroke="#3D1F1E" strokeWidth="0.7" />
         <line x1="14" y1="22" x2="30" y2="22" stroke="#3D1F1E" strokeWidth="0.4" opacity="0.5" />
         <line x1="14" y1="36" x2="30" y2="36" stroke="#3D1F1E" strokeWidth="0.4" opacity="0.5" />
-
-        {/* Window */}
         <circle cx="22" cy="28" r="4" fill="url(#window-grad)" stroke="#3D1F1E" strokeWidth="0.7" />
         <circle cx="21" cy="27" r="1" fill="#FDF6EE" opacity="0.5" />
-
-        {/* Nozzle */}
         <rect x="17" y="40" width="10" height="3" fill="#3D1F1E" />
         <rect x="18" y="43" width="8" height="1.5" fill="#5C3A38" />
       </svg>
 
-      {/* Animated flames — 3 layers oscillating */}
       <div className="pointer-events-none absolute left-1/2 top-[44px] -translate-x-1/2">
         <motion.div
           animate={{ scaleY: [1, 1.3, 0.9, 1.2, 1], opacity: [0.9, 1, 0.85, 1, 0.9] }}
