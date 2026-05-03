@@ -7,23 +7,27 @@ import {
   ArrowUpRight,
   BookOpen,
   CheckCircle2,
+  Clock,
+  CreditCard,
   ExternalLink,
   FolderOpen,
   Mail,
   MessageSquare,
+  Phone,
   Sparkles,
   Target,
   XCircle,
 } from 'lucide-react';
+import RessourcesHeroVisual from '@/components/RessourcesHeroVisual';
 
 /**
  * Page Ressources — redesign warm éditorial v2 (mai 2026).
  *
- * Aligne entièrement la page sur la charte GND warm (cream/bronze/amber)
- * et l'esprit éditorial des pages Formation / Module : watermark Fraunces
- * en hero, cards en bg-gnd-paper avec shadow-warm, Lucide icons à la place
- * des Material Symbols, animations Framer Motion sur les sections au
- * scroll, pricing cards refaites avec card recommandée en bronze→ink.
+ * v2.1 corrige 3 retours Roodny :
+ *   1. Hero plus vide à droite → RessourcesHeroVisual intégré
+ *   2. Sidebar Contacts plus en sticky (le CTA flottait sur la grille)
+ *   3. Pricing aligné sur le PDF Grille_Tarifaire_Visuelle_GND :
+ *      tarifs réels à partir de + sections Pour qui / Pourquoi
  */
 export default function RessourcesClient() {
   const heroRef = useRef<HTMLDivElement>(null);
@@ -37,11 +41,11 @@ export default function RessourcesClient() {
   return (
     <div className="relative">
       {/* ====================================================== */}
-      {/* Hero — watermark Fraunces + title + intro                  */}
+      {/* Hero — split 7/5 : title left + 3D visual right           */}
       {/* ====================================================== */}
       <header
         ref={heroRef}
-        className="relative mb-20 flex min-h-[40vh] flex-col justify-end overflow-hidden"
+        className="relative mb-20 grid min-h-[60vh] grid-cols-1 items-center gap-12 overflow-hidden lg:grid-cols-[7fr_5fr] lg:gap-16"
       >
         <motion.span
           aria-hidden
@@ -51,11 +55,12 @@ export default function RessourcesClient() {
           Ressources.
         </motion.span>
 
+        {/* Left column — title + intro */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          className="relative z-10 max-w-3xl"
+          className="relative z-10 max-w-2xl"
         >
           <div className="mb-4 flex items-center gap-2">
             <span className="h-px w-8 bg-gnd-amber" />
@@ -72,15 +77,23 @@ export default function RessourcesClient() {
             performance commerciale au sein de GND Consulting.
           </p>
         </motion.div>
+
+        {/* Right column — 3D scene */}
+        <motion.div
+          initial={{ opacity: 0, x: 30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.9, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+          className="relative z-10"
+        >
+          <RessourcesHeroVisual />
+        </motion.div>
       </header>
 
       {/* ====================================================== */}
       {/* Main grid — content (8) + sidebar (4)                     */}
       {/* ====================================================== */}
       <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-10">
-        {/* ============= MAIN COLUMN ============= */}
         <section className="space-y-12 lg:col-span-8">
-          {/* ----- Argumentaire ----- */}
           <SectionCard
             label="01 · Argumentaire clé"
             icon={<MessageSquare className="h-5 w-5" aria-hidden />}
@@ -113,7 +126,6 @@ export default function RessourcesClient() {
             />
           </SectionCard>
 
-          {/* ----- Do's & Don'ts ----- */}
           <SectionCard
             label="02 · Do's & Don'ts"
             icon={<Target className="h-5 w-5" aria-hidden />}
@@ -126,9 +138,7 @@ export default function RessourcesClient() {
                 title="À privilégier"
                 items={[
                   { node: "Appel 1 court (2 min max) pour récupérer l'email." },
-                  {
-                    node: "Envoyer l'Email 1 dans les 2 heures après l'appel.",
-                  },
+                  { node: "Envoyer l'Email 1 dans les 2 heures après l'appel." },
                   { node: 'Fixer un rendez-vous précis (date + heure).' },
                   {
                     node: (
@@ -162,7 +172,6 @@ export default function RessourcesClient() {
             </div>
           </SectionCard>
 
-          {/* ----- Scripts & templates ----- */}
           <SectionCard
             label="03 · Scripts & templates"
             icon={<FolderOpen className="h-5 w-5" aria-hidden />}
@@ -177,15 +186,14 @@ export default function RessourcesClient() {
           </SectionCard>
         </section>
 
-        {/* ============= SIDEBAR ============= */}
+        {/* ============= SIDEBAR (no longer sticky) ============= */}
         <aside className="space-y-8 lg:col-span-4">
-          {/* ----- Contacts ----- */}
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-50px' }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-            className="sticky top-24 overflow-hidden rounded-3xl border border-gnd-bronze/8 bg-gradient-to-br from-gnd-paper via-gnd-cream to-gnd-cream-dim shadow-warm"
+            className="overflow-hidden rounded-3xl border border-gnd-bronze/8 bg-gradient-to-br from-gnd-paper via-gnd-cream to-gnd-cream-dim shadow-warm"
           >
             <div className="h-px w-full bg-gradient-to-r from-transparent via-gnd-amber to-transparent" />
             <div className="p-7">
@@ -207,9 +215,7 @@ export default function RessourcesClient() {
                     <p className="font-display text-base font-medium text-gnd-bronze">
                       {c.name}
                     </p>
-                    <p className="mt-0.5 text-xs text-gnd-bronze-soft">
-                      {c.role}
-                    </p>
+                    <p className="mt-0.5 text-xs text-gnd-bronze-soft">{c.role}</p>
                     {c.email && (
                       <a
                         href={`mailto:${c.email}`}
@@ -232,7 +238,6 @@ export default function RessourcesClient() {
             </div>
           </motion.div>
 
-          {/* ----- Script CTA ----- */}
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -279,7 +284,7 @@ export default function RessourcesClient() {
       </div>
 
       {/* ====================================================== */}
-      {/* Pricing grid                                              */}
+      {/* Pricing — aligné PDF kit commercial                       */}
       {/* ====================================================== */}
       <motion.section
         initial={{ opacity: 0, y: 32 }}
@@ -288,67 +293,129 @@ export default function RessourcesClient() {
         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
         className="relative mt-24"
       >
-        <div className="mb-10 flex flex-col gap-4">
-          <div className="flex items-center gap-2">
-            <span className="h-px w-8 bg-gnd-amber" />
-            <span className="font-mono text-[10px] font-medium uppercase tracking-[0.2em] text-gnd-amber">
-              Pricing
-            </span>
+        <div className="mb-10 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <div className="mb-3 flex items-center gap-2">
+              <span className="h-px w-8 bg-gnd-amber" />
+              <span className="font-mono text-[10px] font-medium uppercase tracking-[0.2em] text-gnd-amber">
+                Pricing 2026
+              </span>
+            </div>
+            <h2 className="font-display text-display-md font-medium leading-tight tracking-tight text-gnd-bronze">
+              Trois packs,{' '}
+              <span className="italic text-gnd-amber">trois ambitions</span>
+            </h2>
+            <p className="mt-3 max-w-2xl text-pretty text-base leading-relaxed text-gnd-bronze-soft">
+              Sites vitrines pour commerces et PME locales. Paiement unique en
+              2 fois (50/50). Aucun abonnement.
+            </p>
           </div>
-          <h2 className="font-display text-display-md font-medium leading-tight tracking-tight text-gnd-bronze">
-            Grille tarifaire{' '}
-            <span className="italic text-gnd-amber">Sites Vitrines</span>
-          </h2>
-          <p className="max-w-2xl text-pretty text-base leading-relaxed text-gnd-bronze-soft">
-            3 formules, paiement unique en 2 fois (50/50). Aucun abonnement.
-            Propriété totale du site pour le client.
+          <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-gnd-bronze-soft lg:max-w-xs lg:text-right">
+            Chaque pack est un point de départ. Devis sur-mesure si besoins
+            spécifiques.
           </p>
         </div>
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:items-stretch">
-          <PricingCard
-            name="Essentiel"
-            price="800"
-            features={[
-              'Site vitrine 1 à 5 pages',
-              'Design responsive mobile',
-              'SEO local de base',
-              'Bandeau cookies + mentions légales',
-              '1ère année nom de domaine offerte',
+          {PACKS.map((p, i) => (
+            <PricingCard key={p.name} pack={p} index={i} />
+          ))}
+        </div>
+      </motion.section>
+
+      {/* ====================================================== */}
+      {/* Modalités & engagement                                    */}
+      {/* ====================================================== */}
+      <motion.section
+        initial={{ opacity: 0, y: 32 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-100px' }}
+        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        className="relative mt-20"
+      >
+        <div className="mb-10">
+          <div className="mb-3 flex items-center gap-2">
+            <span className="h-px w-8 bg-gnd-amber" />
+            <span className="font-mono text-[10px] font-medium uppercase tracking-[0.2em] text-gnd-amber">
+              Modalités & engagement
+            </span>
+          </div>
+          <h2 className="font-display text-display-md font-medium leading-tight tracking-tight text-gnd-bronze">
+            Comment ça se passe{' '}
+            <span className="italic text-gnd-amber">concrètement</span>
+          </h2>
+          <p className="mt-3 max-w-2xl text-pretty text-base leading-relaxed text-gnd-bronze-soft">
+            Cadre simple et transparent. Pas d'abonnement caché.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <ModalityCard
+            icon={<CreditCard className="h-5 w-5" aria-hidden />}
+            title="Paiement"
+            lines={[
+              { strong: '50 %', text: 'à la signature du devis.' },
+              { strong: '50 %', text: 'à la livraison.' },
             ]}
-            index={0}
+            footnote="Pas d'abonnement, pas de frais cachés. Le site est à vous, vous avez tous les accès."
           />
-          <PricingCard
-            name="Réservation"
-            price="1 500"
-            highlight
-            features={[
-              "Tout l'Essentiel",
-              'Formulaire de réservation / prise de RDV',
-              'Intégration calendrier',
-              'Emails de confirmation automatiques',
-              'Google Maps inclus',
+          <ModalityCard
+            icon={<Clock className="h-5 w-5" aria-hidden />}
+            title="Délai de livraison"
+            lines={[
+              { strong: '1 à 2 semaines', text: 'pour Vitrine Essentiel et Vitrine + Réservation.' },
+              { strong: '3 semaines+', text: 'pour Pack Complet selon les spécificités du projet.' },
             ]}
-            index={1}
-          />
-          <PricingCard
-            name="Pack Complet"
-            price="2 500"
-            features={[
-              'Tout la Réservation',
-              'Paiement en ligne via Stripe',
-              "Formation client à l'administration",
-              'Google Analytics configuré',
-              'Support prioritaire 30 jours',
-            ]}
-            index={2}
           />
         </div>
 
-        <p className="mt-6 text-center font-mono text-[11px] uppercase tracking-[0.15em] text-gnd-bronze-soft">
-          + Option <span className="text-gnd-amber-dim">Google Maps</span> à 50 €
-          si non incluse dans la formule
-        </p>
+        {/* CTA contact */}
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-50px' }}
+          transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+          className="relative mt-8 overflow-hidden rounded-3xl border border-gnd-bronze/15 bg-gradient-to-br from-gnd-bronze via-gnd-bronze to-gnd-ink p-10 text-gnd-cream shadow-warm-xl md:p-14"
+        >
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full bg-gnd-amber/20 blur-3xl"
+          />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-gnd-amber/10 blur-3xl"
+          />
+          <div className="relative flex flex-col items-start gap-6 md:flex-row md:items-center md:justify-between">
+            <div className="max-w-xl">
+              <p className="mb-3 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-gnd-amber">
+                Une question, un projet ?
+              </p>
+              <h3 className="font-display text-3xl font-medium leading-tight md:text-4xl">
+                On en discute{' '}
+                <span className="italic text-gnd-amber">directement</span>.
+              </h3>
+              <p className="mt-4 text-sm leading-relaxed text-gnd-cream/70">
+                GND Consulting — agence créative et tech.
+              </p>
+            </div>
+            <div className="flex flex-col gap-3">
+              <a
+                href="tel:+33759506322"
+                className="group inline-flex items-center gap-3 rounded-full bg-gnd-amber px-6 py-3.5 text-sm font-semibold text-gnd-bronze transition-all hover:bg-gnd-amber-glow hover:shadow-glow-amber"
+              >
+                <Phone className="h-4 w-4" aria-hidden />
+                07 59 50 63 22
+              </a>
+              <a
+                href="mailto:contact@gndconsulting.fr"
+                className="group inline-flex items-center gap-3 rounded-full border border-gnd-cream/20 bg-gnd-cream/5 px-6 py-3.5 text-sm font-semibold text-gnd-cream transition-all hover:bg-gnd-cream/10"
+              >
+                <Mail className="h-4 w-4" aria-hidden />
+                contact@gndconsulting.fr
+              </a>
+            </div>
+          </div>
+        </motion.div>
       </motion.section>
     </div>
   );
@@ -404,11 +471,7 @@ function SectionCard({
   );
 }
 
-function ArgGrid({
-  items,
-}: {
-  items: { bold: string; body: string }[];
-}) {
+function ArgGrid({ items }: { items: { bold: string; body: string }[] }) {
   return (
     <ul className="space-y-4">
       {items.map((item, i) => (
@@ -537,19 +600,76 @@ function DemoLink({ href, children }: { href: string; children: React.ReactNode 
   );
 }
 
-function PricingCard({
-  name,
-  price,
-  features,
-  highlight,
-  index,
-}: {
+// =============== PRICING (PDF-aligned) ===============
+
+type Pack = {
+  num: string;
   name: string;
-  price: string;
-  features: string[];
+  priceLabel: string; // "800" or "1 200 – 1 500" or "2 500 +"
   highlight?: boolean;
-  index: number;
-}) {
+  forWho: string;
+  why: string;
+  features: string[];
+};
+
+const PACKS: Pack[] = [
+  {
+    num: '01',
+    name: 'Vitrine Essentiel',
+    priceLabel: '800',
+    forWho:
+      'Restaurateur de quartier, coiffeur, petit institut de beauté, artisan qui démarre, vidéaste vitrine simple, coach indépendant.',
+    why: "Solution clé en main pour les commerces qui n'ont pas encore de présence en ligne. Mise en place rapide, prix accessible.",
+    features: [
+      'Site vitrine 3 à 5 pages',
+      'Présentation activité, coordonnées, formulaire de contact',
+      'Intégration Google Maps',
+      'Design responsive mobile et desktop',
+      'Hébergement et nom de domaine 1ère année inclus',
+      'Optimisation des performances et de la vitesse',
+      'Formation rapide à la prise en main',
+    ],
+  },
+  {
+    num: '02',
+    name: 'Vitrine + Réservation',
+    priceLabel: '1 200 – 1 500',
+    highlight: true,
+    forWho:
+      "Restaurateur ambitieux, coach sportif, institut bien établi, vidéaste mariage, professions qui ont besoin d'un agenda en ligne.",
+    why: 'Vous transformez vos visiteurs en clients directement réservés depuis le site. Plus de coups de fil pour les rendez-vous.',
+    features: [
+      "Tout ce qui est dans Vitrine Essentiel",
+      'Module de réservation en ligne intégré (rendez-vous ou tables)',
+      'Galerie photo professionnelle',
+      'Page menu / prestations détaillées',
+      'Optimisation SEO local de base',
+      'Notifications automatiques par email',
+      'Tableau de bord pour gérer vos disponibilités',
+    ],
+  },
+  {
+    num: '03',
+    name: 'Pack Complet',
+    priceLabel: '2 500 +',
+    forWho:
+      'PME locale structurée, artisan ambitieux, commerce multi-sites, professionnel établi qui veut piloter sa visibilité.',
+    why: "Vous prenez le contrôle de votre référencement local et de vos performances. Le site devient un vrai levier business.",
+    features: [
+      'Tout ce qui est dans Vitrine + Réservation',
+      'SEO avancé multi-pages + Google My Business optimisé',
+      'Intégrations sur-mesure (CRM, paiement, calendar, mailing)',
+      'Module e-commerce léger si pertinent',
+      'Suivi analytics et tableau de bord performance',
+      'Pages enrichies (blog, FAQ, témoignages clients)',
+      "Accompagnement éditorial pour le lancement",
+    ],
+  },
+];
+
+function PricingCard({ pack, index }: { pack: Pack; index: number }) {
+  const { num, name, priceLabel, highlight, forWho, why, features } = pack;
+
   if (highlight) {
     return (
       <motion.div
@@ -563,7 +683,6 @@ function PricingCard({
           aria-hidden
           className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-gnd-amber/25 blur-3xl"
         />
-        {/* Recommandé ribbon */}
         <div className="absolute right-6 top-0 -translate-y-1/2">
           <span className="inline-flex items-center gap-1 rounded-full bg-gnd-amber px-3 py-1 font-mono text-[9px] font-semibold uppercase tracking-[0.18em] text-gnd-bronze shadow-warm-lg">
             <Sparkles className="h-2.5 w-2.5" aria-hidden />
@@ -573,40 +692,53 @@ function PricingCard({
 
         <div className="relative">
           <p className="mb-1 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-gnd-amber">
-            Formule
+            Pack {num}
           </p>
-          <h3 className="font-display text-2xl font-medium tracking-tight">
+          <h3 className="font-display text-2xl font-medium leading-tight tracking-tight">
             {name}
           </h3>
-          <div className="mt-6 flex items-baseline gap-1.5">
-            <span className="font-display text-5xl font-medium leading-none text-gnd-cream">
-              {price}
+          <p className="mt-5 font-mono text-[10px] uppercase tracking-[0.18em] text-gnd-cream/50">
+            À partir de
+          </p>
+          <div className="mt-1 flex items-baseline gap-1.5">
+            <span className="font-display text-4xl font-medium leading-none text-gnd-cream md:text-5xl">
+              {priceLabel}
             </span>
             <span className="font-display text-2xl text-gnd-amber">€</span>
+            <span className="ml-1 font-mono text-[10px] uppercase tracking-[0.15em] text-gnd-cream/50">
+              TTC
+            </span>
           </div>
-          <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.18em] text-gnd-cream/50">
-            Paiement unique
-          </p>
         </div>
 
-        <ul className="relative mt-8 flex-grow space-y-3">
+        <p className="relative mt-6 border-l-2 border-gnd-amber/40 pl-3 text-xs italic leading-relaxed text-gnd-cream/70">
+          {forWho}
+        </p>
+
+        <ul className="relative mt-6 flex-grow space-y-2.5">
           {features.map((f, i) => (
             <motion.li
               key={f}
               initial={{ opacity: 0, x: -4 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: 0.3 + i * 0.05 }}
+              transition={{ duration: 0.4, delay: 0.3 + i * 0.04 }}
               className="flex items-start gap-2.5 text-sm leading-relaxed text-gnd-cream/85"
             >
-              <CheckCircle2
-                className="mt-0.5 h-4 w-4 shrink-0 text-gnd-amber"
-                aria-hidden
-              />
+              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-gnd-amber" aria-hidden />
               <span>{f}</span>
             </motion.li>
           ))}
         </ul>
+
+        <div className="relative mt-6 rounded-2xl bg-gnd-amber/10 p-4">
+          <p className="font-mono text-[9px] font-semibold uppercase tracking-[0.2em] text-gnd-amber">
+            Pourquoi le choisir
+          </p>
+          <p className="mt-1.5 text-xs italic leading-relaxed text-gnd-cream/80">
+            {why}
+          </p>
+        </div>
       </motion.div>
     );
   }
@@ -621,40 +753,97 @@ function PricingCard({
     >
       <div>
         <p className="mb-1 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-gnd-bronze-soft">
-          Formule
+          Pack {num}
         </p>
-        <h3 className="font-display text-2xl font-medium tracking-tight text-gnd-bronze">
+        <h3 className="font-display text-2xl font-medium leading-tight tracking-tight text-gnd-bronze">
           {name}
         </h3>
-        <div className="mt-6 flex items-baseline gap-1.5">
-          <span className="font-display text-5xl font-medium leading-none text-gnd-bronze">
-            {price}
+        <p className="mt-5 font-mono text-[10px] uppercase tracking-[0.18em] text-gnd-bronze-soft">
+          À partir de
+        </p>
+        <div className="mt-1 flex items-baseline gap-1.5">
+          <span className="font-display text-4xl font-medium leading-none text-gnd-bronze md:text-5xl">
+            {priceLabel}
           </span>
           <span className="font-display text-2xl text-gnd-amber">€</span>
+          <span className="ml-1 font-mono text-[10px] uppercase tracking-[0.15em] text-gnd-bronze-soft">
+            TTC
+          </span>
         </div>
-        <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.18em] text-gnd-bronze-soft">
-          Paiement unique
-        </p>
       </div>
 
-      <ul className="mt-8 flex-grow space-y-3">
+      <p className="mt-6 border-l-2 border-gnd-amber/40 pl-3 text-xs italic leading-relaxed text-gnd-bronze-soft">
+        {forWho}
+      </p>
+
+      <ul className="mt-6 flex-grow space-y-2.5">
         {features.map((f, i) => (
           <motion.li
             key={f}
             initial={{ opacity: 0, x: -4 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.4, delay: 0.3 + i * 0.05 }}
+            transition={{ duration: 0.4, delay: 0.3 + i * 0.04 }}
             className="flex items-start gap-2.5 text-sm leading-relaxed text-gnd-bronze-soft"
           >
-            <CheckCircle2
-              className="mt-0.5 h-4 w-4 shrink-0 text-gnd-amber-dim"
-              aria-hidden
-            />
+            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-gnd-amber-dim" aria-hidden />
             <span>{f}</span>
           </motion.li>
         ))}
       </ul>
+
+      <div className="mt-6 rounded-2xl bg-gnd-amber/10 p-4">
+        <p className="font-mono text-[9px] font-semibold uppercase tracking-[0.2em] text-gnd-amber-dim">
+          Pourquoi le choisir
+        </p>
+        <p className="mt-1.5 text-xs italic leading-relaxed text-gnd-bronze-soft">
+          {why}
+        </p>
+      </div>
+    </motion.div>
+  );
+}
+
+function ModalityCard({
+  icon,
+  title,
+  lines,
+  footnote,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  lines: { strong: string; text: string }[];
+  footnote?: string;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+      className="flex flex-col gap-4 rounded-3xl border border-gnd-bronze/8 bg-gnd-paper p-7 shadow-warm"
+    >
+      <div className="flex items-center gap-3">
+        <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gnd-amber/15 text-gnd-amber-dim">
+          {icon}
+        </span>
+        <h3 className="font-display text-xl font-medium text-gnd-bronze">
+          {title}
+        </h3>
+      </div>
+      <div className="space-y-1.5">
+        {lines.map((l) => (
+          <p key={l.strong} className="text-sm leading-relaxed text-gnd-bronze-soft">
+            <span className="font-semibold text-gnd-amber-dim">{l.strong}</span>{' '}
+            {l.text}
+          </p>
+        ))}
+      </div>
+      {footnote && (
+        <p className="text-xs italic leading-relaxed text-gnd-bronze-soft">
+          {footnote}
+        </p>
+      )}
     </motion.div>
   );
 }
