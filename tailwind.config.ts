@@ -1,4 +1,5 @@
 import type { Config } from 'tailwindcss';
+import typography from '@tailwindcss/typography';
 
 /**
  * GND Formation — Design System v2 (mai 2026).
@@ -21,7 +22,6 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Legacy — à retirer à terme
         gnd: {
           primary: '#0F172A',
           accent: '#F59E0B',
@@ -29,7 +29,6 @@ const config: Config = {
           bg: '#F8FAFC',
         },
 
-        // Academic Atelier — M3-style tokens (conservé comme palette neutre)
         primary: '#0058be',
         'primary-container': '#2170e4',
         'primary-fixed': '#d8e2ff',
@@ -84,9 +83,6 @@ const config: Config = {
         'inverse-on-surface': '#f3f0ef',
         'inverse-primary': '#adc6ff',
 
-        // ============================================================
-        // GND warm v2 (NEW) — charte chaude officielle
-        // ============================================================
         'gnd-cream': '#FDF6EE',
         'gnd-cream-dim': '#F5EBD9',
         'gnd-paper': '#FBF7F1',
@@ -102,12 +98,9 @@ const config: Config = {
         'gnd-sand': '#EFE2D2',
       },
       fontFamily: {
-        // Legacy (Google Fonts CDN, conservé pour compat)
         headline: ['Epilogue', 'sans-serif'],
         body: ['Inter', 'sans-serif'],
         label: ['Inter', 'sans-serif'],
-
-        // v2 (next/font)
         sans: ['var(--font-geist-sans)', 'Inter', 'system-ui', 'sans-serif'],
         mono: ['var(--font-geist-mono)', 'ui-monospace', 'monospace'],
         display: ['var(--font-fraunces)', 'Georgia', 'serif'],
@@ -137,7 +130,6 @@ const config: Config = {
         'gradient-warm': 'linear-gradient(135deg, #FDF6EE 0%, #F5EBD9 100%)',
         'gradient-amber': 'linear-gradient(135deg, #E8853D 0%, #D4732A 100%)',
         'gradient-bronze': 'linear-gradient(135deg, #3D1F1E 0%, #1A0F0E 100%)',
-        'noise': "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E\")",
       },
       animation: {
         'fade-in': 'fadeIn 600ms ease-out forwards',
@@ -169,9 +161,119 @@ const config: Config = {
           '50%': { transform: 'translateY(-8px)' },
         },
       },
+      typography: () => ({
+        gnd: {
+          css: {
+            '--tw-prose-body': '#3D1F1E',
+            '--tw-prose-headings': '#1A0F0E',
+            '--tw-prose-lead': '#5C3A38',
+            '--tw-prose-links': '#D4732A',
+            '--tw-prose-bold': '#D4732A',
+            '--tw-prose-counters': '#8A6D6B',
+            '--tw-prose-bullets': '#E8853D',
+            '--tw-prose-hr': 'rgba(61, 31, 30, 0.1)',
+            '--tw-prose-quotes': '#3D1F1E',
+            '--tw-prose-quote-borders': '#E8853D',
+            '--tw-prose-captions': '#8A6D6B',
+            '--tw-prose-code': '#3D1F1E',
+            '--tw-prose-pre-code': '#FDF6EE',
+            '--tw-prose-pre-bg': '#3D1F1E',
+            '--tw-prose-th-borders': 'rgba(61, 31, 30, 0.15)',
+            '--tw-prose-td-borders': 'rgba(61, 31, 30, 0.08)',
+            fontFamily: 'var(--font-geist-sans), system-ui, sans-serif',
+            h1: {
+              fontFamily: 'var(--font-fraunces), Georgia, serif',
+              fontWeight: '500',
+              letterSpacing: '-0.02em',
+            },
+            h2: {
+              fontFamily: 'var(--font-fraunces), Georgia, serif',
+              fontWeight: '500',
+              letterSpacing: '-0.015em',
+              marginTop: '2.5em',
+              marginBottom: '0.8em',
+            },
+            h3: {
+              fontFamily: 'var(--font-fraunces), Georgia, serif',
+              fontWeight: '500',
+              letterSpacing: '-0.01em',
+              marginTop: '2em',
+              marginBottom: '0.6em',
+            },
+            'h2 + p, h3 + p': {
+              marginTop: '0.5em',
+            },
+            strong: {
+              color: '#D4732A',
+              fontWeight: '600',
+            },
+            'a': {
+              textDecoration: 'underline',
+              textDecorationColor: 'rgba(232, 133, 61, 0.4)',
+              textUnderlineOffset: '4px',
+              transition: 'all 200ms',
+            },
+            'a:hover': {
+              textDecorationColor: '#E8853D',
+            },
+            'ul > li::marker': {
+              color: '#E8853D',
+              fontWeight: '700',
+            },
+            blockquote: {
+              borderLeftWidth: '3px',
+              fontStyle: 'normal',
+              fontWeight: '500',
+              backgroundColor: 'rgba(232, 133, 61, 0.05)',
+              padding: '1em 1.25em',
+              borderRadius: '0 0.75rem 0.75rem 0',
+            },
+            'blockquote p:first-of-type::before': { content: 'none' },
+            'blockquote p:last-of-type::after': { content: 'none' },
+            code: {
+              backgroundColor: 'rgba(61, 31, 30, 0.06)',
+              padding: '0.15em 0.4em',
+              borderRadius: '0.3rem',
+              fontWeight: '500',
+              fontSize: '0.9em',
+            },
+            'code::before': { content: 'none' },
+            'code::after': { content: 'none' },
+            table: {
+              fontSize: '0.95em',
+              borderRadius: '1rem',
+              overflow: 'hidden',
+              border: '1px solid rgba(61, 31, 30, 0.1)',
+            },
+            thead: {
+              backgroundColor: '#FDF6EE',
+              borderBottomWidth: '1px',
+              borderBottomColor: 'rgba(61, 31, 30, 0.15)',
+            },
+            'thead th': {
+              fontFamily: 'var(--font-geist-sans)',
+              fontWeight: '600',
+              color: '#3D1F1E',
+              textTransform: 'none',
+              letterSpacing: '0',
+              padding: '0.75em 1em',
+            },
+            'tbody td': {
+              padding: '0.75em 1em',
+            },
+            'tbody tr': {
+              borderBottomColor: 'rgba(61, 31, 30, 0.06)',
+            },
+            hr: {
+              marginTop: '3em',
+              marginBottom: '3em',
+            },
+          },
+        },
+      }),
     },
   },
-  plugins: [],
+  plugins: [typography],
 };
 
 export default config;

@@ -1,19 +1,19 @@
+'use client';
+
 import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { ArrowUpRight, BookOpen, CheckCircle2, Clock, Lock } from 'lucide-react';
 import type { ModuleMeta } from '@/lib/modules-registry';
+import { cn } from '@/lib/utils';
 
 type ModuleCardProps = {
   module: ModuleMeta;
   state: 'validated' | 'available' | 'locked';
-  /** Nombre de questions seedées dans Supabase pour ce module. */
   questionsCount?: number;
-  /** Meilleur score (en %) si le module est validé. */
   bestPercentage?: number | null;
-  /** Titre du module précédent à compléter — affiché sur les cartes verrouillées. */
   previousOrder?: number;
+  index?: number;
 };
-
-const BASE_CARD =
-  'group relative flex flex-col rounded-xl border p-8 transition-all duration-300';
 
 export default function ModuleCard({
   module,
@@ -21,74 +21,111 @@ export default function ModuleCard({
   questionsCount,
   bestPercentage,
   previousOrder,
+  index = 0,
 }: ModuleCardProps) {
   const numberLabel = String(module.order).padStart(2, '0');
 
-  const content = (
+  const baseClasses = cn(
+    'group relative flex h-full flex-col overflow-hidden rounded-3xl border bg-white p-7 transition-all duration-500 will-change-transform',
+    state === 'locked'
+      ? 'cursor-not-allowed border-gnd-bronze/8 opacity-60'
+      : 'border-gnd-bronze/10 shadow-warm hover:-translate-y-1 hover:border-gnd-bronze/20 hover:shadow-warm-xl'
+  );
+
+  const inner = (
     <>
-      <div className="mb-8 flex items-start justify-between">
+      {/* Subtle warm glow on hover (available + validated) */}
+      {state !== 'locked' && (
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -right-20 -top-20 h-40 w-40 rounded-full bg-gnd-amber/0 blur-3xl transition-all duration-700 group-hover:bg-gnd-amber/15"
+        />
+      )}
+
+      {/* Top row — number + status */}
+      <div className="relative mb-10 flex items-start justify-between">
         <span
-          className={
+          className={cn(
+            'font-display text-6xl font-medium leading-none tracking-tight',
             state === 'locked'
-              ? 'font-headline text-3xl font-bold text-outline'
-              : 'font-headline text-3xl font-bold text-primary opacity-20 transition-opacity group-hover:opacity-100'
-          }
+              ? 'text-gnd-bronze/15'
+              : state === 'validated'
+                ? 'italic text-gnd-amber'
+                : 'italic text-gnd-bronze/30 transition-all duration-500 group-hover:text-gnd-amber'
+          )}
         >
           {numberLabel}
         </span>
-        <StatusBadge state={state} bestPercentage={bestPercentage} />
+        <StatusChip state={state} bestPercentage={bestPercentage} />
       </div>
 
+      {/* Title */}
       <h3
-        className={
-          state === 'locked'
-            ? 'mb-4 font-headline text-xl font-bold leading-tight text-on-surface-variant'
-            : 'mb-4 font-headline text-xl font-bold leading-tight text-on-surface'
-        }
+        className={cn(
+          'mb-6 font-display text-xl font-medium leading-tight tracking-tight',
+          state === 'locked' ? 'text-gnd-bronze-faded' : 'text-gnd-bronze'
+        )}
       >
         {module.title}
       </h3>
 
-      <div className="mt-auto flex items-center gap-4 text-sm text-on-surface-variant">
-        <div className="flex items-center gap-1.5">
-          <span className="material-symbols-outlined text-[18px]">schedule</span>
-          <span>{module.duration} min</span>
-        </div>
+      {/* Meta row */}
+      <div className="mt-auto flex items-center gap-4 text-xs font-medium text-gnd-bronze-soft">
+        <span className="inline-flex items-center gap-1.5">
+          <Clock className="h-3.5 w-3.5" aria-hidden />
+          {module.duration} min
+        </span>
         {questionsCount !== undefined && (
-          <div className="flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-[18px]">
-              menu_book
-            </span>
-            <span>
-              {questionsCount} question{questionsCount > 1 ? 's' : ''}
-            </span>
-          </div>
+          <span className="inline-flex items-center gap-1.5">
+            <BookOpen className="h-3.5 w-3.5" aria-hidden />
+            {questionsCount} question{questionsCount > 1 ? 's' : ''}
+          </span>
         )}
       </div>
 
+      {/* CTA — hover-revealed for available, always-on for validated */}
       {state === 'available' && (
-        <div className="mt-6 rounded-full bg-primary px-4 py-3 text-center font-label text-sm font-bold text-on-primary transition-opacity group-hover:opacity-90">
-          Continuer le module →
+        <div className="relative mt-6 overflow-hidden">
+          <div className="flex items-center gap-2 text-sm font-semibold text-gnd-amber transition-all duration-300 group-hover:gap-3">
+            <span>Continuer le module</span>
+            <ArrowUpRight
+              className="h-4 w-4 transition-transform duration-500 group-hover:rotate-45"
+              aria-hidden
+            />
+          </div>
+        </div>
+      )}
+
+      {state === 'validated' && (
+        <div className="mt-6 flex items-center gap-2 text-sm text-gnd-bronze-soft">
+          <span>Revoir le module</span>
+          <ArrowUpRight
+            className="h-3.5 w-3.5 transition-transform duration-500 group-hover:rotate-45"
+            aria-hidden
+          />
         </div>
       )}
 
       {state === 'locked' && previousOrder !== undefined && (
-        <p className="mt-6 flex items-center gap-1.5 text-xs font-medium text-on-surface-variant">
-          <span className="material-symbols-outlined text-[14px]">lock</span>
+        <p className="mt-6 inline-flex items-center gap-1.5 text-xs font-medium text-gnd-bronze-faded">
+          <Lock className="h-3 w-3" aria-hidden />
           Complète le Module {String(previousOrder).padStart(2, '0')} pour
-          déverrouiller.
+          déverrouiller
         </p>
       )}
 
+      {/* Validated bottom hairline accent */}
       {state === 'validated' && (
-        <span
-          className={
-            bestPercentage !== undefined && bestPercentage !== null && bestPercentage >= 90
-              ? 'absolute bottom-0 left-0 h-1 w-full rounded-b-xl bg-green-500'
-              : bestPercentage !== undefined && bestPercentage !== null && bestPercentage < 80
-              ? 'absolute bottom-0 left-0 h-1 w-full rounded-b-xl bg-amber-500'
-              : 'absolute bottom-0 left-0 h-1 w-full rounded-b-xl bg-green-500'
-          }
+        <div
+          aria-hidden
+          className={cn(
+            'absolute bottom-0 left-0 h-[2px] w-full',
+            bestPercentage !== undefined &&
+              bestPercentage !== null &&
+              bestPercentage < 80
+              ? 'bg-gradient-to-r from-transparent via-gnd-amber-dim to-transparent'
+              : 'bg-gradient-to-r from-transparent via-gnd-amber to-transparent'
+          )}
         />
       )}
     </>
@@ -96,28 +133,40 @@ export default function ModuleCard({
 
   if (state === 'locked') {
     return (
-      <div
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{
+          duration: 0.6,
+          delay: index * 0.06,
+          ease: [0.22, 1, 0.36, 1],
+        }}
         aria-disabled
-        className={`${BASE_CARD} cursor-not-allowed border-outline-variant/10 bg-surface-container-low/50 opacity-70 grayscale`}
+        className={baseClasses}
       >
-        {content}
-      </div>
+        {inner}
+      </motion.div>
     );
   }
 
-  const cardClass =
-    state === 'validated'
-      ? `${BASE_CARD} border-outline-variant/10 bg-surface-container-lowest hover:-translate-y-1 hover:shadow-2xl`
-      : `${BASE_CARD} border-primary/20 border-2 bg-surface-container-lowest shadow-lg hover:-translate-y-1 hover:shadow-2xl`;
-
   return (
-    <Link href={`/formation/${module.slug}`} className={cardClass}>
-      {content}
-    </Link>
+    <motion.div
+      initial={{ opacity: 0, y: 24 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{
+        duration: 0.6,
+        delay: index * 0.06,
+        ease: [0.22, 1, 0.36, 1],
+      }}
+    >
+      <Link href={`/formation/${module.slug}`} className={baseClasses}>
+        {inner}
+      </Link>
+    </motion.div>
   );
 }
 
-function StatusBadge({
+function StatusChip({
   state,
   bestPercentage,
 }: {
@@ -126,32 +175,27 @@ function StatusBadge({
 }) {
   if (state === 'validated') {
     const hasScore = bestPercentage !== undefined && bestPercentage !== null;
-    const tone = !hasScore
-      ? 'bg-green-100 text-green-700'
-      : bestPercentage! >= 90
-      ? 'bg-green-100 text-green-700'
-      : bestPercentage! < 80
-      ? 'bg-amber-100 text-amber-700'
-      : 'bg-green-100 text-green-700';
-
     return (
-      <span
-        className={`rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider ${tone}`}
-      >
-        {hasScore ? `Validé — ${bestPercentage}%` : 'Validé'}
+      <span className="inline-flex items-center gap-1.5 rounded-full bg-gnd-amber/12 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-gnd-amber-dim">
+        <CheckCircle2 className="h-3 w-3" aria-hidden />
+        {hasScore ? `${bestPercentage}%` : 'Validé'}
       </span>
     );
   }
   if (state === 'available') {
     return (
-      <span className="rounded-full bg-primary-fixed px-3 py-1 text-xs font-bold uppercase tracking-wider text-on-primary-fixed-variant">
+      <span className="inline-flex items-center gap-1.5 rounded-full bg-gnd-bronze/8 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-gnd-bronze">
+        <span
+          aria-hidden
+          className="h-1.5 w-1.5 rounded-full bg-gnd-amber animate-pulse"
+        />
         À faire
       </span>
     );
   }
   return (
-    <span className="flex items-center rounded-full bg-surface-container-high px-3 py-1 text-xs font-bold uppercase tracking-wider text-on-surface-variant">
-      <span className="material-symbols-outlined mr-1 text-[14px]">lock</span>
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-gnd-bronze/5 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-gnd-bronze-faded">
+      <Lock className="h-2.5 w-2.5" aria-hidden />
       Verrouillé
     </span>
   );
