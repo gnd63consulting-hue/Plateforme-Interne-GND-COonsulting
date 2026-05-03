@@ -12,8 +12,6 @@ import {
   Mail,
   Medal,
   Phone,
-  Rocket,
-  Sparkles,
   Target,
   TrendingUp,
   Trophy,
@@ -34,29 +32,17 @@ import AdminSyncButton from '@/components/AdminSyncButton';
 import AdminProspectsPanel from '@/components/AdminProspectsPanel';
 import SpeedometerGauge from '@/components/SpeedometerGauge';
 import RocketProgress from '@/components/RocketProgress';
+import AnimatedNumber from '@/components/cockpit/AnimatedNumber';
+import ScanLine from '@/components/cockpit/ScanLine';
+import HudBlob from '@/components/cockpit/HudBlob';
+import ChromeBezel from '@/components/cockpit/ChromeBezel';
 import { RoleBadge } from '@/components/RoleBadge';
 
 export const dynamic = 'force-dynamic';
 
-type AdminUser = {
-  id: string;
-  email: string;
-  full_name: string | null;
-  role: string;
-};
-
-type AdminProgression = {
-  user_id: string;
-  module_slug: string;
-  completed: boolean;
-  completed_at: string | null;
-};
-
-type FunnelStage = {
-  value: string;
-  label: string;
-  Icon: typeof Mail;
-};
+type AdminUser = { id: string; email: string; full_name: string | null; role: string };
+type AdminProgression = { user_id: string; module_slug: string; completed: boolean; completed_at: string | null };
+type FunnelStage = { value: string; label: string; Icon: typeof Mail };
 
 const FUNNEL_STAGES: FunnelStage[] = [
   { value: 'a_contacter', label: 'À contacter', Icon: Mail },
@@ -65,18 +51,9 @@ const FUNNEL_STAGES: FunnelStage[] = [
   { value: 'devis_envoye', label: 'Devis envoyé', Icon: FileSignature },
   { value: 'gagne', label: 'Devis signé', Icon: CheckCircle2 },
 ];
-
-const ACTIVE_PIPELINE_STATUSES = new Set([
-  'a_contacter',
-  'contacte',
-  'rdv_pris',
-  'devis_envoye',
-  'gagne',
-]);
-
+const ACTIVE_PIPELINE_STATUSES = new Set(['a_contacter', 'contacte', 'rdv_pris', 'devis_envoye', 'gagne']);
 const ADMIN_ROLES = new Set(['admin', 'admin_limited']);
 
-// Paliers équipe pour la fusée (collectifs)
 const TEAM_TIERS = [
   { threshold: 5, bonus: '+500 €', label: 'Décollage' },
   { threshold: 15, bonus: '+2 000 €', label: 'Croisière' },
@@ -89,18 +66,10 @@ export default async function AdminPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  const { data: me } = await supabase
-    .from('users')
-    .select('role')
-    .eq('id', user.id)
-    .maybeSingle();
+  const { data: me } = await supabase.from('users').select('role').eq('id', user.id).maybeSingle();
   if (!me || !ADMIN_ROLES.has(me.role)) redirect('/dashboard');
 
-  const [
-    { data: usersRaw },
-    { data: progressionsRaw },
-    { data: prospectsRaw },
-  ] = await Promise.all([
+  const [{ data: usersRaw }, { data: progressionsRaw }, { data: prospectsRaw }] = await Promise.all([
     supabase.from('users').select('id, email, full_name, role'),
     supabase.from('progressions').select('user_id, module_slug, completed, completed_at'),
     supabase.from('prospects').select(PROSPECT_SELECT_COLUMNS).order('updated_at', { ascending: false }),
@@ -110,7 +79,6 @@ export default async function AdminPage() {
   const progressions = (progressionsRaw ?? []) as AdminProgression[];
   const prospects = (prospectsRaw ?? []) as unknown as Prospect[];
 
-  // Aggregates formation
   const completedByUser = new Map<string, Set<string>>();
   const lastByUser = new Map<string, string>();
   for (const p of progressions) {
@@ -132,7 +100,6 @@ export default async function AdminPage() {
     return (a.full_name ?? a.email).localeCompare(b.full_name ?? b.email);
   });
 
-  // Aggregates prospects
   const userLabel = (id: string | null): string => {
     if (!id) return '— non assigné';
     const u = users.find((x) => x.id === id);
@@ -164,10 +131,8 @@ export default async function AdminPage() {
 
   const activeProspects = prospects.filter((p) => ACTIVE_PIPELINE_STATUSES.has(p.status));
   const wonProspects = prospects.filter((p) => p.status === 'gagne');
-
   const caPotentielTotal = sumCaMidpointEur(activeProspects);
   const caSigne = sumCaMidpointEur(wonProspects);
-
   const conversionRate = prospects.length > 0 ? (wonCount / prospects.length) * 100 : 0;
   const contactRate = prospects.length > 0 ? (contactedCount / prospects.length) * 100 : 0;
   const rdvRate = prospects.length > 0 ? (rdvCount / prospects.length) * 100 : 0;
@@ -181,12 +146,11 @@ export default async function AdminPage() {
   const ranking = [...byAssignee.entries()]
     .map(([uid, total]) => {
       const assigned = prospects.filter((p) => (p.assigned_to ?? p.created_by) === uid);
-      const contacted = assigned.filter((p) => p.status === 'contacte' || p.status === 'rdv_pris' || p.status === 'devis_envoye' || p.status === 'gagne').length;
       const rdv = assigned.filter((p) => p.status === 'rdv_pris').length;
       const won = assigned.filter((p) => p.status === 'gagne').length;
       const caPotentiel = sumCaMidpointEur(assigned.filter((p) => ACTIVE_PIPELINE_STATUSES.has(p.status)));
       const caSigneCom = sumCaMidpointEur(assigned.filter((p) => p.status === 'gagne'));
-      return { uid, total, contacted, rdv, won, caPotentiel, caSigneCom };
+      return { uid, total, rdv, won, caPotentiel, caSigneCom };
     })
     .sort((a, b) => {
       if (b.caPotentiel !== a.caPotentiel) return b.caPotentiel - a.caPotentiel;
@@ -194,7 +158,6 @@ export default async function AdminPage() {
     });
 
   const rankingMaxCa = Math.max(1, ...ranking.map((r) => r.caPotentiel));
-
   const COMMERCIAL_ELIGIBLE_ROLES = new Set(['freelance', 'admin', 'admin_limited', 'commercial']);
   const commercialOptions = sortedUsers
     .filter((u) => COMMERCIAL_ELIGIBLE_ROLES.has(u.role))
@@ -208,9 +171,7 @@ export default async function AdminPage() {
 
   return (
     <div className="relative">
-      {/* ============================================================== */}
-      {/* Hero éditorial                                                   */}
-      {/* ============================================================== */}
+      {/* Hero */}
       <header className="relative mb-12 flex min-h-[36vh] flex-col justify-end overflow-hidden">
         <span
           aria-hidden
@@ -234,12 +195,12 @@ export default async function AdminPage() {
         </div>
       </header>
 
-      {/* ============================================================== */}
-      {/* CONSOLE PLATEFORME — cockpit holographique avec speedo + rocket */}
-      {/* ============================================================== */}
-      <CockpitPanel className="mb-10">
-        {/* HUD top bar */}
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-gnd-amber/15 pb-4">
+      {/* CONSOLE PLATEFORME */}
+      <CockpitPanel className="mb-10" withScanLine>
+        <HudBlob position="top-right" size="lg" />
+        <HudBlob position="bottom-left" size="md" />
+
+        <div className="relative z-10 mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-gnd-amber/15 pb-4">
           <div className="flex items-center gap-3">
             <span className="flex h-2 w-2 animate-pulse rounded-full bg-gnd-amber shadow-[0_0_8px_rgba(232,133,61,0.8)]" />
             <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.25em] text-gnd-amber">
@@ -262,48 +223,33 @@ export default async function AdminPage() {
         </div>
 
         {/* SPEEDOMETER + ROCKET row */}
-        <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-[auto_1fr]">
-          {/* Speedometer panel */}
+        <div className="relative z-10 mb-6 grid grid-cols-1 gap-6 lg:grid-cols-[auto_1fr]">
           <div className="flex flex-col items-center justify-between rounded-2xl border border-gnd-amber/10 bg-gnd-ink/40 p-6 backdrop-blur-sm">
-            <div className="mb-2 flex items-center gap-2">
+            <div className="mb-3 flex items-center gap-2">
               <TrendingUp className="h-3.5 w-3.5 text-gnd-amber" aria-hidden />
               <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-gnd-amber">
                 Conversion équipe
               </span>
             </div>
-            <SpeedometerGauge
-              value={conversionRate}
-              label="Taux conversion global"
-              formatValue={(v) => `${Math.round(v)}`}
-              subtitle="%"
-              subLeft={{ value: contactRate, label: 'CTC' }}
-              subRight={{ value: rdvRate, label: 'RDV' }}
-            />
+            <ChromeBezel glow>
+              <SpeedometerGauge
+                value={conversionRate}
+                label="Taux conversion"
+                formatValue={(v) => `${Math.round(v)}`}
+                subtitle="%"
+                subLeft={{ value: contactRate, label: 'CTC' }}
+                subRight={{ value: rdvRate, label: 'RDV' }}
+              />
+            </ChromeBezel>
             <div className="mt-4 flex w-full items-center justify-between border-t border-gnd-amber/10 pt-3 text-center">
-              <div>
-                <p className="font-mono text-[8px] uppercase tracking-[0.18em] text-gnd-cream/50">
-                  Signés
-                </p>
-                <p className="font-display text-lg font-medium text-gnd-cream">{wonCount}</p>
-              </div>
+              <KpiTriple label="Signés" value={wonCount} />
               <div className="h-6 w-px bg-gnd-amber/20" />
-              <div>
-                <p className="font-mono text-[8px] uppercase tracking-[0.18em] text-gnd-cream/50">
-                  Total
-                </p>
-                <p className="font-display text-lg font-medium text-gnd-cream">{prospects.length}</p>
-              </div>
+              <KpiTriple label="Total" value={prospects.length} />
               <div className="h-6 w-px bg-gnd-amber/20" />
-              <div>
-                <p className="font-mono text-[8px] uppercase tracking-[0.18em] text-gnd-cream/50">
-                  CA Sig.
-                </p>
-                <p className="font-display text-lg font-medium text-gnd-amber">{formatEur(caSigne)}</p>
-              </div>
+              <KpiTripleStr label="CA Sig." value={formatEur(caSigne)} accent />
             </div>
           </div>
 
-          {/* Rocket panel */}
           <div className="relative flex flex-col rounded-2xl border border-gnd-amber/10 bg-gnd-ink/40 p-6 backdrop-blur-sm">
             <div className="mb-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -317,31 +263,24 @@ export default async function AdminPage() {
               </span>
             </div>
             <h3 className="mb-1 font-display text-2xl font-medium text-gnd-cream">
-              Décollage{' '}
-              <span className="italic text-gnd-amber">collectif</span>
+              Décollage <span className="italic text-gnd-amber">collectif</span>
             </h3>
             <p className="mb-6 max-w-md text-sm text-gnd-cream/60">
               Chaque contrat signé par l'équipe rapproche du palier suivant. Bonus pool partagé.
             </p>
-
             <div className="flex h-72 items-stretch">
               <RocketProgress signed={wonCount} tiers={TEAM_TIERS} />
             </div>
-
             {teamNextTier && (
               <div className="mt-4 border-t border-gnd-amber/10 pt-4">
                 <div className="flex items-center justify-between font-mono text-[9px] uppercase tracking-[0.18em] text-gnd-cream/60">
                   <span>Prochain palier équipe · {teamNextTier.label}</span>
-                  <span className="text-gnd-amber">
-                    {wonCount} / {teamNextTier.threshold}
-                  </span>
+                  <span className="text-gnd-amber">{wonCount} / {teamNextTier.threshold}</span>
                 </div>
                 <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-gnd-bronze/40">
                   <div
                     className="h-full rounded-full bg-gradient-to-r from-gnd-amber-dim via-gnd-amber to-gnd-amber-glow shadow-[0_0_8px_rgba(232,133,61,0.6)] transition-all duration-700"
-                    style={{
-                      width: `${(wonCount / teamNextTier.threshold) * 100}%`,
-                    }}
+                    style={{ width: `${(wonCount / teamNextTier.threshold) * 100}%` }}
                   />
                 </div>
               </div>
@@ -349,60 +288,30 @@ export default async function AdminPage() {
           </div>
         </div>
 
-        {/* Hero KPIs (4 grosses cards) */}
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          <CockpitKpi
-            label="Total prospects"
-            value={String(prospects.length)}
-            sub="actifs dans le pipeline"
-            icon={<Users className="h-4 w-4" />}
-          />
-          <CockpitKpi
-            label="CA potentiel"
-            value={formatEur(caPotentielTotal)}
-            sub="midpoint pipeline"
-            icon={<TrendingUp className="h-4 w-4" />}
-            accent
-          />
-          <CockpitKpi
-            label="CA signé"
-            value={formatEur(caSigne)}
-            sub="devis signés"
-            icon={<Banknote className="h-4 w-4" />}
-            highlight
-          />
-          <CockpitKpi
-            label="Devis signés"
-            value={String(wonCount)}
-            sub={prospects.length > 0 ? `${Math.round((wonCount / prospects.length) * 100)} % du total` : '—'}
-            icon={<CheckCircle2 className="h-4 w-4" />}
-            highlight
-          />
+        {/* Hero KPIs */}
+        <div className="relative z-10 grid grid-cols-2 gap-3 md:grid-cols-4">
+          <CockpitKpi label="Total prospects" value={prospects.length} sub="actifs dans le pipeline" icon={<Users className="h-4 w-4" />} />
+          <CockpitKpi label="CA potentiel" valueStr={formatEur(caPotentielTotal)} sub="midpoint pipeline" icon={<TrendingUp className="h-4 w-4" />} accent />
+          <CockpitKpi label="CA signé" valueStr={formatEur(caSigne)} sub="devis signés" icon={<Banknote className="h-4 w-4" />} highlight />
+          <CockpitKpi label="Devis signés" value={wonCount} sub={prospects.length > 0 ? `${Math.round((wonCount / prospects.length) * 100)} % du total` : '—'} icon={<CheckCircle2 className="h-4 w-4" />} highlight />
         </div>
 
-        {/* Secondary KPIs */}
-        <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-4">
-          <CockpitMiniKpi label="Contactés+" value={String(contactedCount)} icon={<Phone className="h-3 w-3" />} />
-          <CockpitMiniKpi label="RDV pris" value={String(rdvCount)} icon={<CalendarCheck className="h-3 w-3" />} />
-          <CockpitMiniKpi label="Taux contact" value={prospects.length > 0 ? `${Math.round((contactedCount / prospects.length) * 100)}%` : '—'} icon={<Activity className="h-3 w-3" />} />
-          <CockpitMiniKpi label="Conversion" value={prospects.length > 0 ? `${Math.round((wonCount / prospects.length) * 100)}%` : '—'} icon={<Target className="h-3 w-3" />} />
+        <div className="relative z-10 mt-3 grid grid-cols-2 gap-3 md:grid-cols-4">
+          <CockpitMiniKpi label="Contactés+" value={contactedCount} icon={<Phone className="h-3 w-3" />} />
+          <CockpitMiniKpi label="RDV pris" value={rdvCount} icon={<CalendarCheck className="h-3 w-3" />} />
+          <CockpitMiniKpi label="Taux contact" value={Math.round(contactRate)} suffix="%" icon={<Activity className="h-3 w-3" />} />
+          <CockpitMiniKpi label="Conversion" value={Math.round(conversionRate)} suffix="%" icon={<Target className="h-3 w-3" />} />
         </div>
       </CockpitPanel>
 
-      {/* ============================================================== */}
-      {/* 01 · Sync Notion                                                  */}
-      {/* ============================================================== */}
       <CockpitSection number="01" icon={<BarChart3 className="h-4 w-4" />} label="Synchronisation" accent="Notion">
         <AdminSyncButton options={commercialOptions} />
       </CockpitSection>
 
-      {/* ============================================================== */}
-      {/* 02 · Funnel                                                       */}
-      {/* ============================================================== */}
       <CockpitSection number="02" icon={<Filter className="h-4 w-4" />} label="Funnel de" accent="conversion">
-        <CockpitPanel>
+        <CockpitPanel withScanLine>
           <HudCornerLabel label="FNL.001" />
-          <div className="space-y-3">
+          <div className="relative z-10 space-y-3">
             {funnelCounts.map((stage, idx) => {
               const widthPct = (stage.count / funnelMaxCount) * 100;
               const prev = idx > 0 ? funnelCounts[idx - 1].count : null;
@@ -426,7 +335,7 @@ export default async function AdminPage() {
                       className="absolute inset-y-0 left-0 rounded-md bg-gradient-to-r from-gnd-bronze-soft via-gnd-amber to-gnd-amber-glow shadow-[0_0_8px_rgba(232,133,61,0.4)] transition-all duration-700"
                       style={{ width: `${Math.max(2, widthPct)}%` }}
                     />
-                    <div className="relative flex h-full items-center justify-end pr-3 font-mono text-xs font-bold text-gnd-cream">
+                    <div className="relative flex h-full items-center justify-end pr-3 font-mono text-xs font-bold tabular-nums text-gnd-cream">
                       {stage.count}
                     </div>
                   </div>
@@ -444,60 +353,42 @@ export default async function AdminPage() {
               );
             })}
           </div>
-          <p className="mt-5 border-t border-gnd-amber/10 pt-4 font-mono text-[10px] uppercase tracking-[0.15em] text-gnd-cream/40">
+          <p className="relative z-10 mt-5 border-t border-gnd-amber/10 pt-4 font-mono text-[10px] uppercase tracking-[0.15em] text-gnd-cream/40">
             Le pourcentage indique le passage depuis l'étape précédente. Statuts perdu/archivé exclus.
           </p>
         </CockpitPanel>
       </CockpitSection>
 
-      {/* ============================================================== */}
-      {/* 03 · Classement commerciaux                                       */}
-      {/* ============================================================== */}
-      <CockpitSection
-        number="03"
-        icon={<Trophy className="h-4 w-4" />}
-        label="Classement"
-        accent="commerciaux"
-        hint="tri par CA potentiel"
-      >
-        <CockpitPanel padding="none">
+      <CockpitSection number="03" icon={<Trophy className="h-4 w-4" />} label="Classement" accent="commerciaux" hint="tri par CA potentiel">
+        <CockpitPanel padding="none" withScanLine>
           <HudCornerLabel label="RNK.001" />
           {ranking.length === 0 ? (
             <div className="px-5 py-12 text-center font-display text-base text-gnd-cream/60">
               Aucun prospect assigné pour l'instant.
             </div>
           ) : (
-            <ul className="divide-y divide-gnd-amber/10">
+            <ul className="relative z-10 divide-y divide-gnd-amber/10">
               {ranking.map((r, idx) => {
                 const label = userLabel(r.uid);
                 const caRatio = r.caPotentiel / rankingMaxCa;
                 const personalConvRate = r.total > 0 ? (r.won / r.total) * 100 : 0;
                 return (
-                  <li
-                    key={r.uid}
-                    className="grid grid-cols-12 items-center gap-3 px-5 py-4 transition hover:bg-gnd-amber/[0.03] sm:px-7"
-                  >
+                  <li key={r.uid} className="grid grid-cols-12 items-center gap-3 px-5 py-4 transition hover:bg-gnd-amber/[0.03] sm:px-7">
                     <div className="col-span-12 flex items-center gap-3 md:col-span-3">
                       <CockpitRankBadge index={idx} />
                       <CockpitAvatar name={label} />
                       <div className="min-w-0">
-                        <div className="truncate font-display text-base font-medium text-gnd-cream">
-                          {label}
-                        </div>
-                        <div className="font-mono text-[10px] uppercase tracking-[0.15em] text-gnd-cream/50">
-                          {r.total} prospect{r.total > 1 ? 's' : ''}
-                        </div>
+                        <div className="truncate font-display text-base font-medium text-gnd-cream">{label}</div>
+                        <div className="font-mono text-[10px] uppercase tracking-[0.15em] text-gnd-cream/50">{r.total} prospect{r.total > 1 ? 's' : ''}</div>
                       </div>
                     </div>
                     <div className="col-span-6 flex items-center gap-4 md:col-span-2">
                       <CockpitStat label="RDV" value={r.rdv} />
                       <CockpitStat label="Sign." value={r.won} highlight={r.won > 0} />
                     </div>
-                    {/* Mini conversion gauge */}
                     <div className="col-span-6 md:col-span-2">
                       <MiniGauge value={personalConvRate} />
                     </div>
-                    {/* CA bar */}
                     <div className="col-span-12 md:col-span-5">
                       <div className="flex items-center gap-2">
                         <div className="relative h-6 flex-1 overflow-hidden rounded-md border border-gnd-amber/10 bg-gnd-ink/40">
@@ -506,15 +397,13 @@ export default async function AdminPage() {
                             style={{ width: `${Math.max(4, caRatio * 100)}%` }}
                           />
                         </div>
-                        <span className="min-w-[60px] text-right font-mono text-xs font-semibold text-gnd-amber">
+                        <span className="min-w-[60px] text-right font-mono text-xs font-semibold tabular-nums text-gnd-amber">
                           {formatEur(r.caPotentiel)}
                         </span>
                       </div>
                       <div className="mt-1 flex items-center justify-end gap-1.5 font-mono text-[9px] uppercase tracking-[0.18em] text-gnd-cream/40">
                         <span>Signé</span>
-                        <span className={`font-mono ${r.caSigneCom > 0 ? 'text-gnd-amber-glow' : 'text-gnd-bronze-faded'}`}>
-                          {formatEur(r.caSigneCom)}
-                        </span>
+                        <span className={`font-mono tabular-nums ${r.caSigneCom > 0 ? 'text-gnd-amber-glow' : 'text-gnd-bronze-faded'}`}>{formatEur(r.caSigneCom)}</span>
                       </div>
                     </div>
                   </li>
@@ -525,9 +414,6 @@ export default async function AdminPage() {
         </CockpitPanel>
       </CockpitSection>
 
-      {/* ============================================================== */}
-      {/* 04 · Distributions                                                */}
-      {/* ============================================================== */}
       <CockpitSection number="04" icon={<BarChart3 className="h-4 w-4" />} label="Distributions" accent="">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <CockpitDistribution title="Classification" entries={byClassification} total={prospects.length} hudId="DST.01" />
@@ -536,23 +422,17 @@ export default async function AdminPage() {
         </div>
       </CockpitSection>
 
-      {/* ============================================================== */}
-      {/* 05 · Répartition par statut                                       */}
-      {/* ============================================================== */}
       <CockpitSection number="05" icon={<Filter className="h-4 w-4" />} label="Répartition par" accent="statut">
         <CockpitPanel>
           <HudCornerLabel label="STA.001" />
           {byStatus.size === 0 ? (
             <p className="font-mono text-xs italic text-gnd-cream/60">Aucune donnée.</p>
           ) : (
-            <ul className="flex flex-wrap gap-2">
+            <ul className="relative z-10 flex flex-wrap gap-2">
               {[...byStatus.entries()].sort((a, b) => b[1] - a[1]).map(([status, n]) => (
-                <li
-                  key={status}
-                  className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs ring-1 ring-gnd-amber/10 ${toneForStatus(status)}`}
-                >
+                <li key={status} className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs ring-1 ring-gnd-amber/10 ${toneForStatus(status)}`}>
                   <span className="font-medium">{labelForStatus(status)}</span>
-                  <span className="rounded-full bg-white/80 px-1.5 font-mono text-[10px] font-bold">{n}</span>
+                  <span className="rounded-full bg-white/80 px-1.5 font-mono text-[10px] font-bold tabular-nums">{n}</span>
                 </li>
               ))}
             </ul>
@@ -560,9 +440,6 @@ export default async function AdminPage() {
         </CockpitPanel>
       </CockpitSection>
 
-      {/* ============================================================== */}
-      {/* 06 · Pipeline prospects                                           */}
-      {/* ============================================================== */}
       <CockpitSection number="06" icon={<Layers className="h-4 w-4" />} label="Pipeline" accent="global">
         <AdminProspectsPanel
           prospects={prospects}
@@ -570,40 +447,28 @@ export default async function AdminPage() {
         />
       </CockpitSection>
 
-      {/* ============================================================== */}
-      {/* 07 · Suivi formation                                              */}
-      {/* ============================================================== */}
       <CockpitSection number="07" icon={<GraduationCap className="h-4 w-4" />} label="Suivi" accent="formation">
-        <CockpitPanel padding="none">
+        <CockpitPanel padding="none" withScanLine>
           <HudCornerLabel label="FRM.001" />
           {sortedUsers.length === 0 ? (
-            <p className="px-5 py-12 text-center font-display text-base text-gnd-cream/60">
-              Aucun utilisateur pour le moment.
-            </p>
+            <p className="px-5 py-12 text-center font-display text-base text-gnd-cream/60">Aucun utilisateur pour le moment.</p>
           ) : (
-            <ul className="divide-y divide-gnd-amber/10">
+            <ul className="relative z-10 divide-y divide-gnd-amber/10">
               {sortedUsers.map((u) => {
                 const set = completedByUser.get(u.id) ?? new Set<string>();
                 const count = MODULES.filter((m) => set.has(m.slug)).length;
                 const last = lastByUser.get(u.id);
                 const ratio = MODULES.length ? count / MODULES.length : 0;
                 return (
-                  <li
-                    key={u.id}
-                    className="flex flex-col gap-3 px-5 py-4 transition hover:bg-gnd-amber/[0.03] sm:flex-row sm:items-center sm:px-7"
-                  >
+                  <li key={u.id} className="flex flex-col gap-3 px-5 py-4 transition hover:bg-gnd-amber/[0.03] sm:flex-row sm:items-center sm:px-7">
                     <div className="flex flex-1 items-center gap-3 sm:max-w-[35%]">
                       <CockpitAvatar name={u.full_name ?? u.email} />
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                          <p className="truncate font-display text-base font-medium text-gnd-cream">
-                            {u.full_name ?? '—'}
-                          </p>
+                          <p className="truncate font-display text-base font-medium text-gnd-cream">{u.full_name ?? '—'}</p>
                           {u.role !== 'freelance' && <RoleBadge role={u.role} size="xs" />}
                         </div>
-                        <p className="mt-0.5 truncate font-mono text-[11px] text-gnd-cream/50">
-                          {u.email}
-                        </p>
+                        <p className="mt-0.5 truncate font-mono text-[11px] text-gnd-cream/50">{u.email}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3 sm:max-w-[30%] sm:flex-1">
@@ -613,9 +478,7 @@ export default async function AdminPage() {
                           style={{ width: `${ratio * 100}%` }}
                         />
                       </div>
-                      <span className="shrink-0 font-mono text-xs font-semibold text-gnd-amber">
-                        {count}/{MODULES.length}
-                      </span>
+                      <span className="shrink-0 font-mono text-xs font-semibold tabular-nums text-gnd-amber">{count}/{MODULES.length}</span>
                     </div>
                     <div className="flex shrink-0 items-center gap-0.5">
                       {MODULES.map((m) => (
@@ -623,16 +486,12 @@ export default async function AdminPage() {
                           key={m.slug}
                           title={m.title}
                           className={`h-3.5 w-3.5 rounded-sm transition-all ${
-                            set.has(m.slug)
-                              ? 'bg-gradient-to-br from-gnd-amber to-gnd-amber-dim shadow-[0_0_4px_rgba(232,133,61,0.5)]'
-                              : 'bg-gnd-cream/15'
+                            set.has(m.slug) ? 'bg-gradient-to-br from-gnd-amber to-gnd-amber-dim shadow-[0_0_4px_rgba(232,133,61,0.5)]' : 'bg-gnd-cream/15'
                           }`}
                         />
                       ))}
                     </div>
-                    <div className="shrink-0 font-mono text-[10px] uppercase tracking-[0.15em] text-gnd-cream/50">
-                      {last ? formatDate(last) : '—'}
-                    </div>
+                    <div className="shrink-0 font-mono text-[10px] uppercase tracking-[0.15em] text-gnd-cream/50">{last ? formatDate(last) : '—'}</div>
                   </li>
                 );
               })}
@@ -649,17 +508,19 @@ export default async function AdminPage() {
 }
 
 // =====================================================================
-// Cockpit primitives
+// Cockpit primitives — enriched with 21st.dev patterns
 // =====================================================================
 
 function CockpitPanel({
   children,
   className,
   padding = 'normal',
+  withScanLine,
 }: {
   children: React.ReactNode;
   className?: string;
   padding?: 'normal' | 'none';
+  withScanLine?: boolean;
 }) {
   const padClass = padding === 'none' ? '' : 'p-6 sm:p-8';
   return (
@@ -673,6 +534,7 @@ function CockpitPanel({
         `,
       }}
     >
+      {withScanLine && <ScanLine />}
       {children}
     </section>
   );
@@ -684,64 +546,40 @@ function HudCornerLabel({ label }: { label: string }) {
       <svg width="18" height="10" viewBox="0 0 18 10" aria-hidden>
         <path d="M 1 9 L 1 1 L 9 1" fill="none" stroke="#E8853D" strokeWidth="1" opacity="0.6" />
       </svg>
-      <span className="font-mono text-[8px] font-semibold uppercase tracking-[0.2em] text-gnd-amber/70">
-        {label}
-      </span>
+      <span className="font-mono text-[8px] font-semibold uppercase tracking-[0.2em] text-gnd-amber/70">{label}</span>
     </div>
   );
 }
 
 function CockpitSection({
-  number,
-  icon,
-  label,
-  accent,
-  hint,
-  children,
+  number, icon, label, accent, hint, children,
 }: {
-  number: string;
-  icon: React.ReactNode;
-  label: string;
-  accent: string;
-  hint?: string;
-  children: React.ReactNode;
+  number: string; icon: React.ReactNode; label: string; accent: string; hint?: string; children: React.ReactNode;
 }) {
   return (
     <section className="relative mb-10 space-y-4">
       <div className="flex flex-wrap items-end gap-3">
         <div className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-2xl border border-gnd-amber/30 bg-gnd-amber/10 text-gnd-amber">
-            {icon}
-          </span>
-          <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-gnd-amber">
-            {number} · {label}
-          </p>
+          <span className="flex h-10 w-10 items-center justify-center rounded-2xl border border-gnd-amber/30 bg-gnd-amber/10 text-gnd-amber">{icon}</span>
+          <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-gnd-amber">{number} · {label}</p>
         </div>
         <h2 className="font-display text-2xl font-medium leading-tight tracking-tight text-gnd-bronze sm:text-3xl">
-          {label}{' '}
-          {accent && <span className="italic text-gnd-amber">{accent}</span>}
+          {label} {accent && <span className="italic text-gnd-amber">{accent}</span>}
         </h2>
-        {hint && (
-          <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-gnd-bronze-soft">
-            · {hint}
-          </span>
-        )}
+        {hint && <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-gnd-bronze-soft">· {hint}</span>}
       </div>
       {children}
     </section>
   );
 }
 
+/** KPI hero card avec AnimatedNumber + HudBlob + shine sweep */
 function CockpitKpi({
-  label,
-  value,
-  sub,
-  icon,
-  accent,
-  highlight,
+  label, value, valueStr, sub, icon, accent, highlight,
 }: {
   label: string;
-  value: string;
+  value?: number;
+  valueStr?: string;
   sub?: string;
   icon: React.ReactNode;
   accent?: boolean;
@@ -749,18 +587,19 @@ function CockpitKpi({
 }) {
   const valueColor = highlight ? 'text-gnd-amber-glow' : accent ? 'text-gnd-amber' : 'text-gnd-cream';
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-gnd-amber/10 bg-gnd-ink/40 p-4 backdrop-blur-sm transition hover:border-gnd-amber/30 hover:shadow-[0_0_16px_rgba(232,133,61,0.15)]">
-      <div className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-xl bg-gnd-amber/10 text-gnd-amber">
+    <div className="cockpit-shine group relative overflow-hidden rounded-2xl border border-gnd-amber/10 bg-gnd-ink/40 p-4 backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:border-gnd-amber/30 hover:shadow-[0_16px_40px_-12px_rgba(232,133,61,0.35)]">
+      <HudBlob position="top-right" size="sm" />
+      <div className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-xl bg-gnd-amber/10 text-gnd-amber">
         {icon}
       </div>
-      <p className="font-mono text-[9px] font-semibold uppercase tracking-[0.22em] text-gnd-amber">
+      <p className="relative z-10 font-mono text-[9px] font-semibold uppercase tracking-[0.22em] text-gnd-amber">
         {label}
       </p>
-      <p className={`mt-2 font-display text-2xl font-medium leading-none sm:text-3xl ${valueColor}`}>
-        {value}
+      <p className={`relative z-10 mt-2 font-display text-2xl font-medium leading-none tracking-tight tabular-nums sm:text-3xl ${valueColor}`}>
+        {value !== undefined ? <AnimatedNumber value={value} /> : valueStr}
       </p>
       {sub && (
-        <p className="mt-1.5 font-mono text-[10px] uppercase tracking-[0.15em] text-gnd-cream/40">
+        <p className="relative z-10 mt-1.5 font-mono text-[10px] uppercase tracking-[0.15em] text-gnd-cream/40">
           {sub}
         </p>
       )}
@@ -769,147 +608,87 @@ function CockpitKpi({
 }
 
 function CockpitMiniKpi({
-  label,
-  value,
-  icon,
-}: {
-  label: string;
-  value: string;
-  icon: React.ReactNode;
-}) {
+  label, value, suffix, icon,
+}: { label: string; value: number; suffix?: string; icon: React.ReactNode }) {
   return (
-    <div className="flex items-center justify-between gap-3 rounded-xl border border-gnd-amber/10 bg-gnd-ink/40 px-4 py-3 backdrop-blur-sm">
-      <div>
-        <p className="font-mono text-[8px] font-semibold uppercase tracking-[0.22em] text-gnd-cream/60">
-          {label}
+    <div className="cockpit-shine group relative flex items-center justify-between gap-3 overflow-hidden rounded-xl border border-gnd-amber/10 bg-gnd-ink/40 px-4 py-3 backdrop-blur-sm transition-all hover:border-gnd-amber/30">
+      <div className="relative z-10">
+        <p className="font-mono text-[8px] font-semibold uppercase tracking-[0.22em] text-gnd-cream/60">{label}</p>
+        <p className="mt-0.5 font-display text-lg font-medium tabular-nums text-gnd-cream">
+          <AnimatedNumber value={value} />
+          {suffix}
         </p>
-        <p className="mt-0.5 font-display text-lg font-medium text-gnd-cream">{value}</p>
       </div>
-      <span className="text-gnd-amber">{icon}</span>
+      <span className="relative z-10 text-gnd-amber">{icon}</span>
+    </div>
+  );
+}
+
+function KpiTriple({ label, value, accent }: { label: string; value: number; accent?: boolean }) {
+  return (
+    <div>
+      <p className="font-mono text-[8px] uppercase tracking-[0.18em] text-gnd-cream/50">{label}</p>
+      <p className={`font-display text-lg font-medium tabular-nums ${accent ? 'text-gnd-amber' : 'text-gnd-cream'}`}>
+        <AnimatedNumber value={value} />
+      </p>
+    </div>
+  );
+}
+
+function KpiTripleStr({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
+  return (
+    <div>
+      <p className="font-mono text-[8px] uppercase tracking-[0.18em] text-gnd-cream/50">{label}</p>
+      <p className={`font-display text-lg font-medium tabular-nums ${accent ? 'text-gnd-amber' : 'text-gnd-cream'}`}>
+        {value}
+      </p>
     </div>
   );
 }
 
 function CockpitRankBadge({ index }: { index: number }) {
-  if (index === 0) {
-    return (
-      <span
-        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-gnd-amber/40 bg-gnd-amber/15 text-gnd-amber shadow-[0_0_12px_rgba(232,133,61,0.4)]"
-        title="1er"
-      >
-        <Trophy className="h-3.5 w-3.5" />
-      </span>
-    );
-  }
-  if (index <= 2) {
-    return (
-      <span
-        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-gnd-cream/20 bg-gnd-cream/10 text-gnd-cream"
-        title={`${index + 1}e`}
-      >
-        <Medal className="h-3.5 w-3.5" />
-      </span>
-    );
-  }
-  return (
-    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-gnd-cream/15 bg-gnd-ink/40 font-mono text-xs font-bold text-gnd-cream/70">
-      {index + 1}
-    </span>
-  );
+  if (index === 0) return <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-gnd-amber/40 bg-gnd-amber/15 text-gnd-amber shadow-[0_0_12px_rgba(232,133,61,0.4)]" title="1er"><Trophy className="h-3.5 w-3.5" /></span>;
+  if (index <= 2) return <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-gnd-cream/20 bg-gnd-cream/10 text-gnd-cream" title={`${index + 1}e`}><Medal className="h-3.5 w-3.5" /></span>;
+  return <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-gnd-cream/15 bg-gnd-ink/40 font-mono text-xs font-bold tabular-nums text-gnd-cream/70">{index + 1}</span>;
 }
 
-function CockpitStat({
-  label,
-  value,
-  highlight,
-}: {
-  label: string;
-  value: number;
-  highlight?: boolean;
-}) {
+function CockpitStat({ label, value, highlight }: { label: string; value: number; highlight?: boolean }) {
   return (
     <div className="flex items-center gap-1.5">
-      <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-gnd-cream/50">
-        {label}
-      </span>
-      <span
-        className={`font-mono text-sm font-bold ${
-          highlight ? 'text-gnd-amber-glow' : 'text-gnd-cream'
-        }`}
-      >
-        {value}
-      </span>
+      <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-gnd-cream/50">{label}</span>
+      <span className={`font-mono text-sm font-bold tabular-nums ${highlight ? 'text-gnd-amber-glow' : 'text-gnd-cream'}`}>{value}</span>
     </div>
   );
 }
 
 function CockpitAvatar({ name }: { name: string }) {
-  const palette = [
-    'from-gnd-amber to-gnd-amber-dim',
-    'from-gnd-bronze to-gnd-ink',
-    'from-gnd-amber-glow to-gnd-amber',
-    'from-gnd-bronze-soft to-gnd-bronze',
-    'from-gnd-clay to-gnd-amber-dim',
-  ];
+  const palette = ['from-gnd-amber to-gnd-amber-dim', 'from-gnd-bronze to-gnd-ink', 'from-gnd-amber-glow to-gnd-amber', 'from-gnd-bronze-soft to-gnd-bronze', 'from-gnd-clay to-gnd-amber-dim'];
   let hash = 0;
-  for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  }
+  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
   const grad = palette[Math.abs(hash) % palette.length];
-  const ini =
-    name
-      .split(/\s+/)
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((w) => w.charAt(0).toUpperCase())
-      .join('') || '?';
-  return (
-    <div
-      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br font-display text-xs font-medium text-gnd-cream shadow-warm ring-2 ring-gnd-bronze/40 ${grad}`}
-    >
-      {ini}
-    </div>
-  );
+  const ini = name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w.charAt(0).toUpperCase()).join('') || '?';
+  return <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br font-display text-xs font-medium text-gnd-cream shadow-warm ring-2 ring-gnd-bronze/40 ${grad}`}>{ini}</div>;
 }
 
-/** Mini-jauge HUD pour le classement (0-100%) */
 function MiniGauge({ value }: { value: number }) {
   const v = Math.max(0, Math.min(100, value));
   return (
     <div className="flex items-center gap-2">
       <div className="relative h-1.5 w-20 overflow-hidden rounded-full border border-gnd-amber/10 bg-gnd-ink/40">
-        <div
-          className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-gnd-bronze-soft via-gnd-amber to-gnd-amber-glow shadow-[0_0_4px_rgba(232,133,61,0.6)] transition-all duration-700"
-          style={{ width: `${Math.max(2, v)}%` }}
-        />
+        <div className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-gnd-bronze-soft via-gnd-amber to-gnd-amber-glow shadow-[0_0_4px_rgba(232,133,61,0.6)] transition-all duration-700" style={{ width: `${Math.max(2, v)}%` }} />
       </div>
-      <span className="font-mono text-[9px] font-semibold text-gnd-amber">
-        {Math.round(v)}%
-      </span>
+      <span className="font-mono text-[9px] font-semibold tabular-nums text-gnd-amber">{Math.round(v)}%</span>
     </div>
   );
 }
 
-function CockpitDistribution({
-  title,
-  entries,
-  total,
-  limit,
-  hudId,
-}: {
-  title: string;
-  entries: Map<string, number>;
-  total: number;
-  limit?: number;
-  hudId: string;
-}) {
+function CockpitDistribution({ title, entries, total, limit, hudId }: { title: string; entries: Map<string, number>; total: number; limit?: number; hudId: string }) {
   const sorted = [...entries.entries()].sort((a, b) => b[1] - a[1]);
   const display = limit ? sorted.slice(0, limit) : sorted;
   const max = Math.max(1, ...display.map(([, n]) => n));
-
   return (
     <div
-      className="relative overflow-hidden rounded-3xl border border-gnd-amber/15 p-5 shadow-warm-xl"
+      className="cockpit-shine relative overflow-hidden rounded-3xl border border-gnd-amber/15 p-5 shadow-warm-xl"
       style={{
         backgroundImage: `
           radial-gradient(circle at 30% 0%, rgba(232, 133, 61, 0.08) 0%, transparent 60%),
@@ -917,38 +696,27 @@ function CockpitDistribution({
         `,
       }}
     >
+      <ScanLine duration={6} delay={1.2} />
       <HudCornerLabel label={hudId} />
-      <h3 className="mb-4 font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-gnd-amber">
-        {title}
-      </h3>
+      <h3 className="relative z-10 mb-4 font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-gnd-amber">{title}</h3>
       {display.length === 0 ? (
         <p className="font-mono text-xs italic text-gnd-cream/50">Aucune donnée.</p>
       ) : (
-        <ul className="space-y-3">
+        <ul className="relative z-10 space-y-3">
           {display.map(([key, n]) => {
             const ratio = n / max;
             const pct = total > 0 ? Math.round((n / total) * 100) : 0;
             return (
               <li key={key}>
                 <div className="mb-1 flex items-center justify-between gap-2">
-                  <span
-                    className="truncate rounded-full border border-gnd-amber/15 bg-gnd-amber/10 px-2 py-0.5 text-[11px] font-medium text-gnd-amber-glow"
-                    title={key}
-                  >
-                    {key}
-                  </span>
-                  <span className="shrink-0 font-mono text-[11px] text-gnd-cream">
+                  <span className="truncate rounded-full border border-gnd-amber/15 bg-gnd-amber/10 px-2 py-0.5 text-[11px] font-medium text-gnd-amber-glow" title={key}>{key}</span>
+                  <span className="shrink-0 font-mono text-[11px] tabular-nums text-gnd-cream">
                     <span className="font-bold">{n}</span>
-                    {total > 0 && (
-                      <span className="ml-1 text-gnd-cream/40">({pct}%)</span>
-                    )}
+                    {total > 0 && <span className="ml-1 text-gnd-cream/40">({pct}%)</span>}
                   </span>
                 </div>
                 <div className="relative h-1.5 overflow-hidden rounded-full border border-gnd-amber/10 bg-gnd-ink/40">
-                  <div
-                    className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-gnd-amber-dim via-gnd-amber to-gnd-amber-glow shadow-[0_0_4px_rgba(232,133,61,0.6)] transition-all duration-700"
-                    style={{ width: `${Math.max(4, ratio * 100)}%` }}
-                  />
+                  <div className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-gnd-amber-dim via-gnd-amber to-gnd-amber-glow shadow-[0_0_4px_rgba(232,133,61,0.6)] transition-all duration-700" style={{ width: `${Math.max(4, ratio * 100)}%` }} />
                 </div>
               </li>
             );

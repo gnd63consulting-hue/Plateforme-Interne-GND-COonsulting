@@ -2,113 +2,91 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ===========================================================
-   Lenis smooth scroll — https://github.com/darkroomengineering/lenis
-   =========================================================== */
-html.lenis,
-html.lenis body {
-  height: auto;
-}
+@layer base {
+  body {
+    @apply bg-gnd-cream text-gnd-bronze antialiased;
+  }
 
-.lenis.lenis-smooth {
-  scroll-behavior: auto !important;
-}
+  ::selection {
+    background-color: rgba(232, 133, 61, 0.25);
+    color: #1A0F0E;
+  }
 
-.lenis.lenis-smooth [data-lenis-prevent] {
-  overscroll-behavior: contain;
-}
+  /* Lenis smooth scroll wrapper classes */
+  html.lenis,
+  html.lenis body {
+    height: auto;
+  }
+  .lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+  }
+  .lenis.lenis-smooth [data-lenis-prevent] {
+    overscroll-behavior: contain;
+  }
+  .lenis.lenis-stopped {
+    overflow: hidden;
+  }
+  .lenis.lenis-scrolling iframe {
+    pointer-events: none;
+  }
 
-.lenis.lenis-stopped {
-  overflow: hidden;
-}
-
-.lenis.lenis-scrolling iframe {
-  pointer-events: none;
-}
-
-/* ===========================================================
-   Selection color — warm amber GND
-   =========================================================== */
-::selection {
-  background: rgba(232, 133, 61, 0.25);
-  color: #1a0f0e;
-}
-
-/* ===========================================================
-   Custom scrollbar — subtil et chaud
-   =========================================================== */
-@media (min-width: 768px) {
+  /* Custom scrollbar warm */
   ::-webkit-scrollbar {
     width: 10px;
     height: 10px;
   }
-
   ::-webkit-scrollbar-track {
-    background: transparent;
+    background: #FBF7F1;
   }
-
   ::-webkit-scrollbar-thumb {
-    background: rgba(61, 31, 30, 0.15);
-    border-radius: 9999px;
-    border: 2px solid transparent;
-    background-clip: padding-box;
+    background: rgba(61, 31, 30, 0.2);
+    border-radius: 999px;
+    border: 2px solid #FBF7F1;
   }
-
   ::-webkit-scrollbar-thumb:hover {
-    background: rgba(61, 31, 30, 0.30);
-    background-clip: padding-box;
+    background: rgba(232, 133, 61, 0.5);
   }
 }
 
-/* ===========================================================
-   Base — OpenType features pour Geist (ss01 = stylistic alt,
-   cv11 = caractères alternatifs)
-   =========================================================== */
-@layer base {
-  body {
-    font-feature-settings: 'ss01', 'cv11', 'cv09';
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+@layer components {
+  /* Btn premium pour le legacy */
+  .btn-primary {
+    @apply inline-flex items-center gap-2 rounded-full bg-gnd-bronze px-5 py-2.5 text-sm font-semibold text-gnd-cream transition-all hover:bg-gnd-ink hover:shadow-warm-lg;
   }
-
-  /* Display font — Fraunces — réglages sérifs raffinés */
-  .font-display {
-    font-feature-settings: 'ss01', 'liga', 'kern';
-    font-variation-settings: 'opsz' 144, 'SOFT' 50, 'WONK' 0;
-  }
-
-  /* Reset focus ring — plus chaud que le default browser */
-  :focus-visible {
-    outline: 2px solid #E8853D;
-    outline-offset: 2px;
-    border-radius: 4px;
+  .btn-secondary {
+    @apply inline-flex items-center gap-2 rounded-full border border-gnd-bronze/15 bg-white px-5 py-2.5 text-sm font-semibold text-gnd-bronze transition-colors hover:bg-gnd-cream;
   }
 }
 
-/* ===========================================================
-   Helpers utility classes
-   =========================================================== */
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-
-  .text-pretty {
-    text-wrap: pretty;
-  }
-
-  .grain {
+  /* === Cockpit shine sweep === */
+  /* Pseudo-element qui sweepe une gradient amber translucide diagonalement
+     au hover — effet "reflet" sur surface premium. */
+  .cockpit-shine {
     position: relative;
+    isolation: isolate;
   }
-
-  .grain::after {
+  .cockpit-shine::before {
     content: '';
     position: absolute;
     inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
-    opacity: 0.04;
+    z-index: 1;
     pointer-events: none;
-    mix-blend-mode: multiply;
+    background: linear-gradient(
+      115deg,
+      transparent 35%,
+      rgba(255, 160, 96, 0.18) 50%,
+      transparent 65%
+    );
+    transform: translateX(-100%);
+    transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .cockpit-shine:hover::before {
+    transform: translateX(100%);
+  }
+
+  /* Tabular nums utility (in case font-feature-settings doesn't apply) */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
   }
 }
