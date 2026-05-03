@@ -25,15 +25,6 @@ export function Setup2faClient() {
     async function enroll() {
       const supabase = getSupabaseClient();
 
-      // Si un factor TOTP non vérifié existe déjà, le réutiliser
-      const { data: factors } = await supabase.auth.mfa.listFactors();
-      const existing = factors?.totp?.find((f) => f.status === 'unverified');
-
-      if (existing) {
-        setFactorId(existing.id);
-        return;
-      }
-
       const { data, error: enrollError } = await supabase.auth.mfa.enroll({
         factorType: 'totp',
         friendlyName: `GND Plateforme — ${new Date().toISOString()}`,
