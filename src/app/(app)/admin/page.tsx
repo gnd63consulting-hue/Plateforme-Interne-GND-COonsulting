@@ -12,10 +12,13 @@ import {
   Mail,
   Medal,
   Phone,
+  Rocket,
+  Sparkles,
   Target,
   TrendingUp,
   Trophy,
   Users,
+  Zap,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase-server';
 import { MODULES } from '@/lib/modules-registry';
@@ -29,6 +32,8 @@ import {
 import { formatEur, sumCaMidpointEur } from '@/lib/ca-utils';
 import AdminSyncButton from '@/components/AdminSyncButton';
 import AdminProspectsPanel from '@/components/AdminProspectsPanel';
+import SpeedometerGauge from '@/components/SpeedometerGauge';
+import RocketProgress from '@/components/RocketProgress';
 import { RoleBadge } from '@/components/RoleBadge';
 
 export const dynamic = 'force-dynamic';
@@ -70,6 +75,14 @@ const ACTIVE_PIPELINE_STATUSES = new Set([
 ]);
 
 const ADMIN_ROLES = new Set(['admin', 'admin_limited']);
+
+// Paliers équipe pour la fusée (collectifs)
+const TEAM_TIERS = [
+  { threshold: 5, bonus: '+500 €', label: 'Décollage' },
+  { threshold: 15, bonus: '+2 000 €', label: 'Croisière' },
+  { threshold: 30, bonus: '+5 000 €', label: 'Mach 1' },
+  { threshold: 50, bonus: '+12 000 €', label: 'Orbite' },
+];
 
 export default async function AdminPage() {
   const supabase = await createClient();
@@ -155,6 +168,10 @@ export default async function AdminPage() {
   const caPotentielTotal = sumCaMidpointEur(activeProspects);
   const caSigne = sumCaMidpointEur(wonProspects);
 
+  const conversionRate = prospects.length > 0 ? (wonCount / prospects.length) * 100 : 0;
+  const contactRate = prospects.length > 0 ? (contactedCount / prospects.length) * 100 : 0;
+  const rdvRate = prospects.length > 0 ? (rdvCount / prospects.length) * 100 : 0;
+
   const funnelCounts = FUNNEL_STAGES.map((stage) => ({
     ...stage,
     count: prospects.filter((p) => p.status === stage.value).length,
@@ -187,6 +204,7 @@ export default async function AdminPage() {
     });
 
   const totalCommerciaux = ranking.length;
+  const teamNextTier = TEAM_TIERS.find((t) => wonCount < t.threshold);
 
   return (
     <div className="relative">
@@ -217,18 +235,9 @@ export default async function AdminPage() {
       </header>
 
       {/* ============================================================== */}
-      {/* Console Plateforme — cockpit dark                               */}
+      {/* CONSOLE PLATEFORME — cockpit holographique avec speedo + rocket */}
       {/* ============================================================== */}
-      <section
-        className="relative mb-10 overflow-hidden rounded-3xl border border-gnd-amber/15 p-6 shadow-warm-xl sm:p-8"
-        style={{
-          backgroundImage: `
-            radial-gradient(circle at 20% 0%, rgba(232, 133, 61, 0.12) 0%, transparent 50%),
-            radial-gradient(circle at 80% 100%, rgba(232, 133, 61, 0.08) 0%, transparent 50%),
-            linear-gradient(135deg, #3D1F1E 0%, #1A0F0E 100%)
-          `,
-        }}
-      >
+      <CockpitPanel className="mb-10">
         {/* HUD top bar */}
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-gnd-amber/15 pb-4">
           <div className="flex items-center gap-3">
@@ -249,6 +258,94 @@ export default async function AdminPage() {
               <Activity className="h-3 w-3 text-gnd-amber" aria-hidden />
               {prospects.length} prosp.
             </span>
+          </div>
+        </div>
+
+        {/* SPEEDOMETER + ROCKET row */}
+        <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-[auto_1fr]">
+          {/* Speedometer panel */}
+          <div className="flex flex-col items-center justify-between rounded-2xl border border-gnd-amber/10 bg-gnd-ink/40 p-6 backdrop-blur-sm">
+            <div className="mb-2 flex items-center gap-2">
+              <TrendingUp className="h-3.5 w-3.5 text-gnd-amber" aria-hidden />
+              <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-gnd-amber">
+                Conversion équipe
+              </span>
+            </div>
+            <SpeedometerGauge
+              value={conversionRate}
+              label="Taux conversion global"
+              formatValue={(v) => `${Math.round(v)}`}
+              subtitle="%"
+              subLeft={{ value: contactRate, label: 'CTC' }}
+              subRight={{ value: rdvRate, label: 'RDV' }}
+            />
+            <div className="mt-4 flex w-full items-center justify-between border-t border-gnd-amber/10 pt-3 text-center">
+              <div>
+                <p className="font-mono text-[8px] uppercase tracking-[0.18em] text-gnd-cream/50">
+                  Signés
+                </p>
+                <p className="font-display text-lg font-medium text-gnd-cream">{wonCount}</p>
+              </div>
+              <div className="h-6 w-px bg-gnd-amber/20" />
+              <div>
+                <p className="font-mono text-[8px] uppercase tracking-[0.18em] text-gnd-cream/50">
+                  Total
+                </p>
+                <p className="font-display text-lg font-medium text-gnd-cream">{prospects.length}</p>
+              </div>
+              <div className="h-6 w-px bg-gnd-amber/20" />
+              <div>
+                <p className="font-mono text-[8px] uppercase tracking-[0.18em] text-gnd-cream/50">
+                  CA Sig.
+                </p>
+                <p className="font-display text-lg font-medium text-gnd-amber">{formatEur(caSigne)}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Rocket panel */}
+          <div className="relative flex flex-col rounded-2xl border border-gnd-amber/10 bg-gnd-ink/40 p-6 backdrop-blur-sm">
+            <div className="mb-4 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Zap className="h-3.5 w-3.5 text-gnd-amber" aria-hidden />
+                <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-gnd-amber">
+                  Trajectoire équipe
+                </span>
+              </div>
+              <span className="rounded-full border border-gnd-amber/30 bg-gnd-amber/10 px-2.5 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-[0.18em] text-gnd-amber-glow">
+                {wonCount} signé{wonCount > 1 ? 's' : ''} équipe
+              </span>
+            </div>
+            <h3 className="mb-1 font-display text-2xl font-medium text-gnd-cream">
+              Décollage{' '}
+              <span className="italic text-gnd-amber">collectif</span>
+            </h3>
+            <p className="mb-6 max-w-md text-sm text-gnd-cream/60">
+              Chaque contrat signé par l'équipe rapproche du palier suivant. Bonus pool partagé.
+            </p>
+
+            <div className="flex h-72 items-stretch">
+              <RocketProgress signed={wonCount} tiers={TEAM_TIERS} />
+            </div>
+
+            {teamNextTier && (
+              <div className="mt-4 border-t border-gnd-amber/10 pt-4">
+                <div className="flex items-center justify-between font-mono text-[9px] uppercase tracking-[0.18em] text-gnd-cream/60">
+                  <span>Prochain palier équipe · {teamNextTier.label}</span>
+                  <span className="text-gnd-amber">
+                    {wonCount} / {teamNextTier.threshold}
+                  </span>
+                </div>
+                <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-gnd-bronze/40">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-gnd-amber-dim via-gnd-amber to-gnd-amber-glow shadow-[0_0_8px_rgba(232,133,61,0.6)] transition-all duration-700"
+                    style={{
+                      width: `${(wonCount / teamNextTier.threshold) * 100}%`,
+                    }}
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -283,60 +380,28 @@ export default async function AdminPage() {
           />
         </div>
 
-        {/* Secondary KPIs (4 mini cards) */}
+        {/* Secondary KPIs */}
         <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-4">
-          <CockpitMiniKpi
-            label="Contactés+"
-            value={String(contactedCount)}
-            icon={<Phone className="h-3 w-3" />}
-          />
-          <CockpitMiniKpi
-            label="RDV pris"
-            value={String(rdvCount)}
-            icon={<CalendarCheck className="h-3 w-3" />}
-          />
-          <CockpitMiniKpi
-            label="Taux contact"
-            value={prospects.length > 0 ? `${Math.round((contactedCount / prospects.length) * 100)}%` : '—'}
-            icon={<Activity className="h-3 w-3" />}
-          />
-          <CockpitMiniKpi
-            label="Conversion"
-            value={prospects.length > 0 ? `${Math.round((wonCount / prospects.length) * 100)}%` : '—'}
-            icon={<Target className="h-3 w-3" />}
-          />
+          <CockpitMiniKpi label="Contactés+" value={String(contactedCount)} icon={<Phone className="h-3 w-3" />} />
+          <CockpitMiniKpi label="RDV pris" value={String(rdvCount)} icon={<CalendarCheck className="h-3 w-3" />} />
+          <CockpitMiniKpi label="Taux contact" value={prospects.length > 0 ? `${Math.round((contactedCount / prospects.length) * 100)}%` : '—'} icon={<Activity className="h-3 w-3" />} />
+          <CockpitMiniKpi label="Conversion" value={prospects.length > 0 ? `${Math.round((wonCount / prospects.length) * 100)}%` : '—'} icon={<Target className="h-3 w-3" />} />
         </div>
-      </section>
+      </CockpitPanel>
 
       {/* ============================================================== */}
-      {/* Sync Notion                                                       */}
+      {/* 01 · Sync Notion                                                  */}
       {/* ============================================================== */}
-      <section className="mb-10 space-y-4">
-        <SectionTitle
-          icon={<BarChart3 className="h-4 w-4" />}
-          number="01"
-          label="Synchronisation"
-          accent="Notion"
-        />
+      <CockpitSection number="01" icon={<BarChart3 className="h-4 w-4" />} label="Synchronisation" accent="Notion">
         <AdminSyncButton options={commercialOptions} />
-      </section>
+      </CockpitSection>
 
       {/* ============================================================== */}
-      {/* Funnel de conversion                                              */}
+      {/* 02 · Funnel                                                       */}
       {/* ============================================================== */}
-      <section className="mb-10 space-y-4">
-        <SectionTitle
-          icon={<Filter className="h-4 w-4" />}
-          number="02"
-          label="Funnel de"
-          accent="conversion"
-        />
-        <div
-          className="relative overflow-hidden rounded-3xl border border-gnd-amber/15 p-6 sm:p-8"
-          style={{
-            backgroundImage: `linear-gradient(135deg, #3D1F1E 0%, #1A0F0E 100%)`,
-          }}
-        >
+      <CockpitSection number="02" icon={<Filter className="h-4 w-4" />} label="Funnel de" accent="conversion">
+        <CockpitPanel>
+          <HudCornerLabel label="FNL.001" />
           <div className="space-y-3">
             {funnelCounts.map((stage, idx) => {
               const widthPct = (stage.count / funnelMaxCount) * 100;
@@ -382,24 +447,21 @@ export default async function AdminPage() {
           <p className="mt-5 border-t border-gnd-amber/10 pt-4 font-mono text-[10px] uppercase tracking-[0.15em] text-gnd-cream/40">
             Le pourcentage indique le passage depuis l'étape précédente. Statuts perdu/archivé exclus.
           </p>
-        </div>
-      </section>
+        </CockpitPanel>
+      </CockpitSection>
 
       {/* ============================================================== */}
-      {/* Classement commerciaux                                            */}
+      {/* 03 · Classement commerciaux                                       */}
       {/* ============================================================== */}
-      <section className="mb-10 space-y-4">
-        <SectionTitle
-          icon={<Trophy className="h-4 w-4" />}
-          number="03"
-          label="Classement"
-          accent="commerciaux"
-          hint="tri par CA potentiel descendant"
-        />
-        <div
-          className="relative overflow-hidden rounded-3xl border border-gnd-amber/15"
-          style={{ backgroundImage: 'linear-gradient(135deg, #3D1F1E 0%, #1A0F0E 100%)' }}
-        >
+      <CockpitSection
+        number="03"
+        icon={<Trophy className="h-4 w-4" />}
+        label="Classement"
+        accent="commerciaux"
+        hint="tri par CA potentiel"
+      >
+        <CockpitPanel padding="none">
+          <HudCornerLabel label="RNK.001" />
           {ranking.length === 0 ? (
             <div className="px-5 py-12 text-center font-display text-base text-gnd-cream/60">
               Aucun prospect assigné pour l'instant.
@@ -409,12 +471,13 @@ export default async function AdminPage() {
               {ranking.map((r, idx) => {
                 const label = userLabel(r.uid);
                 const caRatio = r.caPotentiel / rankingMaxCa;
+                const personalConvRate = r.total > 0 ? (r.won / r.total) * 100 : 0;
                 return (
                   <li
                     key={r.uid}
                     className="grid grid-cols-12 items-center gap-3 px-5 py-4 transition hover:bg-gnd-amber/[0.03] sm:px-7"
                   >
-                    <div className="col-span-12 flex items-center gap-3 md:col-span-4">
+                    <div className="col-span-12 flex items-center gap-3 md:col-span-3">
                       <CockpitRankBadge index={idx} />
                       <CockpitAvatar name={label} />
                       <div className="min-w-0">
@@ -426,11 +489,16 @@ export default async function AdminPage() {
                         </div>
                       </div>
                     </div>
-                    <div className="col-span-6 flex items-center gap-4 md:col-span-3">
+                    <div className="col-span-6 flex items-center gap-4 md:col-span-2">
                       <CockpitStat label="RDV" value={r.rdv} />
                       <CockpitStat label="Sign." value={r.won} highlight={r.won > 0} />
                     </div>
-                    <div className="col-span-6 md:col-span-5">
+                    {/* Mini conversion gauge */}
+                    <div className="col-span-6 md:col-span-2">
+                      <MiniGauge value={personalConvRate} />
+                    </div>
+                    {/* CA bar */}
+                    <div className="col-span-12 md:col-span-5">
                       <div className="flex items-center gap-2">
                         <div className="relative h-6 flex-1 overflow-hidden rounded-md border border-gnd-amber/10 bg-gnd-ink/40">
                           <div
@@ -454,144 +522,124 @@ export default async function AdminPage() {
               })}
             </ul>
           )}
-        </div>
-      </section>
+        </CockpitPanel>
+      </CockpitSection>
 
       {/* ============================================================== */}
-      {/* Distributions                                                     */}
+      {/* 04 · Distributions                                                */}
       {/* ============================================================== */}
-      <section className="mb-10 space-y-4">
-        <SectionTitle
-          icon={<BarChart3 className="h-4 w-4" />}
-          number="04"
-          label="Distributions"
-          accent=""
-        />
+      <CockpitSection number="04" icon={<BarChart3 className="h-4 w-4" />} label="Distributions" accent="">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          <DistributionCardWarm title="Classification" entries={byClassification} total={prospects.length} />
-          <DistributionCardWarm title="Top secteurs" entries={bySector} total={prospects.length} limit={8} />
-          <DistributionCardWarm title="Branche" entries={byBranche} total={prospects.length} />
+          <CockpitDistribution title="Classification" entries={byClassification} total={prospects.length} hudId="DST.01" />
+          <CockpitDistribution title="Top secteurs" entries={bySector} total={prospects.length} limit={8} hudId="DST.02" />
+          <CockpitDistribution title="Branche" entries={byBranche} total={prospects.length} hudId="DST.03" />
         </div>
-      </section>
+      </CockpitSection>
 
       {/* ============================================================== */}
-      {/* Répartition par statut                                            */}
+      {/* 05 · Répartition par statut                                       */}
       {/* ============================================================== */}
-      <section className="mb-10 space-y-4">
-        <SectionTitle
-          icon={<Filter className="h-4 w-4" />}
-          number="05"
-          label="Répartition par"
-          accent="statut"
-        />
-        <div className="rounded-3xl border border-gnd-bronze/8 bg-gnd-paper p-5 shadow-warm">
+      <CockpitSection number="05" icon={<Filter className="h-4 w-4" />} label="Répartition par" accent="statut">
+        <CockpitPanel>
+          <HudCornerLabel label="STA.001" />
           {byStatus.size === 0 ? (
-            <p className="text-sm italic text-gnd-bronze-soft">Aucune donnée.</p>
+            <p className="font-mono text-xs italic text-gnd-cream/60">Aucune donnée.</p>
           ) : (
             <ul className="flex flex-wrap gap-2">
               {[...byStatus.entries()].sort((a, b) => b[1] - a[1]).map(([status, n]) => (
                 <li
                   key={status}
-                  className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs ring-1 ring-gnd-bronze/8 ${toneForStatus(status)}`}
+                  className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs ring-1 ring-gnd-amber/10 ${toneForStatus(status)}`}
                 >
                   <span className="font-medium">{labelForStatus(status)}</span>
-                  <span className="rounded-full bg-white/70 px-1.5 font-mono text-[10px] font-bold">{n}</span>
+                  <span className="rounded-full bg-white/80 px-1.5 font-mono text-[10px] font-bold">{n}</span>
                 </li>
               ))}
             </ul>
           )}
-        </div>
-      </section>
+        </CockpitPanel>
+      </CockpitSection>
 
       {/* ============================================================== */}
-      {/* Pipeline prospects                                                */}
+      {/* 06 · Pipeline prospects                                           */}
       {/* ============================================================== */}
-      <section className="mb-10 space-y-4">
-        <SectionTitle
-          icon={<Layers className="h-4 w-4" />}
-          number="06"
-          label="Pipeline"
-          accent="global"
-        />
+      <CockpitSection number="06" icon={<Layers className="h-4 w-4" />} label="Pipeline" accent="global">
         <AdminProspectsPanel
           prospects={prospects}
           users={users.map((u) => ({ id: u.id, label: u.full_name ?? u.email }))}
         />
-      </section>
+      </CockpitSection>
 
       {/* ============================================================== */}
-      {/* Suivi formation                                                   */}
+      {/* 07 · Suivi formation                                              */}
       {/* ============================================================== */}
-      <section className="mb-10 space-y-4">
-        <SectionTitle
-          icon={<GraduationCap className="h-4 w-4" />}
-          number="07"
-          label="Suivi"
-          accent="formation"
-        />
-        <div className="space-y-2">
+      <CockpitSection number="07" icon={<GraduationCap className="h-4 w-4" />} label="Suivi" accent="formation">
+        <CockpitPanel padding="none">
+          <HudCornerLabel label="FRM.001" />
           {sortedUsers.length === 0 ? (
-            <p className="rounded-3xl border border-gnd-bronze/8 bg-gnd-paper p-10 text-center font-display text-base text-gnd-bronze-soft shadow-warm">
+            <p className="px-5 py-12 text-center font-display text-base text-gnd-cream/60">
               Aucun utilisateur pour le moment.
             </p>
           ) : (
-            sortedUsers.map((u) => {
-              const set = completedByUser.get(u.id) ?? new Set<string>();
-              const count = MODULES.filter((m) => set.has(m.slug)).length;
-              const last = lastByUser.get(u.id);
-              const ratio = MODULES.length ? count / MODULES.length : 0;
-              return (
-                <div
-                  key={u.id}
-                  className="flex flex-col gap-3 rounded-2xl border border-gnd-bronze/8 bg-gnd-paper p-4 shadow-warm transition hover:border-gnd-amber/30 hover:shadow-warm-lg sm:flex-row sm:items-center sm:p-5"
-                >
-                  <div className="flex flex-1 items-center gap-3 sm:max-w-[35%]">
-                    <CockpitAvatar name={u.full_name ?? u.email} light />
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <p className="truncate font-display text-base font-medium text-gnd-bronze">
-                          {u.full_name ?? '—'}
+            <ul className="divide-y divide-gnd-amber/10">
+              {sortedUsers.map((u) => {
+                const set = completedByUser.get(u.id) ?? new Set<string>();
+                const count = MODULES.filter((m) => set.has(m.slug)).length;
+                const last = lastByUser.get(u.id);
+                const ratio = MODULES.length ? count / MODULES.length : 0;
+                return (
+                  <li
+                    key={u.id}
+                    className="flex flex-col gap-3 px-5 py-4 transition hover:bg-gnd-amber/[0.03] sm:flex-row sm:items-center sm:px-7"
+                  >
+                    <div className="flex flex-1 items-center gap-3 sm:max-w-[35%]">
+                      <CockpitAvatar name={u.full_name ?? u.email} />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <p className="truncate font-display text-base font-medium text-gnd-cream">
+                            {u.full_name ?? '—'}
+                          </p>
+                          {u.role !== 'freelance' && <RoleBadge role={u.role} size="xs" />}
+                        </div>
+                        <p className="mt-0.5 truncate font-mono text-[11px] text-gnd-cream/50">
+                          {u.email}
                         </p>
-                        {u.role !== 'freelance' && <RoleBadge role={u.role} size="xs" />}
                       </div>
-                      <p className="mt-0.5 truncate font-mono text-[11px] text-gnd-bronze-soft">
-                        {u.email}
-                      </p>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-3 sm:max-w-[30%] sm:flex-1">
-                    <div className="relative h-2 flex-1 overflow-hidden rounded-full bg-gnd-bronze/10">
-                      <div
-                        className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-gnd-amber-dim via-gnd-amber to-gnd-amber-glow shadow-[0_0_4px_rgba(232,133,61,0.4)] transition-all duration-500"
-                        style={{ width: `${ratio * 100}%` }}
-                      />
+                    <div className="flex items-center gap-3 sm:max-w-[30%] sm:flex-1">
+                      <div className="relative h-2 flex-1 overflow-hidden rounded-full border border-gnd-amber/10 bg-gnd-ink/40">
+                        <div
+                          className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-gnd-amber-dim via-gnd-amber to-gnd-amber-glow shadow-[0_0_4px_rgba(232,133,61,0.6)] transition-all duration-500"
+                          style={{ width: `${ratio * 100}%` }}
+                        />
+                      </div>
+                      <span className="shrink-0 font-mono text-xs font-semibold text-gnd-amber">
+                        {count}/{MODULES.length}
+                      </span>
                     </div>
-                    <span className="shrink-0 font-mono text-xs font-semibold text-gnd-amber-dim">
-                      {count}/{MODULES.length}
-                    </span>
-                  </div>
-                  <div className="flex shrink-0 items-center gap-0.5">
-                    {MODULES.map((m) => (
-                      <span
-                        key={m.slug}
-                        title={m.title}
-                        className={`h-3.5 w-3.5 rounded-sm transition-all ${
-                          set.has(m.slug)
-                            ? 'bg-gradient-to-br from-gnd-amber to-gnd-amber-dim shadow-[0_0_4px_rgba(232,133,61,0.5)]'
-                            : 'bg-gnd-bronze/15'
-                        }`}
-                      />
-                    ))}
-                  </div>
-                  <div className="shrink-0 font-mono text-[10px] uppercase tracking-[0.15em] text-gnd-bronze-soft">
-                    {last ? formatDate(last) : '—'}
-                  </div>
-                </div>
-              );
-            })
+                    <div className="flex shrink-0 items-center gap-0.5">
+                      {MODULES.map((m) => (
+                        <span
+                          key={m.slug}
+                          title={m.title}
+                          className={`h-3.5 w-3.5 rounded-sm transition-all ${
+                            set.has(m.slug)
+                              ? 'bg-gradient-to-br from-gnd-amber to-gnd-amber-dim shadow-[0_0_4px_rgba(232,133,61,0.5)]'
+                              : 'bg-gnd-cream/15'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <div className="shrink-0 font-mono text-[10px] uppercase tracking-[0.15em] text-gnd-cream/50">
+                      {last ? formatDate(last) : '—'}
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
           )}
-        </div>
-      </section>
+        </CockpitPanel>
+      </CockpitSection>
 
       <p className="text-center font-mono text-[10px] uppercase tracking-[0.15em] text-gnd-bronze-soft">
         CA calculé à partir des fourchettes Notion (ca_estime) en prenant le midpoint.
@@ -601,42 +649,86 @@ export default async function AdminPage() {
 }
 
 // =====================================================================
-// Sub-components warm cockpit
+// Cockpit primitives
 // =====================================================================
 
-function SectionTitle({
-  icon,
+function CockpitPanel({
+  children,
+  className,
+  padding = 'normal',
+}: {
+  children: React.ReactNode;
+  className?: string;
+  padding?: 'normal' | 'none';
+}) {
+  const padClass = padding === 'none' ? '' : 'p-6 sm:p-8';
+  return (
+    <section
+      className={`relative overflow-hidden rounded-3xl border border-gnd-amber/15 shadow-warm-xl ${padClass} ${className ?? ''}`}
+      style={{
+        backgroundImage: `
+          radial-gradient(circle at 20% 0%, rgba(232, 133, 61, 0.10) 0%, transparent 50%),
+          radial-gradient(circle at 80% 100%, rgba(232, 133, 61, 0.06) 0%, transparent 50%),
+          linear-gradient(135deg, #3D1F1E 0%, #1A0F0E 100%)
+        `,
+      }}
+    >
+      {children}
+    </section>
+  );
+}
+
+function HudCornerLabel({ label }: { label: string }) {
+  return (
+    <div className="absolute right-4 top-4 z-10 flex items-center gap-1.5">
+      <svg width="18" height="10" viewBox="0 0 18 10" aria-hidden>
+        <path d="M 1 9 L 1 1 L 9 1" fill="none" stroke="#E8853D" strokeWidth="1" opacity="0.6" />
+      </svg>
+      <span className="font-mono text-[8px] font-semibold uppercase tracking-[0.2em] text-gnd-amber/70">
+        {label}
+      </span>
+    </div>
+  );
+}
+
+function CockpitSection({
   number,
+  icon,
   label,
   accent,
   hint,
+  children,
 }: {
-  icon: React.ReactNode;
   number: string;
+  icon: React.ReactNode;
   label: string;
   accent: string;
   hint?: string;
+  children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-wrap items-end gap-3">
-      <div className="flex items-center gap-3">
-        <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gnd-amber/15 text-gnd-amber-dim">
-          {icon}
-        </span>
-        <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-gnd-amber-dim">
-          {number} · {label}
-        </p>
+    <section className="relative mb-10 space-y-4">
+      <div className="flex flex-wrap items-end gap-3">
+        <div className="flex items-center gap-3">
+          <span className="flex h-10 w-10 items-center justify-center rounded-2xl border border-gnd-amber/30 bg-gnd-amber/10 text-gnd-amber">
+            {icon}
+          </span>
+          <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-gnd-amber">
+            {number} · {label}
+          </p>
+        </div>
+        <h2 className="font-display text-2xl font-medium leading-tight tracking-tight text-gnd-bronze sm:text-3xl">
+          {label}{' '}
+          {accent && <span className="italic text-gnd-amber">{accent}</span>}
+        </h2>
+        {hint && (
+          <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-gnd-bronze-soft">
+            · {hint}
+          </span>
+        )}
       </div>
-      <h2 className="font-display text-2xl font-medium leading-tight tracking-tight text-gnd-bronze sm:text-3xl">
-        {label}{' '}
-        {accent && <span className="italic text-gnd-amber">{accent}</span>}
-      </h2>
-      {hint && (
-        <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-gnd-bronze-soft">
-          · {hint}
-        </span>
-      )}
-    </div>
+      {children}
+    </section>
   );
 }
 
@@ -751,7 +843,7 @@ function CockpitStat({
   );
 }
 
-function CockpitAvatar({ name, light }: { name: string; light?: boolean }) {
+function CockpitAvatar({ name }: { name: string }) {
   const palette = [
     'from-gnd-amber to-gnd-amber-dim',
     'from-gnd-bronze to-gnd-ink',
@@ -771,38 +863,66 @@ function CockpitAvatar({ name, light }: { name: string; light?: boolean }) {
       .slice(0, 2)
       .map((w) => w.charAt(0).toUpperCase())
       .join('') || '?';
-  const ringClass = light ? 'ring-2 ring-gnd-paper' : 'ring-2 ring-gnd-bronze/40';
   return (
     <div
-      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br font-display text-xs font-medium text-gnd-cream shadow-warm ${grad} ${ringClass}`}
+      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br font-display text-xs font-medium text-gnd-cream shadow-warm ring-2 ring-gnd-bronze/40 ${grad}`}
     >
       {ini}
     </div>
   );
 }
 
-function DistributionCardWarm({
+/** Mini-jauge HUD pour le classement (0-100%) */
+function MiniGauge({ value }: { value: number }) {
+  const v = Math.max(0, Math.min(100, value));
+  return (
+    <div className="flex items-center gap-2">
+      <div className="relative h-1.5 w-20 overflow-hidden rounded-full border border-gnd-amber/10 bg-gnd-ink/40">
+        <div
+          className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-gnd-bronze-soft via-gnd-amber to-gnd-amber-glow shadow-[0_0_4px_rgba(232,133,61,0.6)] transition-all duration-700"
+          style={{ width: `${Math.max(2, v)}%` }}
+        />
+      </div>
+      <span className="font-mono text-[9px] font-semibold text-gnd-amber">
+        {Math.round(v)}%
+      </span>
+    </div>
+  );
+}
+
+function CockpitDistribution({
   title,
   entries,
   total,
   limit,
+  hudId,
 }: {
   title: string;
   entries: Map<string, number>;
   total: number;
   limit?: number;
+  hudId: string;
 }) {
   const sorted = [...entries.entries()].sort((a, b) => b[1] - a[1]);
   const display = limit ? sorted.slice(0, limit) : sorted;
   const max = Math.max(1, ...display.map(([, n]) => n));
 
   return (
-    <div className="rounded-3xl border border-gnd-bronze/8 bg-gnd-paper p-5 shadow-warm">
-      <h3 className="mb-4 font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-gnd-amber-dim">
+    <div
+      className="relative overflow-hidden rounded-3xl border border-gnd-amber/15 p-5 shadow-warm-xl"
+      style={{
+        backgroundImage: `
+          radial-gradient(circle at 30% 0%, rgba(232, 133, 61, 0.08) 0%, transparent 60%),
+          linear-gradient(135deg, #3D1F1E 0%, #1A0F0E 100%)
+        `,
+      }}
+    >
+      <HudCornerLabel label={hudId} />
+      <h3 className="mb-4 font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-gnd-amber">
         {title}
       </h3>
       {display.length === 0 ? (
-        <p className="text-sm italic text-gnd-bronze-soft">Aucune donnée.</p>
+        <p className="font-mono text-xs italic text-gnd-cream/50">Aucune donnée.</p>
       ) : (
         <ul className="space-y-3">
           {display.map(([key, n]) => {
@@ -812,21 +932,21 @@ function DistributionCardWarm({
               <li key={key}>
                 <div className="mb-1 flex items-center justify-between gap-2">
                   <span
-                    className="truncate rounded-full bg-gnd-amber/10 px-2 py-0.5 text-[11px] font-medium text-gnd-bronze"
+                    className="truncate rounded-full border border-gnd-amber/15 bg-gnd-amber/10 px-2 py-0.5 text-[11px] font-medium text-gnd-amber-glow"
                     title={key}
                   >
                     {key}
                   </span>
-                  <span className="shrink-0 font-mono text-[11px] text-gnd-bronze">
+                  <span className="shrink-0 font-mono text-[11px] text-gnd-cream">
                     <span className="font-bold">{n}</span>
                     {total > 0 && (
-                      <span className="ml-1 text-gnd-bronze-faded">({pct}%)</span>
+                      <span className="ml-1 text-gnd-cream/40">({pct}%)</span>
                     )}
                   </span>
                 </div>
-                <div className="relative h-1.5 overflow-hidden rounded-full bg-gnd-bronze/10">
+                <div className="relative h-1.5 overflow-hidden rounded-full border border-gnd-amber/10 bg-gnd-ink/40">
                   <div
-                    className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-gnd-amber-dim via-gnd-amber to-gnd-amber-glow transition-all duration-700"
+                    className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-gnd-amber-dim via-gnd-amber to-gnd-amber-glow shadow-[0_0_4px_rgba(232,133,61,0.6)] transition-all duration-700"
                     style={{ width: `${Math.max(4, ratio * 100)}%` }}
                   />
                 </div>
