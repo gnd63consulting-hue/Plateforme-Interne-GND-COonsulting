@@ -9,9 +9,9 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { DriveVideoPlayer } from '@/components/DriveVideoPlayer';
+import ReadingProgress from '@/components/ReadingProgress';
 import { loadModuleContent } from '@/lib/modules-registry';
 import { createClient } from '@/lib/supabase-server';
-import ReadingProgress from '@/components/ReadingProgress';
 
 export const dynamic = 'force-dynamic';
 
@@ -70,21 +70,25 @@ export default async function ModulePage({
 
   return (
     <>
+      {/* Sticky reading progress at viewport top */}
       <ReadingProgress />
 
-      {/* Decorative side number watermark — only on large screens */}
+      {/* Decorative side watermark — large screens only, fixed position */}
       <div
         aria-hidden
-        className="pointer-events-none fixed -right-8 top-1/2 z-0 hidden -translate-y-1/2 select-none lg:block"
+        className="pointer-events-none fixed right-[-2rem] top-[15vh] z-0 hidden select-none font-display text-[16rem] font-medium italic leading-none text-gnd-bronze/[0.045] xl:block xl:text-[20rem] print:hidden"
       >
-        <span className="font-display text-[18rem] font-medium italic leading-none text-gnd-bronze/[0.03]">
-          {orderLabel}
-        </span>
+        {orderLabel}
       </div>
 
       <article className="relative mx-auto max-w-3xl">
-        {/* Breadcrumb */}
-        <nav className="mb-12 flex items-center gap-2 font-mono text-[11px] font-medium uppercase tracking-[0.15em] text-gnd-bronze-soft">
+        {/* ====================================================== */}
+        {/* Breadcrumb — minimal mono                                 */}
+        {/* ====================================================== */}
+        <nav
+          className="mb-12 flex animate-fade-in items-center gap-2 font-mono text-[11px] font-medium uppercase tracking-[0.15em] text-gnd-bronze-soft opacity-0"
+          style={{ animationDelay: '0ms', animationFillMode: 'forwards' }}
+        >
           <Link
             href="/formation"
             className="transition-colors hover:text-gnd-amber"
@@ -95,8 +99,13 @@ export default async function ModulePage({
           <span className="text-gnd-bronze">Module {orderLabel}</span>
         </nav>
 
-        {/* Editorial header */}
-        <header className="mb-14 animate-fade-in-up">
+        {/* ====================================================== */}
+        {/* Editorial header                                          */}
+        {/* ====================================================== */}
+        <header
+          className="mb-14 animate-fade-in-up opacity-0"
+          style={{ animationDelay: '120ms', animationFillMode: 'forwards' }}
+        >
           <div className="mb-5 flex flex-wrap items-center gap-3">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-gnd-amber/12 px-3 py-1 font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-gnd-amber-dim">
               E-learning path
@@ -121,9 +130,14 @@ export default async function ModulePage({
           <div className="mt-6 h-px w-16 bg-gnd-amber" />
         </header>
 
-        {/* Last attempt card */}
+        {/* ====================================================== */}
+        {/* Last attempt card                                          */}
+        {/* ====================================================== */}
         {lastAttempt && (
-          <section className="mb-12 flex flex-col gap-4 rounded-3xl border border-gnd-bronze/8 bg-white p-6 shadow-warm sm:flex-row sm:items-center sm:justify-between">
+          <section
+            className="mb-12 flex animate-fade-in-up flex-col gap-4 rounded-3xl border border-gnd-bronze/8 bg-white p-6 opacity-0 shadow-warm sm:flex-row sm:items-center sm:justify-between"
+            style={{ animationDelay: '240ms', animationFillMode: 'forwards' }}
+          >
             <div>
               <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-gnd-bronze-soft">
                 Dernière tentative
@@ -151,9 +165,14 @@ export default async function ModulePage({
           </section>
         )}
 
-        {/* Video player */}
+        {/* ====================================================== */}
+        {/* Video player                                              */}
+        {/* ====================================================== */}
         {videoFileId && (
-          <div className="mb-14 overflow-hidden rounded-3xl border border-gnd-bronze/8 bg-white shadow-warm">
+          <div
+            className="mb-14 animate-fade-in-up overflow-hidden rounded-3xl border border-gnd-bronze/8 bg-white opacity-0 shadow-warm"
+            style={{ animationDelay: '320ms', animationFillMode: 'forwards' }}
+          >
             <DriveVideoPlayer
               fileId={videoFileId}
               title={`Module ${orderLabel} : ${loaded.meta.title}`}
@@ -161,12 +180,19 @@ export default async function ModulePage({
           </div>
         )}
 
-        {/* MDX content */}
-        <section className="prose prose-gnd prose-lg max-w-none animate-fade-in-up [animation-delay:200ms]">
+        {/* ====================================================== */}
+        {/* MDX content — styled via prose-gnd                        */}
+        {/* ====================================================== */}
+        <section
+          className="prose prose-gnd prose-lg max-w-none animate-fade-in-up opacity-0"
+          style={{ animationDelay: '420ms', animationFillMode: 'forwards' }}
+        >
           <MDXRemote source={loaded.body} options={mdxOptions} />
         </section>
 
-        {/* Quiz CTA */}
+        {/* ====================================================== */}
+        {/* Quiz CTA                                                  */}
+        {/* ====================================================== */}
         <section className="relative mt-20 overflow-hidden rounded-3xl border border-gnd-bronze/8 bg-gradient-to-br from-gnd-cream via-white to-gnd-cream-dim p-10">
           <div
             aria-hidden
