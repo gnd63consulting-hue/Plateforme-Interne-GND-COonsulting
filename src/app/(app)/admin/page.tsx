@@ -55,9 +55,9 @@ const ADMIN_ROLES = new Set(['admin', 'admin_limited']);
 
 const TEAM_TIERS = [
   { threshold: 5, bonus: '+500 €', label: 'Décollage' },
-  { threshold: 15, bonus: '+2 000 €', label: 'Croisière' },
-  { threshold: 30, bonus: '+5 000 €', label: 'Mach 1' },
-  { threshold: 50, bonus: '+12 000 €', label: 'Orbite' },
+  { threshold: 15, bonus: '+2 000 €', label: 'Croisière' },
+  { threshold: 30, bonus: '+5 000 €', label: 'Mach 1' },
+  { threshold: 50, bonus: '+12 000 €', label: 'Orbite' },
 ];
 
 export default async function AdminPage() {
@@ -116,8 +116,11 @@ export default async function AdminPage() {
 
   for (const p of prospects) {
     byStatus.set(p.status, (byStatus.get(p.status) ?? 0) + 1);
-    const key = p.assigned_to ?? p.created_by;
-    byAssignee.set(key, (byAssignee.get(key) ?? 0) + 1);
+    // Classement commerciaux : on ne compte QUE les prospects avec assigned_to défini.
+    // Pas de fallback sur created_by (= admin qui a sync depuis Notion).
+    if (p.assigned_to) {
+      byAssignee.set(p.assigned_to, (byAssignee.get(p.assigned_to) ?? 0) + 1);
+    }
     if (p.classification) byClassification.set(p.classification, (byClassification.get(p.classification) ?? 0) + 1);
     if (p.sector) bySector.set(p.sector, (bySector.get(p.sector) ?? 0) + 1);
     if (p.branche) byBranche.set(p.branche, (byBranche.get(p.branche) ?? 0) + 1);
@@ -144,7 +147,8 @@ export default async function AdminPage() {
 
   const ranking = [...byAssignee.entries()]
     .map(([uid, total]) => {
-      const assigned = prospects.filter((p) => (p.assigned_to ?? p.created_by) === uid);
+      // Filtre strict sur assigned_to uniquement (cohérent avec byAssignee).
+      const assigned = prospects.filter((p) => p.assigned_to === uid);
       const rdv = assigned.filter((p) => p.status === 'rdv_pris').length;
       const won = assigned.filter((p) => p.status === 'gagne').length;
       const caPotentiel = sumCaMidpointEur(assigned.filter((p) => ACTIVE_PIPELINE_STATUSES.has(p.status)));
