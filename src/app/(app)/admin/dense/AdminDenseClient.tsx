@@ -845,68 +845,65 @@ export default function AdminDenseClient({ data }: { data: AdminV2PageData }) {
       <header style={{
         padding: `${pad}px ${pad + 8}px`,
         borderBottom: '1px solid rgba(232,133,61,0.08)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 16,
+        flexWrap: 'wrap',
       }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 16,
-          flexWrap: 'wrap',
-        }}>
-          <div style={{ minWidth: 0, flex: '1 1 auto' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-              <span style={{
-                width: 6,
-                height: 6,
-                borderRadius: 999,
-                background: '#E8853D',
-                boxShadow: '0 0 6px rgba(232,133,61,0.8)',
-                animation: 'pulse 2s infinite',
-                display: 'inline-block',
-              }} />
-              <Mono color="#E8853D" spacing="0.22em">VUE ADMIN · LIVE · {monthLabel}</Mono>
-            </div>
-            <h1 style={{
-              fontFamily: 'var(--font-fraunces)',
-              fontSize: 32,
-              fontWeight: 500,
-              lineHeight: 1,
-              letterSpacing: '-0.025em',
-              color: '#FDF6EE',
-              margin: 0,
-            }}>
-              Notre <span style={{ fontStyle: 'italic', color: '#E8853D' }}>pipeline</span>, {data.adminName}.
-            </h1>
+        <div style={{ minWidth: 0, flex: '1 1 auto' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+            <span style={{
+              width: 6,
+              height: 6,
+              borderRadius: 999,
+              background: '#E8853D',
+              boxShadow: '0 0 6px rgba(232,133,61,0.8)',
+              animation: 'pulse 2s infinite',
+              display: 'inline-block',
+            }} />
+            <Mono color="#E8853D" spacing="0.22em">VUE ADMIN · LIVE · {monthLabel}</Mono>
           </div>
+          <h1 style={{
+            fontFamily: 'var(--font-fraunces)',
+            fontSize: 32,
+            fontWeight: 500,
+            lineHeight: 1,
+            letterSpacing: '-0.025em',
+            color: '#FDF6EE',
+            margin: 0,
+          }}>
+            Notre <span style={{ fontStyle: 'italic', color: '#E8853D' }}>pipeline</span>, {data.adminName}.
+          </h1>
+        </div>
 
-          {/* KPI inline strip */}
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-            {[
-              { l: 'LIVE', v: data.kpi.live as number | string, a: undefined as string | undefined },
-              { l: '🔥 CHAUDS', v: data.kpi.chauds, a: '#E8853D' },
-              { l: 'SIGNÉS', v: data.kpi.signatures, a: '#5A8A3F' },
-              { l: 'CA', v: `${(data.kpi.ca / 1000).toFixed(1)}K€`, a: '#5A8A3F' },
-            ].map((k) => (
-              <div key={k.l} style={{
-                background: 'rgba(253,246,238,0.04)',
-                border: '1px solid rgba(232,133,61,0.10)',
-                borderRadius: 10,
-                padding: '8px 14px',
-                textAlign: 'center',
-                minWidth: 80,
-              }}>
-                <Mono size={8} color="rgba(232,133,61,0.7)" style={{ display: 'block', marginBottom: 4 }}>{k.l}</Mono>
-                <div style={{
-                  fontFamily: 'var(--font-fraunces)',
-                  fontSize: 26,
-                  fontWeight: 500,
-                  lineHeight: 1,
-                  color: k.a ?? '#FDF6EE',
-                  fontVariantNumeric: 'tabular-nums',
-                }}>{k.v}</div>
-              </div>
-            ))}
-          </div>
+        {/* KPI inline strip */}
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+          {[
+            { l: 'LIVE', v: data.kpi.live as number | string, a: undefined as string | undefined },
+            { l: '🔥 CHAUDS', v: data.kpi.chauds, a: '#E8853D' },
+            { l: 'SIGNÉS', v: data.kpi.signatures, a: '#5A8A3F' },
+            { l: 'CA', v: `${(data.kpi.ca / 1000).toFixed(1)}K€`, a: '#5A8A3F' },
+          ].map((k) => (
+            <div key={k.l} style={{
+              background: 'rgba(253,246,238,0.04)',
+              border: '1px solid rgba(232,133,61,0.10)',
+              borderRadius: 10,
+              padding: '8px 14px',
+              textAlign: 'center',
+              minWidth: 80,
+            }}>
+              <Mono size={8} color="rgba(232,133,61,0.7)" style={{ display: 'block', marginBottom: 4 }}>{k.l}</Mono>
+              <div style={{
+                fontFamily: 'var(--font-fraunces)',
+                fontSize: 26,
+                fontWeight: 500,
+                lineHeight: 1,
+                color: k.a ?? '#FDF6EE',
+                fontVariantNumeric: 'tabular-nums',
+              }}>{k.v}</div>
+            </div>
+          ))}
         </div>
       </header>
 
