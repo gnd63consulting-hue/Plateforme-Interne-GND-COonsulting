@@ -10,14 +10,21 @@ const NOTION_DB_ID =
 const NOTION_API = 'https://api.notion.com/v1';
 const NOTION_VERSION = '2022-06-28';
 
-/** Statuts Notion considérés comme « morts » (rejet / archivage). */
+/**
+ * Statuts Notion considérés comme « morts » (rejet / archivage définitifs).
+ *
+ * Ces prospects sont physiquement DELETE de Supabase pour ne pas polluer la
+ * base. NURTURE n'en fait PAS partie : un prospect en NURTURE est une fiche
+ * « à recultiver plus tard » qu'on veut conserver côté plateforme avec un
+ * statut `archived` (visible via toggle « voir tout le pipeline »), pas la
+ * supprimer. Voir le mapping NURTURE -> 'archived' dans status-mapping.ts.
+ */
 const NOTION_DEAD_STATUSES = new Set([
   'Rejeté',
   'Non pertinent',
   'REJECT',
   'Archivé',
   'Archive',
-  'NURTURE',
 ]);
 
 /** Statuts Notion totalement ignorés (non qualifiés). */
@@ -144,9 +151,13 @@ async function authenticate(req: Request): Promise<
  *         champs d'enrichissement Notion.
  *       - nouvelles en DB → INSERT (nécessite targetUserId pour created_by ;
  *         status initial calculé depuis Notion via notionStatusToSupabase()).
- *   - Lignes Notion mortes (Rejeté, Non pertinent, REJECT, Archivé, Archive,
- *     NURTURE) ou pages absentes de la query Notion mais présentes en DB
+ *         Pour les fiches NURTURE, le mapping renvoie `archived` : le
+ *         prospect est conservé en base avec ce statut, masqué par défaut
+ *         côté commercial.
+ *   - Lignes Notion mortes (Rejeté, Non pertinent, REJECT, Archivé, Archive)
+ *     ou pages absentes de la query Notion mais présentes en DB
  *     (= déplacées hors database / supprimées) → DELETE physique.
+ *     NURTURE n'est PAS dans cette liste : ces prospects sont conservés.
  *   - Prospects créés à la main dans /prospects (notion_page_id IS NULL)
  *     ne sont jamais touchés (ni update, ni delete).
  *
@@ -374,7 +385,9 @@ async function runSync(targetUserId?: string) {
   // 1) Lignes DB dont le notion_page_id n'a PAS été vu ce run
   //    (= prospect déplacé hors database Notion ou supprimé)
   // 2) Lignes DB dont la page Notion est en statut "mort"
-  //    (Rejeté, Non pertinent, REJECT, Archivé, Archive, NURTURE)
+  //    (Rejeté, Non pertinent, REJECT, Archivé, Archive). NURTURE est
+  //    volontairement absent : les prospects en NURTURE sont conservés
+  //    en base avec status='archived' (cf. mapping status-mapping.ts).
   //
   // Les prospects manuels (notion_page_id IS NULL) sont préservés grâce au
   // filtre `.not('notion_page_id', 'is', null)` au moment de la lecture.
