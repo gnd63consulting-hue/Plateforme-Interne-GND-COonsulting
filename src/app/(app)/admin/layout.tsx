@@ -18,6 +18,12 @@ const ADMIN_ROLES = new Set(['admin', 'admin_limited']);
  * Toutes les autres routes ((app)/dashboard, (app)/prospects, etc.) gardent
  * leur Navbar horizontale standard, ce layout n'est appliqué qu'aux pages
  * sous /admin.
+ *
+ * data-lenis-prevent : empêche le composant Lenis SmoothScroll global
+ * (monté au niveau RootLayout) d'intercepter les events molette/wheel
+ * sur le contenu admin. Sans cet attribut, Lenis tente de scroller le
+ * body — qui ne scroll pas car notre layout est position:fixed au-dessus.
+ * Avec cet attribut, le scroll natif du browser reprend la main.
  */
 export default async function AdminLayout({
   children,
@@ -50,6 +56,7 @@ export default async function AdminLayout({
 
   return (
     <div
+      data-lenis-prevent
       style={{
         position: 'fixed',
         inset: 0,
@@ -65,12 +72,14 @@ export default async function AdminLayout({
         userRole={userRole}
       />
       <main
+        data-lenis-prevent
         style={{
           flex: 1,
           height: '100vh',
           overflow: 'auto',
           position: 'relative',
           background: '#1A0F0E',
+          overscrollBehavior: 'contain',
         }}
       >
         {children}
