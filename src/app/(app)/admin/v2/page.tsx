@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase-server';
 import { PROSPECT_SELECT_COLUMNS, type Prospect } from '@/lib/prospects';
 import { sumCaMidpointEur } from '@/lib/ca-utils';
 import AdminV2Client from './AdminV2Client';
+import AdminExtraSections from './AdminExtraSections';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,7 +19,6 @@ type AdminUser = {
 const ADMIN_ROLES = new Set(['admin', 'admin_limited']);
 const FREELANCE_ROLES = new Set(['freelance', 'commercial']);
 
-/** Mapping signatures -> palier (1=Bronze, 2=Argent, 3=Or, 4=Platine, 5=Stratosphère). */
 function signaturesToPalier(signatures: number): number {
   if (signatures >= 12) return 5;
   if (signatures >= 8) return 4;
@@ -28,7 +28,6 @@ function signaturesToPalier(signatures: number): number {
   return 0;
 }
 
-/** Initiales 2 lettres à partir d'un nom complet ou email. */
 function initialsOf(name: string | null, email: string): string {
   const base = (name && name.trim()) || email.split('@')[0];
   const parts = base.split(/[\s._-]+/).filter(Boolean);
@@ -99,7 +98,6 @@ export default async function AdminV2Page() {
       (a.full_name ?? a.email).localeCompare(b.full_name ?? b.email)
     );
 
-  // Compute stats per commercial
   const startOfMonth = new Date();
   startOfMonth.setDate(1);
   startOfMonth.setHours(0, 0, 0, 0);
@@ -113,8 +111,7 @@ export default async function AdminV2Page() {
     const rdv = own.filter((p) => p.status === 'rdv_pris').length;
     const signed = own.filter((p) => p.status === 'gagne');
     const total = ownActive.length;
-    const conversion =
-      total > 0 ? Math.round((signed.length / total) * 100) : 0;
+    const conversion = total > 0 ? Math.round((signed.length / total) * 100) : 0;
 
     return {
       id: c.id,
@@ -161,5 +158,91 @@ export default async function AdminV2Page() {
     },
   };
 
-  return <AdminV2Client data={data} />;
+  // Funnel
+  const funnelStatuses: { key: string; label: string }[] = [
+    { key: 'a_contacter', label: 'À contacter' },
+    { key: 'contacte', label: 'Contacté' },
+    { key: 'rdv_pris', label: 'RDV pris' },
+    { key: 'devis_envoye', label: 'Devis envoyé' },
+    { key: 'gagne', label: 'Devis signé' },
+  ];
+  const funnel = funnelStatuses.map((s) => ({
+    status: s.key,
+    label: s.label,
+    count: prospects.filter((p) => p.status === s.key).length,
+  }));
+
+  // Classement (par CA pipeline décroissant)
+  const classement = [...commerciaux]
+    .map((c) => ({
+      id: c.id,
+      name: c.name,
+      initials: c.initials,
+      prospects: c.total,
+      signatures: c.signatures,
+      ca: sumCaMidpointEur(
+        prospects.filter(
+          (p) =>
+            p.assigned_to === c.id &&
+            ['a_contacter', 'contacte', 'rdv_pris', 'devis_envoye', 'gagne'].includes(
+              p.status
+            )
+        )
+      ),
+    }))
+    .sort((a, b) => b.ca - a.ca);
+
+  // Paliers
+  const paliers = commerciaux.map((c) => ({
+    id: c.id,
+    name: c.name,
+    initials: c.initials,
+    signatures: c.signatures,
+    palier: c.palier,
+  }));
+
+  // Activity (drived from updated_at + status of recent prospects)
+  const activity = [...prospects]
+    .filter((p) => p.updated_at)
+    .sort((a, b) => (b.updated_at! > a.updated_at! ? 1 : -1))
+    .slice(0, 12)
+    .map((p) => {
+      const d = new Date(p.updated_at!);
+      const date = `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1)
+        .toString()
+        .padStart(2, '0')} ${d.getHours().toString().padStart(2, '0')}:${d
+        .getMinutes()
+        .toString()
+        .padStart(2, '0')}`;
+      const commercial = freelances.find((u) => u.id === p.assigned_to);
+      const userInitials = commercial
+        ? initialsOf(commercial.full_name, commercial.email)
+        : '•';
+      const typeMap: Record<string, string> = {
+        rdv_pris: 'RDV PRIS',
+        devis_envoye: 'DEVIS SENT',
+        gagne: 'DEVIS SIGNÉ',
+        contacte: 'CONTACTÉ',
+        a_contacter: 'PROSPECT UPDATED',
+        archived: 'ARCHIVÉ',
+        perdu: 'PERDU',
+      };
+      return {
+        date,
+        type: typeMap[p.status] ?? 'PROSPECT UPDATED',
+        company: p.company_name,
+        detail: p.city ?? '',
+        user: commercial?.id ?? 'system',
+        userInitials,
+      };
+    });
+
+  return (
+    <>
+      <AdminV2Client data={data} />
+      <AdminExtraSections
+        data={{ funnel, classement, paliers, activity }}
+      />
+    </>
+  );
 }
