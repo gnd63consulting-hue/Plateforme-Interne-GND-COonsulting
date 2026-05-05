@@ -13,15 +13,33 @@ import type {
   FormationEntry,
 } from './page';
 
-const FORMATION_MODULES = [
-  'Découverte\nGND',
-  'Sites\nVitrines',
-  'Process\nvente',
-  'Techniques\nvente',
-  'Objections\ntraitement',
-  'Bases\ntechniques',
-  'Outils\nprocess',
-];
+// Type local étendu — Prospect ne déclare pas tous les champs Notion mais
+// ils sont bien retournés par Supabase via PROSPECT_SELECT_COLUMNS.
+type ProspectFull = Prospect & {
+  secteur_activite?: string | null;
+  taille_entreprise?: string | null;
+  nombre_employes?: number | null;
+  ca_estime?: string | null;
+  branche?: string | null;
+  note_google?: number | null;
+  nombre_avis?: number | null;
+  recommandation_approche?: string | null;
+  analyse_besoin?: string | null;
+  analyse_budget?: string | null;
+  analyse_timing?: string | null;
+  arguments_cles?: string[] | null;
+  besoins_detectes?: string[] | null;
+  instagram?: string | null;
+  facebook?: string | null;
+  linkedin_contact?: string | null;
+  linkedin_entreprise?: string | null;
+  tiktok?: string | null;
+  prenom_contact?: string | null;
+  role_contact?: string | null;
+  notion_page_id?: string | null;
+};
+
+const FORMATION_MODULES = ['Découverte\nGND', 'Sites\nVitrines', 'Process\nvente', 'Techniques\nvente', 'Objections\ntraitement', 'Bases\ntechniques', 'Outils\nprocess'];
 
 const PALIERS_BONUS = [
   { niveau: 1, label: 'Bronze',       icon: '🥉', signatures: 1,  bonus: 200,  color: '#A0735C' },
@@ -48,29 +66,15 @@ const CLASSIF_CONFIG: Record<string, { color: string; bg: string; border: string
   '❄️ Froid': { color: '#5B8AB8', bg: 'rgba(91,138,184,0.12)', border: 'rgba(91,138,184,0.25)' },
 };
 
-function Mono({ children, size = 9, color = 'rgba(253,246,238,0.4)', spacing = '0.2em', weight = 600, style = {} }: {
-  children: React.ReactNode; size?: number; color?: string; spacing?: string; weight?: number; style?: React.CSSProperties;
-}) {
-  return (
-    <span style={{ fontFamily: 'var(--font-geist-mono), ui-monospace, monospace', fontSize: size, fontWeight: weight, textTransform: 'uppercase', letterSpacing: spacing, color, ...style }}>
-      {children}
-    </span>
-  );
+function Mono({ children, size = 9, color = 'rgba(253,246,238,0.4)', spacing = '0.2em', weight = 600, style = {} }: { children: React.ReactNode; size?: number; color?: string; spacing?: string; weight?: number; style?: React.CSSProperties }) {
+  return <span style={{ fontFamily: 'var(--font-geist-mono), ui-monospace, monospace', fontSize: size, fontWeight: weight, textTransform: 'uppercase', letterSpacing: spacing, color, ...style }}>{children}</span>;
 }
-
 function Hairline({ label, color = '#E8853D' }: { label: string; color?: string }) {
-  return (
-    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-      <span style={{ display: 'inline-block', width: 24, height: 1, background: color }} />
-      <Mono color={color}>{label}</Mono>
-    </div>
-  );
+  return <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}><span style={{ display: 'inline-block', width: 24, height: 1, background: color }} /><Mono color={color}>{label}</Mono></div>;
 }
 
 function KpiCard({ label, value, sub, accent, spark }: { label: string; value: string | number; sub?: string; accent?: string; spark?: number[] }) {
-  const sparkPts = spark
-    ? spark.map((v, i) => `${(i / (spark.length - 1)) * 56},${18 - ((v - Math.min(...spark)) / (Math.max(...spark) - Math.min(...spark) || 1)) * 16}`).join(' ')
-    : null;
+  const sparkPts = spark ? spark.map((v, i) => `${(i / (spark.length - 1)) * 56},${18 - ((v - Math.min(...spark)) / (Math.max(...spark) - Math.min(...spark) || 1)) * 16}`).join(' ') : null;
   const lastY = spark ? 18 - ((spark[spark.length - 1] - Math.min(...spark)) / (Math.max(...spark) - Math.min(...spark) || 1)) * 16 : 0;
   return (
     <div style={{ position: 'relative', overflow: 'hidden', borderRadius: 16, padding: '14px 18px', border: '1px solid rgba(232,133,61,0.10)', backgroundImage: 'radial-gradient(circle at 20% 0%,rgba(232,133,61,0.10) 0%,transparent 55%),linear-gradient(135deg,#3D1F1E 0%,#1A0F0E 100%)', flex: 1, minWidth: 120, transition: 'all .2s cubic-bezier(0.22,1,0.36,1)' }}>
@@ -78,12 +82,7 @@ function KpiCard({ label, value, sub, accent, spark }: { label: string; value: s
       <div style={{ fontFamily: 'var(--font-fraunces), Georgia, serif', fontSize: 36, fontWeight: 500, lineHeight: 1, letterSpacing: '-0.02em', color: accent ?? '#FDF6EE', fontVariantNumeric: 'tabular-nums', marginBottom: 8 }}>{value}</div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         {sub && <Mono size={9} color="rgba(253,246,238,0.32)">{sub}</Mono>}
-        {sparkPts && (
-          <svg width="56" height="18" viewBox="0 0 56 18">
-            <polyline points={sparkPts} fill="none" stroke="rgba(232,133,61,0.5)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            <circle cx="56" cy={lastY} r="2" fill="#E8853D" />
-          </svg>
-        )}
+        {sparkPts && <svg width="56" height="18" viewBox="0 0 56 18"><polyline points={sparkPts} fill="none" stroke="rgba(232,133,61,0.5)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /><circle cx="56" cy={lastY} r="2" fill="#E8853D" /></svg>}
       </div>
     </div>
   );
@@ -103,9 +102,7 @@ function Speedo({ value = 38, size = 88 }: { value?: number; size?: number }) {
           <div style={{ position: 'absolute', left: '50%', top: '50%', width: 2, height: size * 0.35, background: 'linear-gradient(180deg,transparent 8%,#FDF6EE 14%,#FDF6EE 82%,#E8853D 100%)', borderRadius: 1, transformOrigin: '50% 100%', transform: `translate(-50%,-100%) rotate(${angle + 90}deg)`, transition: 'transform 1s cubic-bezier(0.22,1,0.36,1)' }} />
           <div style={{ position: 'absolute', left: '50%', top: '50%', width: 8, height: 8, borderRadius: 999, background: 'radial-gradient(circle,#FDF6EE,#A0735C)', transform: 'translate(-50%,-50%)' }} />
           <div style={{ position: 'absolute', left: 0, right: 0, bottom: 8, textAlign: 'center' }}>
-            <span style={{ fontFamily: 'var(--font-fraunces), Georgia, serif', fontSize: size * 0.22, fontWeight: 500, color: '#FDF6EE', letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>
-              {value}<span style={{ color: '#E8853D', fontSize: size * 0.13 }}>%</span>
-            </span>
+            <span style={{ fontFamily: 'var(--font-fraunces), Georgia, serif', fontSize: size * 0.22, fontWeight: 500, color: '#FDF6EE', letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>{value}<span style={{ color: '#E8853D', fontSize: size * 0.13 }}>%</span></span>
           </div>
         </div>
       </div>
@@ -126,14 +123,7 @@ function RocketMini({ palier = 2, total = 5, height = 100 }: { palier?: number; 
         return (
           <div key={i} style={{ position: 'absolute', top: topPx, left: '50%', transform: 'translateX(-50%)', zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'center', width: isActive ? 18 : DOT, height: isActive ? 26 : DOT }}>
             {isActive ? (
-              <svg width="18" height="26" viewBox="0 0 44 64" style={{ filter: 'drop-shadow(0 0 5px rgba(232,133,61,0.9))' }}>
-                <path d="M22 4 L32 20 L32 40 L12 40 L12 20 Z" fill="#FDF6EE" stroke="#A0735C" strokeWidth="0.8" />
-                <path d="M22 4 L32 20 L12 20 Z" fill="#E8853D" />
-                <circle cx="22" cy="27" r="5" fill="#E8853D" />
-                <path d="M12 32 L4 46 L12 40 Z" fill="#D4732A" />
-                <path d="M32 32 L40 46 L32 40 Z" fill="#D4732A" />
-                <path d="M15 40 Q19 54 22 48 Q25 54 29 40 Z" fill="#FFA060" />
-              </svg>
+              <svg width="18" height="26" viewBox="0 0 44 64" style={{ filter: 'drop-shadow(0 0 5px rgba(232,133,61,0.9))' }}><path d="M22 4 L32 20 L32 40 L12 40 L12 20 Z" fill="#FDF6EE" stroke="#A0735C" strokeWidth="0.8" /><path d="M22 4 L32 20 L12 20 Z" fill="#E8853D" /><circle cx="22" cy="27" r="5" fill="#E8853D" /><path d="M12 32 L4 46 L12 40 Z" fill="#D4732A" /><path d="M32 32 L40 46 L32 40 Z" fill="#D4732A" /><path d="M15 40 Q19 54 22 48 Q25 54 29 40 Z" fill="#FFA060" /></svg>
             ) : (
               <div style={{ width: DOT, height: DOT, borderRadius: 999, background: reached ? '#E8853D' : 'rgba(253,246,238,0.10)', boxShadow: reached ? '0 0 6px rgba(232,133,61,0.55)' : 'none', border: reached ? '1px solid rgba(232,133,61,0.6)' : '1px solid rgba(253,246,238,0.15)' }} />
             )}
@@ -158,24 +148,18 @@ function FunnelSection({ stages }: { stages: FunnelStage[] }) {
           const barW = total > 0 ? Math.max((f.count / total) * 100, f.count > 0 ? 2 : 0) : 0;
           return (
             <div key={f.status} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div style={{ width: 110, flexShrink: 0 }}>
-                <span style={{ padding: '3px 8px', borderRadius: 999, background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.border}`, fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.15em' }}>{f.label}</span>
-              </div>
+              <div style={{ width: 110, flexShrink: 0 }}><span style={{ padding: '3px 8px', borderRadius: 999, background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.border}`, fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.15em' }}>{f.label}</span></div>
               <div style={{ flex: 1, height: 20, borderRadius: 999, background: 'rgba(253,246,238,0.02)', border: '1px solid rgba(232,133,61,0.06)', position: 'relative', overflow: 'hidden' }}>
                 <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, borderRadius: 999, width: `${barW}%`, background: `linear-gradient(90deg,${cfg.color}BB,${cfg.color})`, transition: 'width 0.8s cubic-bezier(0.22,1,0.36,1)', display: 'flex', alignItems: 'center', paddingLeft: 8, minWidth: f.count > 0 ? 24 : 0 }}>
                   {f.count > 0 && <Mono size={9} color="rgba(253,246,238,0.9)">{f.count}</Mono>}
                 </div>
                 {f.count === 0 && <div style={{ position: 'absolute', left: 8, top: 0, bottom: 0, display: 'flex', alignItems: 'center' }}><Mono size={9} color="rgba(253,246,238,0.4)">0</Mono></div>}
               </div>
-              <div style={{ width: 36, flexShrink: 0, textAlign: 'right' }}>
-                <Mono size={9} color={f.convPct && f.convPct !== '~' ? cfg.color : 'rgba(253,246,238,0.4)'}>{f.convPct ?? '—'}</Mono>
-              </div>
+              <div style={{ width: 36, flexShrink: 0, textAlign: 'right' }}><Mono size={9} color={f.convPct && f.convPct !== '~' ? cfg.color : 'rgba(253,246,238,0.4)'}>{f.convPct ?? '—'}</Mono></div>
             </div>
           );
         })}
-        <div style={{ marginTop: 4, paddingTop: 10, borderTop: '1px solid rgba(232,133,61,0.10)' }}>
-          <Mono size={8} color="rgba(253,246,238,0.4)">LE POURCENTAGE INDIQUE LE PASSAGE DEPUIS L&apos;ÉTAPE PRÉCÉDENTE. STATUTS PERDU/ARCHIVÉ EXCLUS.</Mono>
-        </div>
+        <div style={{ marginTop: 4, paddingTop: 10, borderTop: '1px solid rgba(232,133,61,0.10)' }}><Mono size={8} color="rgba(253,246,238,0.4)">LE POURCENTAGE INDIQUE LE PASSAGE DEPUIS L&apos;ÉTAPE PRÉCÉDENTE. STATUTS PERDU/ARCHIVÉ EXCLUS.</Mono></div>
       </div>
     </div>
   );
@@ -188,10 +172,7 @@ function ClassementSection({ entries, commerciaux }: { entries: ClassementEntry[
   const rankColors = ['#E8853D', '#C49A3C', '#A0735C'];
   return (
     <div style={{ background: 'rgba(253,246,238,0.03)', border: '1px solid rgba(232,133,61,0.10)', borderRadius: 18, overflow: 'hidden' }}>
-      <div style={{ padding: '14px 20px', borderBottom: '1px solid rgba(232,133,61,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Hairline label="CLASSEMENT COMMERCIAUX" />
-        <Mono size={9} color="rgba(253,246,238,0.38)">PODIUM · CA POTENTIEL</Mono>
-      </div>
+      <div style={{ padding: '14px 20px', borderBottom: '1px solid rgba(232,133,61,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}><Hairline label="CLASSEMENT COMMERCIAUX" /><Mono size={9} color="rgba(253,246,238,0.38)">PODIUM · CA POTENTIEL</Mono></div>
       <div style={{ padding: 20 }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.3fr 1fr', gap: 10, alignItems: 'end', marginBottom: 14 }}>
           {podium.map((c) => {
@@ -207,25 +188,16 @@ function ClassementSection({ entries, commerciaux }: { entries: ClassementEntry[
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <div style={{ width: isFirst ? 40 : 32, height: isFirst ? 40 : 32, borderRadius: 999, flexShrink: 0, background: `linear-gradient(135deg,${rCol}35,${rCol}15)`, border: `1.5px solid ${rCol}55`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-fraunces)', fontSize: isFirst ? 15 : 12, fontWeight: 600, color: rCol }}>{c.initials}</div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                      <span style={{ fontFamily: 'var(--font-fraunces)', fontSize: isFirst ? 15 : 12, fontWeight: 500, color: rCol }}>#{c.rank}</span>
-                      {isFirst && <span style={{ fontSize: 12 }}>🏆</span>}
-                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ fontFamily: 'var(--font-fraunces)', fontSize: isFirst ? 15 : 12, fontWeight: 500, color: rCol }}>#{c.rank}</span>{isFirst && <span style={{ fontSize: 12 }}>🏆</span>}</div>
                     <div style={{ fontFamily: 'var(--font-geist-sans), sans-serif', fontSize: isFirst ? 12 : 11, fontWeight: 600, color: '#FDF6EE', lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.name}</div>
                   </div>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <Speedo value={commercial?.conversion ?? 0} size={isFirst ? 68 : 52} />
-                </div>
+                <div style={{ display: 'flex', justifyContent: 'center' }}><Speedo value={commercial?.conversion ?? 0} size={isFirst ? 68 : 52} /></div>
                 <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontFamily: 'var(--font-fraunces)', fontSize: isFirst ? 22 : 16, fontWeight: 500, color: '#5A8A3F', fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>
-                    {c.ca}<span style={{ fontSize: isFirst ? 12 : 10, color: 'rgba(253,246,238,0.38)' }}> k€</span>
-                  </div>
+                  <div style={{ fontFamily: 'var(--font-fraunces)', fontSize: isFirst ? 22 : 16, fontWeight: 500, color: '#5A8A3F', fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>{c.ca}<span style={{ fontSize: isFirst ? 12 : 10, color: 'rgba(253,246,238,0.38)' }}> k€</span></div>
                   <Mono size={7} color="rgba(253,246,238,0.38)" style={{ display: 'block', marginTop: 4 }}>CA POTENTIEL</Mono>
                 </div>
-                <div style={{ height: 3, borderRadius: 999, background: 'rgba(253,246,238,0.06)', overflow: 'hidden' }}>
-                  <div style={{ height: '100%', width: `${c.pct}%`, borderRadius: 999, background: `linear-gradient(90deg,${rCol}70,${rCol})` }} />
-                </div>
+                <div style={{ height: 3, borderRadius: 999, background: 'rgba(253,246,238,0.06)', overflow: 'hidden' }}><div style={{ height: '100%', width: `${c.pct}%`, borderRadius: 999, background: `linear-gradient(90deg,${rCol}70,${rCol})` }} /></div>
                 <Mono size={7} color="rgba(253,246,238,0.38)" style={{ textAlign: 'center' }}>{c.prospects} PROSPECTS</Mono>
               </div>
             );
@@ -260,7 +232,7 @@ function FormationSection({ entries }: { entries: FormationEntry[] }) {
         <div style={{ display: 'flex', alignItems: 'flex-end' }}>
           {u.progress.map((done, idx) => (
             <div key={idx} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <div style={{ width: done ? 22 : 18, height: done ? 22 : 18, borderRadius: 999, background: done ? 'linear-gradient(135deg,#E8853D,#FFA060)' : 'rgba(253,246,238,0.05)', border: `2px solid ${done ? 'rgba(232,133,61,0.55)' : 'rgba(253,246,238,0.12)'}`, boxShadow: done ? '0 0 8px rgba(232,133,61,0.40)' : 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.3s cubic-bezier(0.22,1,0.36,1)' }}>
+              <div style={{ width: done ? 22 : 18, height: done ? 22 : 18, borderRadius: 999, background: done ? 'linear-gradient(135deg,#E8853D,#FFA060)' : 'rgba(253,246,238,0.05)', border: `2px solid ${done ? 'rgba(232,133,61,0.55)' : 'rgba(253,246,238,0.12)'}`, boxShadow: done ? '0 0 8px rgba(232,133,61,0.40)' : 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {done === 1 && <span style={{ fontSize: 9, color: '#3D1F1E', fontWeight: 700, lineHeight: 1 }}>✓</span>}
               </div>
               <div style={{ width: 2, height: 6, background: done ? 'rgba(232,133,61,0.45)' : 'rgba(253,246,238,0.06)' }} />
@@ -268,13 +240,11 @@ function FormationSection({ entries }: { entries: FormationEntry[] }) {
           ))}
         </div>
         <div style={{ position: 'relative', height: 3, borderRadius: 999, background: 'rgba(253,246,238,0.06)', overflow: 'hidden' }}>
-          <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, borderRadius: 999, width: `${(u.completed / u.total) * 100}%`, background: 'linear-gradient(90deg,#D4732A,#FFA060)', boxShadow: '0 0 6px rgba(232,133,61,0.35)', transition: 'width 0.8s cubic-bezier(0.22,1,0.36,1)' }} />
+          <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, borderRadius: 999, width: `${(u.completed / u.total) * 100}%`, background: 'linear-gradient(90deg,#D4732A,#FFA060)', boxShadow: '0 0 6px rgba(232,133,61,0.35)' }} />
         </div>
       </div>
       <div style={{ width: 80, flexShrink: 0, textAlign: 'right', paddingLeft: 16 }}>
-        <div style={{ fontFamily: 'var(--font-fraunces)', fontSize: 16, fontWeight: 500, color: u.completed === u.total && u.completed > 0 ? '#5A8A3F' : u.completed > 0 ? '#E8853D' : 'rgba(253,246,238,0.38)', fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>
-          {u.completed}<span style={{ fontSize: 11, color: 'rgba(253,246,238,0.38)' }}>/{u.total}</span>
-        </div>
+        <div style={{ fontFamily: 'var(--font-fraunces)', fontSize: 16, fontWeight: 500, color: u.completed === u.total && u.completed > 0 ? '#5A8A3F' : u.completed > 0 ? '#E8853D' : 'rgba(253,246,238,0.38)', fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>{u.completed}<span style={{ fontSize: 11, color: 'rgba(253,246,238,0.38)' }}>/{u.total}</span></div>
         {u.lastActivity && <Mono size={7} color="rgba(253,246,238,0.38)" spacing="0.12em" style={{ display: 'block', marginTop: 3 }}>{u.lastActivity}</Mono>}
       </div>
     </div>
@@ -288,10 +258,7 @@ function FormationSection({ entries }: { entries: FormationEntry[] }) {
   );
   return (
     <div style={{ background: 'rgba(253,246,238,0.03)', border: '1px solid rgba(232,133,61,0.10)', borderRadius: 18, overflow: 'hidden' }}>
-      <div style={{ padding: '14px 20px', borderBottom: '1px solid rgba(232,133,61,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Hairline label="SUIVI FORMATION" />
-        <Mono size={9} color="rgba(253,246,238,0.38)">7 MODULES · {entries.length} MEMBRES</Mono>
-      </div>
+      <div style={{ padding: '14px 20px', borderBottom: '1px solid rgba(232,133,61,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}><Hairline label="SUIVI FORMATION" /><Mono size={9} color="rgba(253,246,238,0.38)">7 MODULES · {entries.length} MEMBRES</Mono></div>
       <div style={{ padding: '20px 24px' }}>
         <div style={{ display: 'flex', alignItems: 'flex-end', paddingLeft: 196, marginBottom: 0 }}>
           {FORMATION_MODULES.map((mod, idx) => (
@@ -306,9 +273,7 @@ function FormationSection({ entries }: { entries: FormationEntry[] }) {
         {commercials.length > 0 && groupLabel('COMMERCIAUX')}
         {commercials.map((u, i) => renderRow(u, i, commercials))}
       </div>
-      <div style={{ padding: '10px 24px', borderTop: '1px solid rgba(232,133,61,0.10)' }}>
-        <Mono size={7} color="rgba(253,246,238,0.38)">7 MODULES · PROGRESSION EN TEMPS RÉEL · AUTO-SYNC NOTION</Mono>
-      </div>
+      <div style={{ padding: '10px 24px', borderTop: '1px solid rgba(232,133,61,0.10)' }}><Mono size={7} color="rgba(253,246,238,0.38)">7 MODULES · PROGRESSION EN TEMPS RÉEL · AUTO-SYNC NOTION</Mono></div>
     </div>
   );
 }
@@ -317,10 +282,7 @@ function PaliersSection({ commerciaux }: { commerciaux: CommercialV2[] }) {
   const maxPalier = commerciaux.length > 0 ? Math.max(...commerciaux.map((c) => c.palier)) : 0;
   return (
     <div style={{ background: 'rgba(253,246,238,0.03)', border: '1px solid rgba(232,133,61,0.10)', borderRadius: 18, overflow: 'hidden' }}>
-      <div style={{ padding: '14px 20px', borderBottom: '1px solid rgba(232,133,61,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Hairline label="PALIERS BONUS" />
-        <Mono size={9} color="rgba(253,246,238,0.38)">PAR COMMERCIAL · MENSUEL</Mono>
-      </div>
+      <div style={{ padding: '14px 20px', borderBottom: '1px solid rgba(232,133,61,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}><Hairline label="PALIERS BONUS" /><Mono size={9} color="rgba(253,246,238,0.38)">PAR COMMERCIAL · MENSUEL</Mono></div>
       <div style={{ padding: '20px 24px 24px' }}>
         <div style={{ position: 'relative', marginBottom: 20 }}>
           <div style={{ display: 'flex', alignItems: 'flex-end', marginBottom: 10 }}>
@@ -330,14 +292,14 @@ function PaliersSection({ commerciaux }: { commerciaux: CommercialV2[] }) {
               const nodeSize = isActive ? 52 : reached ? 40 : 32;
               return (
                 <div key={p.niveau} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                  <div style={{ width: nodeSize, height: nodeSize, borderRadius: 999, background: isActive ? `radial-gradient(circle at 35% 35%, ${p.color}, ${p.color}88)` : reached ? `${p.color}22` : 'rgba(253,246,238,0.05)', border: `2px solid ${reached ? p.color + '80' : 'rgba(253,246,238,0.12)'}`, boxShadow: isActive ? `0 0 18px ${p.color}55` : reached ? `0 0 8px ${p.color}30` : 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: isActive ? 24 : reached ? 18 : 16, transition: 'all 0.35s cubic-bezier(0.22,1,0.36,1)' }}>{p.icon}</div>
+                  <div style={{ width: nodeSize, height: nodeSize, borderRadius: 999, background: isActive ? `radial-gradient(circle at 35% 35%, ${p.color}, ${p.color}88)` : reached ? `${p.color}22` : 'rgba(253,246,238,0.05)', border: `2px solid ${reached ? p.color + '80' : 'rgba(253,246,238,0.12)'}`, boxShadow: isActive ? `0 0 18px ${p.color}55` : reached ? `0 0 8px ${p.color}30` : 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: isActive ? 24 : reached ? 18 : 16 }}>{p.icon}</div>
                   <div style={{ width: 2, height: 10, background: reached ? p.color + '60' : 'rgba(253,246,238,0.08)' }} />
                 </div>
               );
             })}
           </div>
           <div style={{ position: 'relative', height: 4, borderRadius: 999, background: 'rgba(253,246,238,0.06)', overflow: 'visible' }}>
-            <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, borderRadius: 999, width: `${maxPalier > 0 ? ((maxPalier - 1) / (PALIERS_BONUS.length - 1)) * 100 : 0}%`, background: 'linear-gradient(90deg,#D4732A,#E8853D)', boxShadow: '0 0 8px rgba(232,133,61,0.4)', transition: 'width 0.8s cubic-bezier(0.22,1,0.36,1)' }} />
+            <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, borderRadius: 999, width: `${maxPalier > 0 ? ((maxPalier - 1) / (PALIERS_BONUS.length - 1)) * 100 : 0}%`, background: 'linear-gradient(90deg,#D4732A,#E8853D)', boxShadow: '0 0 8px rgba(232,133,61,0.4)' }} />
             {PALIERS_BONUS.map((p, i) => {
               const reached = p.niveau <= maxPalier;
               const leftPct = (i / (PALIERS_BONUS.length - 1)) * 100;
@@ -380,7 +342,7 @@ function CommercialCards({ commerciaux }: { commerciaux: CommercialV2[] }) {
       {commerciaux.map((c) => {
         const palier = PALIERS_BONUS[Math.min(c.palier - 1, PALIERS_BONUS.length - 1)];
         return (
-          <div key={c.id} style={{ background: 'rgba(253,246,238,0.03)', border: '1px solid rgba(232,133,61,0.10)', borderRadius: 18, padding: 18, transition: 'all 0.2s cubic-bezier(0.22,1,0.36,1)', display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div key={c.id} style={{ background: 'rgba(253,246,238,0.03)', border: '1px solid rgba(232,133,61,0.10)', borderRadius: 18, padding: 18, display: 'flex', flexDirection: 'column', gap: 14 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <div style={{ width: 44, height: 44, borderRadius: 999, flexShrink: 0, background: 'linear-gradient(135deg,rgba(232,133,61,0.25),rgba(196,154,60,0.15))', border: '1px solid rgba(232,133,61,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-fraunces)', fontSize: 16, fontWeight: 500, color: '#E8853D' }}>{c.initials}</div>
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -390,17 +352,9 @@ function CommercialCards({ commerciaux }: { commerciaux: CommercialV2[] }) {
               {palier && c.palier > 0 && <span style={{ fontSize: 16 }}>{palier.icon}</span>}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-around', background: 'rgba(0,0,0,0.12)', borderRadius: 12, padding: '12px 8px', border: '1px solid rgba(232,133,61,0.06)' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
-                <Speedo value={c.conversion} size={78} />
-                <Mono size={8} color="rgba(232,133,61,0.6)">CONVERSION</Mono>
-              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}><Speedo value={c.conversion} size={78} /><Mono size={8} color="rgba(232,133,61,0.6)">CONVERSION</Mono></div>
               <div style={{ width: 1, height: 60, background: 'rgba(232,133,61,0.10)' }} />
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                <Mono size={7} color="rgba(253,246,238,0.3)">STRATO</Mono>
-                <RocketMini palier={c.palier} total={5} height={80} />
-                <Mono size={7} color="rgba(253,246,238,0.2)">ATTERR.</Mono>
-                <Mono size={8} color="#E8853D">P{c.palier}/5</Mono>
-              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}><Mono size={7} color="rgba(253,246,238,0.3)">STRATO</Mono><RocketMini palier={c.palier} total={5} height={80} /><Mono size={7} color="rgba(253,246,238,0.2)">ATTERR.</Mono><Mono size={8} color="#E8853D">P{c.palier}/5</Mono></div>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 6 }}>
               {[{ l: 'PROSPECTS', v: c.total }, { l: '🔥 CHAUDS', v: c.chauds }, { l: 'SIGNÉS', v: c.signatures }].map((s) => (
@@ -478,10 +432,7 @@ function SyncSection({ commerciaux }: { commerciaux: CommercialV2[] }) {
 
   return (
     <div style={{ background: 'rgba(253,246,238,0.03)', border: '1px solid rgba(232,133,61,0.10)', borderRadius: 18, overflow: 'hidden' }}>
-      <div style={{ padding: '14px 20px', borderBottom: '1px solid rgba(232,133,61,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Hairline label="SYNC NOTION" />
-        <Mono size={9} color="rgba(253,246,238,0.4)">{relSync()}</Mono>
-      </div>
+      <div style={{ padding: '14px 20px', borderBottom: '1px solid rgba(232,133,61,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}><Hairline label="SYNC NOTION" /><Mono size={9} color="rgba(253,246,238,0.4)">{relSync()}</Mono></div>
       <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
           <Mono size={8} color="rgba(253,246,238,0.4)" style={{ marginRight: 4 }}>CIBLE :</Mono>
@@ -489,9 +440,7 @@ function SyncSection({ commerciaux }: { commerciaux: CommercialV2[] }) {
             <button key={opt.id} onClick={() => setTarget(opt.id)} style={{ padding: '4px 10px', borderRadius: 8, cursor: 'pointer', background: target === opt.id ? 'rgba(232,133,61,0.15)' : 'rgba(253,246,238,0.04)', border: `1px solid ${target === opt.id ? 'rgba(232,133,61,0.30)' : 'rgba(253,246,238,0.08)'}`, color: target === opt.id ? '#E8853D' : 'rgba(253,246,238,0.4)', fontFamily: 'var(--font-geist-mono)', fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.15em' }}>{opt.label}</button>
           ))}
         </div>
-        <button onClick={doSync} disabled={syncing} style={{ width: '100%', padding: '11px 0', borderRadius: 12, cursor: syncing ? 'not-allowed' : 'pointer', background: syncing ? 'rgba(232,133,61,0.08)' : 'linear-gradient(90deg,#D4732A,#E8853D,#FFA060)', border: syncing ? '1px solid rgba(232,133,61,0.18)' : 'none', color: syncing ? '#E8853D' : '#3D1F1E', fontFamily: 'var(--font-geist-mono)', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.2em', boxShadow: syncing ? 'none' : '0 0 20px rgba(232,133,61,0.25)' }}>
-          {syncing ? 'SYNCHRONISATION…' : 'Synchroniser Notion → Prospects'}
-        </button>
+        <button onClick={doSync} disabled={syncing} style={{ width: '100%', padding: '11px 0', borderRadius: 12, cursor: syncing ? 'not-allowed' : 'pointer', background: syncing ? 'rgba(232,133,61,0.08)' : 'linear-gradient(90deg,#D4732A,#E8853D,#FFA060)', border: syncing ? '1px solid rgba(232,133,61,0.18)' : 'none', color: syncing ? '#E8853D' : '#3D1F1E', fontFamily: 'var(--font-geist-mono)', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.2em', boxShadow: syncing ? 'none' : '0 0 20px rgba(232,133,61,0.25)' }}>{syncing ? 'SYNCHRONISATION…' : 'Synchroniser Notion → Prospects'}</button>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
           {[{ l: 'INSERTED', v: result.inserted, c: '#5A8A3F' }, { l: 'UPDATED', v: result.updated, c: '#E8853D' }, { l: 'DELETED', v: result.deleted, c: '#B5421F' }, { l: 'SKIPPED', v: result.skipped, c: 'rgba(253,246,238,0.4)' }].map((item) => (
             <div key={item.l} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 10px', borderRadius: 8, background: 'rgba(253,246,238,0.02)', border: '1px solid rgba(232,133,61,0.10)' }}>
@@ -500,6 +449,118 @@ function SyncSection({ commerciaux }: { commerciaux: CommercialV2[] }) {
             </div>
           ))}
         </div>
+      </div>
+    </div>
+  );
+}
+
+function DrawerSection({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div style={{ marginBottom: 22 }}>
+      <div style={{ marginBottom: 10 }}><Hairline label={label} /></div>
+      <div style={{ background: 'rgba(0,0,0,0.18)', border: '1px solid rgba(232,133,61,0.08)', borderRadius: 12, padding: '12px 14px' }}>{children}</div>
+    </div>
+  );
+}
+function DrawerField({ k, v }: { k: string; v: React.ReactNode }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, padding: '4px 0' }}>
+      <Mono size={8} color="rgba(253,246,238,0.4)" style={{ minWidth: 100, textTransform: 'uppercase' }}>{k}</Mono>
+      <div style={{ flex: 1, fontFamily: 'var(--font-geist-sans)', fontSize: 12, color: 'rgba(253,246,238,0.8)', wordBreak: 'break-word' }}>{v ?? <span style={{ color: 'rgba(253,246,238,0.25)' }}>—</span>}</div>
+    </div>
+  );
+}
+
+function ProspectDetailDrawer({ prospect, commercial, onClose }: { prospect: Prospect | null; commercial?: CommercialV2; onClose: () => void }) {
+  useEffect(() => {
+    if (!prospect) return;
+    const onEsc = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onEsc);
+    return () => window.removeEventListener('keydown', onEsc);
+  }, [prospect, onClose]);
+  if (!prospect) return null;
+  const p = prospect as ProspectFull;
+  const classifCfg = p.classification ? CLASSIF_CONFIG[p.classification] : null;
+  const statusCfg = STATUS_CONFIG[p.status] ?? STATUS_CONFIG.a_contacter;
+  const fullName = [p.prenom_contact, p.contact_name].filter(Boolean).join(' ') || '—';
+  const args = p.arguments_cles ?? null;
+  const besoins = p.besoins_detectes ?? null;
+
+  return (
+    <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 100, backdropFilter: 'blur(4px)' }} data-lenis-prevent>
+      <div onClick={(e) => e.stopPropagation()} style={{ position: 'fixed', right: 0, top: 0, bottom: 0, width: '100%', maxWidth: 520, background: 'linear-gradient(135deg,#1A0F0E,#0E0807)', borderLeft: '1px solid rgba(232,133,61,0.20)', overflowY: 'auto', padding: 28, boxShadow: '-20px 0 60px rgba(0,0,0,0.5)' }} data-lenis-prevent>
+        <button onClick={onClose} style={{ position: 'sticky', top: 0, float: 'right', background: 'rgba(232,133,61,0.10)', border: '1px solid rgba(232,133,61,0.25)', borderRadius: 8, padding: '5px 11px', color: '#E8853D', cursor: 'pointer', fontFamily: 'var(--font-geist-mono)', fontSize: 9, fontWeight: 600, letterSpacing: '0.15em', zIndex: 1 }}>FERMER · ESC</button>
+        <div style={{ marginBottom: 24 }}>
+          <Mono color="#E8853D" spacing="0.22em" style={{ display: 'block', marginBottom: 8 }}>FICHE PROSPECT</Mono>
+          <h2 style={{ fontFamily: 'var(--font-fraunces)', fontSize: 30, fontWeight: 500, lineHeight: 1.05, letterSpacing: '-0.02em', color: '#FDF6EE', margin: '0 0 6px' }}>{p.company_name}</h2>
+          <Mono size={9} color="rgba(253,246,238,0.4)" spacing="0.15em" style={{ display: 'block', marginBottom: 10 }}>{p.city ?? '—'}{p.postal_code ? ` · ${p.postal_code}` : ''}{p.secteur_activite ? ` · ${p.secteur_activite}` : ''}</Mono>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 10 }}>
+            {classifCfg && <span style={{ padding: '3px 8px', borderRadius: 999, background: classifCfg.bg, color: classifCfg.color, border: `1px solid ${classifCfg.border}`, fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em' }}>{p.classification}</span>}
+            <span style={{ padding: '3px 8px', borderRadius: 999, background: statusCfg.bg, color: statusCfg.color, border: `1px solid ${statusCfg.border}`, fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em' }}>{statusCfg.label}</span>
+            {p.branche && <span style={{ padding: '3px 8px', borderRadius: 999, background: 'rgba(232,133,61,0.08)', color: '#E8853D', border: '1px solid rgba(232,133,61,0.20)', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em' }}>{p.branche}</span>}
+          </div>
+          {p.notion_page_id && (
+            <a href={`https://www.notion.so/${p.notion_page_id.replace(/-/g, '')}`} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', fontFamily: 'var(--font-geist-mono)', fontSize: 9, color: '#E8853D', textDecoration: 'none', borderBottom: '1px solid rgba(232,133,61,0.30)', paddingBottom: 1, letterSpacing: '0.12em', textTransform: 'uppercase' }}>↗ OUVRIR SUR NOTION</a>
+          )}
+        </div>
+
+        <DrawerSection label="DÉCISIONNAIRE">
+          <DrawerField k="NOM" v={fullName} />
+          <DrawerField k="RÔLE" v={p.role_contact} />
+          <DrawerField k="EMAIL" v={p.email ? <a href={`mailto:${p.email}`} style={{ color: '#FFA060', textDecoration: 'none' }}>{p.email}</a> : null} />
+          <DrawerField k="TÉLÉPHONE" v={p.phone ? <a href={`tel:${p.phone}`} style={{ color: '#FFA060', textDecoration: 'none' }}>{p.phone}</a> : null} />
+          <DrawerField k="LINKEDIN" v={p.linkedin_contact ? <a href={p.linkedin_contact} target="_blank" rel="noopener noreferrer" style={{ color: '#FFA060', textDecoration: 'none' }}>Profil →</a> : null} />
+        </DrawerSection>
+
+        <DrawerSection label="ENTREPRISE">
+          <DrawerField k="ADRESSE" v={p.address ?? p.city} />
+          <DrawerField k="SITE WEB" v={p.website ? <a href={p.website} target="_blank" rel="noopener noreferrer" style={{ color: '#FFA060', textDecoration: 'none' }}>{p.website}</a> : null} />
+          <DrawerField k="TAILLE" v={p.taille_entreprise} />
+          <DrawerField k="EMPLOYÉS" v={p.nombre_employes} />
+          <DrawerField k="CA ESTIMÉ" v={p.ca_estime} />
+          <DrawerField k="NOTE GOOGLE" v={p.note_google ? `${p.note_google}/5${p.nombre_avis ? ` · ${p.nombre_avis} avis` : ''}` : null} />
+        </DrawerSection>
+
+        <DrawerSection label="RÉSEAUX SOCIAUX">
+          <DrawerField k="INSTAGRAM" v={p.instagram ? <a href={p.instagram} target="_blank" rel="noopener noreferrer" style={{ color: '#FFA060', textDecoration: 'none' }}>Voir →</a> : null} />
+          <DrawerField k="FACEBOOK" v={p.facebook ? <a href={p.facebook} target="_blank" rel="noopener noreferrer" style={{ color: '#FFA060', textDecoration: 'none' }}>Voir →</a> : null} />
+          <DrawerField k="LINKEDIN" v={p.linkedin_entreprise ? <a href={p.linkedin_entreprise} target="_blank" rel="noopener noreferrer" style={{ color: '#FFA060', textDecoration: 'none' }}>Voir →</a> : null} />
+          <DrawerField k="TIKTOK" v={p.tiktok ? <a href={p.tiktok} target="_blank" rel="noopener noreferrer" style={{ color: '#FFA060', textDecoration: 'none' }}>Voir →</a> : null} />
+        </DrawerSection>
+
+        {p.recommandation_approche && (
+          <DrawerSection label="RECOMMANDATION D'APPROCHE">
+            <div style={{ fontFamily: 'var(--font-fraunces)', fontSize: 14, lineHeight: 1.5, color: 'rgba(253,246,238,0.85)' }}>{p.recommandation_approche}</div>
+          </DrawerSection>
+        )}
+
+        {(p.analyse_besoin || p.analyse_budget || p.analyse_timing) && (
+          <DrawerSection label="ANALYSES">
+            {p.analyse_besoin && <div style={{ marginBottom: 10 }}><Mono size={8} color="#E8853D" spacing="0.18em" style={{ display: 'block', marginBottom: 4 }}>BESOIN</Mono><div style={{ fontFamily: 'var(--font-geist-sans)', fontSize: 12, lineHeight: 1.5, color: 'rgba(253,246,238,0.75)' }}>{p.analyse_besoin}</div></div>}
+            {p.analyse_budget && <div style={{ marginBottom: 10 }}><Mono size={8} color="#E8853D" spacing="0.18em" style={{ display: 'block', marginBottom: 4 }}>BUDGET</Mono><div style={{ fontFamily: 'var(--font-geist-sans)', fontSize: 12, lineHeight: 1.5, color: 'rgba(253,246,238,0.75)' }}>{p.analyse_budget}</div></div>}
+            {p.analyse_timing && <div><Mono size={8} color="#E8853D" spacing="0.18em" style={{ display: 'block', marginBottom: 4 }}>TIMING</Mono><div style={{ fontFamily: 'var(--font-geist-sans)', fontSize: 12, lineHeight: 1.5, color: 'rgba(253,246,238,0.75)' }}>{p.analyse_timing}</div></div>}
+          </DrawerSection>
+        )}
+
+        {(args && args.length > 0) || (besoins && besoins.length > 0) ? (
+          <DrawerSection label="QUALIFICATION">
+            {args && args.length > 0 && <div style={{ marginBottom: 10 }}><Mono size={8} color="rgba(253,246,238,0.4)" style={{ display: 'block', marginBottom: 6 }}>ARGUMENTS CLÉS</Mono><div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>{args.map((a) => <span key={a} style={{ padding: '3px 8px', borderRadius: 999, background: 'rgba(232,133,61,0.10)', color: '#E8853D', border: '1px solid rgba(232,133,61,0.22)', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em' }}>{a}</span>)}</div></div>}
+            {besoins && besoins.length > 0 && <div><Mono size={8} color="rgba(253,246,238,0.4)" style={{ display: 'block', marginBottom: 6 }}>BESOINS DÉTECTÉS</Mono><div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>{besoins.map((b) => <span key={b} style={{ padding: '3px 8px', borderRadius: 999, background: 'rgba(160,115,92,0.10)', color: '#A0735C', border: '1px solid rgba(160,115,92,0.22)', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em' }}>{b}</span>)}</div></div>}
+          </DrawerSection>
+        ) : null}
+
+        {commercial && (
+          <DrawerSection label="ASSIGNATION">
+            <DrawerField k="COMMERCIAL" v={<span style={{ display: 'inline-flex', alignItems: 'center', gap: 7 }}><span style={{ width: 22, height: 22, borderRadius: 999, background: 'linear-gradient(135deg,rgba(232,133,61,0.25),rgba(196,154,60,0.15))', border: '1px solid rgba(232,133,61,0.22)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-fraunces)', fontSize: 9, fontWeight: 600, color: '#E8853D' }}>{commercial.initials}</span>{commercial.name}</span>} />
+            <DrawerField k="EMAIL COM" v={commercial.email} />
+          </DrawerSection>
+        )}
+
+        {p.notes && (
+          <DrawerSection label="NOTES INTERNES">
+            <div style={{ fontFamily: 'var(--font-geist-sans)', fontSize: 12, lineHeight: 1.5, color: 'rgba(253,246,238,0.7)', whiteSpace: 'pre-wrap' }}>{p.notes}</div>
+          </DrawerSection>
+        )}
       </div>
     </div>
   );
@@ -518,15 +579,11 @@ function PipelineSection({ prospects, commerciaux }: { prospects: Prospect[]; co
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const [reassignOpen, setReassignOpen] = useState<string | null>(null);
   const [reassigning, setReassigning] = useState<string | null>(null);
-
-  // Pagination — 20 prospects par page par défaut
   const [pageSize, setPageSize] = useState<number>(20);
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [detailsProspect, setDetailsProspect] = useState<Prospect | null>(null);
 
-  // Reset à page 1 quand les filtres ou la taille de page changent
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [filterCommercial, filterStatus, showArchived, pageSize]);
+  useEffect(() => { setCurrentPage(1); }, [filterCommercial, filterStatus, showArchived, pageSize]);
 
   const handleSort = (col: SortKey) => {
     if (sortCol === col) setSortDir((d) => (d === 'desc' ? 'asc' : 'desc'));
@@ -537,23 +594,11 @@ function PipelineSection({ prospects, commerciaux }: { prospects: Prospect[]; co
     if (reassigning) return;
     setReassigning(prospectId);
     try {
-      const res = await fetch('/api/admin/reassign-prospect', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prospect_id: prospectId, new_assigned_to: newCommercialId }),
-      });
-      if (res.ok) {
-        router.refresh();
-      } else {
-        const err = await res.json().catch(() => ({}));
-        alert(`Erreur réassignation : ${err.error ?? res.statusText}`);
-      }
-    } catch (e) {
-      alert(`Erreur réseau : ${e instanceof Error ? e.message : 'inconnue'}`);
-    } finally {
-      setReassigning(null);
-      setReassignOpen(null);
-    }
+      const res = await fetch('/api/admin/reassign-prospect', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ prospect_id: prospectId, new_assigned_to: newCommercialId }) });
+      if (res.ok) router.refresh();
+      else { const err = await res.json().catch(() => ({})); alert(`Erreur réassignation : ${err.error ?? res.statusText}`); }
+    } catch (e) { alert(`Erreur réseau : ${e instanceof Error ? e.message : 'inconnue'}`); }
+    finally { setReassigning(null); setReassignOpen(null); }
   };
 
   const filtered = useMemo(() => prospects.filter((p) => {
@@ -573,7 +618,6 @@ function PipelineSection({ prospects, commerciaux }: { prospects: Prospect[]; co
     return sortDir === 'asc' ? d : -d;
   }), [filtered, sortCol, sortDir]);
 
-  // Slice pour pagination
   const totalPages = Math.max(1, Math.ceil(sorted.length / pageSize));
   const safePage = Math.min(currentPage, totalPages);
   const paged = sorted.slice((safePage - 1) * pageSize, safePage * pageSize);
@@ -606,7 +650,6 @@ function PipelineSection({ prospects, commerciaux }: { prospects: Prospect[]; co
     return 5;
   };
 
-  // Build page numbers list (ellipsis si > 7 pages)
   const buildPageList = (): (number | 'dots')[] => {
     if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
     const list: (number | 'dots')[] = [1];
@@ -620,125 +663,116 @@ function PipelineSection({ prospects, commerciaux }: { prospects: Prospect[]; co
   };
 
   return (
-    <div id="pipeline-section" style={{ background: 'rgba(253,246,238,0.03)', border: '1px solid rgba(232,133,61,0.10)', borderRadius: 18, overflow: 'visible', scrollMarginTop: 20 }}>
-      <div style={{ padding: '14px 20px', borderBottom: '1px solid rgba(232,133,61,0.10)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-          <Hairline label="PIPELINE PROSPECTS" />
-          <Mono size={9} color="rgba(253,246,238,0.4)">{filtered.filter((p) => p.status !== 'archived').length} ACTIFS / {prospects.length} TOTAL</Mono>
+    <>
+      <div id="pipeline-section" style={{ background: 'rgba(253,246,238,0.03)', border: '1px solid rgba(232,133,61,0.10)', borderRadius: 18, overflow: 'visible', scrollMarginTop: 20 }}>
+        <div style={{ padding: '14px 20px', borderBottom: '1px solid rgba(232,133,61,0.10)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+            <Hairline label="PIPELINE PROSPECTS" />
+            <Mono size={9} color="rgba(253,246,238,0.4)">{filtered.filter((p) => p.status !== 'archived').length} ACTIFS / {prospects.length} TOTAL</Mono>
+          </div>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
+            <Mono size={8} color="rgba(253,246,238,0.4)" style={{ marginRight: 4 }}>COMMERCIAL :</Mono>
+            {[{ id: 'all', label: 'Tous' }, ...commerciaux.map((c) => ({ id: c.id, label: c.name.split(' ')[0] }))].map((opt) => (
+              <button key={opt.id} onClick={() => setFilterCommercial(opt.id)} style={{ padding: '3px 9px', borderRadius: 8, cursor: 'pointer', background: filterCommercial === opt.id ? 'rgba(232,133,61,0.15)' : 'transparent', border: `1px solid ${filterCommercial === opt.id ? 'rgba(232,133,61,0.30)' : 'rgba(232,133,61,0.10)'}`, color: filterCommercial === opt.id ? '#E8853D' : 'rgba(253,246,238,0.4)', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.14em' }}>{opt.label}</button>
+            ))}
+            <span style={{ width: 1, height: 14, background: 'rgba(232,133,61,0.10)', margin: '0 4px' }} />
+            <Mono size={8} color="rgba(253,246,238,0.4)" style={{ marginRight: 4 }}>STATUT :</Mono>
+            {[{ id: 'all', label: 'Tous' }, { id: 'a_contacter', label: 'À contacter' }, { id: 'contacte', label: 'Contacté' }, { id: 'rdv_pris', label: 'RDV' }, { id: 'devis_envoye', label: 'Devis' }, { id: 'gagne', label: 'Signé' }].map((opt) => (
+              <button key={opt.id} onClick={() => setFilterStatus(opt.id)} style={{ padding: '3px 9px', borderRadius: 8, cursor: 'pointer', background: filterStatus === opt.id ? 'rgba(232,133,61,0.15)' : 'transparent', border: `1px solid ${filterStatus === opt.id ? 'rgba(232,133,61,0.30)' : 'rgba(232,133,61,0.10)'}`, color: filterStatus === opt.id ? '#E8853D' : 'rgba(253,246,238,0.4)', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.14em' }}>{opt.label}</button>
+            ))}
+            <button onClick={() => setShowArchived((v) => !v)} style={{ padding: '3px 9px', borderRadius: 8, cursor: 'pointer', marginLeft: 'auto', background: showArchived ? 'rgba(107,107,107,0.15)' : 'transparent', border: `1px solid ${showArchived ? 'rgba(107,107,107,0.30)' : 'rgba(232,133,61,0.10)'}`, color: showArchived ? '#8A8A8A' : 'rgba(253,246,238,0.4)', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.14em' }}>{showArchived ? '⊙' : '○'} Archivés</button>
+          </div>
         </div>
-        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
-          <Mono size={8} color="rgba(253,246,238,0.4)" style={{ marginRight: 4 }}>COMMERCIAL :</Mono>
-          {[{ id: 'all', label: 'Tous' }, ...commerciaux.map((c) => ({ id: c.id, label: c.name.split(' ')[0] }))].map((opt) => (
-            <button key={opt.id} onClick={() => setFilterCommercial(opt.id)} style={{ padding: '3px 9px', borderRadius: 8, cursor: 'pointer', background: filterCommercial === opt.id ? 'rgba(232,133,61,0.15)' : 'transparent', border: `1px solid ${filterCommercial === opt.id ? 'rgba(232,133,61,0.30)' : 'rgba(232,133,61,0.10)'}`, color: filterCommercial === opt.id ? '#E8853D' : 'rgba(253,246,238,0.4)', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.14em' }}>{opt.label}</button>
-          ))}
-          <span style={{ width: 1, height: 14, background: 'rgba(232,133,61,0.10)', margin: '0 4px' }} />
-          <Mono size={8} color="rgba(253,246,238,0.4)" style={{ marginRight: 4 }}>STATUT :</Mono>
-          {[{ id: 'all', label: 'Tous' }, { id: 'a_contacter', label: 'À contacter' }, { id: 'contacte', label: 'Contacté' }, { id: 'rdv_pris', label: 'RDV' }, { id: 'devis_envoye', label: 'Devis' }, { id: 'gagne', label: 'Signé' }].map((opt) => (
-            <button key={opt.id} onClick={() => setFilterStatus(opt.id)} style={{ padding: '3px 9px', borderRadius: 8, cursor: 'pointer', background: filterStatus === opt.id ? 'rgba(232,133,61,0.15)' : 'transparent', border: `1px solid ${filterStatus === opt.id ? 'rgba(232,133,61,0.30)' : 'rgba(232,133,61,0.10)'}`, color: filterStatus === opt.id ? '#E8853D' : 'rgba(253,246,238,0.4)', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.14em' }}>{opt.label}</button>
-          ))}
-          <button onClick={() => setShowArchived((v) => !v)} style={{ padding: '3px 9px', borderRadius: 8, cursor: 'pointer', marginLeft: 'auto', background: showArchived ? 'rgba(107,107,107,0.15)' : 'transparent', border: `1px solid ${showArchived ? 'rgba(107,107,107,0.30)' : 'rgba(232,133,61,0.10)'}`, color: showArchived ? '#8A8A8A' : 'rgba(253,246,238,0.4)', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.14em' }}>{showArchived ? '⊙' : '○'} Archivés</button>
-        </div>
-      </div>
-      <div style={{ overflowX: 'auto', overflowY: 'visible' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 900 }}>
-          <thead>
-            <tr style={{ background: 'rgba(26,15,14,0.95)' }}>
-              {cols.map((c) => (
-                <th key={c.key} onClick={() => c.sortable && handleSort(c.key as SortKey)} style={{ padding: '11px 14px', textAlign: 'left', cursor: c.sortable ? 'pointer' : 'default', userSelect: 'none', fontFamily: 'var(--font-geist-mono)', fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.18em', whiteSpace: 'nowrap', color: sortCol === c.key ? '#E8853D' : 'rgba(253,246,238,0.4)', borderBottom: `1px solid ${sortCol === c.key ? 'rgba(232,133,61,0.25)' : 'rgba(232,133,61,0.10)'}` }}>
-                  {c.label} {c.sortable && sortCol === c.key ? (sortDir === 'asc' ? '↑' : '↓') : ''}
-                </th>
-              ))}
-              <th style={{ padding: '11px 14px', textAlign: 'right', fontFamily: 'var(--font-geist-mono)', fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.18em', color: 'rgba(253,246,238,0.4)', borderBottom: '1px solid rgba(232,133,61,0.10)' }}>ACTIONS</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paged.map((p, i) => {
-              const isArchived = p.status === 'archived';
-              const commercial = commerciaux.find((c) => c.id === p.assigned_to);
-              const classifCfg = p.classification ? CLASSIF_CONFIG[p.classification] : null;
-              const statusCfg = STATUS_CONFIG[p.status] ?? STATUS_CONFIG.a_contacter;
-              const score = scoreOf(p);
-              const isReassigning = reassigning === p.id;
-              return (
-                <tr key={p.id} style={{ borderBottom: '1px solid rgba(232,133,61,0.05)', opacity: isArchived ? 0.45 : 1, transition: 'background 0.12s', background: i % 2 === 0 ? 'transparent' : 'rgba(253,246,238,0.008)' }}>
-                  <td style={{ padding: '10px 14px' }}>
-                    <div style={{ fontFamily: 'var(--font-fraunces)', fontSize: 13, fontWeight: 500, color: '#FDF6EE', letterSpacing: '-0.01em' }}>{p.company_name}</div>
-                    <Mono size={8} color="rgba(253,246,238,0.38)" spacing="0.13em" style={{ display: 'block', marginTop: 2 }}>{p.city ?? '—'}{p.postal_code ? ` · ${p.postal_code}` : ''}</Mono>
-                  </td>
-                  <td style={{ padding: '10px 14px' }}>
-                    <div style={{ display: 'inline-flex', alignItems: 'baseline', gap: 1, background: score >= 8 ? 'rgba(232,133,61,0.12)' : score >= 6 ? 'rgba(196,154,60,0.10)' : 'rgba(138,109,107,0.10)', borderRadius: 7, padding: '3px 7px' }}>
-                      <span style={{ fontFamily: 'var(--font-fraunces)', fontSize: 15, fontWeight: 500, color: score >= 8 ? '#E8853D' : score >= 6 ? '#C49A3C' : '#8A6D6B', fontVariantNumeric: 'tabular-nums' }}>{score}</span>
-                      <Mono size={8} color="rgba(253,246,238,0.4)">/10</Mono>
-                    </div>
-                  </td>
-                  <td style={{ padding: '10px 14px' }}>
-                    {classifCfg && <span style={{ padding: '3px 8px', borderRadius: 999, background: classifCfg.bg, color: classifCfg.color, border: `1px solid ${classifCfg.border}`, fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em', whiteSpace: 'nowrap' }}>{p.classification}</span>}
-                  </td>
-                  <td style={{ padding: '10px 14px' }}>
-                    <span style={{ padding: '3px 8px', borderRadius: 999, background: statusCfg.bg, color: statusCfg.color, border: `1px solid ${statusCfg.border}`, fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em', whiteSpace: 'nowrap' }}>{statusCfg.label}</span>
-                  </td>
-                  <td style={{ padding: '10px 14px' }}>
-                    <div style={{ fontFamily: 'var(--font-geist-sans)', fontSize: 12, color: '#FDF6EE' }}>{p.prenom_contact || p.contact_name || '—'}</div>
-                    {p.role_contact && <Mono size={8} color="rgba(253,246,238,0.38)" spacing="0.12em" style={{ display: 'block', marginTop: 2 }}>{p.role_contact}</Mono>}
-                  </td>
-                  <td style={{ padding: '10px 14px' }}>
-                    {commercial ? (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                        <div style={{ width: 22, height: 22, borderRadius: 999, background: 'linear-gradient(135deg,rgba(232,133,61,0.25),rgba(196,154,60,0.15))', border: '1px solid rgba(232,133,61,0.22)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-fraunces)', fontSize: 9, fontWeight: 600, color: '#E8853D' }}>{commercial.initials}</div>
-                        <span style={{ fontFamily: 'var(--font-geist-sans)', fontSize: 11, color: 'rgba(253,246,238,0.4)' }}>{commercial.name.split(' ')[0]}</span>
+        <div style={{ overflowX: 'auto', overflowY: 'visible' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 940 }}>
+            <thead>
+              <tr style={{ background: 'rgba(26,15,14,0.95)' }}>
+                {cols.map((c) => (
+                  <th key={c.key} onClick={() => c.sortable && handleSort(c.key as SortKey)} style={{ padding: '11px 14px', textAlign: 'left', cursor: c.sortable ? 'pointer' : 'default', userSelect: 'none', fontFamily: 'var(--font-geist-mono)', fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.18em', whiteSpace: 'nowrap', color: sortCol === c.key ? '#E8853D' : 'rgba(253,246,238,0.4)', borderBottom: `1px solid ${sortCol === c.key ? 'rgba(232,133,61,0.25)' : 'rgba(232,133,61,0.10)'}` }}>{c.label} {c.sortable && sortCol === c.key ? (sortDir === 'asc' ? '↑' : '↓') : ''}</th>
+                ))}
+                <th style={{ padding: '11px 14px', textAlign: 'right', fontFamily: 'var(--font-geist-mono)', fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.18em', color: 'rgba(253,246,238,0.4)', borderBottom: '1px solid rgba(232,133,61,0.10)' }}>ACTIONS</th>
+              </tr>
+            </thead>
+            <tbody>
+              {paged.map((p, i) => {
+                const pf = p as ProspectFull;
+                const isArchived = p.status === 'archived';
+                const commercial = commerciaux.find((c) => c.id === p.assigned_to);
+                const classifCfg = p.classification ? CLASSIF_CONFIG[p.classification] : null;
+                const statusCfg = STATUS_CONFIG[p.status] ?? STATUS_CONFIG.a_contacter;
+                const score = scoreOf(p);
+                const isReassigning = reassigning === p.id;
+                return (
+                  <tr key={p.id} style={{ borderBottom: '1px solid rgba(232,133,61,0.05)', opacity: isArchived ? 0.45 : 1, background: i % 2 === 0 ? 'transparent' : 'rgba(253,246,238,0.008)' }}>
+                    <td style={{ padding: '10px 14px' }}>
+                      <div style={{ fontFamily: 'var(--font-fraunces)', fontSize: 13, fontWeight: 500, color: '#FDF6EE', letterSpacing: '-0.01em' }}>{p.company_name}</div>
+                      <Mono size={8} color="rgba(253,246,238,0.38)" spacing="0.13em" style={{ display: 'block', marginTop: 2 }}>{p.city ?? '—'}{p.postal_code ? ` · ${p.postal_code}` : ''}</Mono>
+                    </td>
+                    <td style={{ padding: '10px 14px' }}>
+                      <div style={{ display: 'inline-flex', alignItems: 'baseline', gap: 1, background: score >= 8 ? 'rgba(232,133,61,0.12)' : score >= 6 ? 'rgba(196,154,60,0.10)' : 'rgba(138,109,107,0.10)', borderRadius: 7, padding: '3px 7px' }}>
+                        <span style={{ fontFamily: 'var(--font-fraunces)', fontSize: 15, fontWeight: 500, color: score >= 8 ? '#E8853D' : score >= 6 ? '#C49A3C' : '#8A6D6B', fontVariantNumeric: 'tabular-nums' }}>{score}</span>
+                        <Mono size={8} color="rgba(253,246,238,0.4)">/10</Mono>
                       </div>
-                    ) : <Mono size={8} color="rgba(253,246,238,0.25)">— non assigné</Mono>}
-                  </td>
-                  <td style={{ padding: '10px 14px' }}>
-                    <Mono size={9} color="rgba(253,246,238,0.4)" spacing="0.11em">{formatRel(p.updated_at ?? null)}</Mono>
-                  </td>
-                  <td style={{ padding: '10px 14px', textAlign: 'right' }}>
-                    <div style={{ position: 'relative', display: 'inline-block' }}>
-                      <button onClick={() => setReassignOpen(reassignOpen === p.id ? null : p.id)} disabled={isReassigning} style={{ padding: '4px 9px', borderRadius: 8, cursor: isReassigning ? 'wait' : 'pointer', background: 'rgba(91,138,184,0.10)', border: '1px solid rgba(91,138,184,0.22)', color: '#5B8AB8', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em' }}>{isReassigning ? '…' : 'Réassigner ↓'}</button>
-                      {reassignOpen === p.id && !isReassigning && (
-                        <div style={{ position: 'absolute', right: 0, top: 'calc(100% + 4px)', zIndex: 30, background: '#1A0F0E', border: '1px solid rgba(232,133,61,0.22)', borderRadius: 10, overflow: 'hidden', minWidth: 130, boxShadow: '0 12px 32px rgba(0,0,0,0.4)' }}>
-                          {commerciaux.map((c) => (
-                            <button key={c.id} onClick={() => handleReassign(p.id, c.id)} style={{ display: 'block', width: '100%', padding: '8px 12px', textAlign: 'left', background: p.assigned_to === c.id ? 'rgba(232,133,61,0.08)' : 'transparent', border: 'none', cursor: 'pointer', color: p.assigned_to === c.id ? '#E8853D' : '#FDF6EE', fontFamily: 'var(--font-geist-mono)', fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.13em' }}>{c.name.split(' ')[0]} {p.assigned_to === c.id ? '✓' : ''}</button>
-                          ))}
-                          {p.assigned_to && (
-                            <button onClick={() => handleReassign(p.id, null)} style={{ display: 'block', width: '100%', padding: '8px 12px', textAlign: 'left', background: 'transparent', border: 'none', borderTop: '1px solid rgba(232,133,61,0.10)', cursor: 'pointer', color: 'rgba(253,246,238,0.5)', fontFamily: 'var(--font-geist-mono)', fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.13em' }}>— Désassigner</button>
+                    </td>
+                    <td style={{ padding: '10px 14px' }}>{classifCfg && <span style={{ padding: '3px 8px', borderRadius: 999, background: classifCfg.bg, color: classifCfg.color, border: `1px solid ${classifCfg.border}`, fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em', whiteSpace: 'nowrap' }}>{p.classification}</span>}</td>
+                    <td style={{ padding: '10px 14px' }}><span style={{ padding: '3px 8px', borderRadius: 999, background: statusCfg.bg, color: statusCfg.color, border: `1px solid ${statusCfg.border}`, fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em', whiteSpace: 'nowrap' }}>{statusCfg.label}</span></td>
+                    <td style={{ padding: '10px 14px' }}>
+                      <div style={{ fontFamily: 'var(--font-geist-sans)', fontSize: 12, color: '#FDF6EE' }}>{pf.prenom_contact || p.contact_name || '—'}</div>
+                      {pf.role_contact && <Mono size={8} color="rgba(253,246,238,0.38)" spacing="0.12em" style={{ display: 'block', marginTop: 2 }}>{pf.role_contact}</Mono>}
+                    </td>
+                    <td style={{ padding: '10px 14px' }}>
+                      {commercial ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                          <div style={{ width: 22, height: 22, borderRadius: 999, background: 'linear-gradient(135deg,rgba(232,133,61,0.25),rgba(196,154,60,0.15))', border: '1px solid rgba(232,133,61,0.22)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-fraunces)', fontSize: 9, fontWeight: 600, color: '#E8853D' }}>{commercial.initials}</div>
+                          <span style={{ fontFamily: 'var(--font-geist-sans)', fontSize: 11, color: 'rgba(253,246,238,0.4)' }}>{commercial.name.split(' ')[0]}</span>
+                        </div>
+                      ) : <Mono size={8} color="rgba(253,246,238,0.25)">— non assigné</Mono>}
+                    </td>
+                    <td style={{ padding: '10px 14px' }}><Mono size={9} color="rgba(253,246,238,0.4)" spacing="0.11em">{formatRel(p.updated_at ?? null)}</Mono></td>
+                    <td style={{ padding: '10px 14px', textAlign: 'right' }}>
+                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                        <button onClick={() => setDetailsProspect(p)} title="Voir la fiche prospect" aria-label="Voir la fiche prospect" style={{ padding: '4px 7px', borderRadius: 8, cursor: 'pointer', background: 'rgba(232,133,61,0.10)', border: '1px solid rgba(232,133,61,0.22)', color: '#E8853D', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
+                        </button>
+                        <div style={{ position: 'relative', display: 'inline-block' }}>
+                          <button onClick={() => setReassignOpen(reassignOpen === p.id ? null : p.id)} disabled={isReassigning} style={{ padding: '4px 9px', borderRadius: 8, cursor: isReassigning ? 'wait' : 'pointer', background: 'rgba(91,138,184,0.10)', border: '1px solid rgba(91,138,184,0.22)', color: '#5B8AB8', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em' }}>{isReassigning ? '…' : 'Réassigner ↓'}</button>
+                          {reassignOpen === p.id && !isReassigning && (
+                            <div style={{ position: 'absolute', right: 0, top: 'calc(100% + 4px)', zIndex: 30, background: '#1A0F0E', border: '1px solid rgba(232,133,61,0.22)', borderRadius: 10, overflow: 'hidden', minWidth: 130, boxShadow: '0 12px 32px rgba(0,0,0,0.4)' }}>
+                              {commerciaux.map((c) => (
+                                <button key={c.id} onClick={() => handleReassign(p.id, c.id)} style={{ display: 'block', width: '100%', padding: '8px 12px', textAlign: 'left', background: p.assigned_to === c.id ? 'rgba(232,133,61,0.08)' : 'transparent', border: 'none', cursor: 'pointer', color: p.assigned_to === c.id ? '#E8853D' : '#FDF6EE', fontFamily: 'var(--font-geist-mono)', fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.13em' }}>{c.name.split(' ')[0]} {p.assigned_to === c.id ? '✓' : ''}</button>
+                              ))}
+                              {p.assigned_to && <button onClick={() => handleReassign(p.id, null)} style={{ display: 'block', width: '100%', padding: '8px 12px', textAlign: 'left', background: 'transparent', border: 'none', borderTop: '1px solid rgba(232,133,61,0.10)', cursor: 'pointer', color: 'rgba(253,246,238,0.5)', fontFamily: 'var(--font-geist-mono)', fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.13em' }}>— Désassigner</button>}
+                            </div>
                           )}
                         </div>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-        {/* Footer + Pagination */}
-        <div style={{ padding: '10px 14px', borderTop: '1px solid rgba(232,133,61,0.10)', background: 'rgba(26,15,14,0.5)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
-          <Mono size={8} color="rgba(253,246,238,0.4)">{sorted.filter((p) => p.status !== 'archived').length} ACTIFS / {sorted.length} AFFICHÉS / {prospects.length} TOTAL</Mono>
-          {showPagination ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
-              <Mono size={8} color="rgba(253,246,238,0.4)" style={{ marginRight: 4 }}>PAR PAGE :</Mono>
-              {[20, 50, 100].map((sz) => (
-                <button key={sz} onClick={() => setPageSize(sz)} style={{ padding: '3px 8px', borderRadius: 6, cursor: 'pointer', background: pageSize === sz ? 'rgba(232,133,61,0.15)' : 'transparent', border: `1px solid ${pageSize === sz ? 'rgba(232,133,61,0.30)' : 'rgba(232,133,61,0.10)'}`, color: pageSize === sz ? '#E8853D' : 'rgba(253,246,238,0.4)', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, letterSpacing: '0.12em' }}>{sz}</button>
-              ))}
-              <span style={{ width: 1, height: 12, background: 'rgba(232,133,61,0.15)', margin: '0 6px' }} />
-              <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={safePage <= 1} style={{ padding: '3px 8px', borderRadius: 6, cursor: safePage <= 1 ? 'not-allowed' : 'pointer', background: 'transparent', border: '1px solid rgba(232,133,61,0.10)', color: safePage <= 1 ? 'rgba(253,246,238,0.2)' : 'rgba(253,246,238,0.6)', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600 }}>← PRÉC.</button>
-              {buildPageList().map((p, idx) => p === 'dots'
-                ? <span key={`d-${idx}`} style={{ padding: '0 4px', color: 'rgba(253,246,238,0.3)', fontFamily: 'var(--font-geist-mono)', fontSize: 8 }}>…</span>
-                : (
-                  <button key={p} onClick={() => setCurrentPage(p)} style={{ padding: '3px 8px', borderRadius: 6, cursor: 'pointer', background: safePage === p ? 'rgba(232,133,61,0.15)' : 'transparent', border: `1px solid ${safePage === p ? 'rgba(232,133,61,0.30)' : 'rgba(232,133,61,0.10)'}`, color: safePage === p ? '#E8853D' : 'rgba(253,246,238,0.4)', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, minWidth: 22 }}>{p}</button>
-                )
-              )}
-              <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={safePage >= totalPages} style={{ padding: '3px 8px', borderRadius: 6, cursor: safePage >= totalPages ? 'not-allowed' : 'pointer', background: 'transparent', border: '1px solid rgba(232,133,61,0.10)', color: safePage >= totalPages ? 'rgba(253,246,238,0.2)' : 'rgba(253,246,238,0.6)', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600 }}>SUIV. →</button>
-              <span style={{ width: 1, height: 12, background: 'rgba(232,133,61,0.15)', margin: '0 6px' }} />
-              <Mono size={8} color="rgba(232,133,61,0.5)">PAGE {safePage} / {totalPages}</Mono>
-            </div>
-          ) : (
-            <Mono size={8} color="rgba(232,133,61,0.35)">GND PIPELINE · ADMIN</Mono>
-          )}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+          <div style={{ padding: '10px 14px', borderTop: '1px solid rgba(232,133,61,0.10)', background: 'rgba(26,15,14,0.5)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
+            <Mono size={8} color="rgba(253,246,238,0.4)">{sorted.filter((p) => p.status !== 'archived').length} ACTIFS / {sorted.length} AFFICHÉS / {prospects.length} TOTAL</Mono>
+            {showPagination ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+                <Mono size={8} color="rgba(253,246,238,0.4)" style={{ marginRight: 4 }}>PAR PAGE :</Mono>
+                {[20, 50, 100].map((sz) => <button key={sz} onClick={() => setPageSize(sz)} style={{ padding: '3px 8px', borderRadius: 6, cursor: 'pointer', background: pageSize === sz ? 'rgba(232,133,61,0.15)' : 'transparent', border: `1px solid ${pageSize === sz ? 'rgba(232,133,61,0.30)' : 'rgba(232,133,61,0.10)'}`, color: pageSize === sz ? '#E8853D' : 'rgba(253,246,238,0.4)', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, letterSpacing: '0.12em' }}>{sz}</button>)}
+                <span style={{ width: 1, height: 12, background: 'rgba(232,133,61,0.15)', margin: '0 6px' }} />
+                <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={safePage <= 1} style={{ padding: '3px 8px', borderRadius: 6, cursor: safePage <= 1 ? 'not-allowed' : 'pointer', background: 'transparent', border: '1px solid rgba(232,133,61,0.10)', color: safePage <= 1 ? 'rgba(253,246,238,0.2)' : 'rgba(253,246,238,0.6)', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600 }}>← PRÉC.</button>
+                {buildPageList().map((p, idx) => p === 'dots' ? <span key={`d-${idx}`} style={{ padding: '0 4px', color: 'rgba(253,246,238,0.3)', fontFamily: 'var(--font-geist-mono)', fontSize: 8 }}>…</span> : <button key={p} onClick={() => setCurrentPage(p)} style={{ padding: '3px 8px', borderRadius: 6, cursor: 'pointer', background: safePage === p ? 'rgba(232,133,61,0.15)' : 'transparent', border: `1px solid ${safePage === p ? 'rgba(232,133,61,0.30)' : 'rgba(232,133,61,0.10)'}`, color: safePage === p ? '#E8853D' : 'rgba(253,246,238,0.4)', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, minWidth: 22 }}>{p}</button>)}
+                <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={safePage >= totalPages} style={{ padding: '3px 8px', borderRadius: 6, cursor: safePage >= totalPages ? 'not-allowed' : 'pointer', background: 'transparent', border: '1px solid rgba(232,133,61,0.10)', color: safePage >= totalPages ? 'rgba(253,246,238,0.2)' : 'rgba(253,246,238,0.6)', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600 }}>SUIV. →</button>
+                <span style={{ width: 1, height: 12, background: 'rgba(232,133,61,0.15)', margin: '0 6px' }} />
+                <Mono size={8} color="rgba(232,133,61,0.5)">PAGE {safePage} / {totalPages}</Mono>
+              </div>
+            ) : (
+              <Mono size={8} color="rgba(232,133,61,0.35)">GND PIPELINE · ADMIN</Mono>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+      <ProspectDetailDrawer prospect={detailsProspect} commercial={detailsProspect ? commerciaux.find((c) => c.id === detailsProspect.assigned_to) : undefined} onClose={() => setDetailsProspect(null)} />
+    </>
   );
 }
 
@@ -755,12 +789,8 @@ export default function AdminV2Client({ data }: { data: AdminV2PageData }) {
               <span style={{ width: 7, height: 7, borderRadius: 999, background: '#E8853D', boxShadow: '0 0 8px rgba(232,133,61,0.8)', display: 'inline-block', marginLeft: 4, animation: 'pulse 2s infinite' }} />
             </span>
           </div>
-          <h1 style={{ fontFamily: 'var(--font-fraunces)', fontSize: 52, fontWeight: 500, lineHeight: 0.95, letterSpacing: '-0.03em', color: '#FDF6EE', margin: '0 0 10px' }}>
-            Notre <span style={{ fontStyle: 'italic', color: '#E8853D' }}>pipeline</span>, {data.adminName}.
-          </h1>
-          <Mono size={9} spacing="0.2em" color="rgba(253,246,238,0.35)" style={{ display: 'block', marginBottom: 22 }}>
-            GND CONSULTING · ADMIN GLOBAL · {new Date().toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }).toUpperCase()} · {data.commerciaux.length} COMMERCIAUX ACTIFS
-          </Mono>
+          <h1 style={{ fontFamily: 'var(--font-fraunces)', fontSize: 52, fontWeight: 500, lineHeight: 0.95, letterSpacing: '-0.03em', color: '#FDF6EE', margin: '0 0 10px' }}>Notre <span style={{ fontStyle: 'italic', color: '#E8853D' }}>pipeline</span>, {data.adminName}.</h1>
+          <Mono size={9} spacing="0.2em" color="rgba(253,246,238,0.35)" style={{ display: 'block', marginBottom: 22 }}>GND CONSULTING · ADMIN GLOBAL · {new Date().toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }).toUpperCase()} · {data.commerciaux.length} COMMERCIAUX ACTIFS</Mono>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
             <KpiCard label="PROSPECTS LIVE" value={data.kpi.live} sub="+12 VS M-1" spark={[160, 165, 168, 172, 175, 180, data.kpi.live]} />
             <KpiCard label="🔥 CHAUDS" value={data.kpi.chauds} sub="ACTIONNABLES" accent="#FFA060" />
