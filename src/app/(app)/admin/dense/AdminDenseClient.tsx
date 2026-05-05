@@ -11,7 +11,7 @@ import type {
   ClassementEntry,
   ActivityEntry,
   FormationEntry,
-} from './page';
+} from '../v2/page';
 
 // Type local étendu — Prospect ne déclare pas tous les champs Notion mais
 // ils sont bien retournés par Supabase via PROSPECT_SELECT_COLUMNS.
@@ -111,22 +111,6 @@ function RichText({ text, font = 'sans' }: { text: string | null | undefined; fo
   );
 }
 
-
-function KpiCard({ label, value, sub, accent, spark }: { label: string; value: string | number; sub?: string; accent?: string; spark?: number[] }) {
-  const sparkPts = spark ? spark.map((v, i) => `${(i / (spark.length - 1)) * 56},${18 - ((v - Math.min(...spark)) / (Math.max(...spark) - Math.min(...spark) || 1)) * 16}`).join(' ') : null;
-  const lastY = spark ? 18 - ((spark[spark.length - 1] - Math.min(...spark)) / (Math.max(...spark) - Math.min(...spark) || 1)) * 16 : 0;
-  return (
-    <div style={{ position: 'relative', overflow: 'hidden', borderRadius: 16, padding: '14px 18px', border: '1px solid rgba(232,133,61,0.10)', backgroundImage: 'radial-gradient(circle at 20% 0%,rgba(232,133,61,0.10) 0%,transparent 55%),linear-gradient(135deg,#3D1F1E 0%,#1A0F0E 100%)', flex: 1, minWidth: 120, transition: 'all .2s cubic-bezier(0.22,1,0.36,1)' }}>
-      <Mono size={8} color="#E8853D" style={{ display: 'block', marginBottom: 8 }}>{label}</Mono>
-      <div style={{ fontFamily: 'var(--font-fraunces), Georgia, serif', fontSize: 36, fontWeight: 500, lineHeight: 1, letterSpacing: '-0.02em', color: accent ?? '#FDF6EE', fontVariantNumeric: 'tabular-nums', marginBottom: 8 }}>{value}</div>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        {sub && <Mono size={9} color="rgba(253,246,238,0.32)">{sub}</Mono>}
-        {sparkPts && <svg width="56" height="18" viewBox="0 0 56 18"><polyline points={sparkPts} fill="none" stroke="rgba(232,133,61,0.5)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /><circle cx="56" cy={lastY} r="2" fill="#E8853D" /></svg>}
-      </div>
-    </div>
-  );
-}
-
 function Speedo({ value = 38, size = 88 }: { value?: number; size?: number }) {
   const angle = -135 + (value / 100) * 270;
   return (
@@ -134,9 +118,9 @@ function Speedo({ value = 38, size = 88 }: { value?: number; size?: number }) {
       <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: 'conic-gradient(from 90deg,#3D1F1E,#A0735C,#FDF6EE,#A0735C,#3D1F1E)', padding: 3 }}>
         <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: 'radial-gradient(circle at 50% 30%,#2A1311 0%,#0E0807 100%)', position: 'relative', overflow: 'hidden' }}>
           <svg viewBox="0 0 100 100" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
-            <defs><linearGradient id={`sg-${size}`} x1="0" x2="1"><stop offset="0" stopColor="#D4732A" /><stop offset="1" stopColor="#FFA060" /></linearGradient></defs>
+            <defs><linearGradient id={`sg-dense-${size}`} x1="0" x2="1"><stop offset="0" stopColor="#D4732A" /><stop offset="1" stopColor="#FFA060" /></linearGradient></defs>
             <circle cx="50" cy="50" r="38" fill="none" stroke="rgba(232,133,61,0.12)" strokeWidth="2.5" strokeDasharray="179" strokeDashoffset="60" transform="rotate(135 50 50)" strokeLinecap="round" />
-            <circle cx="50" cy="50" r="38" fill="none" stroke={`url(#sg-${size})`} strokeWidth="2.5" strokeDasharray={`${(value / 100) * 119} 999`} transform="rotate(135 50 50)" strokeLinecap="round" />
+            <circle cx="50" cy="50" r="38" fill="none" stroke={`url(#sg-dense-${size})`} strokeWidth="2.5" strokeDasharray={`${(value / 100) * 119} 999`} transform="rotate(135 50 50)" strokeLinecap="round" />
           </svg>
           <div style={{ position: 'absolute', left: '50%', top: '50%', width: 2, height: size * 0.35, background: 'linear-gradient(180deg,transparent 8%,#FDF6EE 14%,#FDF6EE 82%,#E8853D 100%)', borderRadius: 1, transformOrigin: '50% 100%', transform: `translate(-50%,-100%) rotate(${angle + 90}deg)`, transition: 'transform 1s cubic-bezier(0.22,1,0.36,1)' }} />
           <div style={{ position: 'absolute', left: '50%', top: '50%', width: 8, height: 8, borderRadius: 999, background: 'radial-gradient(circle,#FDF6EE,#A0735C)', transform: 'translate(-50%,-50%)' }} />
@@ -359,9 +343,9 @@ function PaliersSection({ commerciaux }: { commerciaux: CommercialV2[] }) {
             );
           })}
         </div>
-        <div style={{ display: 'flex', gap: 8, marginTop: 18, paddingTop: 16, borderTop: '1px solid rgba(232,133,61,0.10)' }}>
+        <div style={{ display: 'flex', gap: 8, marginTop: 18, paddingTop: 16, borderTop: '1px solid rgba(232,133,61,0.10)', flexWrap: 'wrap' }}>
           {commerciaux.map((c) => (
-            <div key={c.id} style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(253,246,238,0.03)', border: '1px solid rgba(232,133,61,0.10)', borderRadius: 10, padding: '8px 12px' }}>
+            <div key={c.id} style={{ flex: '1 1 140px', display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(253,246,238,0.03)', border: '1px solid rgba(232,133,61,0.10)', borderRadius: 10, padding: '8px 12px' }}>
               <div style={{ width: 28, height: 28, borderRadius: 999, flexShrink: 0, background: 'linear-gradient(135deg,rgba(232,133,61,0.25),rgba(196,154,60,0.15))', border: '1px solid rgba(232,133,61,0.22)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-fraunces)', fontSize: 11, fontWeight: 600, color: '#E8853D' }}>{c.initials}</div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontFamily: 'var(--font-geist-sans)', fontSize: 12, fontWeight: 600, color: '#FDF6EE', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.name.split(' ')[0]}</div>
@@ -375,49 +359,14 @@ function PaliersSection({ commerciaux }: { commerciaux: CommercialV2[] }) {
   );
 }
 
-function CommercialCards({ commerciaux }: { commerciaux: CommercialV2[] }) {
-  return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 14 }}>
-      {commerciaux.map((c) => {
-        const palier = PALIERS_BONUS[Math.min(c.palier - 1, PALIERS_BONUS.length - 1)];
-        return (
-          <div key={c.id} style={{ background: 'rgba(253,246,238,0.03)', border: '1px solid rgba(232,133,61,0.10)', borderRadius: 18, padding: 18, display: 'flex', flexDirection: 'column', gap: 14 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div style={{ width: 44, height: 44, borderRadius: 999, flexShrink: 0, background: 'linear-gradient(135deg,rgba(232,133,61,0.25),rgba(196,154,60,0.15))', border: '1px solid rgba(232,133,61,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-fraunces)', fontSize: 16, fontWeight: 500, color: '#E8853D' }}>{c.initials}</div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontFamily: 'var(--font-fraunces)', fontSize: 17, fontWeight: 500, color: '#FDF6EE', letterSpacing: '-0.01em', lineHeight: 1.1 }}>{c.name}</div>
-                <Mono size={8} color="rgba(253,246,238,0.4)" style={{ display: 'block', marginTop: 3 }}>{c.email}</Mono>
-              </div>
-              {palier && c.palier > 0 && <span style={{ fontSize: 16 }}>{palier.icon}</span>}
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-around', background: 'rgba(0,0,0,0.12)', borderRadius: 12, padding: '12px 8px', border: '1px solid rgba(232,133,61,0.06)' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}><Speedo value={c.conversion} size={78} /><Mono size={8} color="rgba(232,133,61,0.6)">CONVERSION</Mono></div>
-              <div style={{ width: 1, height: 60, background: 'rgba(232,133,61,0.10)' }} />
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}><Mono size={7} color="rgba(253,246,238,0.3)">STRATO</Mono><RocketMini palier={c.palier} total={5} height={80} /><Mono size={7} color="rgba(253,246,238,0.2)">ATTERR.</Mono><Mono size={8} color="#E8853D">P{c.palier}/5</Mono></div>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 6 }}>
-              {[{ l: 'PROSPECTS', v: c.total }, { l: '🔥 CHAUDS', v: c.chauds }, { l: 'SIGNÉS', v: c.signatures }].map((s) => (
-                <div key={s.l} style={{ textAlign: 'center', background: 'rgba(253,246,238,0.02)', borderRadius: 8, padding: '7px 4px', border: '1px solid rgba(232,133,61,0.10)' }}>
-                  <div style={{ fontFamily: 'var(--font-fraunces)', fontSize: 20, fontWeight: 500, color: '#FDF6EE', fontVariantNumeric: 'tabular-nums' }}>{s.v}</div>
-                  <Mono size={7} color="rgba(253,246,238,0.4)">{s.l}</Mono>
-                </div>
-              ))}
-            </div>
-            <Link href={`/admin?commercial=${c.id}#pipeline-section`} style={{ width: '100%', padding: '9px 0', borderRadius: 10, background: 'rgba(232,133,61,0.08)', border: '1px solid rgba(232,133,61,0.18)', color: '#E8853D', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.18em', cursor: 'pointer', textAlign: 'center', textDecoration: 'none', display: 'block' }}>Voir le détail →</Link>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-function ActivityLog({ logs }: { logs: ActivityEntry[] }) {
+function ActivityLog({ logs, max }: { logs: ActivityEntry[]; max?: number }) {
   const typeColor: Record<string, string> = { 'STATUT CHANGED': '#5B8AB8', 'NOTE ADDED': 'rgba(253,246,238,0.3)', 'DEVIS SENT': '#5A8A3F', 'SYNC NOTION': 'rgba(232,133,61,0.6)' };
-  if (logs.length === 0) return <Mono size={9} color="rgba(253,246,238,0.4)">Aucune activité récente</Mono>;
+  const visible = max ? logs.slice(0, max) : logs;
+  if (visible.length === 0) return <Mono size={9} color="rgba(253,246,238,0.4)">Aucune activité récente</Mono>;
   return (
     <div>
-      {logs.map((log, i) => (
-        <div key={i} style={{ display: 'flex', gap: 10, padding: '9px 0', borderBottom: i < logs.length - 1 ? '1px solid rgba(232,133,61,0.06)' : 'none', alignItems: 'flex-start' }}>
+      {visible.map((log, i) => (
+        <div key={i} style={{ display: 'flex', gap: 10, padding: '9px 0', borderBottom: i < visible.length - 1 ? '1px solid rgba(232,133,61,0.06)' : 'none', alignItems: 'flex-start' }}>
           <div style={{ width: 30, height: 30, borderRadius: 999, flexShrink: 0, background: log.user === 'system' ? 'rgba(253,246,238,0.04)' : 'rgba(232,133,61,0.10)', border: '1px solid rgba(232,133,61,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-fraunces)', fontSize: 11, fontWeight: 600, color: '#E8853D' }}>{log.userInitials}</div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
@@ -805,7 +754,7 @@ function PipelineSection({ prospects, commerciaux }: { prospects: Prospect[]; co
                 <Mono size={8} color="rgba(232,133,61,0.5)">PAGE {safePage} / {totalPages}</Mono>
               </div>
             ) : (
-              <Mono size={8} color="rgba(232,133,61,0.35)">GND PIPELINE · ADMIN</Mono>
+              <Mono size={8} color="rgba(232,133,61,0.35)">GND PIPELINE · ADMIN · DENSE</Mono>
             )}
           </div>
         </div>
@@ -815,49 +764,181 @@ function PipelineSection({ prospects, commerciaux }: { prospects: Prospect[]; co
   );
 }
 
-export default function AdminV2Client({ data }: { data: AdminV2PageData }) {
+// ═══════════════════════════════════════════════════════════════
+// VARIANTE C — Dense data (2 colonnes)
+// ═══════════════════════════════════════════════════════════════
+
+export default function AdminDenseClient({ data }: { data: AdminV2PageData }) {
+  // density='normal' hardcoded — toggle viendra avec PR #4 (TweaksPanel)
+  const pad = 20;
+  const gap = 16;
+  const bg = '#1A0F0E';
+
+  const monthLabel = new Date().toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }).toUpperCase();
+
   return (
-    <div style={{ flex: 1, background: '#1A0F0E', overflowY: 'auto', minHeight: '100%' }}>
-      <header style={{ position: 'relative', padding: '28px 40px', overflow: 'hidden', borderBottom: '1px solid rgba(232,133,61,0.08)' }}>
-        <span aria-hidden style={{ position: 'absolute', right: -20, top: -40, fontFamily: 'var(--font-fraunces)', fontSize: 200, fontWeight: 500, lineHeight: 1, letterSpacing: '-0.04em', color: 'rgba(232,133,61,0.04)', whiteSpace: 'nowrap', pointerEvents: 'none', userSelect: 'none' }}>Pipeline.</span>
-        <Link href="/admin/dense" style={{ position: 'absolute', top: 20, right: 20, padding: '6px 12px', borderRadius: 8, background: 'rgba(253,246,238,0.04)', border: '1px solid rgba(232,133,61,0.18)', color: '#E8853D', fontFamily: 'var(--font-geist-mono)', fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.18em', textDecoration: 'none', zIndex: 2 }}>Vue dense →</Link>
-        <div style={{ position: 'relative' }}>
-          <div style={{ marginBottom: 12 }}>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ display: 'inline-block', width: 28, height: 1, background: '#E8853D' }} />
-              <Mono color="#E8853D" spacing="0.22em">VUE ADMIN · LIVE</Mono>
-              <span style={{ width: 7, height: 7, borderRadius: 999, background: '#E8853D', boxShadow: '0 0 8px rgba(232,133,61,0.8)', display: 'inline-block', marginLeft: 4, animation: 'pulse 2s infinite' }} />
-            </span>
+    <div style={{ flex: 1, background: bg, overflowY: 'auto', minHeight: '100%' }}>
+
+      {/* Header ultra-compact */}
+      <header style={{
+        padding: `${pad}px ${pad + 8}px`,
+        borderBottom: '1px solid rgba(232,133,61,0.08)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 16,
+        flexWrap: 'wrap',
+      }}>
+        <div style={{ minWidth: 0, flex: '1 1 auto' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+            <span style={{
+              width: 6,
+              height: 6,
+              borderRadius: 999,
+              background: '#E8853D',
+              boxShadow: '0 0 6px rgba(232,133,61,0.8)',
+              animation: 'pulse 2s infinite',
+              display: 'inline-block',
+            }} />
+            <Mono color="#E8853D" spacing="0.22em">VUE ADMIN · LIVE · {monthLabel}</Mono>
           </div>
-          <h1 style={{ fontFamily: 'var(--font-fraunces)', fontSize: 52, fontWeight: 500, lineHeight: 0.95, letterSpacing: '-0.03em', color: '#FDF6EE', margin: '0 0 10px' }}>Notre <span style={{ fontStyle: 'italic', color: '#E8853D' }}>pipeline</span>, {data.adminName}.</h1>
-          <Mono size={9} spacing="0.2em" color="rgba(253,246,238,0.35)" style={{ display: 'block', marginBottom: 22 }}>GND CONSULTING · ADMIN GLOBAL · {new Date().toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }).toUpperCase()} · {data.commerciaux.length} COMMERCIAUX ACTIFS</Mono>
-          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-            <KpiCard label="PROSPECTS LIVE" value={data.kpi.live} sub="+12 VS M-1" spark={[160, 165, 168, 172, 175, 180, data.kpi.live]} />
-            <KpiCard label="🔥 CHAUDS" value={data.kpi.chauds} sub="ACTIONNABLES" accent="#FFA060" />
-            <KpiCard label={`SIGNATURES ${new Date().toLocaleDateString('fr-FR', { month: 'long' }).toUpperCase()}`} value={data.kpi.signatures} sub={new Date().toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }).toUpperCase()} accent="#5A8A3F" />
-            <KpiCard label="REVENU MOIS" value={`${(data.kpi.ca / 1000).toFixed(1)}K€`} sub="EUROS · TTC" accent="#5A8A3F" spark={[8, 9.5, 10.2, 11, 12.8, 13.5, data.kpi.ca / 1000]} />
-          </div>
+          <h1 style={{
+            fontFamily: 'var(--font-fraunces)',
+            fontSize: 32,
+            fontWeight: 500,
+            lineHeight: 1,
+            letterSpacing: '-0.025em',
+            color: '#FDF6EE',
+            margin: 0,
+          }}>
+            Notre <span style={{ fontStyle: 'italic', color: '#E8853D' }}>pipeline</span>, {data.adminName}.
+          </h1>
+        </div>
+
+        {/* KPI inline strip */}
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+          {[
+            { l: 'LIVE', v: data.kpi.live as number | string, a: undefined as string | undefined },
+            { l: '🔥 CHAUDS', v: data.kpi.chauds, a: '#E8853D' },
+            { l: 'SIGNÉS', v: data.kpi.signatures, a: '#5A8A3F' },
+            { l: 'CA', v: `${(data.kpi.ca / 1000).toFixed(1)}K€`, a: '#5A8A3F' },
+          ].map((k) => (
+            <div key={k.l} style={{
+              background: 'rgba(253,246,238,0.04)',
+              border: '1px solid rgba(232,133,61,0.10)',
+              borderRadius: 10,
+              padding: '8px 14px',
+              textAlign: 'center',
+              minWidth: 80,
+            }}>
+              <Mono size={8} color="rgba(232,133,61,0.7)" style={{ display: 'block', marginBottom: 4 }}>{k.l}</Mono>
+              <div style={{
+                fontFamily: 'var(--font-fraunces)',
+                fontSize: 26,
+                fontWeight: 500,
+                lineHeight: 1,
+                color: k.a ?? '#FDF6EE',
+                fontVariantNumeric: 'tabular-nums',
+              }}>{k.v}</div>
+            </div>
+          ))}
+
+          {/* Toggle vers Variante A (cockpit aéré) */}
+          <Link href="/admin" style={{
+            marginLeft: 4,
+            padding: '8px 12px',
+            borderRadius: 10,
+            background: 'rgba(253,246,238,0.04)',
+            border: '1px solid rgba(232,133,61,0.18)',
+            color: '#E8853D',
+            fontFamily: 'var(--font-geist-mono)',
+            fontSize: 9,
+            fontWeight: 600,
+            textTransform: 'uppercase',
+            letterSpacing: '0.18em',
+            textDecoration: 'none',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 4,
+          }}>← Vue cockpit</Link>
         </div>
       </header>
-      <div style={{ padding: '28px 40px', display: 'flex', flexDirection: 'column', gap: 20 }}>
-        <section>
-          <div style={{ marginBottom: 14 }}><Hairline label="PERFORMANCE PAR COMMERCIAL" /></div>
-          <CommercialCards commerciaux={data.commerciaux} />
-        </section>
-        <FunnelSection stages={data.funnel} />
-        <ClassementSection entries={data.classement} commerciaux={data.commerciaux} />
-        <FormationSection entries={data.formation} />
-        <PaliersSection commerciaux={data.commerciaux} />
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 20 }}>
+
+      {/* 2-col layout */}
+      <div style={{
+        padding: `${pad}px ${pad + 8}px`,
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap,
+        alignItems: 'start',
+      }}>
+        {/* Colonne gauche */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap, minWidth: 0 }}>
+          <FunnelSection stages={data.funnel} />
+          <FormationSection entries={data.formation} />
           <SyncSection commerciaux={data.commerciaux} />
-          <div style={{ background: 'rgba(253,246,238,0.03)', border: '1px solid rgba(232,133,61,0.10)', borderRadius: 18, padding: 20 }}>
-            <div style={{ marginBottom: 14 }}><Hairline label="ACTIVITÉ RÉCENTE · ÉQUIPE" /></div>
-            <ActivityLog logs={data.activity} />
+        </div>
+
+        {/* Colonne droite */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap, minWidth: 0 }}>
+          <ClassementSection entries={data.classement} commerciaux={data.commerciaux} />
+          <PaliersSection commerciaux={data.commerciaux} />
+
+          {/* Activity compact */}
+          <div style={{
+            background: 'rgba(253,246,238,0.03)',
+            border: '1px solid rgba(232,133,61,0.10)',
+            borderRadius: 18,
+            padding: 16,
+          }}>
+            <div style={{ marginBottom: 10 }}><Hairline label="ACTIVITÉ RÉCENTE" /></div>
+            <ActivityLog logs={data.activity} max={5} />
+          </div>
+
+          {/* Commerciaux stacked mini */}
+          <div style={{
+            background: 'rgba(253,246,238,0.03)',
+            border: '1px solid rgba(232,133,61,0.10)',
+            borderRadius: 18,
+            overflow: 'hidden',
+          }}>
+            <div style={{ padding: '12px 16px', borderBottom: '1px solid rgba(232,133,61,0.08)' }}>
+              <Hairline label="COMMERCIAUX" />
+            </div>
+            {data.commerciaux.map((c, i) => (
+              <div key={c.id} style={{
+                padding: '10px 16px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12,
+                borderBottom: i < data.commerciaux.length - 1 ? '1px solid rgba(232,133,61,0.06)' : 'none',
+              }}>
+                <Speedo value={c.conversion} size={52} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{
+                    fontFamily: 'var(--font-fraunces)',
+                    fontSize: 15,
+                    fontWeight: 500,
+                    color: '#FDF6EE',
+                    letterSpacing: '-0.01em',
+                  }}>{c.name}</div>
+                  <Mono size={8} color="rgba(253,246,238,0.35)" style={{ display: 'block', marginTop: 2 }}>{c.email}</Mono>
+                </div>
+                <RocketMini palier={c.palier} total={5} height={60} />
+                <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                  <Mono size={8} color="#E8853D">P{c.palier}/5</Mono>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
+      </div>
+
+      {/* Pipeline pleine largeur en bas */}
+      <div style={{ padding: `0 ${pad + 8}px ${pad + 8}px` }}>
+        <div style={{ marginBottom: 12 }}><Hairline label="PIPELINE PROSPECTS" /></div>
         <PipelineSection prospects={data.prospects} commerciaux={data.commerciaux} />
       </div>
     </div>
   );
 }
-
