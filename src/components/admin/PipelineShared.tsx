@@ -525,8 +525,15 @@ export function PipelineSection({
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const initialCommercial = hideSearchPrefilter ? 'all' : (searchParams.get('commercial') ?? 'all');
-  const [filterCommercial, setFilterCommercial] = useState(initialCommercial);
+  // Multi-select : array vide = tous les commerciaux. URL ?commercial=ID
+  // seed l'array initial pour rétro-compat (lien direct vers /admin?commercial=...).
+  const initialCommercials = useMemo<string[]>(() => {
+    if (hideSearchPrefilter) return [];
+    const param = searchParams.get('commercial');
+    if (!param || param === 'all') return [];
+    return [param];
+  }, [searchParams, hideSearchPrefilter]);
+  const [filterCommercials, setFilterCommercials] = useState<string[]>(initialCommercials);
   const [filterStatus, setFilterStatus] = useState('all');
   const [showArchived, setShowArchived] = useState(false);
   const [sortCol, setSortCol] = useState<SortKey>('updated_at');
@@ -537,12 +544,19 @@ export function PipelineSection({
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [detailsProspect, setDetailsProspect] = useState<Prospect | null>(null);
 
-  useEffect(() => { setCurrentPage(1); }, [filterCommercial, filterStatus, showArchived, pageSize]);
+  useEffect(() => { setCurrentPage(1); }, [filterCommercials, filterStatus, showArchived, pageSize]);
 
   const handleSort = (col: SortKey) => {
     if (sortCol === col) setSortDir((d) => (d === 'desc' ? 'asc' : 'desc'));
     else { setSortCol(col); setSortDir('desc'); }
   };
+
+  const toggleCommercial = (id: string) => {
+    setFilterCommercials((curr) =>
+      curr.includes(id) ? curr.filter((x) => x !== id) : [...curr, id]
+    );
+  };
+  const clearCommercials = () => setFilterCommercials([]);
 
   const handleReassign = async (prospectId: string, newCommercialId: string | null) => {
     if (reassigning) return;
@@ -557,10 +571,10 @@ export function PipelineSection({
 
   const filtered = useMemo(() => prospects.filter((p) => {
     if (!showArchived && p.status === 'archived') return false;
-    if (filterCommercial !== 'all' && p.assigned_to !== filterCommercial) return false;
+    if (filterCommercials.length > 0 && (!p.assigned_to || !filterCommercials.includes(p.assigned_to))) return false;
     if (filterStatus !== 'all' && p.status !== filterStatus) return false;
     return true;
-  }), [prospects, filterCommercial, filterStatus, showArchived]);
+  }), [prospects, filterCommercials, filterStatus, showArchived]);
 
   const sorted = useMemo(() => [...filtered].sort((a, b) => {
     let va: string | number = '', vb: string | number = '';
@@ -626,9 +640,21 @@ export function PipelineSection({
           </div>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
             <Mono size={8} color="rgba(253,246,238,0.4)" style={{ marginRight: 4 }}>COMMERCIAL :</Mono>
-            {[{ id: 'all', label: 'Tous' }, ...commerciaux.map((c) => ({ id: c.id, label: c.name.split(' ')[0] }))].map((opt) => (
-              <button key={opt.id} onClick={() => setFilterCommercial(opt.id)} style={{ padding: '3px 9px', borderRadius: 8, cursor: 'pointer', background: filterCommercial === opt.id ? 'rgba(232,133,61,0.15)' : 'transparent', border: `1px solid ${filterCommercial === opt.id ? 'rgba(232,133,61,0.30)' : 'rgba(232,133,61,0.10)'}`, color: filterCommercial === opt.id ? '#E8853D' : 'rgba(253,246,238,0.4)', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.14em' }}>{opt.label}</button>
-            ))}
+            <button
+              key="all"
+              onClick={clearCommercials}
+              style={{ padding: '3px 9px', borderRadius: 8, cursor: 'pointer', background: filterCommercials.length === 0 ? 'rgba(232,133,61,0.15)' : 'transparent', border: `1px solid ${filterCommercials.length === 0 ? 'rgba(232,133,61,0.30)' : 'rgba(232,133,61,0.10)'}`, color: filterCommercials.length === 0 ? '#E8853D' : 'rgba(253,246,238,0.4)', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.14em' }}
+            >Tous</button>
+            {commerciaux.map((c) => {
+              const isActive = filterCommercials.includes(c.id);
+              return (
+                <button
+                  key={c.id}
+                  onClick={() => toggleCommercial(c.id)}
+                  style={{ padding: '3px 9px', borderRadius: 8, cursor: 'pointer', background: isActive ? 'rgba(232,133,61,0.18)' : 'transparent', border: `1px solid ${isActive ? 'rgba(232,133,61,0.35)' : 'rgba(232,133,61,0.10)'}`, color: isActive ? '#E8853D' : 'rgba(253,246,238,0.4)', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.14em' }}
+                >{c.name.split(' ')[0]}{isActive ? ' ✓' : ''}</button>
+              );
+            })}
             <span style={{ width: 1, height: 14, background: 'rgba(232,133,61,0.10)', margin: '0 4px' }} />
             <Mono size={8} color="rgba(253,246,238,0.4)" style={{ marginRight: 4 }}>STATUT :</Mono>
             {[{ id: 'all', label: 'Tous' }, { id: 'a_contacter', label: 'À contacter' }, { id: 'contacte', label: 'Contacté' }, { id: 'rdv_pris', label: 'RDV' }, { id: 'devis_envoye', label: 'Devis' }, { id: 'gagne', label: 'Signé' }].map((opt) => (
