@@ -13,6 +13,32 @@ import type {
   FormationEntry,
 } from './page';
 
+// Type local étendu — Prospect ne déclare pas tous les champs Notion mais
+// ils sont bien retournés par Supabase via PROSPECT_SELECT_COLUMNS.
+type ProspectFull = Prospect & {
+  secteur_activite?: string | null;
+  taille_entreprise?: string | null;
+  nombre_employes?: number | null;
+  ca_estime?: string | null;
+  branche?: string | null;
+  note_google?: number | null;
+  nombre_avis?: number | null;
+  recommandation_approche?: string | null;
+  analyse_besoin?: string | null;
+  analyse_budget?: string | null;
+  analyse_timing?: string | null;
+  arguments_cles?: string[] | null;
+  besoins_detectes?: string[] | null;
+  instagram?: string | null;
+  facebook?: string | null;
+  linkedin_contact?: string | null;
+  linkedin_entreprise?: string | null;
+  tiktok?: string | null;
+  prenom_contact?: string | null;
+  role_contact?: string | null;
+  notion_page_id?: string | null;
+};
+
 const FORMATION_MODULES = ['Découverte\nGND', 'Sites\nVitrines', 'Process\nvente', 'Techniques\nvente', 'Objections\ntraitement', 'Bases\ntechniques', 'Outils\nprocess'];
 
 const PALIERS_BONUS = [
@@ -428,7 +454,6 @@ function SyncSection({ commerciaux }: { commerciaux: CommercialV2[] }) {
   );
 }
 
-// ─── ProspectDetailDrawer — ouvre la fiche complète ────────────
 function DrawerSection({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div style={{ marginBottom: 22 }}>
@@ -454,12 +479,12 @@ function ProspectDetailDrawer({ prospect, commercial, onClose }: { prospect: Pro
     return () => window.removeEventListener('keydown', onEsc);
   }, [prospect, onClose]);
   if (!prospect) return null;
-  const p = prospect;
+  const p = prospect as ProspectFull;
   const classifCfg = p.classification ? CLASSIF_CONFIG[p.classification] : null;
   const statusCfg = STATUS_CONFIG[p.status] ?? STATUS_CONFIG.a_contacter;
   const fullName = [p.prenom_contact, p.contact_name].filter(Boolean).join(' ') || '—';
-  const args = (p as unknown as { arguments_cles?: string[] | null }).arguments_cles ?? null;
-  const besoins = (p as unknown as { besoins_detectes?: string[] | null }).besoins_detectes ?? null;
+  const args = p.arguments_cles ?? null;
+  const besoins = p.besoins_detectes ?? null;
 
   return (
     <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 100, backdropFilter: 'blur(4px)' }} data-lenis-prevent>
@@ -670,6 +695,7 @@ function PipelineSection({ prospects, commerciaux }: { prospects: Prospect[]; co
             </thead>
             <tbody>
               {paged.map((p, i) => {
+                const pf = p as ProspectFull;
                 const isArchived = p.status === 'archived';
                 const commercial = commerciaux.find((c) => c.id === p.assigned_to);
                 const classifCfg = p.classification ? CLASSIF_CONFIG[p.classification] : null;
@@ -691,8 +717,8 @@ function PipelineSection({ prospects, commerciaux }: { prospects: Prospect[]; co
                     <td style={{ padding: '10px 14px' }}>{classifCfg && <span style={{ padding: '3px 8px', borderRadius: 999, background: classifCfg.bg, color: classifCfg.color, border: `1px solid ${classifCfg.border}`, fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em', whiteSpace: 'nowrap' }}>{p.classification}</span>}</td>
                     <td style={{ padding: '10px 14px' }}><span style={{ padding: '3px 8px', borderRadius: 999, background: statusCfg.bg, color: statusCfg.color, border: `1px solid ${statusCfg.border}`, fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em', whiteSpace: 'nowrap' }}>{statusCfg.label}</span></td>
                     <td style={{ padding: '10px 14px' }}>
-                      <div style={{ fontFamily: 'var(--font-geist-sans)', fontSize: 12, color: '#FDF6EE' }}>{p.prenom_contact || p.contact_name || '—'}</div>
-                      {p.role_contact && <Mono size={8} color="rgba(253,246,238,0.38)" spacing="0.12em" style={{ display: 'block', marginTop: 2 }}>{p.role_contact}</Mono>}
+                      <div style={{ fontFamily: 'var(--font-geist-sans)', fontSize: 12, color: '#FDF6EE' }}>{pf.prenom_contact || p.contact_name || '—'}</div>
+                      {pf.role_contact && <Mono size={8} color="rgba(253,246,238,0.38)" spacing="0.12em" style={{ display: 'block', marginTop: 2 }}>{pf.role_contact}</Mono>}
                     </td>
                     <td style={{ padding: '10px 14px' }}>
                       {commercial ? (
