@@ -775,7 +775,7 @@ function TopBarVariantSwitcher({ active }: { active: 'A' | 'C' | 'G' }) {
   const variants: { k: 'A' | 'C' | 'G'; label: string; href: string; disabled?: boolean }[] = [
     { k: 'A', label: 'Cockpit', href: '/admin' },
     { k: 'C', label: 'Dense', href: '/admin/dense' },
-    { k: 'G', label: 'Japon-Magazine', href: '#', disabled: true },
+    { k: 'G', label: 'Japon-Magazine', href: '/admin/japon' },
   ];
   return (
     <div style={{
