@@ -73,6 +73,45 @@ function Hairline({ label, color = '#E8853D' }: { label: string; color?: string 
   return <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}><span style={{ display: 'inline-block', width: 24, height: 1, background: color }} /><Mono color={color}>{label}</Mono></div>;
 }
 
+// Rich text renderer — détecte paragraphes (split par \n\n) et listes (lignes
+// commençant par -, •, *, ou "1.", "2."). Sinon rend des paragraphes simples.
+function RichText({ text, font = 'sans' }: { text: string | null | undefined; font?: 'sans' | 'serif' }) {
+  if (!text) return null;
+  const blocks = text.split(/\n\s*\n/).map((b) => b.trim()).filter(Boolean);
+  const bulletRx = /^[-•*▪◦·]\s+|^\d+\.\s+/;
+  const baseFont = font === 'serif' ? 'var(--font-fraunces)' : 'var(--font-geist-sans)';
+  const baseSize = font === 'serif' ? 14 : 12;
+  const baseColor = font === 'serif' ? 'rgba(253,246,238,0.85)' : 'rgba(253,246,238,0.78)';
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+      {blocks.map((block, idx) => {
+        const lines = block.split(/\n/).map((l) => l.trim()).filter(Boolean);
+        const isList = lines.length >= 2 && lines.every((l) => bulletRx.test(l));
+        if (isList) {
+          return (
+            <ul key={idx} style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {lines.map((line, i) => (
+                <li key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', fontFamily: baseFont, fontSize: baseSize, lineHeight: 1.5, color: baseColor }}>
+                  <span style={{ color: '#E8853D', flexShrink: 0, marginTop: 6, fontSize: 6, lineHeight: 1 }}>●</span>
+                  <span style={{ flex: 1 }}>{line.replace(bulletRx, '')}</span>
+                </li>
+              ))}
+            </ul>
+          );
+        }
+        return (
+          <p key={idx} style={{ margin: 0, fontFamily: baseFont, fontSize: baseSize, lineHeight: 1.55, color: baseColor }}>
+            {block.split(/\n/).map((l, i, arr) => (
+              <span key={i}>{l}{i < arr.length - 1 && <br />}</span>
+            ))}
+          </p>
+        );
+      })}
+    </div>
+  );
+}
+
+
 function KpiCard({ label, value, sub, accent, spark }: { label: string; value: string | number; sub?: string; accent?: string; spark?: number[] }) {
   const sparkPts = spark ? spark.map((v, i) => `${(i / (spark.length - 1)) * 56},${18 - ((v - Math.min(...spark)) / (Math.max(...spark) - Math.min(...spark) || 1)) * 16}`).join(' ') : null;
   const lastY = spark ? 18 - ((spark[spark.length - 1] - Math.min(...spark)) / (Math.max(...spark) - Math.min(...spark) || 1)) * 16 : 0;
@@ -530,15 +569,15 @@ function ProspectDetailDrawer({ prospect, commercial, onClose }: { prospect: Pro
 
         {p.recommandation_approche && (
           <DrawerSection label="RECOMMANDATION D'APPROCHE">
-            <div style={{ fontFamily: 'var(--font-fraunces)', fontSize: 14, lineHeight: 1.5, color: 'rgba(253,246,238,0.85)' }}>{p.recommandation_approche}</div>
+            <RichText text={p.recommandation_approche} font="serif" />
           </DrawerSection>
         )}
 
         {(p.analyse_besoin || p.analyse_budget || p.analyse_timing) && (
           <DrawerSection label="ANALYSES">
-            {p.analyse_besoin && <div style={{ marginBottom: 10 }}><Mono size={8} color="#E8853D" spacing="0.18em" style={{ display: 'block', marginBottom: 4 }}>BESOIN</Mono><div style={{ fontFamily: 'var(--font-geist-sans)', fontSize: 12, lineHeight: 1.5, color: 'rgba(253,246,238,0.75)' }}>{p.analyse_besoin}</div></div>}
-            {p.analyse_budget && <div style={{ marginBottom: 10 }}><Mono size={8} color="#E8853D" spacing="0.18em" style={{ display: 'block', marginBottom: 4 }}>BUDGET</Mono><div style={{ fontFamily: 'var(--font-geist-sans)', fontSize: 12, lineHeight: 1.5, color: 'rgba(253,246,238,0.75)' }}>{p.analyse_budget}</div></div>}
-            {p.analyse_timing && <div><Mono size={8} color="#E8853D" spacing="0.18em" style={{ display: 'block', marginBottom: 4 }}>TIMING</Mono><div style={{ fontFamily: 'var(--font-geist-sans)', fontSize: 12, lineHeight: 1.5, color: 'rgba(253,246,238,0.75)' }}>{p.analyse_timing}</div></div>}
+            {p.analyse_besoin && <div style={{ marginBottom: 10 }}><Mono size={8} color="#E8853D" spacing="0.18em" style={{ display: 'block', marginBottom: 4 }}>BESOIN</Mono><RichText text={p.analyse_besoin} /></div>}
+            {p.analyse_budget && <div style={{ marginBottom: 10 }}><Mono size={8} color="#E8853D" spacing="0.18em" style={{ display: 'block', marginBottom: 4 }}>BUDGET</Mono><RichText text={p.analyse_budget} /></div>}
+            {p.analyse_timing && <div><Mono size={8} color="#E8853D" spacing="0.18em" style={{ display: 'block', marginBottom: 4 }}>TIMING</Mono><RichText text={p.analyse_timing} /></div>}
           </DrawerSection>
         )}
 
@@ -558,7 +597,7 @@ function ProspectDetailDrawer({ prospect, commercial, onClose }: { prospect: Pro
 
         {p.notes && (
           <DrawerSection label="NOTES INTERNES">
-            <div style={{ fontFamily: 'var(--font-geist-sans)', fontSize: 12, lineHeight: 1.5, color: 'rgba(253,246,238,0.7)', whiteSpace: 'pre-wrap' }}>{p.notes}</div>
+            <RichText text={p.notes} />
           </DrawerSection>
         )}
       </div>
