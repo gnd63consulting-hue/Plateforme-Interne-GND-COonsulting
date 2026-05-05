@@ -2,7 +2,7 @@
 
 /**
  * PipelineShared — Composant partagé pour le pipeline admin et le drawer
- * de détail d'un prospect.
+ * de détail d'un prospect, avec mode édition (whitelist 8 champs).
  *
  * Avant cette extraction, `PipelineSection` + `ProspectDetailDrawer` +
  * helpers `RichText`/`DrawerSection`/`DrawerField` étaient dupliqués 3× dans
@@ -13,9 +13,13 @@
  * Le prop `variant: 'A' | 'C' | 'G'` permet de garder les micro-variations
  * de footer (label final dans la barre de pagination) tout en partageant
  * 100% de la structure logique.
+ *
+ * Les modifs sont POSTées vers /api/admin/update-prospect et ne sont PAS
+ * propagées vers Notion (idem reassign-prospect) — peuvent être écrasées
+ * au prochain sync Notion → Supabase.
  */
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useTransition } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import type { Prospect } from '@/lib/prospects';
 import type { CommercialV2 } from '../../app/(app)/admin/v2/page';
@@ -67,6 +71,23 @@ export const CLASSIF_CONFIG: Record<string, { color: string; bg: string; border:
   '🌡️ Tiède': { color: '#C49A3C', bg: 'rgba(196,154,60,0.12)', border: 'rgba(196,154,60,0.30)' },
   '❄️ Froid': { color: '#5B8AB8', bg: 'rgba(91,138,184,0.12)', border: 'rgba(91,138,184,0.25)' },
 };
+
+const STATUS_OPTIONS: Array<{ value: string; label: string }> = [
+  { value: 'a_contacter',  label: 'À contacter' },
+  { value: 'contacte',     label: 'Contacté' },
+  { value: 'rdv_pris',     label: 'RDV pris' },
+  { value: 'devis_envoye', label: 'Devis envoyé' },
+  { value: 'gagne',        label: 'Devis signé' },
+  { value: 'perdu',        label: 'Perdu' },
+  { value: 'archived',     label: 'Archivé' },
+  { value: 'prospecte',    label: 'Prospecté' },
+];
+
+const CLASSIF_OPTIONS: Array<{ value: string; label: string }> = [
+  { value: '🔥 Chaud', label: '🔥 Chaud' },
+  { value: '🌡️ Tiède', label: '🌡️ Tiède' },
+  { value: '❄️ Froid', label: '❄️ Froid' },
+];
 
 // ───────────────────────────────────────────────────────────────
 // Helpers visuels (Mono, Hairline, RichText)
@@ -140,31 +161,254 @@ function DrawerField({ k, v }: { k: string; v: React.ReactNode }) {
   );
 }
 
+/**
+ * EditableField — bascule lecture / édition selon `isEditing`.
+ * En mode lecture : rendu identique à DrawerField. En mode édition :
+ * input / select / textarea contrôlé. Style des inputs : bg
+ * rgba(253,246,238,0.04), border 1px amber 0.18, padding 8/12, focus
+ * border amber 0.4. Identique pour les 3 variantes (A/C/G).
+ */
+type EditableFieldType = 'text' | 'email' | 'tel' | 'select' | 'textarea';
+
+function EditableField({
+  label,
+  value,
+  onChange,
+  type = 'text',
+  options,
+  isEditing,
+  mono = false,
+}: {
+  label: string;
+  value: string | null | undefined;
+  onChange: (v: string) => void;
+  type?: EditableFieldType;
+  options?: Array<{ value: string; label: string }>;
+  isEditing: boolean;
+  /** Utilise la font mono pour l'input (codes status/classif) */
+  mono?: boolean;
+}) {
+  if (!isEditing) {
+    return <DrawerField k={label} v={value ?? null} />;
+  }
+  const inputBase: React.CSSProperties = {
+    width: '100%',
+    background: 'rgba(253,246,238,0.04)',
+    border: '1px solid rgba(232,133,61,0.18)',
+    borderRadius: 8,
+    padding: '8px 12px',
+    fontFamily: mono ? 'var(--font-geist-mono)' : 'var(--font-geist-sans)',
+    fontSize: mono ? 10 : 12,
+    color: '#FDF6EE',
+    outline: 'none',
+    transition: 'border-color 0.15s',
+    letterSpacing: mono ? '0.1em' : 'normal',
+    textTransform: mono ? 'uppercase' : 'none',
+  };
+  const focusHandlers = {
+    onFocus: (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => { e.currentTarget.style.borderColor = 'rgba(232,133,61,0.4)'; },
+    onBlur: (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => { e.currentTarget.style.borderColor = 'rgba(232,133,61,0.18)'; },
+  };
+  return (
+    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '6px 0' }}>
+      <Mono size={8} color="rgba(253,246,238,0.4)" style={{ minWidth: 100, textTransform: 'uppercase', paddingTop: 10 }}>{label}</Mono>
+      <div style={{ flex: 1 }}>
+        {type === 'select' && options ? (
+          <select value={value ?? ''} onChange={(e) => onChange(e.target.value)} style={inputBase} {...focusHandlers}>
+            {options.map((opt) => (
+              <option key={opt.value} value={opt.value} style={{ background: '#1A0F0E', color: '#FDF6EE' }}>{opt.label}</option>
+            ))}
+          </select>
+        ) : type === 'textarea' ? (
+          <textarea
+            value={value ?? ''}
+            onChange={(e) => onChange(e.target.value)}
+            rows={4}
+            style={{ ...inputBase, fontFamily: 'var(--font-geist-sans)', fontSize: 12, lineHeight: 1.5, resize: 'vertical', minHeight: 80 }}
+            {...focusHandlers}
+          />
+        ) : (
+          <input
+            type={type}
+            value={value ?? ''}
+            onChange={(e) => onChange(e.target.value)}
+            style={inputBase}
+            {...focusHandlers}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ───────────────────────────────────────────────────────────────
+// ProspectDetailDrawer — lecture + mode édition (whitelist 8 champs)
+// ───────────────────────────────────────────────────────────────
+type EditableFields = {
+  status: string;
+  classification: string | null;
+  prenom_contact: string | null;
+  contact_name: string | null;
+  role_contact: string | null;
+  email: string | null;
+  phone: string | null;
+  notes: string | null;
+};
+
+function buildDraft(p: ProspectFull): EditableFields {
+  return {
+    status: p.status,
+    classification: p.classification,
+    prenom_contact: p.prenom_contact ?? null,
+    contact_name: p.contact_name ?? null,
+    role_contact: p.role_contact ?? null,
+    email: p.email ?? null,
+    phone: p.phone ?? null,
+    notes: p.notes ?? null,
+  };
+}
+
 function ProspectDetailDrawer({ prospect, commercial, onClose }: { prospect: Prospect | null; commercial?: CommercialV2; onClose: () => void }) {
+  const router = useRouter();
+  const [, startTransition] = useTransition();
+  const [isEditing, setIsEditing] = useState(false);
+  const [draft, setDraft] = useState<EditableFields | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [errMsg, setErrMsg] = useState<string | null>(null);
+
+  // Reset draft + mode édition à chaque changement de prospect.
+  useEffect(() => {
+    if (prospect) {
+      setDraft(buildDraft(prospect as ProspectFull));
+      setIsEditing(false);
+      setErrMsg(null);
+    } else {
+      setDraft(null);
+      setIsEditing(false);
+      setErrMsg(null);
+    }
+  }, [prospect]);
+
   useEffect(() => {
     if (!prospect) return;
     const onEsc = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
     window.addEventListener('keydown', onEsc);
     return () => window.removeEventListener('keydown', onEsc);
   }, [prospect, onClose]);
-  if (!prospect) return null;
+
+  if (!prospect || !draft) return null;
   const p = prospect as ProspectFull;
-  const classifCfg = p.classification ? CLASSIF_CONFIG[p.classification] : null;
-  const statusCfg = STATUS_CONFIG[p.status] ?? STATUS_CONFIG.a_contacter;
-  const fullName = [p.prenom_contact, p.contact_name].filter(Boolean).join(' ') || '—';
+  const original = buildDraft(p);
+
+  const classifValue = isEditing ? draft.classification : p.classification;
+  const statusValue = isEditing ? draft.status : p.status;
+  const classifCfg = classifValue ? CLASSIF_CONFIG[classifValue] : null;
+  const statusCfg = STATUS_CONFIG[statusValue] ?? STATUS_CONFIG.a_contacter;
+  const fullName = isEditing
+    ? [draft.prenom_contact, draft.contact_name].filter(Boolean).join(' ') || '—'
+    : [p.prenom_contact, p.contact_name].filter(Boolean).join(' ') || '—';
   const args = p.arguments_cles ?? null;
   const besoins = p.besoins_detectes ?? null;
+
+  const handleEdit = () => {
+    setDraft(buildDraft(p));
+    setIsEditing(true);
+    setErrMsg(null);
+  };
+
+  const handleCancel = () => {
+    setDraft(buildDraft(p));
+    setIsEditing(false);
+    setErrMsg(null);
+  };
+
+  const handleSave = async () => {
+    if (saving || !draft) return;
+    // Construit un patch minimal : seulement les champs modifiés.
+    const patch: Partial<EditableFields> = {};
+    (Object.keys(draft) as Array<keyof EditableFields>).forEach((key) => {
+      const newVal = draft[key];
+      const oldVal = original[key];
+      // Normalise '' → null pour les champs nullable.
+      const norm = (v: string | null) => (v === '' ? null : v);
+      if (norm(newVal) !== norm(oldVal)) {
+        // status et classification sont non-nullable côté API.
+        if ((key === 'status' || key === 'classification') && !newVal) return;
+        (patch as Record<string, string | null>)[key] = norm(newVal);
+      }
+    });
+    if (Object.keys(patch).length === 0) {
+      setIsEditing(false);
+      return;
+    }
+    setSaving(true);
+    setErrMsg(null);
+    try {
+      const res = await fetch('/api/admin/update-prospect', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prospect_id: p.id, patch }),
+      });
+      if (res.ok) {
+        setIsEditing(false);
+        startTransition(() => router.refresh());
+      } else {
+        const err = await res.json().catch(() => ({}));
+        setErrMsg(err.error ?? `Erreur ${res.status}`);
+      }
+    } catch (e) {
+      setErrMsg(e instanceof Error ? e.message : 'Erreur réseau');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const setField = <K extends keyof EditableFields>(key: K) => (v: string) => {
+    setDraft((d) => (d ? { ...d, [key]: v } : d));
+  };
 
   return (
     <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 100, backdropFilter: 'blur(4px)' }} data-lenis-prevent>
       <div onClick={(e) => e.stopPropagation()} style={{ position: 'fixed', right: 0, top: 0, bottom: 0, width: '100%', maxWidth: 520, background: 'linear-gradient(135deg,#1A0F0E,#0E0807)', borderLeft: '1px solid rgba(232,133,61,0.20)', overflowY: 'auto', padding: 28, boxShadow: '-20px 0 60px rgba(0,0,0,0.5)' }} data-lenis-prevent>
-        <button onClick={onClose} style={{ position: 'sticky', top: 0, float: 'right', background: 'rgba(232,133,61,0.10)', border: '1px solid rgba(232,133,61,0.25)', borderRadius: 8, padding: '5px 11px', color: '#E8853D', cursor: 'pointer', fontFamily: 'var(--font-geist-mono)', fontSize: 9, fontWeight: 600, letterSpacing: '0.15em', zIndex: 1 }}>FERMER · ESC</button>
-        <div style={{ marginBottom: 24 }}>
-          <Mono color="#E8853D" spacing="0.22em" style={{ display: 'block', marginBottom: 8 }}>FICHE PROSPECT</Mono>
+        <div style={{ position: 'sticky', top: 0, float: 'right', display: 'inline-flex', alignItems: 'center', gap: 6, zIndex: 1 }}>
+          {isEditing ? (
+            <>
+              <button
+                onClick={handleSave}
+                disabled={saving}
+                style={{ background: saving ? 'rgba(232,133,61,0.20)' : 'linear-gradient(90deg,#D4732A,#E8853D,#FFA060)', border: 'none', borderRadius: 8, padding: '5px 11px', color: saving ? '#E8853D' : '#3D1F1E', cursor: saving ? 'wait' : 'pointer', fontFamily: 'var(--font-geist-mono)', fontSize: 10, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase' }}
+              >
+                {saving ? 'SAUVEGARDE…' : 'ENREGISTRER'}
+              </button>
+              <button
+                onClick={handleCancel}
+                disabled={saving}
+                style={{ background: 'rgba(253,246,238,0.06)', border: '1px solid rgba(253,246,238,0.15)', borderRadius: 8, padding: '5px 11px', color: 'rgba(253,246,238,0.7)', cursor: saving ? 'not-allowed' : 'pointer', fontFamily: 'var(--font-geist-mono)', fontSize: 9, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase' }}
+              >
+                ANNULER
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={handleEdit}
+              style={{ background: 'rgba(232,133,61,0.10)', border: '1px solid rgba(232,133,61,0.25)', borderRadius: 8, padding: '5px 11px', color: '#E8853D', cursor: 'pointer', fontFamily: 'var(--font-geist-mono)', fontSize: 9, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase' }}
+            >
+              MODIFIER
+            </button>
+          )}
+          <button onClick={onClose} style={{ background: 'rgba(232,133,61,0.10)', border: '1px solid rgba(232,133,61,0.25)', borderRadius: 8, padding: '5px 11px', color: '#E8853D', cursor: 'pointer', fontFamily: 'var(--font-geist-mono)', fontSize: 9, fontWeight: 600, letterSpacing: '0.15em' }}>FERMER · ESC</button>
+        </div>
+        {errMsg && (
+          <div style={{ clear: 'both', marginTop: 8, marginBottom: 12, padding: '8px 12px', borderRadius: 8, background: 'rgba(181,66,31,0.08)', border: '1px solid rgba(181,66,31,0.30)', color: '#E8853D', fontFamily: 'var(--font-geist-mono)', fontSize: 10, letterSpacing: '0.1em' }}>
+            {errMsg}
+          </div>
+        )}
+        <div style={{ marginBottom: 24, clear: 'both' }}>
+          <Mono color="#E8853D" spacing="0.22em" style={{ display: 'block', marginBottom: 8 }}>FICHE PROSPECT{isEditing ? ' · ÉDITION' : ''}</Mono>
           <h2 style={{ fontFamily: 'var(--font-fraunces)', fontSize: 30, fontWeight: 500, lineHeight: 1.05, letterSpacing: '-0.02em', color: '#FDF6EE', margin: '0 0 6px' }}>{p.company_name}</h2>
           <Mono size={9} color="rgba(253,246,238,0.4)" spacing="0.15em" style={{ display: 'block', marginBottom: 10 }}>{p.city ?? '—'}{p.postal_code ? ` · ${p.postal_code}` : ''}{p.secteur_activite ? ` · ${p.secteur_activite}` : ''}</Mono>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 10 }}>
-            {classifCfg && <span style={{ padding: '3px 8px', borderRadius: 999, background: classifCfg.bg, color: classifCfg.color, border: `1px solid ${classifCfg.border}`, fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em' }}>{p.classification}</span>}
+            {classifCfg && classifValue && <span style={{ padding: '3px 8px', borderRadius: 999, background: classifCfg.bg, color: classifCfg.color, border: `1px solid ${classifCfg.border}`, fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em' }}>{classifValue}</span>}
             <span style={{ padding: '3px 8px', borderRadius: 999, background: statusCfg.bg, color: statusCfg.color, border: `1px solid ${statusCfg.border}`, fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em' }}>{statusCfg.label}</span>
             {p.branche && <span style={{ padding: '3px 8px', borderRadius: 999, background: 'rgba(232,133,61,0.08)', color: '#E8853D', border: '1px solid rgba(232,133,61,0.20)', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em' }}>{p.branche}</span>}
           </div>
@@ -173,12 +417,29 @@ function ProspectDetailDrawer({ prospect, commercial, onClose }: { prospect: Pro
           )}
         </div>
 
+        <DrawerSection label="STATUT & CLASSIFICATION">
+          <EditableField label="STATUT" value={isEditing ? draft.status : statusCfg.label} onChange={setField('status')} type="select" options={STATUS_OPTIONS} isEditing={isEditing} mono />
+          <EditableField label="CLASSIF." value={isEditing ? (draft.classification ?? '') : (p.classification ?? '')} onChange={setField('classification')} type="select" options={CLASSIF_OPTIONS} isEditing={isEditing} mono />
+        </DrawerSection>
+
         <DrawerSection label="DÉCISIONNAIRE">
-          <DrawerField k="NOM" v={fullName} />
-          <DrawerField k="RÔLE" v={p.role_contact} />
-          <DrawerField k="EMAIL" v={p.email ? <a href={`mailto:${p.email}`} style={{ color: '#FFA060', textDecoration: 'none' }}>{p.email}</a> : null} />
-          <DrawerField k="TÉLÉPHONE" v={p.phone ? <a href={`tel:${p.phone}`} style={{ color: '#FFA060', textDecoration: 'none' }}>{p.phone}</a> : null} />
-          <DrawerField k="LINKEDIN" v={p.linkedin_contact ? <a href={p.linkedin_contact} target="_blank" rel="noopener noreferrer" style={{ color: '#FFA060', textDecoration: 'none' }}>Profil →</a> : null} />
+          {isEditing ? (
+            <>
+              <EditableField label="PRÉNOM" value={draft.prenom_contact} onChange={setField('prenom_contact')} type="text" isEditing />
+              <EditableField label="NOM" value={draft.contact_name} onChange={setField('contact_name')} type="text" isEditing />
+              <EditableField label="RÔLE" value={draft.role_contact} onChange={setField('role_contact')} type="text" isEditing />
+              <EditableField label="EMAIL" value={draft.email} onChange={setField('email')} type="email" isEditing />
+              <EditableField label="TÉLÉPHONE" value={draft.phone} onChange={setField('phone')} type="tel" isEditing />
+            </>
+          ) : (
+            <>
+              <DrawerField k="NOM" v={fullName} />
+              <DrawerField k="RÔLE" v={p.role_contact} />
+              <DrawerField k="EMAIL" v={p.email ? <a href={`mailto:${p.email}`} style={{ color: '#FFA060', textDecoration: 'none' }}>{p.email}</a> : null} />
+              <DrawerField k="TÉLÉPHONE" v={p.phone ? <a href={`tel:${p.phone}`} style={{ color: '#FFA060', textDecoration: 'none' }}>{p.phone}</a> : null} />
+              <DrawerField k="LINKEDIN" v={p.linkedin_contact ? <a href={p.linkedin_contact} target="_blank" rel="noopener noreferrer" style={{ color: '#FFA060', textDecoration: 'none' }}>Profil →</a> : null} />
+            </>
+          )}
         </DrawerSection>
 
         <DrawerSection label="ENTREPRISE">
@@ -225,11 +486,13 @@ function ProspectDetailDrawer({ prospect, commercial, onClose }: { prospect: Pro
           </DrawerSection>
         )}
 
-        {p.notes && (
-          <DrawerSection label="NOTES INTERNES">
-            <RichText text={p.notes} />
-          </DrawerSection>
-        )}
+        <DrawerSection label="NOTES INTERNES">
+          {isEditing ? (
+            <EditableField label="NOTES" value={draft.notes} onChange={setField('notes')} type="textarea" isEditing />
+          ) : (
+            p.notes ? <RichText text={p.notes} /> : <Mono size={9} color="rgba(253,246,238,0.3)">—</Mono>
+          )}
+        </DrawerSection>
       </div>
     </div>
   );
