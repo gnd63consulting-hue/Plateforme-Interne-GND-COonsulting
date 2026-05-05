@@ -1,7 +1,8 @@
 'use client';
 
 import { useMemo, useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import type { Prospect } from '@/lib/prospects';
 import type {
   AdminV2PageData,
@@ -13,13 +14,13 @@ import type {
 } from './page';
 
 const FORMATION_MODULES = [
-  'Posture\ncommerciale',
-  "Script\nd'accroche",
+  'Découverte\nGND',
+  'Sites\nVitrines',
+  'Process\nvente',
+  'Techniques\nvente',
   'Objections\ntraitement',
-  'Offre GND\nprésentation',
-  'Devis\nclosing',
-  'Plateforme\noutils',
-  'Outbound\nLinkedIn',
+  'Bases\ntechniques',
+  'Outils\nprocess',
 ];
 
 const PALIERS_BONUS = [
@@ -47,7 +48,6 @@ const CLASSIF_CONFIG: Record<string, { color: string; bg: string; border: string
   '❄️ Froid': { color: '#5B8AB8', bg: 'rgba(91,138,184,0.12)', border: 'rgba(91,138,184,0.25)' },
 };
 
-// ─── Mono ─────────────────────────────────────────
 function Mono({ children, size = 9, color = 'rgba(253,246,238,0.4)', spacing = '0.2em', weight = 600, style = {} }: {
   children: React.ReactNode; size?: number; color?: string; spacing?: string; weight?: number; style?: React.CSSProperties;
 }) {
@@ -67,25 +67,15 @@ function Hairline({ label, color = '#E8853D' }: { label: string; color?: string 
   );
 }
 
-// ─── KpiCard avec sparkline ─────────────────────────
 function KpiCard({ label, value, sub, accent, spark }: { label: string; value: string | number; sub?: string; accent?: string; spark?: number[] }) {
   const sparkPts = spark
     ? spark.map((v, i) => `${(i / (spark.length - 1)) * 56},${18 - ((v - Math.min(...spark)) / (Math.max(...spark) - Math.min(...spark) || 1)) * 16}`).join(' ')
     : null;
   const lastY = spark ? 18 - ((spark[spark.length - 1] - Math.min(...spark)) / (Math.max(...spark) - Math.min(...spark) || 1)) * 16 : 0;
-
   return (
-    <div style={{
-      position: 'relative', overflow: 'hidden', borderRadius: 16, padding: '14px 18px',
-      border: '1px solid rgba(232,133,61,0.10)',
-      backgroundImage: 'radial-gradient(circle at 20% 0%,rgba(232,133,61,0.10) 0%,transparent 55%),linear-gradient(135deg,#3D1F1E 0%,#1A0F0E 100%)',
-      flex: 1, minWidth: 120, transition: 'all .2s cubic-bezier(0.22,1,0.36,1)',
-    }}>
+    <div style={{ position: 'relative', overflow: 'hidden', borderRadius: 16, padding: '14px 18px', border: '1px solid rgba(232,133,61,0.10)', backgroundImage: 'radial-gradient(circle at 20% 0%,rgba(232,133,61,0.10) 0%,transparent 55%),linear-gradient(135deg,#3D1F1E 0%,#1A0F0E 100%)', flex: 1, minWidth: 120, transition: 'all .2s cubic-bezier(0.22,1,0.36,1)' }}>
       <Mono size={8} color="#E8853D" style={{ display: 'block', marginBottom: 8 }}>{label}</Mono>
-      <div style={{
-        fontFamily: 'var(--font-fraunces), Georgia, serif', fontSize: 36, fontWeight: 500, lineHeight: 1,
-        letterSpacing: '-0.02em', color: accent ?? '#FDF6EE', fontVariantNumeric: 'tabular-nums', marginBottom: 8,
-      }}>{value}</div>
+      <div style={{ fontFamily: 'var(--font-fraunces), Georgia, serif', fontSize: 36, fontWeight: 500, lineHeight: 1, letterSpacing: '-0.02em', color: accent ?? '#FDF6EE', fontVariantNumeric: 'tabular-nums', marginBottom: 8 }}>{value}</div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         {sub && <Mono size={9} color="rgba(253,246,238,0.32)">{sub}</Mono>}
         {sparkPts && (
@@ -99,7 +89,6 @@ function KpiCard({ label, value, sub, accent, spark }: { label: string; value: s
   );
 }
 
-// ─── Speedo ──────────────────────────────────────────
 function Speedo({ value = 38, size = 88 }: { value?: number; size?: number }) {
   const angle = -135 + (value / 100) * 270;
   return (
@@ -111,12 +100,7 @@ function Speedo({ value = 38, size = 88 }: { value?: number; size?: number }) {
             <circle cx="50" cy="50" r="38" fill="none" stroke="rgba(232,133,61,0.12)" strokeWidth="2.5" strokeDasharray="179" strokeDashoffset="60" transform="rotate(135 50 50)" strokeLinecap="round" />
             <circle cx="50" cy="50" r="38" fill="none" stroke={`url(#sg-${size})`} strokeWidth="2.5" strokeDasharray={`${(value / 100) * 119} 999`} transform="rotate(135 50 50)" strokeLinecap="round" />
           </svg>
-          <div style={{
-            position: 'absolute', left: '50%', top: '50%', width: 2, height: size * 0.35,
-            background: 'linear-gradient(180deg,transparent 8%,#FDF6EE 14%,#FDF6EE 82%,#E8853D 100%)',
-            borderRadius: 1, transformOrigin: '50% 100%', transform: `translate(-50%,-100%) rotate(${angle + 90}deg)`,
-            transition: 'transform 1s cubic-bezier(0.22,1,0.36,1)',
-          }} />
+          <div style={{ position: 'absolute', left: '50%', top: '50%', width: 2, height: size * 0.35, background: 'linear-gradient(180deg,transparent 8%,#FDF6EE 14%,#FDF6EE 82%,#E8853D 100%)', borderRadius: 1, transformOrigin: '50% 100%', transform: `translate(-50%,-100%) rotate(${angle + 90}deg)`, transition: 'transform 1s cubic-bezier(0.22,1,0.36,1)' }} />
           <div style={{ position: 'absolute', left: '50%', top: '50%', width: 8, height: 8, borderRadius: 999, background: 'radial-gradient(circle,#FDF6EE,#A0735C)', transform: 'translate(-50%,-50%)' }} />
           <div style={{ position: 'absolute', left: 0, right: 0, bottom: 8, textAlign: 'center' }}>
             <span style={{ fontFamily: 'var(--font-fraunces), Georgia, serif', fontSize: size * 0.22, fontWeight: 500, color: '#FDF6EE', letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>
@@ -129,15 +113,11 @@ function Speedo({ value = 38, size = 88 }: { value?: number; size?: number }) {
   );
 }
 
-// ─── RocketMini ────────────────────────────────────
 function RocketMini({ palier = 2, total = 5, height = 100 }: { palier?: number; total?: number; height?: number }) {
   const DOT = 8;
   return (
     <div style={{ position: 'relative', width: 24, height, flexShrink: 0 }}>
-      <div style={{
-        position: 'absolute', left: '50%', top: 0, bottom: 0, width: 1, transform: 'translateX(-50%)',
-        background: 'repeating-linear-gradient(to bottom,rgba(232,133,61,0.35) 0px,rgba(232,133,61,0.35) 3px,transparent 3px,transparent 7px)',
-      }} />
+      <div style={{ position: 'absolute', left: '50%', top: 0, bottom: 0, width: 1, transform: 'translateX(-50%)', background: 'repeating-linear-gradient(to bottom,rgba(232,133,61,0.35) 0px,rgba(232,133,61,0.35) 3px,transparent 3px,transparent 7px)' }} />
       {Array.from({ length: total }).map((_, i) => {
         const levelIdx = total - 1 - i;
         const reached = levelIdx < palier;
@@ -155,12 +135,7 @@ function RocketMini({ palier = 2, total = 5, height = 100 }: { palier?: number; 
                 <path d="M15 40 Q19 54 22 48 Q25 54 29 40 Z" fill="#FFA060" />
               </svg>
             ) : (
-              <div style={{
-                width: DOT, height: DOT, borderRadius: 999,
-                background: reached ? '#E8853D' : 'rgba(253,246,238,0.10)',
-                boxShadow: reached ? '0 0 6px rgba(232,133,61,0.55)' : 'none',
-                border: reached ? '1px solid rgba(232,133,61,0.6)' : '1px solid rgba(253,246,238,0.15)',
-              }} />
+              <div style={{ width: DOT, height: DOT, borderRadius: 999, background: reached ? '#E8853D' : 'rgba(253,246,238,0.10)', boxShadow: reached ? '0 0 6px rgba(232,133,61,0.55)' : 'none', border: reached ? '1px solid rgba(232,133,61,0.6)' : '1px solid rgba(253,246,238,0.15)' }} />
             )}
           </div>
         );
@@ -169,7 +144,6 @@ function RocketMini({ palier = 2, total = 5, height = 100 }: { palier?: number; 
   );
 }
 
-// ─── FunnelSection ─────────────────────────────────
 function FunnelSection({ stages }: { stages: FunnelStage[] }) {
   const total = stages[0]?.count ?? 0;
   return (
@@ -207,13 +181,11 @@ function FunnelSection({ stages }: { stages: FunnelStage[] }) {
   );
 }
 
-// ─── ClassementSection (PODIUM) ────────────────────
 function ClassementSection({ entries, commerciaux }: { entries: ClassementEntry[]; commerciaux: CommercialV2[] }) {
   if (entries.length === 0) return null;
   const podium = [entries[1], entries[0], entries[2]].filter(Boolean);
   const fourth = entries[3];
   const rankColors = ['#E8853D', '#C49A3C', '#A0735C'];
-
   return (
     <div style={{ background: 'rgba(253,246,238,0.03)', border: '1px solid rgba(232,133,61,0.10)', borderRadius: 18, overflow: 'hidden' }}>
       <div style={{ padding: '14px 20px', borderBottom: '1px solid rgba(232,133,61,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -222,7 +194,7 @@ function ClassementSection({ entries, commerciaux }: { entries: ClassementEntry[
       </div>
       <div style={{ padding: 20 }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.3fr 1fr', gap: 10, alignItems: 'end', marginBottom: 14 }}>
-          {podium.map((c, podIdx) => {
+          {podium.map((c) => {
             if (!c) return null;
             const rankIdx = c.rank - 1;
             const isFirst = c.rank === 1;
@@ -272,11 +244,9 @@ function ClassementSection({ entries, commerciaux }: { entries: ClassementEntry[
   );
 }
 
-// ─── FormationSection ───────────────────────────────
 function FormationSection({ entries }: { entries: FormationEntry[] }) {
   const admins = entries.filter((u) => u.isAdmin);
   const commercials = entries.filter((u) => !u.isAdmin);
-
   const renderRow = (u: FormationEntry, i: number, arr: FormationEntry[]) => (
     <div key={u.userId} style={{ display: 'flex', alignItems: 'center', gap: 0, marginBottom: i < arr.length - 1 ? 10 : 0 }}>
       <div style={{ width: 196, flexShrink: 0, display: 'flex', alignItems: 'center', gap: 10, paddingRight: 16 }}>
@@ -309,7 +279,6 @@ function FormationSection({ entries }: { entries: FormationEntry[] }) {
       </div>
     </div>
   );
-
   const groupLabel = (label: string) => (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '10px 0 6px', paddingLeft: 196 }}>
       <div style={{ flex: 1, height: 1, background: 'rgba(232,133,61,0.10)' }} />
@@ -317,7 +286,6 @@ function FormationSection({ entries }: { entries: FormationEntry[] }) {
       <div style={{ width: 80 }} />
     </div>
   );
-
   return (
     <div style={{ background: 'rgba(253,246,238,0.03)', border: '1px solid rgba(232,133,61,0.10)', borderRadius: 18, overflow: 'hidden' }}>
       <div style={{ padding: '14px 20px', borderBottom: '1px solid rgba(232,133,61,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -345,7 +313,6 @@ function FormationSection({ entries }: { entries: FormationEntry[] }) {
   );
 }
 
-// ─── PaliersSection ────────────────────────────────
 function PaliersSection({ commerciaux }: { commerciaux: CommercialV2[] }) {
   const maxPalier = commerciaux.length > 0 ? Math.max(...commerciaux.map((c) => c.palier)) : 0;
   return (
@@ -363,14 +330,7 @@ function PaliersSection({ commerciaux }: { commerciaux: CommercialV2[] }) {
               const nodeSize = isActive ? 52 : reached ? 40 : 32;
               return (
                 <div key={p.niveau} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                  <div style={{
-                    width: nodeSize, height: nodeSize, borderRadius: 999,
-                    background: isActive ? `radial-gradient(circle at 35% 35%, ${p.color}, ${p.color}88)` : reached ? `${p.color}22` : 'rgba(253,246,238,0.05)',
-                    border: `2px solid ${reached ? p.color + '80' : 'rgba(253,246,238,0.12)'}`,
-                    boxShadow: isActive ? `0 0 18px ${p.color}55` : reached ? `0 0 8px ${p.color}30` : 'none',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: isActive ? 24 : reached ? 18 : 16,
-                    transition: 'all 0.35s cubic-bezier(0.22,1,0.36,1)',
-                  }}>{p.icon}</div>
+                  <div style={{ width: nodeSize, height: nodeSize, borderRadius: 999, background: isActive ? `radial-gradient(circle at 35% 35%, ${p.color}, ${p.color}88)` : reached ? `${p.color}22` : 'rgba(253,246,238,0.05)', border: `2px solid ${reached ? p.color + '80' : 'rgba(253,246,238,0.12)'}`, boxShadow: isActive ? `0 0 18px ${p.color}55` : reached ? `0 0 8px ${p.color}30` : 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: isActive ? 24 : reached ? 18 : 16, transition: 'all 0.35s cubic-bezier(0.22,1,0.36,1)' }}>{p.icon}</div>
                   <div style={{ width: 2, height: 10, background: reached ? p.color + '60' : 'rgba(253,246,238,0.08)' }} />
                 </div>
               );
@@ -414,8 +374,7 @@ function PaliersSection({ commerciaux }: { commerciaux: CommercialV2[] }) {
   );
 }
 
-// ─── CommercialCards ───────────────────────────────
-function CommercialCards({ commerciaux, onViewDetail }: { commerciaux: CommercialV2[]; onViewDetail?: (id: string) => void }) {
+function CommercialCards({ commerciaux }: { commerciaux: CommercialV2[] }) {
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 14 }}>
       {commerciaux.map((c) => {
@@ -451,7 +410,7 @@ function CommercialCards({ commerciaux, onViewDetail }: { commerciaux: Commercia
                 </div>
               ))}
             </div>
-            <button onClick={() => onViewDetail?.(c.id)} style={{ width: '100%', padding: '9px 0', borderRadius: 10, background: 'rgba(232,133,61,0.08)', border: '1px solid rgba(232,133,61,0.18)', color: '#E8853D', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.18em', cursor: 'pointer' }}>Voir le détail →</button>
+            <Link href={`/admin?commercial=${c.id}#pipeline-section`} style={{ width: '100%', padding: '9px 0', borderRadius: 10, background: 'rgba(232,133,61,0.08)', border: '1px solid rgba(232,133,61,0.18)', color: '#E8853D', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.18em', cursor: 'pointer', textAlign: 'center', textDecoration: 'none', display: 'block' }}>Voir le détail →</Link>
           </div>
         );
       })}
@@ -459,7 +418,6 @@ function CommercialCards({ commerciaux, onViewDetail }: { commerciaux: Commercia
   );
 }
 
-// ─── ActivityLog ───────────────────────────────────
 function ActivityLog({ logs }: { logs: ActivityEntry[] }) {
   const typeColor: Record<string, string> = { 'STATUT CHANGED': '#5B8AB8', 'NOTE ADDED': 'rgba(253,246,238,0.3)', 'DEVIS SENT': '#5A8A3F', 'SYNC NOTION': 'rgba(232,133,61,0.6)' };
   if (logs.length === 0) return <Mono size={9} color="rgba(253,246,238,0.4)">Aucune activité récente</Mono>;
@@ -484,7 +442,6 @@ function ActivityLog({ logs }: { logs: ActivityEntry[] }) {
   );
 }
 
-// ─── SyncSection ────────────────────────────────────
 function SyncSection({ commerciaux }: { commerciaux: CommercialV2[] }) {
   const router = useRouter();
   const [, startTransition] = useTransition();
@@ -548,20 +505,46 @@ function SyncSection({ commerciaux }: { commerciaux: CommercialV2[] }) {
   );
 }
 
-// ─── PipelineSection ───────────────────────────────
 type SortKey = 'company_name' | 'classification' | 'status' | 'updated_at';
 
 function PipelineSection({ prospects, commerciaux }: { prospects: Prospect[]; commerciaux: CommercialV2[] }) {
-  const [filterCommercial, setFilterCommercial] = useState('all');
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialCommercial = searchParams.get('commercial') ?? 'all';
+  const [filterCommercial, setFilterCommercial] = useState(initialCommercial);
   const [filterStatus, setFilterStatus] = useState('all');
   const [showArchived, setShowArchived] = useState(false);
   const [sortCol, setSortCol] = useState<SortKey>('updated_at');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const [reassignOpen, setReassignOpen] = useState<string | null>(null);
+  const [reassigning, setReassigning] = useState<string | null>(null);
 
   const handleSort = (col: SortKey) => {
     if (sortCol === col) setSortDir((d) => (d === 'desc' ? 'asc' : 'desc'));
     else { setSortCol(col); setSortDir('desc'); }
+  };
+
+  const handleReassign = async (prospectId: string, newCommercialId: string | null) => {
+    if (reassigning) return;
+    setReassigning(prospectId);
+    try {
+      const res = await fetch('/api/admin/reassign-prospect', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prospect_id: prospectId, new_assigned_to: newCommercialId }),
+      });
+      if (res.ok) {
+        router.refresh();
+      } else {
+        const err = await res.json().catch(() => ({}));
+        alert(`Erreur réassignation : ${err.error ?? res.statusText}`);
+      }
+    } catch (e) {
+      alert(`Erreur réseau : ${e instanceof Error ? e.message : 'inconnue'}`);
+    } finally {
+      setReassigning(null);
+      setReassignOpen(null);
+    }
   };
 
   const filtered = useMemo(() => prospects.filter((p) => {
@@ -609,7 +592,7 @@ function PipelineSection({ prospects, commerciaux }: { prospects: Prospect[]; co
   };
 
   return (
-    <div style={{ background: 'rgba(253,246,238,0.03)', border: '1px solid rgba(232,133,61,0.10)', borderRadius: 18, overflow: 'visible' }}>
+    <div id="pipeline-section" style={{ background: 'rgba(253,246,238,0.03)', border: '1px solid rgba(232,133,61,0.10)', borderRadius: 18, overflow: 'visible', scrollMarginTop: 20 }}>
       <div style={{ padding: '14px 20px', borderBottom: '1px solid rgba(232,133,61,0.10)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
           <Hairline label="PIPELINE PROSPECTS" />
@@ -647,6 +630,7 @@ function PipelineSection({ prospects, commerciaux }: { prospects: Prospect[]; co
               const classifCfg = p.classification ? CLASSIF_CONFIG[p.classification] : null;
               const statusCfg = STATUS_CONFIG[p.status] ?? STATUS_CONFIG.a_contacter;
               const score = scoreOf(p);
+              const isReassigning = reassigning === p.id;
               return (
                 <tr key={p.id} style={{ borderBottom: '1px solid rgba(232,133,61,0.05)', opacity: isArchived ? 0.45 : 1, transition: 'background 0.12s', background: i % 2 === 0 ? 'transparent' : 'rgba(253,246,238,0.008)' }}>
                   <td style={{ padding: '10px 14px' }}>
@@ -682,12 +666,15 @@ function PipelineSection({ prospects, commerciaux }: { prospects: Prospect[]; co
                   </td>
                   <td style={{ padding: '10px 14px', textAlign: 'right' }}>
                     <div style={{ position: 'relative', display: 'inline-block' }}>
-                      <button onClick={() => setReassignOpen(reassignOpen === p.id ? null : p.id)} style={{ padding: '4px 9px', borderRadius: 8, cursor: 'pointer', background: 'rgba(91,138,184,0.10)', border: '1px solid rgba(91,138,184,0.22)', color: '#5B8AB8', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em' }}>Réassigner ↓</button>
-                      {reassignOpen === p.id && (
+                      <button onClick={() => setReassignOpen(reassignOpen === p.id ? null : p.id)} disabled={isReassigning} style={{ padding: '4px 9px', borderRadius: 8, cursor: isReassigning ? 'wait' : 'pointer', background: 'rgba(91,138,184,0.10)', border: '1px solid rgba(91,138,184,0.22)', color: '#5B8AB8', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em' }}>{isReassigning ? '…' : 'Réassigner ↓'}</button>
+                      {reassignOpen === p.id && !isReassigning && (
                         <div style={{ position: 'absolute', right: 0, top: 'calc(100% + 4px)', zIndex: 30, background: '#1A0F0E', border: '1px solid rgba(232,133,61,0.22)', borderRadius: 10, overflow: 'hidden', minWidth: 130, boxShadow: '0 12px 32px rgba(0,0,0,0.4)' }}>
                           {commerciaux.map((c) => (
-                            <button key={c.id} onClick={() => { alert(`Réassignation backend à venir : ${p.company_name} → ${c.name}`); setReassignOpen(null); }} style={{ display: 'block', width: '100%', padding: '8px 12px', textAlign: 'left', background: p.assigned_to === c.id ? 'rgba(232,133,61,0.08)' : 'transparent', border: 'none', cursor: 'pointer', color: p.assigned_to === c.id ? '#E8853D' : '#FDF6EE', fontFamily: 'var(--font-geist-mono)', fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.13em' }}>{c.name.split(' ')[0]} {p.assigned_to === c.id ? '✓' : ''}</button>
+                            <button key={c.id} onClick={() => handleReassign(p.id, c.id)} style={{ display: 'block', width: '100%', padding: '8px 12px', textAlign: 'left', background: p.assigned_to === c.id ? 'rgba(232,133,61,0.08)' : 'transparent', border: 'none', cursor: 'pointer', color: p.assigned_to === c.id ? '#E8853D' : '#FDF6EE', fontFamily: 'var(--font-geist-mono)', fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.13em' }}>{c.name.split(' ')[0]} {p.assigned_to === c.id ? '✓' : ''}</button>
                           ))}
+                          {p.assigned_to && (
+                            <button onClick={() => handleReassign(p.id, null)} style={{ display: 'block', width: '100%', padding: '8px 12px', textAlign: 'left', background: 'transparent', border: 'none', borderTop: '1px solid rgba(232,133,61,0.10)', cursor: 'pointer', color: 'rgba(253,246,238,0.5)', fontFamily: 'var(--font-geist-mono)', fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.13em' }}>— Désassigner</button>
+                          )}
                         </div>
                       )}
                     </div>
@@ -706,13 +693,9 @@ function PipelineSection({ prospects, commerciaux }: { prospects: Prospect[]; co
   );
 }
 
-// ═══════════════════════════════════════════════════
-// VARIANTE A — main client component
-// ═══════════════════════════════════════════════════
 export default function AdminV2Client({ data }: { data: AdminV2PageData }) {
   return (
     <div style={{ flex: 1, background: '#1A0F0E', overflowY: 'auto', minHeight: '100%' }}>
-      {/* HERO HEADER */}
       <header style={{ position: 'relative', padding: '28px 40px', overflow: 'hidden', borderBottom: '1px solid rgba(232,133,61,0.08)' }}>
         <span aria-hidden style={{ position: 'absolute', right: -20, top: -40, fontFamily: 'var(--font-fraunces)', fontSize: 200, fontWeight: 500, lineHeight: 1, letterSpacing: '-0.04em', color: 'rgba(232,133,61,0.04)', whiteSpace: 'nowrap', pointerEvents: 'none', userSelect: 'none' }}>Pipeline.</span>
         <div style={{ position: 'relative' }}>
