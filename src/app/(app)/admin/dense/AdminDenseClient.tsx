@@ -768,6 +768,78 @@ function PipelineSection({ prospects, commerciaux }: { prospects: Prospect[]; co
 // VARIANTE C — Dense data (2 colonnes)
 // ═══════════════════════════════════════════════════════════════
 
+// Switcher de variantes (cockpit aéré / dense / japon). Dupliqué localement —
+// le DRY refactor sera fait avec PR #4 (variante G activée).
+function VariantSwitcher({ active }: { active: 'A' | 'C' | 'G' }) {
+  const TABS: { id: 'A' | 'C' | 'G'; label: string; href: string | null; disabled?: boolean }[] = [
+    { id: 'A', label: 'A · COCKPIT', href: '/admin' },
+    { id: 'C', label: 'C · DENSE', href: '/admin/dense' },
+    { id: 'G', label: 'G · JAPON*', href: null, disabled: true },
+  ];
+  const tabBase: React.CSSProperties = {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 6,
+    padding: '6px 14px',
+    borderRadius: 999,
+    fontFamily: 'var(--font-geist-mono)',
+    fontSize: 10,
+    fontWeight: 600,
+    textTransform: 'uppercase',
+    letterSpacing: '0.16em',
+    textDecoration: 'none',
+    border: '1px solid transparent',
+    transition: 'background 120ms ease, color 120ms ease',
+  };
+  const dot = (color: string) => (
+    <span aria-hidden style={{ width: 8, height: 8, borderRadius: 999, background: color, display: 'inline-block' }} />
+  );
+  return (
+    <div style={{
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 4,
+      padding: 4,
+      borderRadius: 999,
+      border: '1px solid rgba(232,133,61,0.22)',
+      background: 'rgba(253,246,238,0.02)',
+      width: 'fit-content',
+      position: 'relative',
+      zIndex: 3,
+    }}>
+      {TABS.map((tab) => {
+        const isActive = tab.id === active;
+        const style: React.CSSProperties = {
+          ...tabBase,
+          background: isActive ? 'rgba(232,133,61,0.15)' : 'transparent',
+          color: isActive ? '#E8853D' : 'rgba(253,246,238,0.5)',
+          border: isActive ? '1px solid rgba(232,133,61,0.30)' : '1px solid transparent',
+          opacity: tab.disabled ? 0.4 : 1,
+          cursor: tab.disabled ? 'not-allowed' : 'pointer',
+        };
+        const content = (
+          <>
+            {dot(isActive ? '#E8853D' : 'rgba(253,246,238,0.25)')}
+            <span>{tab.label}</span>
+          </>
+        );
+        if (tab.disabled || !tab.href) {
+          return (
+            <span key={tab.id} style={style} title="Bientôt" aria-disabled>
+              {content}
+            </span>
+          );
+        }
+        return (
+          <Link key={tab.id} href={tab.href} style={style}>
+            {content}
+          </Link>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function AdminDenseClient({ data }: { data: AdminV2PageData }) {
   // density='normal' hardcoded — toggle viendra avec PR #4 (TweaksPanel)
   const pad = 20;
@@ -783,84 +855,71 @@ export default function AdminDenseClient({ data }: { data: AdminV2PageData }) {
       <header style={{
         padding: `${pad}px ${pad + 8}px`,
         borderBottom: '1px solid rgba(232,133,61,0.08)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: 16,
-        flexWrap: 'wrap',
       }}>
-        <div style={{ minWidth: 0, flex: '1 1 auto' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-            <span style={{
-              width: 6,
-              height: 6,
-              borderRadius: 999,
-              background: '#E8853D',
-              boxShadow: '0 0 6px rgba(232,133,61,0.8)',
-              animation: 'pulse 2s infinite',
-              display: 'inline-block',
-            }} />
-            <Mono color="#E8853D" spacing="0.22em">VUE ADMIN · LIVE · {monthLabel}</Mono>
-          </div>
-          <h1 style={{
-            fontFamily: 'var(--font-fraunces)',
-            fontSize: 32,
-            fontWeight: 500,
-            lineHeight: 1,
-            letterSpacing: '-0.025em',
-            color: '#FDF6EE',
-            margin: 0,
-          }}>
-            Notre <span style={{ fontStyle: 'italic', color: '#E8853D' }}>pipeline</span>, {data.adminName}.
-          </h1>
+        <div style={{ marginBottom: 12 }}>
+          <VariantSwitcher active="C" />
         </div>
-
-        {/* KPI inline strip */}
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-          {[
-            { l: 'LIVE', v: data.kpi.live as number | string, a: undefined as string | undefined },
-            { l: '🔥 CHAUDS', v: data.kpi.chauds, a: '#E8853D' },
-            { l: 'SIGNÉS', v: data.kpi.signatures, a: '#5A8A3F' },
-            { l: 'CA', v: `${(data.kpi.ca / 1000).toFixed(1)}K€`, a: '#5A8A3F' },
-          ].map((k) => (
-            <div key={k.l} style={{
-              background: 'rgba(253,246,238,0.04)',
-              border: '1px solid rgba(232,133,61,0.10)',
-              borderRadius: 10,
-              padding: '8px 14px',
-              textAlign: 'center',
-              minWidth: 80,
-            }}>
-              <Mono size={8} color="rgba(232,133,61,0.7)" style={{ display: 'block', marginBottom: 4 }}>{k.l}</Mono>
-              <div style={{
-                fontFamily: 'var(--font-fraunces)',
-                fontSize: 26,
-                fontWeight: 500,
-                lineHeight: 1,
-                color: k.a ?? '#FDF6EE',
-                fontVariantNumeric: 'tabular-nums',
-              }}>{k.v}</div>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 16,
+          flexWrap: 'wrap',
+        }}>
+          <div style={{ minWidth: 0, flex: '1 1 auto' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+              <span style={{
+                width: 6,
+                height: 6,
+                borderRadius: 999,
+                background: '#E8853D',
+                boxShadow: '0 0 6px rgba(232,133,61,0.8)',
+                animation: 'pulse 2s infinite',
+                display: 'inline-block',
+              }} />
+              <Mono color="#E8853D" spacing="0.22em">VUE ADMIN · LIVE · {monthLabel}</Mono>
             </div>
-          ))}
+            <h1 style={{
+              fontFamily: 'var(--font-fraunces)',
+              fontSize: 32,
+              fontWeight: 500,
+              lineHeight: 1,
+              letterSpacing: '-0.025em',
+              color: '#FDF6EE',
+              margin: 0,
+            }}>
+              Notre <span style={{ fontStyle: 'italic', color: '#E8853D' }}>pipeline</span>, {data.adminName}.
+            </h1>
+          </div>
 
-          {/* Toggle vers Variante A (cockpit aéré) */}
-          <Link href="/admin" style={{
-            marginLeft: 4,
-            padding: '8px 12px',
-            borderRadius: 10,
-            background: 'rgba(253,246,238,0.04)',
-            border: '1px solid rgba(232,133,61,0.18)',
-            color: '#E8853D',
-            fontFamily: 'var(--font-geist-mono)',
-            fontSize: 9,
-            fontWeight: 600,
-            textTransform: 'uppercase',
-            letterSpacing: '0.18em',
-            textDecoration: 'none',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 4,
-          }}>← Vue cockpit</Link>
+          {/* KPI inline strip */}
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+            {[
+              { l: 'LIVE', v: data.kpi.live as number | string, a: undefined as string | undefined },
+              { l: '🔥 CHAUDS', v: data.kpi.chauds, a: '#E8853D' },
+              { l: 'SIGNÉS', v: data.kpi.signatures, a: '#5A8A3F' },
+              { l: 'CA', v: `${(data.kpi.ca / 1000).toFixed(1)}K€`, a: '#5A8A3F' },
+            ].map((k) => (
+              <div key={k.l} style={{
+                background: 'rgba(253,246,238,0.04)',
+                border: '1px solid rgba(232,133,61,0.10)',
+                borderRadius: 10,
+                padding: '8px 14px',
+                textAlign: 'center',
+                minWidth: 80,
+              }}>
+                <Mono size={8} color="rgba(232,133,61,0.7)" style={{ display: 'block', marginBottom: 4 }}>{k.l}</Mono>
+                <div style={{
+                  fontFamily: 'var(--font-fraunces)',
+                  fontSize: 26,
+                  fontWeight: 500,
+                  lineHeight: 1,
+                  color: k.a ?? '#FDF6EE',
+                  fontVariantNumeric: 'tabular-nums',
+                }}>{k.v}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </header>
 
@@ -942,3 +1001,4 @@ export default function AdminDenseClient({ data }: { data: AdminV2PageData }) {
     </div>
   );
 }
+
