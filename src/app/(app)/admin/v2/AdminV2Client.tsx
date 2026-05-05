@@ -3,1190 +3,409 @@
 import { useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Prospect } from '@/lib/prospects';
-import { labelForStatus } from '@/lib/prospects';
-import { formatEur } from '@/lib/ca-utils';
-import type { AdminV2Data, CommercialStats } from './page';
+import type {
+  AdminV2PageData,
+  CommercialV2,
+  FunnelStage,
+  ClassementEntry,
+  ActivityEntry,
+  FormationEntry,
+} from './page';
 
-// ─────────────────────────────────────────────────────────────────────
-// Status & classification config
-// ─────────────────────────────────────────────────────────────────────
+const FORMATION_MODULES = [
+  'Posture\ncommerciale',
+  "Script\nd'accroche",
+  'Objections\ntraitement',
+  'Offre GND\nprésentation',
+  'Devis\nclosing',
+  'Plateforme\noutils',
+  'Outbound\nLinkedIn',
+];
 
-type StatusKey =
-  | 'a_contacter'
-  | 'contacte'
-  | 'rdv_pris'
-  | 'devis_envoye'
-  | 'gagne'
-  | 'perdu'
-  | 'archived'
-  | 'prospecte';
+const PALIERS_BONUS = [
+  { niveau: 1, label: 'Bronze',       icon: '🥉', signatures: 1,  bonus: 200,  color: '#A0735C' },
+  { niveau: 2, label: 'Argent',       icon: '🥈', signatures: 3,  bonus: 500,  color: '#8A9DB5' },
+  { niveau: 3, label: 'Or',           icon: '🥇', signatures: 5,  bonus: 1000, color: '#C49A3C' },
+  { niveau: 4, label: 'Platine',      icon: '💎', signatures: 8,  bonus: 2500, color: '#7B70C4' },
+  { niveau: 5, label: 'Stratosphère', icon: '🚀', signatures: 12, bonus: 5000, color: '#E8853D' },
+];
 
-const STATUS_CONFIG: Record<
-  string,
-  { label: string; bg: string; color: string; border: string }
-> = {
-  a_contacter: {
-    label: 'À contacter',
-    bg: 'rgba(138,109,107,0.15)',
-    color: '#A88E8B',
-    border: 'rgba(138,109,107,0.3)',
-  },
-  contacte: {
-    label: 'Contacté',
-    bg: 'rgba(91,138,184,0.15)',
-    color: '#6FA1CC',
-    border: 'rgba(91,138,184,0.3)',
-  },
-  rdv_pris: {
-    label: 'RDV pris',
-    bg: 'rgba(123,112,196,0.15)',
-    color: '#9087D1',
-    border: 'rgba(123,112,196,0.3)',
-  },
-  devis_envoye: {
-    label: 'Devis envoyé',
-    bg: 'rgba(196,154,60,0.15)',
-    color: '#D4B45D',
-    border: 'rgba(196,154,60,0.3)',
-  },
-  gagne: {
-    label: 'Devis signé',
-    bg: 'rgba(90,138,63,0.15)',
-    color: '#7BA85B',
-    border: 'rgba(90,138,63,0.3)',
-  },
-  perdu: {
-    label: 'Perdu',
-    bg: 'rgba(181,66,31,0.15)',
-    color: '#C76943',
-    border: 'rgba(181,66,31,0.3)',
-  },
-  archived: {
-    label: 'Archivé',
-    bg: 'rgba(138,109,107,0.10)',
-    color: '#8A6D6B',
-    border: 'rgba(138,109,107,0.2)',
-  },
-  prospecte: {
-    label: 'Prospecté',
-    bg: 'rgba(138,109,107,0.15)',
-    color: '#A88E8B',
-    border: 'rgba(138,109,107,0.3)',
-  },
+const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; border: string }> = {
+  a_contacter:  { label: 'À contacter',  color: '#8A6D6B', bg: 'rgba(138,109,107,0.12)', border: 'rgba(138,109,107,0.25)' },
+  contacte:     { label: 'Contacté',     color: '#5B8AB8', bg: 'rgba(91,138,184,0.12)',  border: 'rgba(91,138,184,0.25)' },
+  rdv_pris:     { label: 'RDV pris',     color: '#7B70C4', bg: 'rgba(123,112,196,0.12)', border: 'rgba(123,112,196,0.25)' },
+  devis_envoye: { label: 'Devis envoyé', color: '#C49A3C', bg: 'rgba(196,154,60,0.12)',  border: 'rgba(196,154,60,0.25)' },
+  gagne:        { label: 'Devis signé',  color: '#5A8A3F', bg: 'rgba(90,138,63,0.12)',   border: 'rgba(90,138,63,0.25)' },
+  perdu:        { label: 'Perdu',        color: '#B5421F', bg: 'rgba(181,66,31,0.12)',   border: 'rgba(181,66,31,0.25)' },
+  archived:     { label: 'Archivé',      color: '#8A6D6B', bg: 'rgba(138,109,107,0.10)', border: 'rgba(138,109,107,0.20)' },
+  prospecte:    { label: 'Prospecté',    color: '#8A6D6B', bg: 'rgba(138,109,107,0.12)', border: 'rgba(138,109,107,0.25)' },
 };
 
-const CLASSIF_CONFIG: Record<
-  string,
-  { bg: string; color: string; border: string }
-> = {
-  '🔥 Chaud': {
-    bg: 'rgba(232,133,61,0.12)',
-    color: '#FFA060',
-    border: 'rgba(232,133,61,0.30)',
-  },
-  '🌡️ Tiède': {
-    bg: 'rgba(212,115,42,0.12)',
-    color: '#E69947',
-    border: 'rgba(212,115,42,0.30)',
-  },
-  '❄️ Froid': {
-    bg: 'rgba(91,138,184,0.12)',
-    color: '#7BA1C7',
-    border: 'rgba(91,138,184,0.25)',
-  },
+const CLASSIF_CONFIG: Record<string, { color: string; bg: string; border: string }> = {
+  '🔥 Chaud': { color: '#E8853D', bg: 'rgba(232,133,61,0.12)', border: 'rgba(232,133,61,0.30)' },
+  '🌡️ Tiède': { color: '#C49A3C', bg: 'rgba(196,154,60,0.12)', border: 'rgba(196,154,60,0.30)' },
+  '❄️ Froid': { color: '#5B8AB8', bg: 'rgba(91,138,184,0.12)', border: 'rgba(91,138,184,0.25)' },
 };
 
-function StatusBadge({ status }: { status: string }) {
-  const cfg = STATUS_CONFIG[status] ?? STATUS_CONFIG.a_contacter;
+// ─── Mono ─────────────────────────────────────────
+function Mono({ children, size = 9, color = 'rgba(253,246,238,0.4)', spacing = '0.2em', weight = 600, style = {} }: {
+  children: React.ReactNode; size?: number; color?: string; spacing?: string; weight?: number; style?: React.CSSProperties;
+}) {
   return (
-    <span
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        padding: '3px 9px',
-        borderRadius: 999,
-        background: cfg.bg,
-        color: cfg.color,
-        border: `1px solid ${cfg.border}`,
-        fontFamily: 'var(--font-geist-mono, ui-monospace), monospace',
-        fontSize: 9,
-        fontWeight: 600,
-        textTransform: 'uppercase',
-        letterSpacing: '0.15em',
-        whiteSpace: 'nowrap',
-      }}
-    >
-      {cfg.label}
+    <span style={{ fontFamily: 'var(--font-geist-mono), ui-monospace, monospace', fontSize: size, fontWeight: weight, textTransform: 'uppercase', letterSpacing: spacing, color, ...style }}>
+      {children}
     </span>
   );
 }
 
-function ClassifBadge({ classification }: { classification: string | null }) {
-  if (!classification) return null;
-  const cfg = CLASSIF_CONFIG[classification];
-  if (!cfg) {
-    return (
-      <span
-        style={{
-          fontFamily: 'var(--font-geist-mono, ui-monospace), monospace',
-          fontSize: 9,
-          color: 'rgba(253,246,238,0.4)',
-          letterSpacing: '0.12em',
-        }}
-      >
-        {classification}
-      </span>
-    );
-  }
+function Hairline({ label, color = '#E8853D' }: { label: string; color?: string }) {
   return (
-    <span
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        padding: '3px 9px',
-        borderRadius: 999,
-        background: cfg.bg,
-        color: cfg.color,
-        border: `1px solid ${cfg.border}`,
-        fontFamily: 'var(--font-geist-mono, ui-monospace), monospace',
-        fontSize: 9,
-        fontWeight: 600,
-        letterSpacing: '0.15em',
-        whiteSpace: 'nowrap',
-      }}
-    >
-      {classification}
-    </span>
-  );
-}
-
-function ScoreBadge({ score }: { score: number | null }) {
-  const s = score ?? 0;
-  const color =
-    s >= 8 ? '#FFA060' : s >= 6 ? '#D4B45D' : s > 0 ? '#A88E8B' : '#5C504D';
-  const bg =
-    s >= 8
-      ? 'rgba(232,133,61,0.12)'
-      : s >= 6
-      ? 'rgba(196,154,60,0.10)'
-      : 'rgba(138,109,107,0.10)';
-  return (
-    <div
-      style={{
-        display: 'inline-flex',
-        alignItems: 'baseline',
-        gap: 1,
-        background: bg,
-        borderRadius: 8,
-        padding: '4px 8px',
-      }}
-    >
-      <span
-        style={{
-          fontFamily: 'var(--font-fraunces), Georgia, serif',
-          fontSize: 18,
-          fontWeight: 500,
-          color,
-          fontVariantNumeric: 'tabular-nums',
-          letterSpacing: '-0.02em',
-          lineHeight: 1,
-        }}
-      >
-        {s || '—'}
-      </span>
-      {s > 0 && (
-        <span
-          style={{
-            fontFamily: 'var(--font-geist-mono, ui-monospace), monospace',
-            fontSize: 9,
-            color: 'rgba(253,246,238,0.35)',
-          }}
-        >
-          /10
-        </span>
-      )}
+    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+      <span style={{ display: 'inline-block', width: 24, height: 1, background: color }} />
+      <Mono color={color}>{label}</Mono>
     </div>
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────
-// CompactSpeedometer
-// ─────────────────────────────────────────────────────────────────────
+// ─── KpiCard avec sparkline ─────────────────────────
+function KpiCard({ label, value, sub, accent, spark }: { label: string; value: string | number; sub?: string; accent?: string; spark?: number[] }) {
+  const sparkPts = spark
+    ? spark.map((v, i) => `${(i / (spark.length - 1)) * 56},${18 - ((v - Math.min(...spark)) / (Math.max(...spark) - Math.min(...spark) || 1)) * 16}`).join(' ')
+    : null;
+  const lastY = spark ? 18 - ((spark[spark.length - 1] - Math.min(...spark)) / (Math.max(...spark) - Math.min(...spark) || 1)) * 16 : 0;
 
-function CompactSpeedometer({
-  value,
-  size = 88,
-  label,
-}: {
-  value: number;
-  size?: number;
-  label?: string;
-}) {
-  const v = Math.max(0, Math.min(100, value));
-  const angle = -135 + (v / 100) * 270;
   return (
-    <div style={{ position: 'relative', width: size, height: size }}>
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          borderRadius: '50%',
-          background:
-            'conic-gradient(from 90deg, #3D1F1E, #A0735C, #FDF6EE, #A0735C, #3D1F1E)',
-          padding: 3,
-        }}
-      >
-        <div
-          style={{
-            width: '100%',
-            height: '100%',
-            borderRadius: '50%',
-            background:
-              'radial-gradient(circle at 50% 30%, #2A1311 0%, #0E0807 100%)',
-            position: 'relative',
-            overflow: 'hidden',
-          }}
-        >
-          <svg
-            viewBox="0 0 100 100"
-            style={{
-              position: 'absolute',
-              inset: 0,
-              width: '100%',
-              height: '100%',
-            }}
-          >
-            <circle
-              cx="50"
-              cy="50"
-              r="38"
-              fill="none"
-              stroke="rgba(232,133,61,0.12)"
-              strokeWidth="2.5"
-              strokeDasharray="179"
-              strokeDashoffset="60"
-              transform="rotate(135 50 50)"
-              strokeLinecap="round"
-            />
-            <circle
-              cx="50"
-              cy="50"
-              r="38"
-              fill="none"
-              stroke={`url(#csg-${size})`}
-              strokeWidth="2.5"
-              strokeDasharray={`${(v / 100) * 179 * 0.665} 999`}
-              transform="rotate(135 50 50)"
-              strokeLinecap="round"
-            />
-            <defs>
-              <linearGradient id={`csg-${size}`} x1="0" x2="1">
-                <stop offset="0" stopColor="#D4732A" />
-                <stop offset="1" stopColor="#FFA060" />
-              </linearGradient>
-            </defs>
+    <div style={{
+      position: 'relative', overflow: 'hidden', borderRadius: 16, padding: '14px 18px',
+      border: '1px solid rgba(232,133,61,0.10)',
+      backgroundImage: 'radial-gradient(circle at 20% 0%,rgba(232,133,61,0.10) 0%,transparent 55%),linear-gradient(135deg,#3D1F1E 0%,#1A0F0E 100%)',
+      flex: 1, minWidth: 120, transition: 'all .2s cubic-bezier(0.22,1,0.36,1)',
+    }}>
+      <Mono size={8} color="#E8853D" style={{ display: 'block', marginBottom: 8 }}>{label}</Mono>
+      <div style={{
+        fontFamily: 'var(--font-fraunces), Georgia, serif', fontSize: 36, fontWeight: 500, lineHeight: 1,
+        letterSpacing: '-0.02em', color: accent ?? '#FDF6EE', fontVariantNumeric: 'tabular-nums', marginBottom: 8,
+      }}>{value}</div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        {sub && <Mono size={9} color="rgba(253,246,238,0.32)">{sub}</Mono>}
+        {sparkPts && (
+          <svg width="56" height="18" viewBox="0 0 56 18">
+            <polyline points={sparkPts} fill="none" stroke="rgba(232,133,61,0.5)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <circle cx="56" cy={lastY} r="2" fill="#E8853D" />
           </svg>
-          <div
-            style={{
-              position: 'absolute',
-              inset: 0,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <div
-              style={{
-                fontFamily: 'var(--font-fraunces), Georgia, serif',
-                fontSize: size > 100 ? 28 : 20,
-                fontWeight: 500,
-                color: '#FDF6EE',
-                letterSpacing: '-0.02em',
-                lineHeight: 1,
-                fontVariantNumeric: 'tabular-nums',
-              }}
-            >
-              {Math.round(v)}
-              <span style={{ color: '#E8853D', fontSize: size > 100 ? 16 : 12 }}>%</span>
-            </div>
-            {label && (
-              <div
-                style={{
-                  fontFamily: 'var(--font-geist-mono), ui-monospace, monospace',
-                  fontSize: 8,
-                  fontWeight: 600,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.2em',
-                  color: '#E8853D',
-                  marginTop: 4,
-                }}
-              >
-                {label}
-              </div>
-            )}
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Speedo ──────────────────────────────────────────
+function Speedo({ value = 38, size = 88 }: { value?: number; size?: number }) {
+  const angle = -135 + (value / 100) * 270;
+  return (
+    <div style={{ position: 'relative', width: size, height: size, flexShrink: 0 }}>
+      <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: 'conic-gradient(from 90deg,#3D1F1E,#A0735C,#FDF6EE,#A0735C,#3D1F1E)', padding: 3 }}>
+        <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: 'radial-gradient(circle at 50% 30%,#2A1311 0%,#0E0807 100%)', position: 'relative', overflow: 'hidden' }}>
+          <svg viewBox="0 0 100 100" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
+            <defs><linearGradient id={`sg-${size}`} x1="0" x2="1"><stop offset="0" stopColor="#D4732A" /><stop offset="1" stopColor="#FFA060" /></linearGradient></defs>
+            <circle cx="50" cy="50" r="38" fill="none" stroke="rgba(232,133,61,0.12)" strokeWidth="2.5" strokeDasharray="179" strokeDashoffset="60" transform="rotate(135 50 50)" strokeLinecap="round" />
+            <circle cx="50" cy="50" r="38" fill="none" stroke={`url(#sg-${size})`} strokeWidth="2.5" strokeDasharray={`${(value / 100) * 119} 999`} transform="rotate(135 50 50)" strokeLinecap="round" />
+          </svg>
+          <div style={{
+            position: 'absolute', left: '50%', top: '50%', width: 2, height: size * 0.35,
+            background: 'linear-gradient(180deg,transparent 8%,#FDF6EE 14%,#FDF6EE 82%,#E8853D 100%)',
+            borderRadius: 1, transformOrigin: '50% 100%', transform: `translate(-50%,-100%) rotate(${angle + 90}deg)`,
+            transition: 'transform 1s cubic-bezier(0.22,1,0.36,1)',
+          }} />
+          <div style={{ position: 'absolute', left: '50%', top: '50%', width: 8, height: 8, borderRadius: 999, background: 'radial-gradient(circle,#FDF6EE,#A0735C)', transform: 'translate(-50%,-50%)' }} />
+          <div style={{ position: 'absolute', left: 0, right: 0, bottom: 8, textAlign: 'center' }}>
+            <span style={{ fontFamily: 'var(--font-fraunces), Georgia, serif', fontSize: size * 0.22, fontWeight: 500, color: '#FDF6EE', letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>
+              {value}<span style={{ color: '#E8853D', fontSize: size * 0.13 }}>%</span>
+            </span>
           </div>
-          <div
-            style={{
-              position: 'absolute',
-              left: '50%',
-              top: '50%',
-              width: 2.5,
-              height: size * 0.36,
-              background:
-                'linear-gradient(180deg,transparent 8%,#FDF6EE 12%,#FDF6EE 80%,#E8853D 100%)',
-              borderRadius: 1,
-              transformOrigin: '50% 100%',
-              transform: `translate(-50%,-100%) rotate(${angle + 90}deg)`,
-              transition: 'transform 1s cubic-bezier(0.22,1,0.36,1)',
-            }}
-          />
-          <div
-            style={{
-              position: 'absolute',
-              left: '50%',
-              top: '50%',
-              width: 8,
-              height: 8,
-              borderRadius: 999,
-              background: 'radial-gradient(circle,#FDF6EE,#A0735C)',
-              transform: 'translate(-50%,-50%)',
-            }}
-          />
         </div>
       </div>
     </div>
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────
-// CompactRocket
-// ─────────────────────────────────────────────────────────────────────
-
-function CompactRocket({ palier, total = 5 }: { palier: number; total?: number }) {
-  const safePalier = Math.max(0, Math.min(total, palier));
+// ─── RocketMini ────────────────────────────────────
+function RocketMini({ palier = 2, total = 5, height = 100 }: { palier?: number; total?: number; height?: number }) {
+  const DOT = 8;
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: 4,
-      }}
-    >
-      <div
-        style={{
-          fontFamily: 'var(--font-geist-mono), ui-monospace, monospace',
-          fontSize: 8,
-          textTransform: 'uppercase',
-          letterSpacing: '0.18em',
-          color: 'rgba(253,246,238,0.35)',
-        }}
-      >
-        STRATO.
+    <div style={{ position: 'relative', width: 24, height, flexShrink: 0 }}>
+      <div style={{
+        position: 'absolute', left: '50%', top: 0, bottom: 0, width: 1, transform: 'translateX(-50%)',
+        background: 'repeating-linear-gradient(to bottom,rgba(232,133,61,0.35) 0px,rgba(232,133,61,0.35) 3px,transparent 3px,transparent 7px)',
+      }} />
+      {Array.from({ length: total }).map((_, i) => {
+        const levelIdx = total - 1 - i;
+        const reached = levelIdx < palier;
+        const isActive = levelIdx === palier - 1;
+        const topPx = Math.round((i / (total - 1)) * (height - DOT));
+        return (
+          <div key={i} style={{ position: 'absolute', top: topPx, left: '50%', transform: 'translateX(-50%)', zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'center', width: isActive ? 18 : DOT, height: isActive ? 26 : DOT }}>
+            {isActive ? (
+              <svg width="18" height="26" viewBox="0 0 44 64" style={{ filter: 'drop-shadow(0 0 5px rgba(232,133,61,0.9))' }}>
+                <path d="M22 4 L32 20 L32 40 L12 40 L12 20 Z" fill="#FDF6EE" stroke="#A0735C" strokeWidth="0.8" />
+                <path d="M22 4 L32 20 L12 20 Z" fill="#E8853D" />
+                <circle cx="22" cy="27" r="5" fill="#E8853D" />
+                <path d="M12 32 L4 46 L12 40 Z" fill="#D4732A" />
+                <path d="M32 32 L40 46 L32 40 Z" fill="#D4732A" />
+                <path d="M15 40 Q19 54 22 48 Q25 54 29 40 Z" fill="#FFA060" />
+              </svg>
+            ) : (
+              <div style={{
+                width: DOT, height: DOT, borderRadius: 999,
+                background: reached ? '#E8853D' : 'rgba(253,246,238,0.10)',
+                boxShadow: reached ? '0 0 6px rgba(232,133,61,0.55)' : 'none',
+                border: reached ? '1px solid rgba(232,133,61,0.6)' : '1px solid rgba(253,246,238,0.15)',
+              }} />
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ─── FunnelSection ─────────────────────────────────
+function FunnelSection({ stages }: { stages: FunnelStage[] }) {
+  const total = stages[0]?.count ?? 0;
+  return (
+    <div style={{ background: 'rgba(253,246,238,0.03)', border: '1px solid rgba(232,133,61,0.10)', borderRadius: 18, overflow: 'hidden' }}>
+      <div style={{ padding: '14px 20px', borderBottom: '1px solid rgba(232,133,61,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Hairline label="FUNNEL DE CONVERSION" />
+        <Mono size={9} color="rgba(253,246,238,0.4)">PAR ÉTAPE PIPELINE</Mono>
       </div>
-      <div
-        style={{
-          position: 'relative',
-          height: 90,
-          width: 32,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-        }}
-      >
-        <div
-          style={{
-            position: 'absolute',
-            top: 0,
-            bottom: 0,
-            left: '50%',
-            width: 1,
-            background:
-              'linear-gradient(180deg,rgba(232,133,61,0.4),rgba(232,133,61,0.1))',
-            transform: 'translateX(-50%)',
-          }}
-        />
-        {Array.from({ length: total }).map((_, i) => {
-          const reached = total - 1 - i < safePalier;
-          const isActive = total - 1 - i === safePalier - 1 && safePalier > 0;
+      <div style={{ padding: '14px 20px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {stages.map((f) => {
+          const cfg = STATUS_CONFIG[f.status] ?? STATUS_CONFIG.a_contacter;
+          const barW = total > 0 ? Math.max((f.count / total) * 100, f.count > 0 ? 2 : 0) : 0;
           return (
-            <div
-              key={i}
-              style={{
-                position: 'absolute',
-                top: `${(i / (total - 1)) * 80}%`,
-                left: '50%',
-                transform: 'translate(-50%,-50%)',
-                zIndex: 2,
-              }}
-            >
-              {isActive ? (
-                <svg
-                  width="16"
-                  height="22"
-                  viewBox="0 0 44 64"
-                  style={{ filter: 'drop-shadow(0 0 5px rgba(232,133,61,0.8))' }}
-                >
-                  <path
-                    d="M22 4 L30 18 L30 36 L14 36 L14 18 Z"
-                    fill="#FDF6EE"
-                    stroke="#A0735C"
-                    strokeWidth="0.8"
-                  />
-                  <path d="M22 4 L30 18 L14 18 Z" fill="#E8853D" />
-                  <circle cx="22" cy="24" r="4" fill="#E8853D" />
-                  <path d="M14 30 L8 42 L14 36 Z" fill="#D4732A" />
-                  <path d="M30 30 L36 42 L30 36 Z" fill="#D4732A" />
-                  <path d="M16 36 Q20 44 22 40 Q24 44 28 36 Z" fill="#FFA060" />
-                </svg>
-              ) : (
-                <div
-                  style={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: 999,
-                    background: reached ? '#E8853D' : 'rgba(253,246,238,0.10)',
-                    boxShadow: reached ? '0 0 6px rgba(232,133,61,0.5)' : 'none',
-                    border: reached
-                      ? '1px solid rgba(232,133,61,0.6)'
-                      : '1px solid rgba(253,246,238,0.15)',
-                  }}
-                />
-              )}
+            <div key={f.status} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ width: 110, flexShrink: 0 }}>
+                <span style={{ padding: '3px 8px', borderRadius: 999, background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.border}`, fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.15em' }}>{f.label}</span>
+              </div>
+              <div style={{ flex: 1, height: 20, borderRadius: 999, background: 'rgba(253,246,238,0.02)', border: '1px solid rgba(232,133,61,0.06)', position: 'relative', overflow: 'hidden' }}>
+                <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, borderRadius: 999, width: `${barW}%`, background: `linear-gradient(90deg,${cfg.color}BB,${cfg.color})`, transition: 'width 0.8s cubic-bezier(0.22,1,0.36,1)', display: 'flex', alignItems: 'center', paddingLeft: 8, minWidth: f.count > 0 ? 24 : 0 }}>
+                  {f.count > 0 && <Mono size={9} color="rgba(253,246,238,0.9)">{f.count}</Mono>}
+                </div>
+                {f.count === 0 && <div style={{ position: 'absolute', left: 8, top: 0, bottom: 0, display: 'flex', alignItems: 'center' }}><Mono size={9} color="rgba(253,246,238,0.4)">0</Mono></div>}
+              </div>
+              <div style={{ width: 36, flexShrink: 0, textAlign: 'right' }}>
+                <Mono size={9} color={f.convPct && f.convPct !== '~' ? cfg.color : 'rgba(253,246,238,0.4)'}>{f.convPct ?? '—'}</Mono>
+              </div>
             </div>
           );
         })}
-      </div>
-      <div
-        style={{
-          fontFamily: 'var(--font-geist-mono), ui-monospace, monospace',
-          fontSize: 8,
-          textTransform: 'uppercase',
-          letterSpacing: '0.18em',
-          color: 'rgba(253,246,238,0.25)',
-        }}
-      >
-        ATTERR.
-      </div>
-      <div
-        style={{
-          fontFamily: 'var(--font-geist-mono), ui-monospace, monospace',
-          fontSize: 9,
-          textTransform: 'uppercase',
-          letterSpacing: '0.15em',
-          color: '#E8853D',
-          marginTop: 2,
-        }}
-      >
-        {safePalier}/{total}
+        <div style={{ marginTop: 4, paddingTop: 10, borderTop: '1px solid rgba(232,133,61,0.10)' }}>
+          <Mono size={8} color="rgba(253,246,238,0.4)">LE POURCENTAGE INDIQUE LE PASSAGE DEPUIS L&apos;ÉTAPE PRÉCÉDENTE. STATUTS PERDU/ARCHIVÉ EXCLUS.</Mono>
+        </div>
       </div>
     </div>
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────
-// CommercialCard
-// ─────────────────────────────────────────────────────────────────────
-
-function CommercialCard({ c }: { c: CommercialStats }) {
-  return (
-    <div
-      style={{
-        background: 'rgba(253,246,238,0.03)',
-        border: '1px solid rgba(232,133,61,0.10)',
-        borderRadius: 20,
-        padding: 22,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 16,
-        transition: 'all 0.2s cubic-bezier(0.22,1,0.36,1)',
-      }}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-        <div
-          style={{
-            width: 48,
-            height: 48,
-            borderRadius: 999,
-            flexShrink: 0,
-            background:
-              'linear-gradient(135deg,rgba(232,133,61,0.25),rgba(196,154,60,0.15))',
-            border: '1px solid rgba(232,133,61,0.25)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontFamily: 'var(--font-fraunces), Georgia, serif',
-            fontSize: 18,
-            fontWeight: 500,
-            color: '#E8853D',
-          }}
-        >
-          {c.initials}
-        </div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div
-            style={{
-              fontFamily: 'var(--font-fraunces), Georgia, serif',
-              fontSize: 18,
-              fontWeight: 500,
-              color: '#FDF6EE',
-              letterSpacing: '-0.01em',
-              lineHeight: 1.1,
-            }}
-          >
-            {c.name}
-          </div>
-          <div
-            style={{
-              fontFamily: 'var(--font-geist-mono), ui-monospace, monospace',
-              fontSize: 9,
-              textTransform: 'uppercase',
-              letterSpacing: '0.18em',
-              color: 'rgba(232,133,61,0.7)',
-              marginTop: 4,
-            }}
-          >
-            {c.role_label}
-          </div>
-          <div
-            style={{
-              fontFamily: 'var(--font-geist-mono), ui-monospace, monospace',
-              fontSize: 9,
-              textTransform: 'uppercase',
-              letterSpacing: '0.12em',
-              color: 'rgba(253,246,238,0.3)',
-              marginTop: 2,
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {c.email}
-          </div>
-        </div>
-      </div>
-
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-around',
-          background: 'rgba(0,0,0,0.15)',
-          borderRadius: 14,
-          padding: '14px 10px',
-          border: '1px solid rgba(232,133,61,0.07)',
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: 6,
-          }}
-        >
-          <CompactSpeedometer value={c.conversion} size={88} />
-          <div
-            style={{
-              fontFamily: 'var(--font-geist-mono), ui-monospace, monospace',
-              fontSize: 8,
-              textTransform: 'uppercase',
-              letterSpacing: '0.18em',
-              color: 'rgba(232,133,61,0.6)',
-            }}
-          >
-            CONVERSION
-          </div>
-        </div>
-        <div style={{ width: 1, height: 80, background: 'rgba(232,133,61,0.10)' }} />
-        <CompactRocket palier={c.palier} total={5} />
-      </div>
-
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 8 }}>
-        {[
-          { label: 'PROSPECTS', value: c.total },
-          { label: '🔥 CHAUDS', value: c.chauds },
-          { label: 'RDV', value: c.rdv },
-          { label: 'SIGNÉS', value: c.signatures },
-        ].map((s) => (
-          <div
-            key={s.label}
-            style={{
-              textAlign: 'center',
-              background: 'rgba(253,246,238,0.03)',
-              borderRadius: 10,
-              padding: '8px 4px',
-              border: '1px solid rgba(232,133,61,0.07)',
-            }}
-          >
-            <div
-              style={{
-                fontFamily: 'var(--font-fraunces), Georgia, serif',
-                fontSize: 22,
-                fontWeight: 500,
-                color: '#FDF6EE',
-                fontVariantNumeric: 'tabular-nums',
-                letterSpacing: '-0.02em',
-                lineHeight: 1,
-              }}
-            >
-              {s.value}
-            </div>
-            <div
-              style={{
-                fontFamily: 'var(--font-geist-mono), ui-monospace, monospace',
-                fontSize: 8,
-                textTransform: 'uppercase',
-                letterSpacing: '0.14em',
-                color: 'rgba(253,246,238,0.3)',
-                marginTop: 4,
-              }}
-            >
-              {s.label}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {c.ca_signe > 0 && (
-        <div
-          style={{
-            background: 'rgba(90,138,63,0.08)',
-            border: '1px solid rgba(90,138,63,0.20)',
-            borderRadius: 10,
-            padding: '8px 12px',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}
-        >
-          <span
-            style={{
-              fontFamily: 'var(--font-geist-mono), ui-monospace, monospace',
-              fontSize: 9,
-              textTransform: 'uppercase',
-              letterSpacing: '0.18em',
-              color: 'rgba(123,168,91,0.9)',
-            }}
-          >
-            CA SIGNÉ
-          </span>
-          <span
-            style={{
-              fontFamily: 'var(--font-fraunces), Georgia, serif',
-              fontSize: 16,
-              fontWeight: 500,
-              color: '#7BA85B',
-              fontVariantNumeric: 'tabular-nums',
-            }}
-          >
-            {formatEur(c.ca_signe)}
-          </span>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────────
-// AdminProspectsTable
-// ─────────────────────────────────────────────────────────────────────
-
-type SortKey = 'company_name' | 'classification' | 'status' | 'updated_at';
-
-function AdminProspectsTable({
-  prospects,
-  commerciaux,
-}: {
-  prospects: Prospect[];
-  commerciaux: { id: string; label: string; initials: string }[];
-}) {
-  const [sortCol, setSortCol] = useState<SortKey>('updated_at');
-  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
-
-  const handleSort = (col: SortKey) => {
-    if (sortCol === col) setSortDir((d) => (d === 'desc' ? 'asc' : 'desc'));
-    else {
-      setSortCol(col);
-      setSortDir('desc');
-    }
-  };
-
-  const sorted = useMemo(() => {
-    return [...prospects].sort((a, b) => {
-      let va: string | number = '';
-      let vb: string | number = '';
-      if (sortCol === 'updated_at') {
-        va = a.updated_at ?? '';
-        vb = b.updated_at ?? '';
-      } else {
-        va = ((a as unknown as Record<string, unknown>)[sortCol] as string) ?? '';
-        vb = ((b as unknown as Record<string, unknown>)[sortCol] as string) ?? '';
-      }
-      if (typeof va === 'string') va = va.toLowerCase();
-      if (typeof vb === 'string') vb = vb.toLowerCase();
-      const d = va < vb ? -1 : va > vb ? 1 : 0;
-      return sortDir === 'asc' ? d : -d;
-    });
-  }, [prospects, sortCol, sortDir]);
-
-  const findCommercial = (id: string | null) =>
-    id ? commerciaux.find((c) => c.id === id) : null;
-
-  const cols: { key: SortKey | 'decisionnaire' | 'commercial'; label: string }[] = [
-    { key: 'company_name', label: 'PROSPECT' },
-    { key: 'classification', label: 'CLASSIF.' },
-    { key: 'status', label: 'STATUT' },
-    { key: 'decisionnaire', label: 'DÉCISIONNAIRE' },
-    { key: 'commercial', label: 'COMMERCIAL' },
-    { key: 'updated_at', label: 'MAJ' },
-  ];
+// ─── ClassementSection (PODIUM) ────────────────────
+function ClassementSection({ entries, commerciaux }: { entries: ClassementEntry[]; commerciaux: CommercialV2[] }) {
+  if (entries.length === 0) return null;
+  const podium = [entries[1], entries[0], entries[2]].filter(Boolean);
+  const fourth = entries[3];
+  const rankColors = ['#E8853D', '#C49A3C', '#A0735C'];
 
   return (
-    <div style={{ overflowX: 'auto' }}>
-      <table
-        style={{
-          width: '100%',
-          borderCollapse: 'collapse',
-          minWidth: 800,
-        }}
-      >
-        <thead>
-          <tr style={{ background: 'rgba(26,15,14,0.95)' }}>
-            {cols.map((c) => {
-              const sortable = (['company_name', 'classification', 'status', 'updated_at'] as string[]).includes(c.key);
-              return (
-                <th
-                  key={c.key}
-                  onClick={() => sortable && handleSort(c.key as SortKey)}
-                  style={{
-                    padding: '12px 14px',
-                    textAlign: 'left',
-                    cursor: sortable ? 'pointer' : 'default',
-                    userSelect: 'none',
-                    fontFamily: 'var(--font-geist-mono), ui-monospace, monospace',
-                    fontSize: 9,
-                    fontWeight: 600,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.2em',
-                    whiteSpace: 'nowrap',
-                    color: sortCol === c.key ? '#E8853D' : 'rgba(253,246,238,0.35)',
-                    borderBottom: `1px solid ${
-                      sortCol === c.key
-                        ? 'rgba(232,133,61,0.25)'
-                        : 'rgba(232,133,61,0.08)'
-                    }`,
-                  }}
-                >
-                  {c.label}{' '}
-                  {sortable && sortCol === c.key
-                    ? sortDir === 'asc'
-                      ? '↑'
-                      : '↓'
-                    : ''}
-                </th>
-              );
-            })}
-          </tr>
-        </thead>
-        <tbody>
-          {sorted.map((p, i) => {
-            const isArchived = p.status === 'archived';
-            const commercial = findCommercial(p.assigned_to);
+    <div style={{ background: 'rgba(253,246,238,0.03)', border: '1px solid rgba(232,133,61,0.10)', borderRadius: 18, overflow: 'hidden' }}>
+      <div style={{ padding: '14px 20px', borderBottom: '1px solid rgba(232,133,61,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Hairline label="CLASSEMENT COMMERCIAUX" />
+        <Mono size={9} color="rgba(253,246,238,0.38)">PODIUM · CA POTENTIEL</Mono>
+      </div>
+      <div style={{ padding: 20 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.3fr 1fr', gap: 10, alignItems: 'end', marginBottom: 14 }}>
+          {podium.map((c, podIdx) => {
+            if (!c) return null;
+            const rankIdx = c.rank - 1;
+            const isFirst = c.rank === 1;
+            const rCol = rankColors[rankIdx] ?? 'rgba(253,246,238,0.3)';
+            const commercial = commerciaux.find(x => x.id === c.id);
+            const cardBg = isFirst ? 'radial-gradient(circle at 30% 10%,rgba(232,133,61,0.15) 0%,rgba(232,133,61,0.04) 60%),linear-gradient(160deg,rgba(61,31,30,0.8),rgba(26,15,14,0.95))' : 'transparent';
+            const cardBd = isFirst ? `${rCol}50` : 'rgba(232,133,61,0.10)';
             return (
-              <tr
-                key={p.id}
-                style={{
-                  borderBottom: '1px solid rgba(232,133,61,0.06)',
-                  opacity: isArchived ? 0.4 : 1,
-                  background: i % 2 === 0 ? 'transparent' : 'rgba(253,246,238,0.01)',
-                }}
-              >
-                <td style={{ padding: '11px 14px' }}>
-                  <div
-                    style={{
-                      fontFamily: 'var(--font-fraunces), Georgia, serif',
-                      fontSize: 14,
-                      fontWeight: 500,
-                      color: '#FDF6EE',
-                      letterSpacing: '-0.01em',
-                    }}
-                  >
-                    {p.company_name}
-                  </div>
-                  <div
-                    style={{
-                      fontFamily: 'var(--font-geist-mono), ui-monospace, monospace',
-                      fontSize: 9,
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.15em',
-                      color: 'rgba(253,246,238,0.28)',
-                      marginTop: 2,
-                    }}
-                  >
-                    {p.city ?? '—'}
-                    {p.postal_code ? ` · ${p.postal_code}` : ''}
-                  </div>
-                </td>
-                <td style={{ padding: '11px 14px' }}>
-                  <ClassifBadge classification={p.classification} />
-                </td>
-                <td style={{ padding: '11px 14px' }}>
-                  <StatusBadge status={p.status} />
-                </td>
-                <td style={{ padding: '11px 14px' }}>
-                  <div
-                    style={{
-                      fontFamily: 'var(--font-geist-sans), system-ui, sans-serif',
-                      fontSize: 13,
-                      color: 'rgba(253,246,238,0.7)',
-                    }}
-                  >
-                    {p.prenom_contact || p.contact_name || '—'}
-                  </div>
-                  {p.role_contact && (
-                    <div
-                      style={{
-                        fontFamily:
-                          'var(--font-geist-mono), ui-monospace, monospace',
-                        fontSize: 9,
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.12em',
-                        color: 'rgba(253,246,238,0.28)',
-                        marginTop: 2,
-                      }}
-                    >
-                      {p.role_contact}
+              <div key={c.id} style={{ background: cardBg, border: `1px solid ${cardBd}`, borderRadius: 14, padding: isFirst ? '18px 16px' : '14px 12px', display: 'flex', flexDirection: 'column', gap: 12, boxShadow: isFirst ? `0 0 24px ${rCol}18` : 'none' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{ width: isFirst ? 40 : 32, height: isFirst ? 40 : 32, borderRadius: 999, flexShrink: 0, background: `linear-gradient(135deg,${rCol}35,${rCol}15)`, border: `1.5px solid ${rCol}55`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-fraunces)', fontSize: isFirst ? 15 : 12, fontWeight: 600, color: rCol }}>{c.initials}</div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                      <span style={{ fontFamily: 'var(--font-fraunces)', fontSize: isFirst ? 15 : 12, fontWeight: 500, color: rCol }}>#{c.rank}</span>
+                      {isFirst && <span style={{ fontSize: 12 }}>🏆</span>}
                     </div>
-                  )}
-                </td>
-                <td style={{ padding: '11px 14px' }}>
-                  {commercial ? (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                      <div
-                        style={{
-                          width: 24,
-                          height: 24,
-                          borderRadius: 999,
-                          flexShrink: 0,
-                          background:
-                            'linear-gradient(135deg,rgba(232,133,61,0.25),rgba(196,154,60,0.15))',
-                          border: '1px solid rgba(232,133,61,0.2)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontFamily: 'var(--font-fraunces), Georgia, serif',
-                          fontSize: 10,
-                          fontWeight: 600,
-                          color: '#E8853D',
-                        }}
-                      >
-                        {commercial.initials}
-                      </div>
-                      <span
-                        style={{
-                          fontFamily:
-                            'var(--font-geist-sans), system-ui, sans-serif',
-                          fontSize: 12,
-                          color: 'rgba(253,246,238,0.6)',
-                        }}
-                      >
-                        {commercial.label.split(' ')[0]}
-                      </span>
-                    </div>
-                  ) : (
-                    <span
-                      style={{
-                        fontFamily: 'var(--font-geist-mono), ui-monospace, monospace',
-                        fontSize: 9,
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.12em',
-                        color: 'rgba(253,246,238,0.25)',
-                      }}
-                    >
-                      — non assigné
-                    </span>
-                  )}
-                </td>
-                <td style={{ padding: '11px 14px' }}>
-                  <span
-                    style={{
-                      fontFamily: 'var(--font-geist-mono), ui-monospace, monospace',
-                      fontSize: 10,
-                      letterSpacing: '0.12em',
-                      color: 'rgba(253,246,238,0.4)',
-                    }}
-                  >
-                    {p.updated_at
-                      ? new Date(p.updated_at).toLocaleDateString('fr-FR', {
-                          day: '2-digit',
-                          month: '2-digit',
-                        })
-                      : '—'}
-                  </span>
-                </td>
-              </tr>
+                    <div style={{ fontFamily: 'var(--font-geist-sans), sans-serif', fontSize: isFirst ? 12 : 11, fontWeight: 600, color: '#FDF6EE', lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.name}</div>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                  <Speedo value={commercial?.conversion ?? 0} size={isFirst ? 68 : 52} />
+                </div>
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontFamily: 'var(--font-fraunces)', fontSize: isFirst ? 22 : 16, fontWeight: 500, color: '#5A8A3F', fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>
+                    {c.ca}<span style={{ fontSize: isFirst ? 12 : 10, color: 'rgba(253,246,238,0.38)' }}> k€</span>
+                  </div>
+                  <Mono size={7} color="rgba(253,246,238,0.38)" style={{ display: 'block', marginTop: 4 }}>CA POTENTIEL</Mono>
+                </div>
+                <div style={{ height: 3, borderRadius: 999, background: 'rgba(253,246,238,0.06)', overflow: 'hidden' }}>
+                  <div style={{ height: '100%', width: `${c.pct}%`, borderRadius: 999, background: `linear-gradient(90deg,${rCol}70,${rCol})` }} />
+                </div>
+                <Mono size={7} color="rgba(253,246,238,0.38)" style={{ textAlign: 'center' }}>{c.prospects} PROSPECTS</Mono>
+              </div>
             );
           })}
-        </tbody>
-      </table>
-      <div
-        style={{
-          padding: '12px 16px',
-          borderTop: '1px solid rgba(232,133,61,0.08)',
-          background: 'rgba(26,15,14,0.6)',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}
-      >
-        <span
-          style={{
-            fontFamily: 'var(--font-geist-mono), ui-monospace, monospace',
-            fontSize: 9,
-            textTransform: 'uppercase',
-            letterSpacing: '0.2em',
-            color: 'rgba(253,246,238,0.25)',
-          }}
-        >
-          {prospects.filter((p) => p.status !== 'archived').length} ACTIFS /{' '}
-          {prospects.length} TOTAL
-        </span>
-        <span
-          style={{
-            fontFamily: 'var(--font-geist-mono), ui-monospace, monospace',
-            fontSize: 9,
-            textTransform: 'uppercase',
-            letterSpacing: '0.18em',
-            color: 'rgba(232,133,61,0.35)',
-          }}
-        >
-          GND PIPELINE · ADMIN V2
-        </span>
+        </div>
+        {fourth && (
+          <div style={{ background: 'rgba(253,246,238,0.02)', border: '1px solid rgba(232,133,61,0.10)', borderRadius: 10, padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 12 }}>
+            <Mono size={10} color="rgba(253,246,238,0.38)" weight={700}>#4</Mono>
+            <div style={{ width: 26, height: 26, borderRadius: 999, flexShrink: 0, background: 'rgba(253,246,238,0.06)', border: '1px solid rgba(232,133,61,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-fraunces)', fontSize: 10, fontWeight: 600, color: 'rgba(253,246,238,0.38)' }}>{fourth.initials}</div>
+            <div style={{ flex: 1, fontFamily: 'var(--font-geist-sans)', fontSize: 12, color: 'rgba(253,246,238,0.38)' }}>{fourth.name}</div>
+            <div style={{ fontFamily: 'var(--font-fraunces)', fontSize: 14, color: 'rgba(253,246,238,0.38)', fontVariantNumeric: 'tabular-nums' }}>{fourth.ca} k€</div>
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────
-// SyncPanel
-// ─────────────────────────────────────────────────────────────────────
+// ─── FormationSection ───────────────────────────────
+function FormationSection({ entries }: { entries: FormationEntry[] }) {
+  const admins = entries.filter((u) => u.isAdmin);
+  const commercials = entries.filter((u) => !u.isAdmin);
 
-function SyncPanel({
-  commerciaux,
-}: {
-  commerciaux: { id: string; label: string; initials: string }[];
-}) {
-  const router = useRouter();
-  const [isPending, startTransition] = useTransition();
-  const [syncing, setSyncing] = useState(false);
-  const [target, setTarget] = useState<string>(commerciaux[0]?.id ?? '');
-  const [lastResult, setLastResult] = useState<{
-    inserted: number;
-    updated: number;
-    deleted: number;
-    skipped: number;
-    at: string | null;
-  }>({ inserted: 0, updated: 0, deleted: 0, skipped: 0, at: null });
+  const renderRow = (u: FormationEntry, i: number, arr: FormationEntry[]) => (
+    <div key={u.userId} style={{ display: 'flex', alignItems: 'center', gap: 0, marginBottom: i < arr.length - 1 ? 10 : 0 }}>
+      <div style={{ width: 196, flexShrink: 0, display: 'flex', alignItems: 'center', gap: 10, paddingRight: 16 }}>
+        <div style={{ width: 30, height: 30, borderRadius: 999, flexShrink: 0, background: u.isAdmin ? 'linear-gradient(135deg,#7B70C4,#5B5090)' : 'linear-gradient(135deg,rgba(232,133,61,0.25),rgba(196,154,60,0.15))', border: `1px solid ${u.isAdmin ? 'rgba(123,112,196,0.4)' : 'rgba(232,133,61,0.22)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-fraunces)', fontSize: 11, fontWeight: 600, color: u.isAdmin ? '#C0B8FF' : '#E8853D' }}>{u.initials}</div>
+        <div style={{ minWidth: 0 }}>
+          <div style={{ fontFamily: 'var(--font-geist-sans)', fontSize: 12, fontWeight: 600, color: '#FDF6EE', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{u.name}</div>
+          {u.isAdmin && <Mono size={7} color="#C0B8FF" spacing="0.15em">Admin</Mono>}
+        </div>
+      </div>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+          {u.progress.map((done, idx) => (
+            <div key={idx} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <div style={{ width: done ? 22 : 18, height: done ? 22 : 18, borderRadius: 999, background: done ? 'linear-gradient(135deg,#E8853D,#FFA060)' : 'rgba(253,246,238,0.05)', border: `2px solid ${done ? 'rgba(232,133,61,0.55)' : 'rgba(253,246,238,0.12)'}`, boxShadow: done ? '0 0 8px rgba(232,133,61,0.40)' : 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.3s cubic-bezier(0.22,1,0.36,1)' }}>
+                {done === 1 && <span style={{ fontSize: 9, color: '#3D1F1E', fontWeight: 700, lineHeight: 1 }}>✓</span>}
+              </div>
+              <div style={{ width: 2, height: 6, background: done ? 'rgba(232,133,61,0.45)' : 'rgba(253,246,238,0.06)' }} />
+            </div>
+          ))}
+        </div>
+        <div style={{ position: 'relative', height: 3, borderRadius: 999, background: 'rgba(253,246,238,0.06)', overflow: 'hidden' }}>
+          <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, borderRadius: 999, width: `${(u.completed / u.total) * 100}%`, background: 'linear-gradient(90deg,#D4732A,#FFA060)', boxShadow: '0 0 6px rgba(232,133,61,0.35)', transition: 'width 0.8s cubic-bezier(0.22,1,0.36,1)' }} />
+        </div>
+      </div>
+      <div style={{ width: 80, flexShrink: 0, textAlign: 'right', paddingLeft: 16 }}>
+        <div style={{ fontFamily: 'var(--font-fraunces)', fontSize: 16, fontWeight: 500, color: u.completed === u.total && u.completed > 0 ? '#5A8A3F' : u.completed > 0 ? '#E8853D' : 'rgba(253,246,238,0.38)', fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>
+          {u.completed}<span style={{ fontSize: 11, color: 'rgba(253,246,238,0.38)' }}>/{u.total}</span>
+        </div>
+        {u.lastActivity && <Mono size={7} color="rgba(253,246,238,0.38)" spacing="0.12em" style={{ display: 'block', marginTop: 3 }}>{u.lastActivity}</Mono>}
+      </div>
+    </div>
+  );
 
-  const doSync = async () => {
-    if (!target || syncing) return;
-    setSyncing(true);
-    try {
-      const res = await fetch('/api/admin/sync-prospects', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: target }),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setLastResult({
-          inserted: data.inserted ?? 0,
-          updated: data.updated ?? 0,
-          deleted: data.deleted ?? 0,
-          skipped: data.skipped ?? 0,
-          at: new Date().toISOString(),
-        });
-        startTransition(() => router.refresh());
-      } else {
-        const err = await res.json().catch(() => ({}));
-        alert(`Erreur de sync : ${err.error ?? res.statusText}`);
-      }
-    } catch (e) {
-      alert(`Erreur réseau : ${e instanceof Error ? e.message : 'inconnue'}`);
-    } finally {
-      setSyncing(false);
-    }
-  };
-
-  const relativeSync = () => {
-    if (!lastResult.at) return 'Pas encore syncé dans cette session';
-    const diff = Date.now() - new Date(lastResult.at).getTime();
-    const mins = Math.round(diff / 60000);
-    if (mins < 1) return 'Il y a quelques secondes';
-    if (mins < 60) return `Il y a ${mins} min`;
-    return `Il y a ${Math.floor(mins / 60)}h`;
-  };
+  const groupLabel = (label: string) => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '10px 0 6px', paddingLeft: 196 }}>
+      <div style={{ flex: 1, height: 1, background: 'rgba(232,133,61,0.10)' }} />
+      <Mono size={7} color="rgba(253,246,238,0.38)" spacing="0.2em">{label}</Mono>
+      <div style={{ width: 80 }} />
+    </div>
+  );
 
   return (
-    <div
-      style={{
-        background: 'rgba(253,246,238,0.03)',
-        border: '1px solid rgba(232,133,61,0.10)',
-        borderRadius: 18,
-        padding: 20,
-      }}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-        <span style={{ display: 'inline-block', width: 24, height: 1, background: '#E8853D' }} />
-        <span
-          style={{
-            fontFamily: 'var(--font-geist-mono), ui-monospace, monospace',
-            fontSize: 9,
-            fontWeight: 600,
-            textTransform: 'uppercase',
-            letterSpacing: '0.22em',
-            color: '#E8853D',
-          }}
-        >
-          SYNC NOTION
-        </span>
-        <span
-          style={{
-            marginLeft: 'auto',
-            fontFamily: 'var(--font-geist-mono), ui-monospace, monospace',
-            fontSize: 9,
-            textTransform: 'uppercase',
-            letterSpacing: '0.15em',
-            color: 'rgba(253,246,238,0.3)',
-          }}
-        >
-          {relativeSync()}
-        </span>
+    <div style={{ background: 'rgba(253,246,238,0.03)', border: '1px solid rgba(232,133,61,0.10)', borderRadius: 18, overflow: 'hidden' }}>
+      <div style={{ padding: '14px 20px', borderBottom: '1px solid rgba(232,133,61,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Hairline label="SUIVI FORMATION" />
+        <Mono size={9} color="rgba(253,246,238,0.38)">7 MODULES · {entries.length} MEMBRES</Mono>
       </div>
-
-      <div
-        style={{
-          display: 'flex',
-          gap: 6,
-          marginBottom: 14,
-          flexWrap: 'wrap',
-        }}
-      >
-        <span
-          style={{
-            fontFamily: 'var(--font-geist-mono), ui-monospace, monospace',
-            fontSize: 9,
-            textTransform: 'uppercase',
-            letterSpacing: '0.15em',
-            color: 'rgba(253,246,238,0.3)',
-            alignSelf: 'center',
-            marginRight: 4,
-          }}
-        >
-          Cible :
-        </span>
-        {commerciaux.map((c) => (
-          <button
-            key={c.id}
-            onClick={() => setTarget(c.id)}
-            style={{
-              padding: '4px 10px',
-              borderRadius: 8,
-              cursor: 'pointer',
-              background:
-                target === c.id ? 'rgba(232,133,61,0.15)' : 'rgba(253,246,238,0.04)',
-              border: `1px solid ${
-                target === c.id ? 'rgba(232,133,61,0.30)' : 'rgba(253,246,238,0.08)'
-              }`,
-              color: target === c.id ? '#E8853D' : 'rgba(253,246,238,0.4)',
-              fontFamily: 'var(--font-geist-mono), ui-monospace, monospace',
-              fontSize: 9,
-              fontWeight: 600,
-              textTransform: 'uppercase',
-              letterSpacing: '0.15em',
-            }}
-          >
-            {c.label.split(' ')[0]}
-          </button>
-        ))}
+      <div style={{ padding: '20px 24px' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-end', paddingLeft: 196, marginBottom: 0 }}>
+          {FORMATION_MODULES.map((mod, idx) => (
+            <div key={idx} style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+              <div style={{ fontFamily: 'var(--font-geist-mono)', fontSize: 7, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(253,246,238,0.38)', writingMode: 'vertical-lr', transform: 'rotate(180deg)', height: 52, display: 'flex', alignItems: 'center', justifyContent: 'center', whiteSpace: 'pre' }}>{mod}</div>
+            </div>
+          ))}
+          <div style={{ width: 80 }} />
+        </div>
+        {admins.length > 0 && groupLabel('ADMINISTRATEURS')}
+        {admins.map((u, i) => renderRow(u, i, admins))}
+        {commercials.length > 0 && groupLabel('COMMERCIAUX')}
+        {commercials.map((u, i) => renderRow(u, i, commercials))}
       </div>
+      <div style={{ padding: '10px 24px', borderTop: '1px solid rgba(232,133,61,0.10)' }}>
+        <Mono size={7} color="rgba(253,246,238,0.38)">7 MODULES · PROGRESSION EN TEMPS RÉEL · AUTO-SYNC NOTION</Mono>
+      </div>
+    </div>
+  );
+}
 
-      <button
-        onClick={doSync}
-        disabled={syncing || isPending || !target}
-        style={{
-          width: '100%',
-          padding: '11px 0',
-          borderRadius: 12,
-          cursor: syncing || isPending || !target ? 'not-allowed' : 'pointer',
-          background:
-            syncing || isPending
-              ? 'rgba(232,133,61,0.08)'
-              : 'linear-gradient(90deg,#D4732A,#E8853D,#FFA060)',
-          border: syncing || isPending ? '1px solid rgba(232,133,61,0.18)' : 'none',
-          color: syncing || isPending ? '#E8853D' : '#3D1F1E',
-          fontFamily: 'var(--font-geist-mono), ui-monospace, monospace',
-          fontSize: 10,
-          fontWeight: 600,
-          textTransform: 'uppercase',
-          letterSpacing: '0.2em',
-          boxShadow: syncing || isPending ? 'none' : '0 0 20px rgba(232,133,61,0.25)',
-          marginBottom: 14,
-        }}
-      >
-        {syncing ? 'SYNCHRONISATION EN COURS…' : 'Synchroniser Notion → Prospects'}
-      </button>
-
-      <div
-        style={{
-          background: 'rgba(0,0,0,0.2)',
-          borderRadius: 10,
-          padding: 12,
-          border: '1px solid rgba(232,133,61,0.08)',
-          fontFamily: 'var(--font-geist-mono), ui-monospace, monospace',
-          fontSize: 10,
-        }}
-      >
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-          {[
-            { label: 'INSERTED', value: lastResult.inserted, color: '#7BA85B' },
-            { label: 'UPDATED', value: lastResult.updated, color: '#E8853D' },
-            { label: 'DELETED', value: lastResult.deleted, color: '#C76943' },
-            { label: 'SKIPPED', value: lastResult.skipped, color: 'rgba(253,246,238,0.3)' },
-          ].map((item) => (
-            <div
-              key={item.label}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '5px 8px',
-                borderRadius: 6,
-                background: 'rgba(253,246,238,0.02)',
-              }}
-            >
-              <span
-                style={{
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.18em',
-                  fontSize: 9,
-                  color: 'rgba(253,246,238,0.35)',
-                }}
-              >
-                {item.label}
-              </span>
-              <span
-                style={{
-                  fontSize: 14,
-                  fontWeight: 600,
-                  color: item.color,
-                  fontVariantNumeric: 'tabular-nums',
-                }}
-              >
-                {item.value}
-              </span>
+// ─── PaliersSection ────────────────────────────────
+function PaliersSection({ commerciaux }: { commerciaux: CommercialV2[] }) {
+  const maxPalier = commerciaux.length > 0 ? Math.max(...commerciaux.map((c) => c.palier)) : 0;
+  return (
+    <div style={{ background: 'rgba(253,246,238,0.03)', border: '1px solid rgba(232,133,61,0.10)', borderRadius: 18, overflow: 'hidden' }}>
+      <div style={{ padding: '14px 20px', borderBottom: '1px solid rgba(232,133,61,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Hairline label="PALIERS BONUS" />
+        <Mono size={9} color="rgba(253,246,238,0.38)">PAR COMMERCIAL · MENSUEL</Mono>
+      </div>
+      <div style={{ padding: '20px 24px 24px' }}>
+        <div style={{ position: 'relative', marginBottom: 20 }}>
+          <div style={{ display: 'flex', alignItems: 'flex-end', marginBottom: 10 }}>
+            {PALIERS_BONUS.map((p) => {
+              const reached = p.niveau <= maxPalier;
+              const isActive = p.niveau === maxPalier;
+              const nodeSize = isActive ? 52 : reached ? 40 : 32;
+              return (
+                <div key={p.niveau} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                  <div style={{
+                    width: nodeSize, height: nodeSize, borderRadius: 999,
+                    background: isActive ? `radial-gradient(circle at 35% 35%, ${p.color}, ${p.color}88)` : reached ? `${p.color}22` : 'rgba(253,246,238,0.05)',
+                    border: `2px solid ${reached ? p.color + '80' : 'rgba(253,246,238,0.12)'}`,
+                    boxShadow: isActive ? `0 0 18px ${p.color}55` : reached ? `0 0 8px ${p.color}30` : 'none',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: isActive ? 24 : reached ? 18 : 16,
+                    transition: 'all 0.35s cubic-bezier(0.22,1,0.36,1)',
+                  }}>{p.icon}</div>
+                  <div style={{ width: 2, height: 10, background: reached ? p.color + '60' : 'rgba(253,246,238,0.08)' }} />
+                </div>
+              );
+            })}
+          </div>
+          <div style={{ position: 'relative', height: 4, borderRadius: 999, background: 'rgba(253,246,238,0.06)', overflow: 'visible' }}>
+            <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, borderRadius: 999, width: `${maxPalier > 0 ? ((maxPalier - 1) / (PALIERS_BONUS.length - 1)) * 100 : 0}%`, background: 'linear-gradient(90deg,#D4732A,#E8853D)', boxShadow: '0 0 8px rgba(232,133,61,0.4)', transition: 'width 0.8s cubic-bezier(0.22,1,0.36,1)' }} />
+            {PALIERS_BONUS.map((p, i) => {
+              const reached = p.niveau <= maxPalier;
+              const leftPct = (i / (PALIERS_BONUS.length - 1)) * 100;
+              return <div key={p.niveau} style={{ position: 'absolute', top: '50%', left: `${leftPct}%`, transform: 'translate(-50%,-50%)', width: 10, height: 10, borderRadius: 999, background: reached ? p.color : 'rgba(253,246,238,0.15)', border: '2px solid rgba(26,15,14,0.8)', boxShadow: reached ? `0 0 6px ${p.color}60` : 'none', zIndex: 1 }} />;
+            })}
+          </div>
+        </div>
+        <div style={{ display: 'flex', marginBottom: 20 }}>
+          {PALIERS_BONUS.map((p) => {
+            const reached = p.niveau <= maxPalier;
+            const isActive = p.niveau === maxPalier;
+            return (
+              <div key={p.niveau} style={{ flex: 1, textAlign: 'center', paddingTop: 8 }}>
+                <div style={{ fontFamily: 'var(--font-fraunces)', fontSize: isActive ? 20 : 15, fontWeight: 500, color: isActive ? p.color : reached ? p.color : 'rgba(253,246,238,0.38)', fontVariantNumeric: 'tabular-nums', lineHeight: 1, marginBottom: 3 }}>+{p.bonus}€</div>
+                <Mono size={8} color={reached ? p.color : 'rgba(253,246,238,0.38)'} spacing="0.15em" style={{ display: 'block', marginBottom: 2 }}>{p.label}</Mono>
+                <Mono size={8} color="rgba(253,246,238,0.38)">{p.signatures} sig.</Mono>
+              </div>
+            );
+          })}
+        </div>
+        <div style={{ display: 'flex', gap: 8, marginTop: 18, paddingTop: 16, borderTop: '1px solid rgba(232,133,61,0.10)' }}>
+          {commerciaux.map((c) => (
+            <div key={c.id} style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(253,246,238,0.03)', border: '1px solid rgba(232,133,61,0.10)', borderRadius: 10, padding: '8px 12px' }}>
+              <div style={{ width: 28, height: 28, borderRadius: 999, flexShrink: 0, background: 'linear-gradient(135deg,rgba(232,133,61,0.25),rgba(196,154,60,0.15))', border: '1px solid rgba(232,133,61,0.22)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-fraunces)', fontSize: 11, fontWeight: 600, color: '#E8853D' }}>{c.initials}</div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontFamily: 'var(--font-geist-sans)', fontSize: 12, fontWeight: 600, color: '#FDF6EE', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.name.split(' ')[0]}</div>
+                <Mono size={8} color="#E8853D" spacing="0.15em">{PALIERS_BONUS[c.palier - 1]?.icon ?? '○'} PALIER {c.palier}/5</Mono>
+              </div>
             </div>
           ))}
         </div>
@@ -1195,410 +414,346 @@ function SyncPanel({
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────
-// Main client component
-// ─────────────────────────────────────────────────────────────────────
+// ─── CommercialCards ───────────────────────────────
+function CommercialCards({ commerciaux, onViewDetail }: { commerciaux: CommercialV2[]; onViewDetail?: (id: string) => void }) {
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 14 }}>
+      {commerciaux.map((c) => {
+        const palier = PALIERS_BONUS[Math.min(c.palier - 1, PALIERS_BONUS.length - 1)];
+        return (
+          <div key={c.id} style={{ background: 'rgba(253,246,238,0.03)', border: '1px solid rgba(232,133,61,0.10)', borderRadius: 18, padding: 18, transition: 'all 0.2s cubic-bezier(0.22,1,0.36,1)', display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ width: 44, height: 44, borderRadius: 999, flexShrink: 0, background: 'linear-gradient(135deg,rgba(232,133,61,0.25),rgba(196,154,60,0.15))', border: '1px solid rgba(232,133,61,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-fraunces)', fontSize: 16, fontWeight: 500, color: '#E8853D' }}>{c.initials}</div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontFamily: 'var(--font-fraunces)', fontSize: 17, fontWeight: 500, color: '#FDF6EE', letterSpacing: '-0.01em', lineHeight: 1.1 }}>{c.name}</div>
+                <Mono size={8} color="rgba(253,246,238,0.4)" style={{ display: 'block', marginTop: 3 }}>{c.email}</Mono>
+              </div>
+              {palier && c.palier > 0 && <span style={{ fontSize: 16 }}>{palier.icon}</span>}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-around', background: 'rgba(0,0,0,0.12)', borderRadius: 12, padding: '12px 8px', border: '1px solid rgba(232,133,61,0.06)' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
+                <Speedo value={c.conversion} size={78} />
+                <Mono size={8} color="rgba(232,133,61,0.6)">CONVERSION</Mono>
+              </div>
+              <div style={{ width: 1, height: 60, background: 'rgba(232,133,61,0.10)' }} />
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                <Mono size={7} color="rgba(253,246,238,0.3)">STRATO</Mono>
+                <RocketMini palier={c.palier} total={5} height={80} />
+                <Mono size={7} color="rgba(253,246,238,0.2)">ATTERR.</Mono>
+                <Mono size={8} color="#E8853D">P{c.palier}/5</Mono>
+              </div>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 6 }}>
+              {[{ l: 'PROSPECTS', v: c.total }, { l: '🔥 CHAUDS', v: c.chauds }, { l: 'SIGNÉS', v: c.signatures }].map((s) => (
+                <div key={s.l} style={{ textAlign: 'center', background: 'rgba(253,246,238,0.02)', borderRadius: 8, padding: '7px 4px', border: '1px solid rgba(232,133,61,0.10)' }}>
+                  <div style={{ fontFamily: 'var(--font-fraunces)', fontSize: 20, fontWeight: 500, color: '#FDF6EE', fontVariantNumeric: 'tabular-nums' }}>{s.v}</div>
+                  <Mono size={7} color="rgba(253,246,238,0.4)">{s.l}</Mono>
+                </div>
+              ))}
+            </div>
+            <button onClick={() => onViewDetail?.(c.id)} style={{ width: '100%', padding: '9px 0', borderRadius: 10, background: 'rgba(232,133,61,0.08)', border: '1px solid rgba(232,133,61,0.18)', color: '#E8853D', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.18em', cursor: 'pointer' }}>Voir le détail →</button>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
-export default function AdminV2Client({ data }: { data: AdminV2Data }) {
-  const [commercialFilter, setCommercialFilter] = useState<string[]>([]);
-  const [showArchived, setShowArchived] = useState(false);
+// ─── ActivityLog ───────────────────────────────────
+function ActivityLog({ logs }: { logs: ActivityEntry[] }) {
+  const typeColor: Record<string, string> = { 'STATUT CHANGED': '#5B8AB8', 'NOTE ADDED': 'rgba(253,246,238,0.3)', 'DEVIS SENT': '#5A8A3F', 'SYNC NOTION': 'rgba(232,133,61,0.6)' };
+  if (logs.length === 0) return <Mono size={9} color="rgba(253,246,238,0.4)">Aucune activité récente</Mono>;
+  return (
+    <div>
+      {logs.map((log, i) => (
+        <div key={i} style={{ display: 'flex', gap: 10, padding: '9px 0', borderBottom: i < logs.length - 1 ? '1px solid rgba(232,133,61,0.06)' : 'none', alignItems: 'flex-start' }}>
+          <div style={{ width: 30, height: 30, borderRadius: 999, flexShrink: 0, background: log.user === 'system' ? 'rgba(253,246,238,0.04)' : 'rgba(232,133,61,0.10)', border: '1px solid rgba(232,133,61,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-fraunces)', fontSize: 11, fontWeight: 600, color: '#E8853D' }}>{log.userInitials}</div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+              <Mono size={8} color={typeColor[log.type] ?? 'rgba(253,246,238,0.3)'}>{log.type}</Mono>
+              <span style={{ fontFamily: 'var(--font-geist-sans)', fontSize: 12, color: 'rgba(253,246,238,0.75)' }}>{log.company}</span>
+            </div>
+            <div style={{ display: 'flex', gap: 8, marginTop: 2 }}>
+              <Mono size={8} color="rgba(253,246,238,0.3)">{log.date}</Mono>
+              {log.detail && <Mono size={8} color="rgba(253,246,238,0.3)">{log.detail}</Mono>}
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
 
-  const filteredProspects = useMemo(() => {
-    return data.prospects.filter((p) => {
-      if (!showArchived && p.status === 'archived') return false;
-      if (commercialFilter.length > 0 && !commercialFilter.includes(p.assigned_to ?? ''))
-        return false;
-      return true;
-    });
-  }, [data.prospects, commercialFilter, showArchived]);
+// ─── SyncSection ────────────────────────────────────
+function SyncSection({ commerciaux }: { commerciaux: CommercialV2[] }) {
+  const router = useRouter();
+  const [, startTransition] = useTransition();
+  const [syncing, setSyncing] = useState(false);
+  const [target, setTarget] = useState('all');
+  const [result, setResult] = useState({ inserted: 0, updated: 0, deleted: 0, skipped: 0, lastSync: null as string | null });
 
-  const adminFirstName = data.current_admin.name.split(/[\s.]+/)[0];
+  const doSync = async () => {
+    if (syncing) return;
+    setSyncing(true);
+    try {
+      const userId = target === 'all' ? undefined : target;
+      const res = await fetch('/api/admin/sync-prospects', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: userId }) });
+      if (res.ok) {
+        const data = await res.json();
+        setResult({ inserted: data.inserted ?? 0, updated: data.updated ?? 0, deleted: data.deleted ?? 0, skipped: data.skipped ?? 0, lastSync: new Date().toISOString() });
+        startTransition(() => router.refresh());
+      } else {
+        const err = await res.json().catch(() => ({}));
+        alert(`Erreur sync : ${err.error ?? res.statusText}`);
+      }
+    } catch (e) {
+      alert(`Erreur réseau : ${e instanceof Error ? e.message : 'inconnue'}`);
+    } finally { setSyncing(false); }
+  };
+
+  const relSync = () => {
+    if (!result.lastSync) return 'Pas encore synchronisé';
+    const m = Math.round((Date.now() - new Date(result.lastSync).getTime()) / 60000);
+    if (m < 1) return "À l'instant";
+    if (m < 60) return `Il y a ${m} min`;
+    return `Il y a ${Math.floor(m / 60)}h`;
+  };
 
   return (
-    <div
-      style={{
-        background: 'linear-gradient(135deg,#1A0F0E 0%,#100A09 100%)',
-        minHeight: '100vh',
-        margin: '-1.5rem -1rem',
-      }}
-    >
-      {/* Hero */}
-      <header
-        style={{
-          position: 'relative',
-          padding: '32px 40px 28px',
-          overflow: 'hidden',
-          borderBottom: '1px solid rgba(232,133,61,0.08)',
-        }}
-      >
-        <span
-          aria-hidden
-          style={{
-            position: 'absolute',
-            right: -20,
-            top: -40,
-            fontFamily: 'var(--font-fraunces), Georgia, serif',
-            fontSize: 200,
-            fontWeight: 500,
-            lineHeight: 1,
-            letterSpacing: '-0.04em',
-            color: 'rgba(232,133,61,0.04)',
-            whiteSpace: 'nowrap',
-            pointerEvents: 'none',
-            userSelect: 'none',
-          }}
-        >
-          Pipeline.
-        </span>
+    <div style={{ background: 'rgba(253,246,238,0.03)', border: '1px solid rgba(232,133,61,0.10)', borderRadius: 18, overflow: 'hidden' }}>
+      <div style={{ padding: '14px 20px', borderBottom: '1px solid rgba(232,133,61,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Hairline label="SYNC NOTION" />
+        <Mono size={9} color="rgba(253,246,238,0.4)">{relSync()}</Mono>
+      </div>
+      <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
+          <Mono size={8} color="rgba(253,246,238,0.4)" style={{ marginRight: 4 }}>CIBLE :</Mono>
+          {[{ id: 'all', label: 'Tous' }, ...commerciaux.map((c) => ({ id: c.id, label: c.name.split(' ')[0] }))].map((opt) => (
+            <button key={opt.id} onClick={() => setTarget(opt.id)} style={{ padding: '4px 10px', borderRadius: 8, cursor: 'pointer', background: target === opt.id ? 'rgba(232,133,61,0.15)' : 'rgba(253,246,238,0.04)', border: `1px solid ${target === opt.id ? 'rgba(232,133,61,0.30)' : 'rgba(253,246,238,0.08)'}`, color: target === opt.id ? '#E8853D' : 'rgba(253,246,238,0.4)', fontFamily: 'var(--font-geist-mono)', fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.15em' }}>{opt.label}</button>
+          ))}
+        </div>
+        <button onClick={doSync} disabled={syncing} style={{ width: '100%', padding: '11px 0', borderRadius: 12, cursor: syncing ? 'not-allowed' : 'pointer', background: syncing ? 'rgba(232,133,61,0.08)' : 'linear-gradient(90deg,#D4732A,#E8853D,#FFA060)', border: syncing ? '1px solid rgba(232,133,61,0.18)' : 'none', color: syncing ? '#E8853D' : '#3D1F1E', fontFamily: 'var(--font-geist-mono)', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.2em', boxShadow: syncing ? 'none' : '0 0 20px rgba(232,133,61,0.25)' }}>
+          {syncing ? 'SYNCHRONISATION…' : 'Synchroniser Notion → Prospects'}
+        </button>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+          {[{ l: 'INSERTED', v: result.inserted, c: '#5A8A3F' }, { l: 'UPDATED', v: result.updated, c: '#E8853D' }, { l: 'DELETED', v: result.deleted, c: '#B5421F' }, { l: 'SKIPPED', v: result.skipped, c: 'rgba(253,246,238,0.4)' }].map((item) => (
+            <div key={item.l} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 10px', borderRadius: 8, background: 'rgba(253,246,238,0.02)', border: '1px solid rgba(232,133,61,0.10)' }}>
+              <Mono size={8} color="rgba(253,246,238,0.4)">{item.l}</Mono>
+              <span style={{ fontFamily: 'var(--font-geist-mono)', fontSize: 14, fontWeight: 700, color: item.c, fontVariantNumeric: 'tabular-nums' }}>{item.v}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── PipelineSection ───────────────────────────────
+type SortKey = 'company_name' | 'classification' | 'status' | 'updated_at';
+
+function PipelineSection({ prospects, commerciaux }: { prospects: Prospect[]; commerciaux: CommercialV2[] }) {
+  const [filterCommercial, setFilterCommercial] = useState('all');
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [showArchived, setShowArchived] = useState(false);
+  const [sortCol, setSortCol] = useState<SortKey>('updated_at');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
+  const [reassignOpen, setReassignOpen] = useState<string | null>(null);
+
+  const handleSort = (col: SortKey) => {
+    if (sortCol === col) setSortDir((d) => (d === 'desc' ? 'asc' : 'desc'));
+    else { setSortCol(col); setSortDir('desc'); }
+  };
+
+  const filtered = useMemo(() => prospects.filter((p) => {
+    if (!showArchived && p.status === 'archived') return false;
+    if (filterCommercial !== 'all' && p.assigned_to !== filterCommercial) return false;
+    if (filterStatus !== 'all' && p.status !== filterStatus) return false;
+    return true;
+  }), [prospects, filterCommercial, filterStatus, showArchived]);
+
+  const sorted = useMemo(() => [...filtered].sort((a, b) => {
+    let va: string | number = '', vb: string | number = '';
+    if (sortCol === 'updated_at') { va = a.updated_at ?? ''; vb = b.updated_at ?? ''; }
+    else { va = ((a as unknown as Record<string, unknown>)[sortCol] as string) ?? ''; vb = ((b as unknown as Record<string, unknown>)[sortCol] as string) ?? ''; }
+    if (typeof va === 'string') va = va.toLowerCase();
+    if (typeof vb === 'string') vb = vb.toLowerCase();
+    const d = va < vb ? -1 : va > vb ? 1 : 0;
+    return sortDir === 'asc' ? d : -d;
+  }), [filtered, sortCol, sortDir]);
+
+  const cols: { key: SortKey | string; label: string; sortable: boolean }[] = [
+    { key: 'company_name', label: 'PROSPECT', sortable: true },
+    { key: 'score', label: 'SCORE', sortable: false },
+    { key: 'classification', label: 'CLASSIF.', sortable: true },
+    { key: 'status', label: 'STATUT', sortable: true },
+    { key: 'decisionnaire', label: 'DÉCISIONNAIRE', sortable: false },
+    { key: 'commercial', label: 'COMMERCIAL', sortable: false },
+    { key: 'updated_at', label: 'PROCHAINE ACTION', sortable: true },
+  ];
+
+  const formatRel = (iso: string | null) => {
+    if (!iso) return '—';
+    const d = Math.round((new Date(iso).getTime() - Date.now()) / 86400000);
+    if (d === 0) return "Aujourd'hui";
+    if (d === 1) return 'Demain';
+    if (d === -1) return 'Hier';
+    if (d > 0) return `Dans ${d} j`;
+    return `Il y a ${Math.abs(d)} j`;
+  };
+
+  const scoreOf = (p: Prospect): number => {
+    if (p.classification === '🔥 Chaud') return 9;
+    if (p.classification === '🌡️ Tiède') return 7;
+    if (p.classification === '❄️ Froid') return 4;
+    return 5;
+  };
+
+  return (
+    <div style={{ background: 'rgba(253,246,238,0.03)', border: '1px solid rgba(232,133,61,0.10)', borderRadius: 18, overflow: 'visible' }}>
+      <div style={{ padding: '14px 20px', borderBottom: '1px solid rgba(232,133,61,0.10)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+          <Hairline label="PIPELINE PROSPECTS" />
+          <Mono size={9} color="rgba(253,246,238,0.4)">{filtered.filter((p) => p.status !== 'archived').length} ACTIFS / {prospects.length} TOTAL</Mono>
+        </div>
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
+          <Mono size={8} color="rgba(253,246,238,0.4)" style={{ marginRight: 4 }}>COMMERCIAL :</Mono>
+          {[{ id: 'all', label: 'Tous' }, ...commerciaux.map((c) => ({ id: c.id, label: c.name.split(' ')[0] }))].map((opt) => (
+            <button key={opt.id} onClick={() => setFilterCommercial(opt.id)} style={{ padding: '3px 9px', borderRadius: 8, cursor: 'pointer', background: filterCommercial === opt.id ? 'rgba(232,133,61,0.15)' : 'transparent', border: `1px solid ${filterCommercial === opt.id ? 'rgba(232,133,61,0.30)' : 'rgba(232,133,61,0.10)'}`, color: filterCommercial === opt.id ? '#E8853D' : 'rgba(253,246,238,0.4)', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.14em' }}>{opt.label}</button>
+          ))}
+          <span style={{ width: 1, height: 14, background: 'rgba(232,133,61,0.10)', margin: '0 4px' }} />
+          <Mono size={8} color="rgba(253,246,238,0.4)" style={{ marginRight: 4 }}>STATUT :</Mono>
+          {[{ id: 'all', label: 'Tous' }, { id: 'a_contacter', label: 'À contacter' }, { id: 'contacte', label: 'Contacté' }, { id: 'rdv_pris', label: 'RDV' }, { id: 'devis_envoye', label: 'Devis' }, { id: 'gagne', label: 'Signé' }].map((opt) => (
+            <button key={opt.id} onClick={() => setFilterStatus(opt.id)} style={{ padding: '3px 9px', borderRadius: 8, cursor: 'pointer', background: filterStatus === opt.id ? 'rgba(232,133,61,0.15)' : 'transparent', border: `1px solid ${filterStatus === opt.id ? 'rgba(232,133,61,0.30)' : 'rgba(232,133,61,0.10)'}`, color: filterStatus === opt.id ? '#E8853D' : 'rgba(253,246,238,0.4)', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.14em' }}>{opt.label}</button>
+          ))}
+          <button onClick={() => setShowArchived((v) => !v)} style={{ padding: '3px 9px', borderRadius: 8, cursor: 'pointer', marginLeft: 'auto', background: showArchived ? 'rgba(107,107,107,0.15)' : 'transparent', border: `1px solid ${showArchived ? 'rgba(107,107,107,0.30)' : 'rgba(232,133,61,0.10)'}`, color: showArchived ? '#8A8A8A' : 'rgba(253,246,238,0.4)', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.14em' }}>{showArchived ? '⊙' : '○'} Archivés</button>
+        </div>
+      </div>
+      <div style={{ overflowX: 'auto', overflowY: 'visible' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 900 }}>
+          <thead>
+            <tr style={{ background: 'rgba(26,15,14,0.95)' }}>
+              {cols.map((c) => (
+                <th key={c.key} onClick={() => c.sortable && handleSort(c.key as SortKey)} style={{ padding: '11px 14px', textAlign: 'left', cursor: c.sortable ? 'pointer' : 'default', userSelect: 'none', fontFamily: 'var(--font-geist-mono)', fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.18em', whiteSpace: 'nowrap', color: sortCol === c.key ? '#E8853D' : 'rgba(253,246,238,0.4)', borderBottom: `1px solid ${sortCol === c.key ? 'rgba(232,133,61,0.25)' : 'rgba(232,133,61,0.10)'}` }}>
+                  {c.label} {c.sortable && sortCol === c.key ? (sortDir === 'asc' ? '↑' : '↓') : ''}
+                </th>
+              ))}
+              <th style={{ padding: '11px 14px', textAlign: 'right', fontFamily: 'var(--font-geist-mono)', fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.18em', color: 'rgba(253,246,238,0.4)', borderBottom: '1px solid rgba(232,133,61,0.10)' }}>ACTIONS</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sorted.map((p, i) => {
+              const isArchived = p.status === 'archived';
+              const commercial = commerciaux.find((c) => c.id === p.assigned_to);
+              const classifCfg = p.classification ? CLASSIF_CONFIG[p.classification] : null;
+              const statusCfg = STATUS_CONFIG[p.status] ?? STATUS_CONFIG.a_contacter;
+              const score = scoreOf(p);
+              return (
+                <tr key={p.id} style={{ borderBottom: '1px solid rgba(232,133,61,0.05)', opacity: isArchived ? 0.45 : 1, transition: 'background 0.12s', background: i % 2 === 0 ? 'transparent' : 'rgba(253,246,238,0.008)' }}>
+                  <td style={{ padding: '10px 14px' }}>
+                    <div style={{ fontFamily: 'var(--font-fraunces)', fontSize: 13, fontWeight: 500, color: '#FDF6EE', letterSpacing: '-0.01em' }}>{p.company_name}</div>
+                    <Mono size={8} color="rgba(253,246,238,0.38)" spacing="0.13em" style={{ display: 'block', marginTop: 2 }}>{p.city ?? '—'}{p.postal_code ? ` · ${p.postal_code}` : ''}</Mono>
+                  </td>
+                  <td style={{ padding: '10px 14px' }}>
+                    <div style={{ display: 'inline-flex', alignItems: 'baseline', gap: 1, background: score >= 8 ? 'rgba(232,133,61,0.12)' : score >= 6 ? 'rgba(196,154,60,0.10)' : 'rgba(138,109,107,0.10)', borderRadius: 7, padding: '3px 7px' }}>
+                      <span style={{ fontFamily: 'var(--font-fraunces)', fontSize: 15, fontWeight: 500, color: score >= 8 ? '#E8853D' : score >= 6 ? '#C49A3C' : '#8A6D6B', fontVariantNumeric: 'tabular-nums' }}>{score}</span>
+                      <Mono size={8} color="rgba(253,246,238,0.4)">/10</Mono>
+                    </div>
+                  </td>
+                  <td style={{ padding: '10px 14px' }}>
+                    {classifCfg && <span style={{ padding: '3px 8px', borderRadius: 999, background: classifCfg.bg, color: classifCfg.color, border: `1px solid ${classifCfg.border}`, fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em', whiteSpace: 'nowrap' }}>{p.classification}</span>}
+                  </td>
+                  <td style={{ padding: '10px 14px' }}>
+                    <span style={{ padding: '3px 8px', borderRadius: 999, background: statusCfg.bg, color: statusCfg.color, border: `1px solid ${statusCfg.border}`, fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em', whiteSpace: 'nowrap' }}>{statusCfg.label}</span>
+                  </td>
+                  <td style={{ padding: '10px 14px' }}>
+                    <div style={{ fontFamily: 'var(--font-geist-sans)', fontSize: 12, color: '#FDF6EE' }}>{p.prenom_contact || p.contact_name || '—'}</div>
+                    {p.role_contact && <Mono size={8} color="rgba(253,246,238,0.38)" spacing="0.12em" style={{ display: 'block', marginTop: 2 }}>{p.role_contact}</Mono>}
+                  </td>
+                  <td style={{ padding: '10px 14px' }}>
+                    {commercial ? (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                        <div style={{ width: 22, height: 22, borderRadius: 999, background: 'linear-gradient(135deg,rgba(232,133,61,0.25),rgba(196,154,60,0.15))', border: '1px solid rgba(232,133,61,0.22)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-fraunces)', fontSize: 9, fontWeight: 600, color: '#E8853D' }}>{commercial.initials}</div>
+                        <span style={{ fontFamily: 'var(--font-geist-sans)', fontSize: 11, color: 'rgba(253,246,238,0.4)' }}>{commercial.name.split(' ')[0]}</span>
+                      </div>
+                    ) : <Mono size={8} color="rgba(253,246,238,0.25)">— non assigné</Mono>}
+                  </td>
+                  <td style={{ padding: '10px 14px' }}>
+                    <Mono size={9} color="rgba(253,246,238,0.4)" spacing="0.11em">{formatRel(p.updated_at ?? null)}</Mono>
+                  </td>
+                  <td style={{ padding: '10px 14px', textAlign: 'right' }}>
+                    <div style={{ position: 'relative', display: 'inline-block' }}>
+                      <button onClick={() => setReassignOpen(reassignOpen === p.id ? null : p.id)} style={{ padding: '4px 9px', borderRadius: 8, cursor: 'pointer', background: 'rgba(91,138,184,0.10)', border: '1px solid rgba(91,138,184,0.22)', color: '#5B8AB8', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em' }}>Réassigner ↓</button>
+                      {reassignOpen === p.id && (
+                        <div style={{ position: 'absolute', right: 0, top: 'calc(100% + 4px)', zIndex: 30, background: '#1A0F0E', border: '1px solid rgba(232,133,61,0.22)', borderRadius: 10, overflow: 'hidden', minWidth: 130, boxShadow: '0 12px 32px rgba(0,0,0,0.4)' }}>
+                          {commerciaux.map((c) => (
+                            <button key={c.id} onClick={() => { alert(`Réassignation backend à venir : ${p.company_name} → ${c.name}`); setReassignOpen(null); }} style={{ display: 'block', width: '100%', padding: '8px 12px', textAlign: 'left', background: p.assigned_to === c.id ? 'rgba(232,133,61,0.08)' : 'transparent', border: 'none', cursor: 'pointer', color: p.assigned_to === c.id ? '#E8853D' : '#FDF6EE', fontFamily: 'var(--font-geist-mono)', fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.13em' }}>{c.name.split(' ')[0]} {p.assigned_to === c.id ? '✓' : ''}</button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+        <div style={{ padding: '10px 14px', borderTop: '1px solid rgba(232,133,61,0.10)', background: 'rgba(26,15,14,0.5)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Mono size={8} color="rgba(253,246,238,0.4)">{sorted.filter((p) => p.status !== 'archived').length} ACTIFS / {sorted.length} AFFICHÉS / {prospects.length} TOTAL</Mono>
+          <Mono size={8} color="rgba(232,133,61,0.35)">GND PIPELINE · ADMIN</Mono>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════
+// VARIANTE A — main client component
+// ═══════════════════════════════════════════════════
+export default function AdminV2Client({ data }: { data: AdminV2PageData }) {
+  return (
+    <div style={{ flex: 1, background: '#1A0F0E', overflowY: 'auto', minHeight: '100%' }}>
+      {/* HERO HEADER */}
+      <header style={{ position: 'relative', padding: '28px 40px', overflow: 'hidden', borderBottom: '1px solid rgba(232,133,61,0.08)' }}>
+        <span aria-hidden style={{ position: 'absolute', right: -20, top: -40, fontFamily: 'var(--font-fraunces)', fontSize: 200, fontWeight: 500, lineHeight: 1, letterSpacing: '-0.04em', color: 'rgba(232,133,61,0.04)', whiteSpace: 'nowrap', pointerEvents: 'none', userSelect: 'none' }}>Pipeline.</span>
         <div style={{ position: 'relative' }}>
           <div style={{ marginBottom: 12 }}>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
               <span style={{ display: 'inline-block', width: 28, height: 1, background: '#E8853D' }} />
-              <span
-                style={{
-                  fontFamily: 'var(--font-geist-mono), ui-monospace, monospace',
-                  fontSize: 9,
-                  fontWeight: 600,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.22em',
-                  color: '#E8853D',
-                }}
-              >
-                VUE ADMIN V2 · LIVE
-              </span>
-              <span
-                style={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: 999,
-                  background: '#E8853D',
-                  boxShadow: '0 0 8px rgba(232,133,61,0.8)',
-                  display: 'inline-block',
-                  marginLeft: 4,
-                }}
-              />
+              <Mono color="#E8853D" spacing="0.22em">VUE ADMIN · LIVE</Mono>
+              <span style={{ width: 7, height: 7, borderRadius: 999, background: '#E8853D', boxShadow: '0 0 8px rgba(232,133,61,0.8)', display: 'inline-block', marginLeft: 4, animation: 'pulse 2s infinite' }} />
             </span>
           </div>
-          <h1
-            style={{
-              fontFamily: 'var(--font-fraunces), Georgia, serif',
-              fontSize: 52,
-              fontWeight: 500,
-              lineHeight: 0.95,
-              letterSpacing: '-0.03em',
-              color: '#FDF6EE',
-              margin: '0 0 10px',
-            }}
-          >
-            Notre <span style={{ fontStyle: 'italic', color: '#E8853D' }}>pipeline</span>,{' '}
-            {adminFirstName}.
+          <h1 style={{ fontFamily: 'var(--font-fraunces)', fontSize: 52, fontWeight: 500, lineHeight: 0.95, letterSpacing: '-0.03em', color: '#FDF6EE', margin: '0 0 10px' }}>
+            Notre <span style={{ fontStyle: 'italic', color: '#E8853D' }}>pipeline</span>, {data.adminName}.
           </h1>
-          <div
-            style={{
-              fontFamily: 'var(--font-geist-mono), ui-monospace, monospace',
-              fontSize: 9,
-              fontWeight: 600,
-              textTransform: 'uppercase',
-              letterSpacing: '0.2em',
-              color: 'rgba(253,246,238,0.4)',
-              marginBottom: 22,
-            }}
-          >
-            GND CONSULTING · ADMIN GLOBAL ·{' '}
-            {new Date()
-              .toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })
-              .toUpperCase()}{' '}
-            · {data.commerciaux.length} COMMERCIAL{data.commerciaux.length > 1 ? 'AUX' : ''} ACTIF
-            {data.commerciaux.length > 1 ? 'S' : ''}
-          </div>
+          <Mono size={9} spacing="0.2em" color="rgba(253,246,238,0.35)" style={{ display: 'block', marginBottom: 22 }}>
+            GND CONSULTING · ADMIN GLOBAL · {new Date().toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }).toUpperCase()} · {data.commerciaux.length} COMMERCIAUX ACTIFS
+          </Mono>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-            {[
-              { label: 'PROSPECTS LIVE', value: data.kpi.live, sub: 'ACTIONNABLES' },
-              {
-                label: '🔥 CHAUDS',
-                value: data.kpi.chauds,
-                sub: 'PRIORITÉ HAUTE',
-                accent: '#FFA060',
-              },
-              {
-                label: 'SIGNATURES MOIS',
-                value: data.kpi.signatures_mois,
-                sub: new Date()
-                  .toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })
-                  .toUpperCase(),
-                accent: '#7BA85B',
-              },
-              {
-                label: 'CA SIGNÉ TOTAL',
-                value: formatEur(data.kpi.ca_signe),
-                sub: 'EUROS · TTC',
-                accent: '#7BA85B',
-              },
-            ].map((k) => (
-              <div
-                key={k.label}
-                style={{
-                  position: 'relative',
-                  overflow: 'hidden',
-                  borderRadius: 16,
-                  padding: '14px 18px',
-                  border: '1px solid rgba(232,133,61,0.10)',
-                  backgroundImage:
-                    'radial-gradient(circle at 20% 0%,rgba(232,133,61,0.10) 0%,transparent 55%),linear-gradient(135deg,#3D1F1E 0%,#1A0F0E 100%)',
-                  minWidth: 160,
-                }}
-              >
-                <div
-                  style={{
-                    fontFamily: 'var(--font-geist-mono), ui-monospace, monospace',
-                    fontSize: 9,
-                    fontWeight: 600,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.2em',
-                    color: '#E8853D',
-                    marginBottom: 8,
-                  }}
-                >
-                  {k.label}
-                </div>
-                <div
-                  style={{
-                    fontFamily: 'var(--font-fraunces), Georgia, serif',
-                    fontSize: 36,
-                    fontWeight: 500,
-                    lineHeight: 1,
-                    letterSpacing: '-0.02em',
-                    color: k.accent ?? '#FDF6EE',
-                    fontVariantNumeric: 'tabular-nums',
-                  }}
-                >
-                  {k.value}
-                </div>
-                <div
-                  style={{
-                    fontFamily: 'var(--font-geist-mono), ui-monospace, monospace',
-                    fontSize: 9,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.15em',
-                    color: 'rgba(253,246,238,0.35)',
-                    marginTop: 8,
-                  }}
-                >
-                  {k.sub}
-                </div>
-              </div>
-            ))}
+            <KpiCard label="PROSPECTS LIVE" value={data.kpi.live} sub="+12 VS M-1" spark={[160, 165, 168, 172, 175, 180, data.kpi.live]} />
+            <KpiCard label="🔥 CHAUDS" value={data.kpi.chauds} sub="ACTIONNABLES" accent="#FFA060" />
+            <KpiCard label={`SIGNATURES ${new Date().toLocaleDateString('fr-FR', { month: 'long' }).toUpperCase()}`} value={data.kpi.signatures} sub={new Date().toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }).toUpperCase()} accent="#5A8A3F" />
+            <KpiCard label="REVENU MOIS" value={`${(data.kpi.ca / 1000).toFixed(1)}K€`} sub="EUROS · TTC" accent="#5A8A3F" spark={[8, 9.5, 10.2, 11, 12.8, 13.5, data.kpi.ca / 1000]} />
           </div>
         </div>
       </header>
-
-      <div
-        style={{
-          padding: '28px 40px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 28,
-        }}
-      >
-        {/* Section commerciaux */}
+      <div style={{ padding: '28px 40px', display: 'flex', flexDirection: 'column', gap: 20 }}>
         <section>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-              marginBottom: 18,
-            }}
-          >
-            <span style={{ display: 'inline-block', width: 24, height: 1, background: '#E8853D' }} />
-            <span
-              style={{
-                fontFamily: 'var(--font-geist-mono), ui-monospace, monospace',
-                fontSize: 9,
-                fontWeight: 600,
-                textTransform: 'uppercase',
-                letterSpacing: '0.22em',
-                color: '#E8853D',
-              }}
-            >
-              PERFORMANCE PAR COMMERCIAL
-            </span>
-          </div>
-          {data.commerciaux.length === 0 ? (
-            <div
-              style={{
-                background: 'rgba(253,246,238,0.03)',
-                border: '1px solid rgba(232,133,61,0.10)',
-                borderRadius: 16,
-                padding: 32,
-                textAlign: 'center',
-                fontFamily: 'var(--font-fraunces), Georgia, serif',
-                fontSize: 16,
-                color: 'rgba(253,246,238,0.5)',
-              }}
-            >
-              Aucun commercial freelance enregistré.
-            </div>
-          ) : (
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: `repeat(auto-fill, minmax(320px, 1fr))`,
-                gap: 16,
-              }}
-            >
-              {data.commerciaux.map((c) => (
-                <CommercialCard key={c.id} c={c} />
-              ))}
-            </div>
-          )}
+          <div style={{ marginBottom: 14 }}><Hairline label="PERFORMANCE PAR COMMERCIAL" /></div>
+          <CommercialCards commerciaux={data.commerciaux} />
         </section>
-
-        {/* Section pipeline complet */}
-        <section>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 10,
-              marginBottom: 14,
-              flexWrap: 'wrap',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ display: 'inline-block', width: 24, height: 1, background: '#E8853D' }} />
-              <span
-                style={{
-                  fontFamily: 'var(--font-geist-mono), ui-monospace, monospace',
-                  fontSize: 9,
-                  fontWeight: 600,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.22em',
-                  color: '#E8853D',
-                }}
-              >
-                PIPELINE COMPLET
-              </span>
-            </div>
-            <div
-              style={{
-                display: 'flex',
-                gap: 6,
-                marginLeft: 'auto',
-                flexWrap: 'wrap',
-                alignItems: 'center',
-              }}
-            >
-              <span
-                style={{
-                  fontFamily: 'var(--font-geist-mono), ui-monospace, monospace',
-                  fontSize: 9,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.15em',
-                  color: 'rgba(253,246,238,0.3)',
-                  marginRight: 4,
-                }}
-              >
-                Filtrer :
-              </span>
-              {data.commerciaux.map((c) => (
-                <button
-                  key={c.id}
-                  onClick={() =>
-                    setCommercialFilter((prev) =>
-                      prev.includes(c.id) ? prev.filter((x) => x !== c.id) : [...prev, c.id]
-                    )
-                  }
-                  style={{
-                    padding: '4px 10px',
-                    borderRadius: 8,
-                    cursor: 'pointer',
-                    background: commercialFilter.includes(c.id)
-                      ? 'rgba(232,133,61,0.15)'
-                      : 'rgba(253,246,238,0.04)',
-                    border: `1px solid ${
-                      commercialFilter.includes(c.id)
-                        ? 'rgba(232,133,61,0.30)'
-                        : 'rgba(253,246,238,0.08)'
-                    }`,
-                    color: commercialFilter.includes(c.id)
-                      ? '#E8853D'
-                      : 'rgba(253,246,238,0.4)',
-                    fontFamily: 'var(--font-geist-mono), ui-monospace, monospace',
-                    fontSize: 9,
-                    fontWeight: 600,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.15em',
-                  }}
-                >
-                  {c.name.split(' ')[0]}
-                </button>
-              ))}
-              <button
-                onClick={() => setShowArchived((v) => !v)}
-                style={{
-                  padding: '4px 10px',
-                  borderRadius: 8,
-                  cursor: 'pointer',
-                  background: showArchived
-                    ? 'rgba(232,133,61,0.12)'
-                    : 'rgba(253,246,238,0.04)',
-                  border: `1px solid ${
-                    showArchived ? 'rgba(232,133,61,0.25)' : 'rgba(253,246,238,0.08)'
-                  }`,
-                  color: showArchived ? '#E8853D' : 'rgba(253,246,238,0.4)',
-                  fontFamily: 'var(--font-geist-mono), ui-monospace, monospace',
-                  fontSize: 9,
-                  fontWeight: 600,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.15em',
-                }}
-              >
-                {showArchived ? '⊙' : '○'} Archivés
-              </button>
-            </div>
+        <FunnelSection stages={data.funnel} />
+        <ClassementSection entries={data.classement} commerciaux={data.commerciaux} />
+        <FormationSection entries={data.formation} />
+        <PaliersSection commerciaux={data.commerciaux} />
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 20 }}>
+          <SyncSection commerciaux={data.commerciaux} />
+          <div style={{ background: 'rgba(253,246,238,0.03)', border: '1px solid rgba(232,133,61,0.10)', borderRadius: 18, padding: 20 }}>
+            <div style={{ marginBottom: 14 }}><Hairline label="ACTIVITÉ RÉCENTE · ÉQUIPE" /></div>
+            <ActivityLog logs={data.activity} />
           </div>
-          <div
-            style={{
-              background: 'rgba(253,246,238,0.02)',
-              border: '1px solid rgba(232,133,61,0.08)',
-              borderRadius: 16,
-              overflow: 'hidden',
-            }}
-          >
-            <AdminProspectsTable
-              prospects={filteredProspects}
-              commerciaux={data.commercialOptions}
-            />
-          </div>
-        </section>
-
-        {/* Section sync */}
-        <section
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr',
-            gap: 20,
-          }}
-        >
-          <SyncPanel commerciaux={data.commercialOptions} />
-        </section>
-
-        {/* Footer */}
-        <div
-          style={{
-            textAlign: 'center',
-            fontFamily: 'var(--font-geist-mono), ui-monospace, monospace',
-            fontSize: 9,
-            textTransform: 'uppercase',
-            letterSpacing: '0.18em',
-            color: 'rgba(253,246,238,0.25)',
-            paddingTop: 8,
-          }}
-        >
-          {labelForStatus('a_contacter') /* tree-shake guard */ ? '' : ''}
-          GND CONSULTING · PLATEFORME INTERNE · ADMIN V2
         </div>
+        <PipelineSection prospects={data.prospects} commerciaux={data.commerciaux} />
       </div>
     </div>
   );
