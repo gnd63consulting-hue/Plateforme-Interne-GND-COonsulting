@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase-server';
 import { PROSPECT_SELECT_COLUMNS, type Prospect } from '@/lib/prospects';
 import { sumCaMidpointEur } from '@/lib/ca-utils';
+import { MODULES } from '@/lib/modules-registry';
 import AdminV2Client from './AdminV2Client';
 
 export const dynamic = 'force-dynamic';
@@ -12,6 +13,14 @@ type AdminUser = {
   full_name: string | null;
   role: string;
   active?: boolean | null;
+};
+
+type Progression = {
+  user_id: string;
+  module_slug: string;
+  completed: boolean;
+  completed_at: string | null;
+  best_percentage: number | null;
 };
 
 const ADMIN_ROLES = new Set(['admin', 'admin_limited']);
@@ -77,16 +86,18 @@ export default async function AdminV2Page() {
     .maybeSingle();
   if (!me || !ADMIN_ROLES.has(me.role)) redirect('/dashboard');
 
-  const [{ data: usersRaw }, { data: prospectsRaw }] = await Promise.all([
+  const [{ data: usersRaw }, { data: prospectsRaw }, { data: progRaw }] = await Promise.all([
     supabase.from('users').select('id, email, full_name, role, active'),
     supabase
       .from('prospects')
       .select(PROSPECT_SELECT_COLUMNS)
       .order('updated_at', { ascending: false }),
+    supabase.from('progressions').select('user_id, module_slug, completed, completed_at, best_percentage'),
   ]);
 
   const users = (usersRaw ?? []) as AdminUser[];
   const prospects = (prospectsRaw ?? []) as unknown as Prospect[];
+  const progressions = (progRaw ?? []) as Progression[];
 
   const freelances = users
     .filter((u) => FREELANCE_ROLES.has(u.role))
@@ -123,7 +134,6 @@ export default async function AdminV2Page() {
   const startOfMonth = new Date(); startOfMonth.setDate(1); startOfMonth.setHours(0,0,0,0);
   const signedThisMonth = allSigned.filter((p) => p.updated_at && new Date(p.updated_at) >= startOfMonth);
 
-  // Funnel
   const funnelDef: { key: string; label: string }[] = [
     { key: 'a_contacter', label: 'À contacter' },
     { key: 'contacte', label: 'Contacté' },
@@ -139,7 +149,6 @@ export default async function AdminV2Page() {
     convPct: i === 0 ? null : (funnelCounts[i-1] > 0 ? `${Math.round((funnelCounts[i] / funnelCounts[i-1]) * 100)}%` : '~'),
   }));
 
-  // Classement (top 4 par CA potentiel)
   const classementSorted = [...commerciaux].sort((a, b) => b.ca_potentiel - a.ca_potentiel);
   const maxCA = Math.max(1, ...classementSorted.map(c => c.ca_potentiel));
   const classement: ClassementEntry[] = classementSorted.slice(0, 4).map((c, i) => ({
@@ -152,7 +161,6 @@ export default async function AdminV2Page() {
     prospects: c.total,
   }));
 
-  // Activity (depuis prospects.updated_at)
   const typeMap: Record<string, string> = {
     rdv_pris: 'STATUT CHANGED',
     devis_envoye: 'DEVIS SENT',
@@ -188,30 +196,48 @@ export default async function AdminV2Page() {
       };
     });
 
-  // Formation: pas de table en base, on génère des entrées vides pour chaque user
-  // Sera branché sur Supabase quand la table activity_log existera
+  // Formation : branché sur la table progressions Supabase
+  const moduleSlugByOrder = MODULES.reduce<Record<number, string>>((acc, m) => {
+    acc[m.order] = m.slug;
+    return acc;
+  }, {});
+  const TOTAL_MODULES = MODULES.length;
+
+  const buildFormationEntry = (u: AdminUser, isAdmin: boolean): FormationEntry => {
+    const userProgs = progressions.filter(p => p.user_id === u.id);
+    const completedSlugs = new Set(userProgs.filter(p => p.completed).map(p => p.module_slug));
+    const progress: number[] = [];
+    for (let i = 1; i <= TOTAL_MODULES; i++) {
+      const slug = moduleSlugByOrder[i];
+      progress.push(completedSlugs.has(slug) ? 1 : 0);
+    }
+    const completed = progress.reduce((s, v) => s + v, 0);
+    const lastActivityIso = userProgs
+      .filter(p => p.completed_at)
+      .map(p => new Date(p.completed_at!).getTime())
+      .reduce((max, t) => Math.max(max, t), 0);
+    const lastActivity = lastActivityIso > 0
+      ? (() => {
+          const d = new Date(lastActivityIso);
+          return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getFullYear()).slice(2)}`;
+        })()
+      : null;
+    return {
+      userId: u.id,
+      name: u.full_name ?? u.email.split('@')[0],
+      initials: initialsOf(u.full_name, u.email),
+      isAdmin,
+      progress,
+      completed,
+      total: TOTAL_MODULES,
+      lastActivity,
+    };
+  };
+
   const adminUsers = users.filter(u => ADMIN_ROLES.has(u.role));
   const formation: FormationEntry[] = [
-    ...adminUsers.map(u => ({
-      userId: u.id,
-      name: u.full_name ?? u.email.split('@')[0],
-      initials: initialsOf(u.full_name, u.email),
-      isAdmin: true,
-      progress: [0,0,0,0,0,0,0],
-      completed: 0,
-      total: 7,
-      lastActivity: null,
-    })),
-    ...freelances.map(u => ({
-      userId: u.id,
-      name: u.full_name ?? u.email.split('@')[0],
-      initials: initialsOf(u.full_name, u.email),
-      isAdmin: false,
-      progress: [0,0,0,0,0,0,0],
-      completed: 0,
-      total: 7,
-      lastActivity: null,
-    })),
+    ...adminUsers.map(u => buildFormationEntry(u, true)),
+    ...freelances.map(u => buildFormationEntry(u, false)),
   ];
 
   const data: AdminV2PageData = {
