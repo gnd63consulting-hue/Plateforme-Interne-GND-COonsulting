@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, useTransition } from 'react';
+import { useEffect, useMemo, useState, useTransition } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import type { Prospect } from '@/lib/prospects';
@@ -519,6 +519,15 @@ function PipelineSection({ prospects, commerciaux }: { prospects: Prospect[]; co
   const [reassignOpen, setReassignOpen] = useState<string | null>(null);
   const [reassigning, setReassigning] = useState<string | null>(null);
 
+  // Pagination — 20 prospects par page par défaut
+  const [pageSize, setPageSize] = useState<number>(20);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+
+  // Reset à page 1 quand les filtres ou la taille de page changent
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filterCommercial, filterStatus, showArchived, pageSize]);
+
   const handleSort = (col: SortKey) => {
     if (sortCol === col) setSortDir((d) => (d === 'desc' ? 'asc' : 'desc'));
     else { setSortCol(col); setSortDir('desc'); }
@@ -564,6 +573,12 @@ function PipelineSection({ prospects, commerciaux }: { prospects: Prospect[]; co
     return sortDir === 'asc' ? d : -d;
   }), [filtered, sortCol, sortDir]);
 
+  // Slice pour pagination
+  const totalPages = Math.max(1, Math.ceil(sorted.length / pageSize));
+  const safePage = Math.min(currentPage, totalPages);
+  const paged = sorted.slice((safePage - 1) * pageSize, safePage * pageSize);
+  const showPagination = sorted.length > pageSize;
+
   const cols: { key: SortKey | string; label: string; sortable: boolean }[] = [
     { key: 'company_name', label: 'PROSPECT', sortable: true },
     { key: 'score', label: 'SCORE', sortable: false },
@@ -589,6 +604,19 @@ function PipelineSection({ prospects, commerciaux }: { prospects: Prospect[]; co
     if (p.classification === '🌡️ Tiède') return 7;
     if (p.classification === '❄️ Froid') return 4;
     return 5;
+  };
+
+  // Build page numbers list (ellipsis si > 7 pages)
+  const buildPageList = (): (number | 'dots')[] => {
+    if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
+    const list: (number | 'dots')[] = [1];
+    if (safePage > 4) list.push('dots');
+    const start = Math.max(2, safePage - 1);
+    const end = Math.min(totalPages - 1, safePage + 1);
+    for (let i = start; i <= end; i++) list.push(i);
+    if (safePage < totalPages - 3) list.push('dots');
+    list.push(totalPages);
+    return list;
   };
 
   return (
@@ -624,7 +652,7 @@ function PipelineSection({ prospects, commerciaux }: { prospects: Prospect[]; co
             </tr>
           </thead>
           <tbody>
-            {sorted.map((p, i) => {
+            {paged.map((p, i) => {
               const isArchived = p.status === 'archived';
               const commercial = commerciaux.find((c) => c.id === p.assigned_to);
               const classifCfg = p.classification ? CLASSIF_CONFIG[p.classification] : null;
@@ -684,9 +712,30 @@ function PipelineSection({ prospects, commerciaux }: { prospects: Prospect[]; co
             })}
           </tbody>
         </table>
-        <div style={{ padding: '10px 14px', borderTop: '1px solid rgba(232,133,61,0.10)', background: 'rgba(26,15,14,0.5)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        {/* Footer + Pagination */}
+        <div style={{ padding: '10px 14px', borderTop: '1px solid rgba(232,133,61,0.10)', background: 'rgba(26,15,14,0.5)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
           <Mono size={8} color="rgba(253,246,238,0.4)">{sorted.filter((p) => p.status !== 'archived').length} ACTIFS / {sorted.length} AFFICHÉS / {prospects.length} TOTAL</Mono>
-          <Mono size={8} color="rgba(232,133,61,0.35)">GND PIPELINE · ADMIN</Mono>
+          {showPagination ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+              <Mono size={8} color="rgba(253,246,238,0.4)" style={{ marginRight: 4 }}>PAR PAGE :</Mono>
+              {[20, 50, 100].map((sz) => (
+                <button key={sz} onClick={() => setPageSize(sz)} style={{ padding: '3px 8px', borderRadius: 6, cursor: 'pointer', background: pageSize === sz ? 'rgba(232,133,61,0.15)' : 'transparent', border: `1px solid ${pageSize === sz ? 'rgba(232,133,61,0.30)' : 'rgba(232,133,61,0.10)'}`, color: pageSize === sz ? '#E8853D' : 'rgba(253,246,238,0.4)', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, letterSpacing: '0.12em' }}>{sz}</button>
+              ))}
+              <span style={{ width: 1, height: 12, background: 'rgba(232,133,61,0.15)', margin: '0 6px' }} />
+              <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={safePage <= 1} style={{ padding: '3px 8px', borderRadius: 6, cursor: safePage <= 1 ? 'not-allowed' : 'pointer', background: 'transparent', border: '1px solid rgba(232,133,61,0.10)', color: safePage <= 1 ? 'rgba(253,246,238,0.2)' : 'rgba(253,246,238,0.6)', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600 }}>← PRÉC.</button>
+              {buildPageList().map((p, idx) => p === 'dots'
+                ? <span key={`d-${idx}`} style={{ padding: '0 4px', color: 'rgba(253,246,238,0.3)', fontFamily: 'var(--font-geist-mono)', fontSize: 8 }}>…</span>
+                : (
+                  <button key={p} onClick={() => setCurrentPage(p)} style={{ padding: '3px 8px', borderRadius: 6, cursor: 'pointer', background: safePage === p ? 'rgba(232,133,61,0.15)' : 'transparent', border: `1px solid ${safePage === p ? 'rgba(232,133,61,0.30)' : 'rgba(232,133,61,0.10)'}`, color: safePage === p ? '#E8853D' : 'rgba(253,246,238,0.4)', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, minWidth: 22 }}>{p}</button>
+                )
+              )}
+              <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={safePage >= totalPages} style={{ padding: '3px 8px', borderRadius: 6, cursor: safePage >= totalPages ? 'not-allowed' : 'pointer', background: 'transparent', border: '1px solid rgba(232,133,61,0.10)', color: safePage >= totalPages ? 'rgba(253,246,238,0.2)' : 'rgba(253,246,238,0.6)', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600 }}>SUIV. →</button>
+              <span style={{ width: 1, height: 12, background: 'rgba(232,133,61,0.15)', margin: '0 6px' }} />
+              <Mono size={8} color="rgba(232,133,61,0.5)">PAGE {safePage} / {totalPages}</Mono>
+            </div>
+          ) : (
+            <Mono size={8} color="rgba(232,133,61,0.35)">GND PIPELINE · ADMIN</Mono>
+          )}
         </div>
       </div>
     </div>
