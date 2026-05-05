@@ -815,12 +815,73 @@ function PipelineSection({ prospects, commerciaux }: { prospects: Prospect[]; co
   );
 }
 
+// Top bar de variantes (cockpit / dense / japon). Conforme à la source design
+// `Vue Admin v2-print.html` lignes 1138-1157. Dupliqué localement — DRY refactor
+// avec PR #4 (variante G activée).
+function TopBarVariantSwitcher({ active }: { active: 'A' | 'C' | 'G' }) {
+  const variants: { k: 'A' | 'C' | 'G'; label: string; href: string; disabled?: boolean }[] = [
+    { k: 'A', label: 'Cockpit', href: '/admin' },
+    { k: 'C', label: 'Dense', href: '/admin/dense' },
+    { k: 'G', label: 'Japon-Magazine', href: '#', disabled: true },
+  ];
+  return (
+    <div style={{
+      display: 'flex',
+      gap: 6,
+      padding: '8px 16px',
+      alignItems: 'center',
+      background: 'rgba(26,15,14,0.95)',
+      borderBottom: '1px solid rgba(232,133,61,0.08)',
+      flexShrink: 0,
+    }}>
+      <span style={{
+        fontFamily: 'var(--font-geist-mono)',
+        fontSize: 8,
+        textTransform: 'uppercase',
+        letterSpacing: '0.22em',
+        color: 'rgba(232,133,61,0.5)',
+        marginRight: 8,
+      }}>VARIANTE :</span>
+      {variants.map((v) => {
+        const isActive = active === v.k;
+        return (
+          <Link
+            key={v.k}
+            href={v.disabled ? '#' : v.href}
+            onClick={(e) => { if (v.disabled) e.preventDefault(); }}
+            title={v.disabled ? 'Bientôt disponible' : undefined}
+            style={{
+              padding: '4px 10px',
+              borderRadius: 8,
+              cursor: v.disabled ? 'not-allowed' : 'pointer',
+              opacity: v.disabled ? 0.4 : 1,
+              background: isActive ? 'rgba(232,133,61,0.18)' : 'rgba(253,246,238,0.04)',
+              border: `1px solid ${isActive ? 'rgba(232,133,61,0.35)' : 'rgba(253,246,238,0.08)'}`,
+              color: isActive ? '#E8853D' : 'rgba(253,246,238,0.4)',
+              fontFamily: 'var(--font-geist-mono)',
+              fontSize: 8,
+              fontWeight: 600,
+              textTransform: 'uppercase',
+              letterSpacing: '0.14em',
+              transition: 'all 0.15s',
+              textDecoration: 'none',
+              display: 'inline-block',
+            }}
+          >{v.k} · {v.label}</Link>
+        );
+      })}
+      <div style={{ marginLeft: 'auto' }} />
+    </div>
+  );
+}
+
 export default function AdminV2Client({ data }: { data: AdminV2PageData }) {
   return (
-    <div style={{ flex: 1, background: '#1A0F0E', overflowY: 'auto', minHeight: '100%' }}>
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
+      <TopBarVariantSwitcher active="A" />
+      <div style={{ flex: 1, background: '#1A0F0E', overflowY: 'auto' }}>
       <header style={{ position: 'relative', padding: '28px 40px', overflow: 'hidden', borderBottom: '1px solid rgba(232,133,61,0.08)' }}>
         <span aria-hidden style={{ position: 'absolute', right: -20, top: -40, fontFamily: 'var(--font-fraunces)', fontSize: 200, fontWeight: 500, lineHeight: 1, letterSpacing: '-0.04em', color: 'rgba(232,133,61,0.04)', whiteSpace: 'nowrap', pointerEvents: 'none', userSelect: 'none' }}>Pipeline.</span>
-        <Link href="/admin/dense" style={{ position: 'absolute', top: 20, right: 20, padding: '6px 12px', borderRadius: 8, background: 'rgba(253,246,238,0.04)', border: '1px solid rgba(232,133,61,0.18)', color: '#E8853D', fontFamily: 'var(--font-geist-mono)', fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.18em', textDecoration: 'none', zIndex: 2 }}>Vue dense →</Link>
         <div style={{ position: 'relative' }}>
           <div style={{ marginBottom: 12 }}>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
@@ -857,7 +918,10 @@ export default function AdminV2Client({ data }: { data: AdminV2PageData }) {
         </div>
         <PipelineSection prospects={data.prospects} commerciaux={data.commerciaux} />
       </div>
+      </div>
     </div>
   );
 }
+
+
 

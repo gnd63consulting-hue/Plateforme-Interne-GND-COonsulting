@@ -768,6 +768,66 @@ function PipelineSection({ prospects, commerciaux }: { prospects: Prospect[]; co
 // VARIANTE C — Dense data (2 colonnes)
 // ═══════════════════════════════════════════════════════════════
 
+// Top bar de variantes (cockpit / dense / japon). Conforme à la source design
+// `Vue Admin v2-print.html` lignes 1138-1157. Dupliqué localement — DRY refactor
+// avec PR #4 (variante G activée).
+function TopBarVariantSwitcher({ active }: { active: 'A' | 'C' | 'G' }) {
+  const variants: { k: 'A' | 'C' | 'G'; label: string; href: string; disabled?: boolean }[] = [
+    { k: 'A', label: 'Cockpit', href: '/admin' },
+    { k: 'C', label: 'Dense', href: '/admin/dense' },
+    { k: 'G', label: 'Japon-Magazine', href: '#', disabled: true },
+  ];
+  return (
+    <div style={{
+      display: 'flex',
+      gap: 6,
+      padding: '8px 16px',
+      alignItems: 'center',
+      background: 'rgba(26,15,14,0.95)',
+      borderBottom: '1px solid rgba(232,133,61,0.08)',
+      flexShrink: 0,
+    }}>
+      <span style={{
+        fontFamily: 'var(--font-geist-mono)',
+        fontSize: 8,
+        textTransform: 'uppercase',
+        letterSpacing: '0.22em',
+        color: 'rgba(232,133,61,0.5)',
+        marginRight: 8,
+      }}>VARIANTE :</span>
+      {variants.map((v) => {
+        const isActive = active === v.k;
+        return (
+          <Link
+            key={v.k}
+            href={v.disabled ? '#' : v.href}
+            onClick={(e) => { if (v.disabled) e.preventDefault(); }}
+            title={v.disabled ? 'Bientôt disponible' : undefined}
+            style={{
+              padding: '4px 10px',
+              borderRadius: 8,
+              cursor: v.disabled ? 'not-allowed' : 'pointer',
+              opacity: v.disabled ? 0.4 : 1,
+              background: isActive ? 'rgba(232,133,61,0.18)' : 'rgba(253,246,238,0.04)',
+              border: `1px solid ${isActive ? 'rgba(232,133,61,0.35)' : 'rgba(253,246,238,0.08)'}`,
+              color: isActive ? '#E8853D' : 'rgba(253,246,238,0.4)',
+              fontFamily: 'var(--font-geist-mono)',
+              fontSize: 8,
+              fontWeight: 600,
+              textTransform: 'uppercase',
+              letterSpacing: '0.14em',
+              transition: 'all 0.15s',
+              textDecoration: 'none',
+              display: 'inline-block',
+            }}
+          >{v.k} · {v.label}</Link>
+        );
+      })}
+      <div style={{ marginLeft: 'auto' }} />
+    </div>
+  );
+}
+
 export default function AdminDenseClient({ data }: { data: AdminV2PageData }) {
   // density='normal' hardcoded — toggle viendra avec PR #4 (TweaksPanel)
   const pad = 20;
@@ -777,7 +837,9 @@ export default function AdminDenseClient({ data }: { data: AdminV2PageData }) {
   const monthLabel = new Date().toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }).toUpperCase();
 
   return (
-    <div style={{ flex: 1, background: bg, overflowY: 'auto', minHeight: '100%' }}>
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
+      <TopBarVariantSwitcher active="C" />
+      <div style={{ flex: 1, background: bg, overflowY: 'auto' }}>
 
       {/* Header ultra-compact */}
       <header style={{
@@ -842,25 +904,6 @@ export default function AdminDenseClient({ data }: { data: AdminV2PageData }) {
               }}>{k.v}</div>
             </div>
           ))}
-
-          {/* Toggle vers Variante A (cockpit aéré) */}
-          <Link href="/admin" style={{
-            marginLeft: 4,
-            padding: '8px 12px',
-            borderRadius: 10,
-            background: 'rgba(253,246,238,0.04)',
-            border: '1px solid rgba(232,133,61,0.18)',
-            color: '#E8853D',
-            fontFamily: 'var(--font-geist-mono)',
-            fontSize: 9,
-            fontWeight: 600,
-            textTransform: 'uppercase',
-            letterSpacing: '0.18em',
-            textDecoration: 'none',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 4,
-          }}>← Vue cockpit</Link>
         </div>
       </header>
 
@@ -939,6 +982,9 @@ export default function AdminDenseClient({ data }: { data: AdminV2PageData }) {
         <div style={{ marginBottom: 12 }}><Hairline label="PIPELINE PROSPECTS" /></div>
         <PipelineSection prospects={data.prospects} commerciaux={data.commerciaux} />
       </div>
+      </div>
     </div>
   );
 }
+
+
