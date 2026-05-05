@@ -768,74 +768,62 @@ function PipelineSection({ prospects, commerciaux }: { prospects: Prospect[]; co
 // VARIANTE C — Dense data (2 colonnes)
 // ═══════════════════════════════════════════════════════════════
 
-// Switcher de variantes (cockpit aéré / dense / japon). Dupliqué localement —
-// le DRY refactor sera fait avec PR #4 (variante G activée).
-function VariantSwitcher({ active }: { active: 'A' | 'C' | 'G' }) {
-  const TABS: { id: 'A' | 'C' | 'G'; label: string; href: string | null; disabled?: boolean }[] = [
-    { id: 'A', label: 'A · COCKPIT', href: '/admin' },
-    { id: 'C', label: 'C · DENSE', href: '/admin/dense' },
-    { id: 'G', label: 'G · JAPON*', href: null, disabled: true },
+// Top bar de variantes (cockpit / dense / japon). Conforme à la source design
+// `Vue Admin v2-print.html` lignes 1138-1157. Dupliqué localement — DRY refactor
+// avec PR #4 (variante G activée).
+function TopBarVariantSwitcher({ active }: { active: 'A' | 'C' | 'G' }) {
+  const variants: { k: 'A' | 'C' | 'G'; label: string; href: string; disabled?: boolean }[] = [
+    { k: 'A', label: 'Cockpit', href: '/admin' },
+    { k: 'C', label: 'Dense', href: '/admin/dense' },
+    { k: 'G', label: 'Japon-Magazine', href: '#', disabled: true },
   ];
-  const tabBase: React.CSSProperties = {
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: 6,
-    padding: '6px 14px',
-    borderRadius: 999,
-    fontFamily: 'var(--font-geist-mono)',
-    fontSize: 10,
-    fontWeight: 600,
-    textTransform: 'uppercase',
-    letterSpacing: '0.16em',
-    textDecoration: 'none',
-    border: '1px solid transparent',
-    transition: 'background 120ms ease, color 120ms ease',
-  };
-  const dot = (color: string) => (
-    <span aria-hidden style={{ width: 8, height: 8, borderRadius: 999, background: color, display: 'inline-block' }} />
-  );
   return (
     <div style={{
-      display: 'inline-flex',
+      display: 'flex',
+      gap: 6,
+      padding: '8px 16px',
       alignItems: 'center',
-      gap: 4,
-      padding: 4,
-      borderRadius: 999,
-      border: '1px solid rgba(232,133,61,0.22)',
-      background: 'rgba(253,246,238,0.02)',
-      width: 'fit-content',
-      position: 'relative',
-      zIndex: 3,
+      background: 'rgba(26,15,14,0.95)',
+      borderBottom: '1px solid rgba(232,133,61,0.08)',
+      flexShrink: 0,
     }}>
-      {TABS.map((tab) => {
-        const isActive = tab.id === active;
-        const style: React.CSSProperties = {
-          ...tabBase,
-          background: isActive ? 'rgba(232,133,61,0.15)' : 'transparent',
-          color: isActive ? '#E8853D' : 'rgba(253,246,238,0.5)',
-          border: isActive ? '1px solid rgba(232,133,61,0.30)' : '1px solid transparent',
-          opacity: tab.disabled ? 0.4 : 1,
-          cursor: tab.disabled ? 'not-allowed' : 'pointer',
-        };
-        const content = (
-          <>
-            {dot(isActive ? '#E8853D' : 'rgba(253,246,238,0.25)')}
-            <span>{tab.label}</span>
-          </>
-        );
-        if (tab.disabled || !tab.href) {
-          return (
-            <span key={tab.id} style={style} title="Bientôt" aria-disabled>
-              {content}
-            </span>
-          );
-        }
+      <span style={{
+        fontFamily: 'var(--font-geist-mono)',
+        fontSize: 8,
+        textTransform: 'uppercase',
+        letterSpacing: '0.22em',
+        color: 'rgba(232,133,61,0.5)',
+        marginRight: 8,
+      }}>VARIANTE :</span>
+      {variants.map((v) => {
+        const isActive = active === v.k;
         return (
-          <Link key={tab.id} href={tab.href} style={style}>
-            {content}
-          </Link>
+          <Link
+            key={v.k}
+            href={v.disabled ? '#' : v.href}
+            onClick={(e) => { if (v.disabled) e.preventDefault(); }}
+            title={v.disabled ? 'Bientôt disponible' : undefined}
+            style={{
+              padding: '4px 10px',
+              borderRadius: 8,
+              cursor: v.disabled ? 'not-allowed' : 'pointer',
+              opacity: v.disabled ? 0.4 : 1,
+              background: isActive ? 'rgba(232,133,61,0.18)' : 'rgba(253,246,238,0.04)',
+              border: `1px solid ${isActive ? 'rgba(232,133,61,0.35)' : 'rgba(253,246,238,0.08)'}`,
+              color: isActive ? '#E8853D' : 'rgba(253,246,238,0.4)',
+              fontFamily: 'var(--font-geist-mono)',
+              fontSize: 8,
+              fontWeight: 600,
+              textTransform: 'uppercase',
+              letterSpacing: '0.14em',
+              transition: 'all 0.15s',
+              textDecoration: 'none',
+              display: 'inline-block',
+            }}
+          >{v.k} · {v.label}</Link>
         );
       })}
+      <div style={{ marginLeft: 'auto' }} />
     </div>
   );
 }
@@ -849,16 +837,15 @@ export default function AdminDenseClient({ data }: { data: AdminV2PageData }) {
   const monthLabel = new Date().toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }).toUpperCase();
 
   return (
-    <div style={{ flex: 1, background: bg, overflowY: 'auto', minHeight: '100%' }}>
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
+      <TopBarVariantSwitcher active="C" />
+      <div style={{ flex: 1, background: bg, overflowY: 'auto' }}>
 
       {/* Header ultra-compact */}
       <header style={{
         padding: `${pad}px ${pad + 8}px`,
         borderBottom: '1px solid rgba(232,133,61,0.08)',
       }}>
-        <div style={{ marginBottom: 12 }}>
-          <VariantSwitcher active="C" />
-        </div>
         <div style={{
           display: 'flex',
           alignItems: 'center',
@@ -998,7 +985,9 @@ export default function AdminDenseClient({ data }: { data: AdminV2PageData }) {
         <div style={{ marginBottom: 12 }}><Hairline label="PIPELINE PROSPECTS" /></div>
         <PipelineSection prospects={data.prospects} commerciaux={data.commerciaux} />
       </div>
+      </div>
     </div>
   );
 }
+
 
