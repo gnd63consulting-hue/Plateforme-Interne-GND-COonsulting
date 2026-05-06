@@ -161,10 +161,21 @@ async function authenticate(req: Request): Promise<
  *   - Prospects créés à la main dans /prospects (notion_page_id IS NULL)
  *     ne sont jamais touchés (ni update, ni delete).
  *
- * @param targetUserId UUID du commercial cible pour les INSERT (optionnel).
- *                    Si non fourni, les nouveaux prospects sont skipped et
- *                    seront onboardés au prochain clic manuel admin.
+ * @param targetUserId UUID du commercial cible (fallback) pour les INSERT
+ *                    quand la fiche Notion n'a pas de `Commercial assigné`
+ *                    mappable. Si la fiche Notion porte un commercial
+ *                    reconnu dans `users` Supabase, son UUID prime sur
+ *                    `targetUserId` (cas du bouton Sync CIBLE TOUS).
  */
+function normalizeName(s: string): string {
+  return s
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, ' ');
+}
+
 async function runSync(targetUserId?: string) {
   const notionToken = process.env.NOTION_API_KEY;
   if (!notionToken) {
@@ -186,6 +197,42 @@ async function runSync(targetUserId?: string) {
 
   const admin = createAdminClient();
   const syncedAt = new Date().toISOString();
+
+  // -------- Lookup dynamique des commerciaux Supabase --------
+  // Mappe la valeur du select Notion `Commercial assigné` (ex. "Hedi
+  // Galloub") vers l'UUID du user. Cherche d'abord par `full_name` (cas
+  // nominal), puis par préfixe d'email (`hedi.galloub@...`) en fallback.
+  // Aucun hardcoding : tout nouveau commercial ajouté à `users` Supabase
+  // + au select Notion est auto-mappé sans toucher au code.
+  const { data: commercialUsers, error: usersErr } = await admin
+    .from('users')
+    .select('id, email, full_name')
+    .in('role', ['freelance', 'admin', 'admin_limited']);
+
+  if (usersErr) {
+    return {
+      error: `Failed to read users for commercial mapping: ${usersErr.message}`,
+      status: 500 as const,
+    };
+  }
+
+  const commercialByName = new Map<string, string>();
+  for (const u of commercialUsers ?? []) {
+    if (u.full_name) {
+      commercialByName.set(normalizeName(u.full_name), u.id);
+    }
+    if (u.email) {
+      // Fallback : "hedi.galloub@..." → "hedi galloub"
+      const emailLocal = u.email.split('@')[0]?.replace(/[._-]+/g, ' ');
+      if (emailLocal) {
+        const key = normalizeName(emailLocal);
+        if (!commercialByName.has(key)) commercialByName.set(key, u.id);
+      }
+    }
+  }
+
+  let unmappedCommercials = 0;
+  const unmappedSamples = new Set<string>();
 
   // -------- Récupère l'état actuel côté DB pour calculer la diff --------
   const { data: dbRowsRaw, error: dbQueryErr } = await admin
@@ -360,18 +407,43 @@ async function runSync(targetUserId?: string) {
         updated++;
       }
     } else {
-      if (!targetUserId) {
-        // Pas de cible → on ne peut pas créer un prospect orphelin
-        // (created_by NOT NULL). On skip et on le signale.
+      // Lecture du commercial assigné côté Notion. On essaie la convention
+      // snake_case (cohérente avec le reste de la DB Notion) puis le label
+      // d'affichage avec accent en fallback.
+      const commercialNotionName =
+        selectName(props['commercial_assigne']) ||
+        selectName(props['Commercial assigné']);
+
+      let assignedTo: string | null = null;
+      if (commercialNotionName) {
+        const matched = commercialByName.get(normalizeName(commercialNotionName));
+        if (matched) {
+          assignedTo = matched;
+        } else {
+          unmappedCommercials++;
+          unmappedSamples.add(commercialNotionName);
+          console.warn(
+            `[sync-prospects] Commercial Notion "${commercialNotionName}" introuvable dans users Supabase (page ${page.id})`
+          );
+        }
+      }
+
+      // Fallback sur targetUserId du body si Notion vide ou non mappable.
+      if (!assignedTo) assignedTo = targetUserId ?? null;
+
+      if (!assignedTo) {
+        // Ni Notion ni body ne fournissent de cible → on ne peut pas créer
+        // un prospect orphelin (created_by NOT NULL). On skip.
         skipped++;
         continue;
       }
+
       const { error: insertErr } = await admin.from('prospects').insert({
         ...baseFields,
         notes: notionDerivedNotes,
         status: initialStatus,
-        created_by: targetUserId,
-        assigned_to: targetUserId,
+        created_by: targetUserId ?? assignedTo,
+        assigned_to: assignedTo,
       });
       if (insertErr) {
         errors.push({ page_id: page.id, error: insertErr.message });
@@ -420,6 +492,8 @@ async function runSync(targetUserId?: string) {
     deleted,
     skipped,
     errors,
+    unmapped_commercials: unmappedCommercials,
+    unmapped_commercial_samples: [...unmappedSamples].slice(0, 5),
   };
 }
 
