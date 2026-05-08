@@ -33,6 +33,12 @@ type Progression = {
 
 const ADMIN_ROLES = new Set(['admin', 'admin_limited']);
 const FREELANCE_ROLES = new Set(['freelance', 'commercial']);
+const CA_POTENTIEL_ACTIVE_STATUSES = new Set([
+  'a_contacter',
+  'contacte',
+  'rdv_pris',
+  'devis_envoye',
+]);
 
 function signaturesToPalier(signatures: number): number {
   if (signatures >= 12) return 5;
@@ -111,6 +117,9 @@ export default async function AdminJaponPage() {
   const allSigned = prospects.filter((p) => p.status === 'gagne');
   const startOfMonth = new Date(); startOfMonth.setDate(1); startOfMonth.setHours(0,0,0,0);
   const signedThisMonth = allSigned.filter((p) => p.updated_at && new Date(p.updated_at) >= startOfMonth);
+  const caPotentielGlobal = sumCaMidpointEur(
+    prospects.filter((p) => CA_POTENTIEL_ACTIVE_STATUSES.has(p.status))
+  );
 
   const funnelDef: { key: string; label: string }[] = [
     { key: 'a_contacter', label: 'À contacter' },
@@ -227,6 +236,7 @@ export default async function AdminJaponPage() {
       chauds: allChauds.length,
       signatures: signedThisMonth.length,
       ca: sumCaMidpointEur(allSigned),
+      ca_potentiel: caPotentielGlobal,
     },
     funnel,
     classement,
