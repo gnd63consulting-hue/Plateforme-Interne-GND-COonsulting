@@ -26,6 +26,24 @@ type Progression = {
 const ADMIN_ROLES = new Set(['admin', 'admin_limited']);
 const FREELANCE_ROLES = new Set(['freelance', 'commercial']);
 
+/**
+ * Statuts considérés comme « actifs » pour le calcul du CA potentiel global.
+ * Un prospect est encore en jeu tant qu'il n'est ni archivé, ni perdu, ni
+ * signé (signé = déjà comptabilisé dans data.kpi.ca « REVENU MOIS »).
+ *
+ * Note : on inclut volontairement `gagne` dans le CA potentiel calculé par
+ * commercial (cf. CommercialV2.ca_potentiel ci-dessous) pour garder l'écran
+ * « cards par commercial » cohérent avec l'historique. Au niveau global
+ * (header KPI), on l'EXCLUT pour distinguer pipeline en cours vs revenus
+ * réalisés.
+ */
+const CA_POTENTIEL_ACTIVE_STATUSES = new Set([
+  'a_contacter',
+  'contacte',
+  'rdv_pris',
+  'devis_envoye',
+]);
+
 function signaturesToPalier(signatures: number): number {
   if (signatures >= 12) return 5;
   if (signatures >= 8) return 4;
@@ -66,7 +84,17 @@ export type AdminV2PageData = {
   adminName: string;
   prospects: Prospect[];
   commerciaux: CommercialV2[];
-  kpi: { live: number; chauds: number; signatures: number; ca: number };
+  /**
+   * KPIs affichés dans le header du dashboard.
+   * - live         : nombre de prospects actifs (status ≠ 'archived')
+   * - chauds       : prospects classifiés 🔥 Chaud, hors archived
+   * - signatures   : signatures (status='gagne') du mois en cours
+   * - ca           : sum CA midpoint sur signatures (réalisé)
+   * - ca_potentiel : sum CA midpoint sur prospects actifs encore en jeu
+   *                  (a_contacter / contacte / rdv_pris / devis_envoye).
+   *                  Représente le pipeline pondéré côté GND.
+   */
+  kpi: { live: number; chauds: number; signatures: number; ca: number; ca_potentiel: number };
   funnel: FunnelStage[];
   classement: ClassementEntry[];
   activity: ActivityEntry[];
@@ -133,6 +161,13 @@ export default async function AdminV2Page() {
   const allSigned = prospects.filter((p) => p.status === 'gagne');
   const startOfMonth = new Date(); startOfMonth.setDate(1); startOfMonth.setHours(0,0,0,0);
   const signedThisMonth = allSigned.filter((p) => p.updated_at && new Date(p.updated_at) >= startOfMonth);
+
+  // CA potentiel global = sum midpoint sur prospects encore en jeu (pas
+  // archivés, pas perdus, pas signés). Permet de visualiser d'un coup
+  // d'œil le pipeline pondéré actif côté GND.
+  const caPotentielGlobal = sumCaMidpointEur(
+    prospects.filter((p) => CA_POTENTIEL_ACTIVE_STATUSES.has(p.status))
+  );
 
   const funnelDef: { key: string; label: string }[] = [
     { key: 'a_contacter', label: 'À contacter' },
@@ -249,6 +284,7 @@ export default async function AdminV2Page() {
       chauds: allChauds.length,
       signatures: signedThisMonth.length,
       ca: sumCaMidpointEur(allSigned),
+      ca_potentiel: caPotentielGlobal,
     },
     funnel,
     classement,

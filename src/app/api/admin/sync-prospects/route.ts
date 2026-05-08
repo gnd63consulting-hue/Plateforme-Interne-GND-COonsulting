@@ -63,6 +63,34 @@ function numberField(prop: unknown): number | null {
   return typeof n === 'number' ? n : null;
 }
 
+/**
+ * Lit la liste des users d'un people field Notion.
+ *
+ * Notion expose chaque user assigné comme :
+ *   { id: <uuid>, name?: string, person?: { email?: string } }
+ *
+ * On retourne un tableau simplifié pour matcher contre `users` Supabase
+ * via `notion_user_id` (priorité 1), `email` (priorité 2) ou nom complet
+ * (priorité 3, fallback ancien).
+ */
+function peopleField(
+  prop: unknown
+): { id: string; name: string; email: string }[] {
+  const arr =
+    (
+      prop as {
+        people?: { id?: string; name?: string; person?: { email?: string } }[];
+      }
+    )?.people ?? [];
+  return arr
+    .filter((u) => typeof u.id === 'string' && u.id.length > 0)
+    .map((u) => ({
+      id: u.id as string,
+      name: u.name ?? '',
+      email: u.person?.email ?? '',
+    }));
+}
+
 type NotionPage = { id: string; properties: NotionProps };
 
 async function fetchAllNotionPages(token: string): Promise<NotionPage[]> {
@@ -199,14 +227,23 @@ async function runSync(targetUserId?: string) {
   const syncedAt = new Date().toISOString();
 
   // -------- Lookup dynamique des commerciaux Supabase --------
-  // Mappe la valeur du select Notion `Commercial assigné` (ex. "Hedi
-  // Galloub") vers l'UUID du user. Cherche d'abord par `full_name` (cas
-  // nominal), puis par préfixe d'email (`hedi.galloub@...`) en fallback.
+  // Trois index complémentaires pour matcher le commercial Notion vers
+  // l'UUID Supabase, par ordre de priorité :
+  //   1. `commercialByNotionId` — Map<notion_user_id, supabase_user_id>
+  //      Utilisé en priorité quand la fiche Notion porte un people field
+  //      `Commercial assigné`. Source de vérité (les UUID Notion sont
+  //      stables, contrairement aux noms qui peuvent varier en accents).
+  //   2. `commercialByEmail`    — Map<email, supabase_user_id>
+  //      Fallback si l'UUID Notion n'est pas renseigné côté Supabase
+  //      mais que Notion expose l'email du user (people.person.email).
+  //   3. `commercialByName`     — Map<normalized_name, supabase_user_id>
+  //      Fallback ultime + rétrocompat avec l'ancien select Notion.
+  //      Reconstruit aussi à partir du préfixe d'email (cas legacy).
   // Aucun hardcoding : tout nouveau commercial ajouté à `users` Supabase
-  // + au select Notion est auto-mappé sans toucher au code.
+  // (avec son notion_user_id) est auto-mappé sans toucher au code.
   const { data: commercialUsers, error: usersErr } = await admin
     .from('users')
-    .select('id, email, full_name')
+    .select('id, email, full_name, notion_user_id')
     .in('role', ['freelance', 'admin', 'admin_limited']);
 
   if (usersErr) {
@@ -216,8 +253,21 @@ async function runSync(targetUserId?: string) {
     };
   }
 
+  const commercialByNotionId = new Map<string, string>();
+  const commercialByEmail = new Map<string, string>();
   const commercialByName = new Map<string, string>();
-  for (const u of commercialUsers ?? []) {
+  for (const u of (commercialUsers ?? []) as {
+    id: string;
+    email: string | null;
+    full_name: string | null;
+    notion_user_id: string | null;
+  }[]) {
+    if (u.notion_user_id) {
+      commercialByNotionId.set(u.notion_user_id, u.id);
+    }
+    if (u.email) {
+      commercialByEmail.set(u.email.toLowerCase(), u.id);
+    }
     if (u.full_name) {
       commercialByName.set(normalizeName(u.full_name), u.id);
     }
@@ -407,28 +457,78 @@ async function runSync(targetUserId?: string) {
         updated++;
       }
     } else {
-      // Lecture du commercial assigné côté Notion. On essaie la convention
-      // snake_case (cohérente avec le reste de la DB Notion) puis le label
-      // d'affichage avec accent en fallback.
-      const commercialNotionName =
-        selectName(props['commercial_assigne']) ||
-        selectName(props['Commercial assigné']);
+      // ---- Lecture du commercial assigné côté Notion ----
+      // Ordre de priorité (le premier match gagne) :
+      //   1. People field `commercial_assigne` → match par notion_user_id
+      //      (source de vérité, UUID stable). Si non mappé → on essaie l'email.
+      //   2. People field email → match par email Supabase.
+      //   3. People field name → match par nom normalisé (rétrocompat).
+      //   4. Select Commercial assigné (legacy snake_case ou label avec
+      //      accent, fallback pour fiches encore configurées en select).
+      //   5. targetUserId du body de la requête (Sync ciblé).
+
+      const peopleAssignees =
+        peopleField(props['commercial_assigne']).length > 0
+          ? peopleField(props['commercial_assigne'])
+          : peopleField(props['Commercial assigné']);
 
       let assignedTo: string | null = null;
-      if (commercialNotionName) {
-        const matched = commercialByName.get(normalizeName(commercialNotionName));
-        if (matched) {
-          assignedTo = matched;
-        } else {
-          unmappedCommercials++;
-          unmappedSamples.add(commercialNotionName);
-          console.warn(
-            `[sync-prospects] Commercial Notion "${commercialNotionName}" introuvable dans users Supabase (page ${page.id})`
+      let unmappedSourceLabel: string | null = null;
+
+      if (peopleAssignees.length > 0) {
+        const first = peopleAssignees[0];
+
+        // 1. Match par notion_user_id
+        const byNotionId = commercialByNotionId.get(first.id);
+        if (byNotionId) {
+          assignedTo = byNotionId;
+        } else if (first.email) {
+          // 2. Match par email
+          const byEmail = commercialByEmail.get(first.email.toLowerCase());
+          if (byEmail) {
+            assignedTo = byEmail;
+          }
+        }
+
+        // 3. Match par nom (rétrocompat)
+        if (!assignedTo && first.name) {
+          const byName = commercialByName.get(normalizeName(first.name));
+          if (byName) {
+            assignedTo = byName;
+          }
+        }
+
+        if (!assignedTo) {
+          unmappedSourceLabel =
+            first.name || first.email || `notion_id:${first.id}`;
+        }
+      } else {
+        // 4. Fallback : ancien select (rétrocompat fiches non migrées)
+        const commercialNotionName =
+          selectName(props['commercial_assigne']) ||
+          selectName(props['Commercial assigné']);
+
+        if (commercialNotionName) {
+          const matched = commercialByName.get(
+            normalizeName(commercialNotionName)
           );
+          if (matched) {
+            assignedTo = matched;
+          } else {
+            unmappedSourceLabel = commercialNotionName;
+          }
         }
       }
 
-      // Fallback sur targetUserId du body si Notion vide ou non mappable.
+      if (unmappedSourceLabel) {
+        unmappedCommercials++;
+        unmappedSamples.add(unmappedSourceLabel);
+        console.warn(
+          `[sync-prospects] Commercial Notion "${unmappedSourceLabel}" introuvable dans users Supabase (page ${page.id}). Vérifie users.notion_user_id / users.email / users.full_name.`
+        );
+      }
+
+      // 5. Fallback sur targetUserId du body si Notion vide ou non mappable.
       if (!assignedTo) assignedTo = targetUserId ?? null;
 
       if (!assignedTo) {

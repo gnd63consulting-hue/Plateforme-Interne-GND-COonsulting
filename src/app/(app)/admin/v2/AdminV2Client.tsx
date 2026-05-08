@@ -17,6 +17,7 @@ import {
   STATUS_CONFIG,
   CLASSIF_CONFIG,
 } from '@/components/admin/PipelineShared';
+import { formatEur } from '@/lib/ca-utils';
 
 const FORMATION_MODULES = ['Découverte\nGND', 'Sites\nVitrines', 'Process\nvente', 'Techniques\nvente', 'Objections\ntraitement', 'Bases\ntechniques', 'Outils\nprocess'];
 
@@ -501,6 +502,7 @@ export default function AdminV2Client({ data }: { data: AdminV2PageData }) {
             <KpiCard label="🔥 CHAUDS" value={data.kpi.chauds} sub="ACTIONNABLES" accent="#FFA060" />
             <KpiCard label={`SIGNATURES ${new Date().toLocaleDateString('fr-FR', { month: 'long' }).toUpperCase()}`} value={data.kpi.signatures} sub={new Date().toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }).toUpperCase()} accent="#5A8A3F" />
             <KpiCard label="REVENU MOIS" value={`${(data.kpi.ca / 1000).toFixed(1)}K€`} sub="EUROS · TTC" accent="#5A8A3F" spark={[8, 9.5, 10.2, 11, 12.8, 13.5, data.kpi.ca / 1000]} />
+            <KpiCard label="CA POTENTIEL" value={formatEur(data.kpi.ca_potentiel)} sub="PIPELINE PONDÉRÉ" accent="#FFA060" />
           </div>
         </div>
       </header>
