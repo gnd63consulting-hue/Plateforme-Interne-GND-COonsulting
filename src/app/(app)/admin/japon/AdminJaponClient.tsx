@@ -11,6 +11,7 @@ import {
   PipelineSection,
   STATUS_CONFIG,
 } from '@/components/admin/PipelineShared';
+import { formatEur } from '@/lib/ca-utils';
 
 const PALIERS_BONUS = [
   { niveau: 1, label: 'Bronze',       icon: '🥉', signatures: 1,  bonus: 200,  color: '#A0735C' },
@@ -238,19 +239,20 @@ export default function AdminJaponClient({ data }: { data: AdminV2PageData }) {
             <span style={{ fontStyle: 'italic', color: ACCENT }}>pipeline.</span>
           </h1>
 
-          {/* KPI row — 4 cols séparées par hairline verticales */}
+          {/* KPI row — 5 cols séparées par hairline verticales */}
           <div style={{ display: 'flex', gap: 0, borderTop: `1px solid ${HAIRLINE}`, borderBottom: `1px solid ${HAIRLINE}` }}>
             {[
               { l: 'Prospects', v: data.kpi.live as number | string, c: TEXT_PRIME },
               { l: 'Chauds', v: data.kpi.chauds, c: ACCENT },
               { l: 'Signatures', v: data.kpi.signatures, c: OLIVE },
               { l: 'Revenu', v: `${(data.kpi.ca / 1000).toFixed(1)}k€`, c: OLIVE },
-            ].map((k, i) => (
+              { l: 'CA Potentiel', v: formatEur(data.kpi.ca_potentiel), c: '#FFA060' },
+            ].map((k, i, arr) => (
               <div key={k.l} style={{
                 flex: 1,
                 padding: `${pad * 0.5}px 0`,
-                borderRight: i < 3 ? `1px solid ${HAIRLINE}` : 'none',
-                paddingRight: i < 3 ? pad * 0.4 : 0,
+                borderRight: i < arr.length - 1 ? `1px solid ${HAIRLINE}` : 'none',
+                paddingRight: i < arr.length - 1 ? pad * 0.4 : 0,
                 paddingLeft: i > 0 ? pad * 0.4 : 0,
               }}>
                 <div style={{ fontFamily: 'var(--font-fraunces)', fontSize: 48, fontWeight: 500, lineHeight: 1, letterSpacing: '-0.03em', color: k.c, fontVariantNumeric: 'tabular-nums' }}>{k.v}</div>
