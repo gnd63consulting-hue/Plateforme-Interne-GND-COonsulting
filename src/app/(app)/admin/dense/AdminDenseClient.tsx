@@ -15,6 +15,7 @@ import {
   PipelineSection,
   STATUS_CONFIG,
 } from '@/components/admin/PipelineShared';
+import { formatEur } from '@/lib/ca-utils';
 
 const FORMATION_MODULES = ['Découverte\nGND', 'Sites\nVitrines', 'Process\nvente', 'Techniques\nvente', 'Objections\ntraitement', 'Bases\ntechniques', 'Outils\nprocess'];
 
@@ -488,6 +489,7 @@ export default function AdminDenseClient({ data }: { data: AdminV2PageData }) {
             { l: '🔥 CHAUDS', v: data.kpi.chauds, a: '#E8853D' },
             { l: 'SIGNÉS', v: data.kpi.signatures, a: '#5A8A3F' },
             { l: 'CA', v: `${(data.kpi.ca / 1000).toFixed(1)}K€`, a: '#5A8A3F' },
+            { l: 'CA POTENTIEL', v: formatEur(data.kpi.ca_potentiel), a: '#FFA060' },
           ].map((k) => (
             <div key={k.l} style={{
               background: 'rgba(253,246,238,0.04)',
