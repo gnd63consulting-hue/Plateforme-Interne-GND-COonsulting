@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase-server';
 import { PROSPECT_SELECT_COLUMNS, type Prospect } from '@/lib/prospects';
-import { sumCaMidpointEur } from '@/lib/ca-utils';
+import { sumCaMidpointGndPriceEur, sumCaMidpointEntrepriseEur } from '@/lib/ca-utils';
 import { MODULES } from '@/lib/modules-registry';
 import AdminV2Client from './AdminV2Client';
 
@@ -86,15 +86,19 @@ export type AdminV2PageData = {
   commerciaux: CommercialV2[];
   /**
    * KPIs affichés dans le header du dashboard.
-   * - live         : nombre de prospects actifs (status ≠ 'archived')
-   * - chauds       : prospects classifiés 🔥 Chaud, hors archived
-   * - signatures   : signatures (status='gagne') du mois en cours
-   * - ca           : sum CA midpoint sur signatures (réalisé)
-   * - ca_potentiel : sum CA midpoint sur prospects actifs encore en jeu
-   *                  (a_contacter / contacte / rdv_pris / devis_envoye).
-   *                  Représente le pipeline pondéré côté GND.
+   * - live                 : nombre de prospects actifs (status ≠ 'archived')
+   * - chauds               : prospects classifiés 🔥 Chaud, hors archived
+   * - signatures           : signatures (status='gagne') du mois en cours
+   * - ca                   : sum GND service price midpoint sur signatures (revenu réalisé)
+   * - ca_potentiel         : sum GND service price midpoint sur prospects actifs encore
+   *                          en jeu (a_contacter / contacte / rdv_pris / devis_envoye).
+   *                          Pipeline GND pondéré — usable comme argument financeur.
+   * - ca_marche_adressable : sum prospect company CA midpoint sur les mêmes prospects
+   *                          actifs. Cumul du CA annuel estimé des entreprises du
+   *                          pipeline. À utiliser uniquement comme proxy de qualification
+   *                          / taille marché, JAMAIS comme argument financeur.
    */
-  kpi: { live: number; chauds: number; signatures: number; ca: number; ca_potentiel: number };
+  kpi: { live: number; chauds: number; signatures: number; ca: number; ca_potentiel: number; ca_marche_adressable: number };
   funnel: FunnelStage[];
   classement: ClassementEntry[];
   activity: ActivityEntry[];
@@ -138,7 +142,7 @@ export default async function AdminV2Page() {
     const signed = own.filter((p) => p.status === 'gagne');
     const total = ownActive.length;
     const conversion = total > 0 ? Math.round((signed.length / total) * 100) : 0;
-    const ca_potentiel = sumCaMidpointEur(
+    const ca_potentiel = sumCaMidpointGndPriceEur(
       own.filter((p) => ['a_contacter', 'contacte', 'rdv_pris', 'devis_envoye', 'gagne'].includes(p.status))
     );
     return {
@@ -162,12 +166,15 @@ export default async function AdminV2Page() {
   const startOfMonth = new Date(); startOfMonth.setDate(1); startOfMonth.setHours(0,0,0,0);
   const signedThisMonth = allSigned.filter((p) => p.updated_at && new Date(p.updated_at) >= startOfMonth);
 
-  // CA potentiel global = sum midpoint sur prospects encore en jeu (pas
-  // archivés, pas perdus, pas signés). Permet de visualiser d'un coup
-  // d'œil le pipeline pondéré actif côté GND.
-  const caPotentielGlobal = sumCaMidpointEur(
-    prospects.filter((p) => CA_POTENTIEL_ACTIVE_STATUSES.has(p.status))
-  );
+  // CA potentiel global = sum GND service price midpoint sur prospects encore
+  // en jeu (pas archivés, pas perdus, pas signés). Vrai pipeline GND pondéré.
+  const activeProspects = prospects.filter((p) => CA_POTENTIEL_ACTIVE_STATUSES.has(p.status));
+  const caPotentielGlobal = sumCaMidpointGndPriceEur(activeProspects);
+
+  // Marché adressable global = sum prospect company CA midpoint sur les mêmes
+  // prospects actifs. Proxy de qualification (taille des entreprises du pipeline),
+  // PAS un chiffre de revenu GND.
+  const caMarcheAdressableGlobal = sumCaMidpointEntrepriseEur(activeProspects);
 
   const funnelDef: { key: string; label: string }[] = [
     { key: 'a_contacter', label: 'À contacter' },
@@ -283,8 +290,9 @@ export default async function AdminV2Page() {
       live: allActive.length,
       chauds: allChauds.length,
       signatures: signedThisMonth.length,
-      ca: sumCaMidpointEur(allSigned),
+      ca: sumCaMidpointGndPriceEur(allSigned),
       ca_potentiel: caPotentielGlobal,
+      ca_marche_adressable: caMarcheAdressableGlobal,
     },
     funnel,
     classement,
