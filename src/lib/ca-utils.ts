@@ -111,12 +111,6 @@ export function sumCaMidpointEntrepriseEur(
 export function sumCaMidpointEur(
   prospects: { ca_estime: string | null }[]
 ): number {
-  if (typeof console !== 'undefined' && process.env.NODE_ENV !== 'production') {
-    console.warn(
-      '[ca-utils] sumCaMidpointEur is deprecated and mixes GND service prices ' +
-      'with prospect company CA. Use sumCaMidpointGndPriceEur instead.'
-    );
-  }
   let total = 0;
   for (const p of prospects) {
     const mid = caEstimeToMidpointEur(p.ca_estime);
