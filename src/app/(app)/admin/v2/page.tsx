@@ -93,12 +93,14 @@ export type AdminV2PageData = {
    * - ca_potentiel         : sum GND service price midpoint sur prospects actifs encore
    *                          en jeu (a_contacter / contacte / rdv_pris / devis_envoye).
    *                          Pipeline GND pondéré — usable comme argument financeur.
-   * - ca_marche_adressable : sum prospect company CA midpoint sur les mêmes prospects
-   *                          actifs. Cumul du CA annuel estimé des entreprises du
-   *                          pipeline. À utiliser uniquement comme proxy de qualification
+   * - ca_marche_adressable : OPTIONNEL. Sum prospect company CA midpoint sur les mêmes
+   *                          prospects actifs. Cumul du CA annuel estimé des entreprises
+   *                          du pipeline. À utiliser uniquement comme proxy de qualification
    *                          / taille marché, JAMAIS comme argument financeur.
+   *                          Optionnel pour ne pas forcer dense/japon/etc à le calculer
+   *                          alors qu'ils ne l'affichent pas — seul v2 populate ce champ.
    */
-  kpi: { live: number; chauds: number; signatures: number; ca: number; ca_potentiel: number; ca_marche_adressable: number };
+  kpi: { live: number; chauds: number; signatures: number; ca: number; ca_potentiel: number; ca_marche_adressable?: number };
   funnel: FunnelStage[];
   classement: ClassementEntry[];
   activity: ActivityEntry[];
