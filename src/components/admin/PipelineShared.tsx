@@ -56,14 +56,28 @@ export type ProspectFull = Prospect & {
 // Configurations partagées
 // ───────────────────────────────────────────────────────────────
 export const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; border: string }> = {
-  a_contacter:  { label: 'À contacter',  color: '#8A6D6B', bg: 'rgba(138,109,107,0.12)', border: 'rgba(138,109,107,0.25)' },
-  contacte:     { label: 'Contacté',     color: '#5B8AB8', bg: 'rgba(91,138,184,0.12)',  border: 'rgba(91,138,184,0.25)' },
-  rdv_pris:     { label: 'RDV pris',     color: '#7B70C4', bg: 'rgba(123,112,196,0.12)', border: 'rgba(123,112,196,0.25)' },
-  devis_envoye: { label: 'Devis envoyé', color: '#C49A3C', bg: 'rgba(196,154,60,0.12)',  border: 'rgba(196,154,60,0.25)' },
-  gagne:        { label: 'Devis signé',  color: '#5A8A3F', bg: 'rgba(90,138,63,0.12)',   border: 'rgba(90,138,63,0.25)' },
-  perdu:        { label: 'Perdu',        color: '#B5421F', bg: 'rgba(181,66,31,0.12)',   border: 'rgba(181,66,31,0.25)' },
-  archived:     { label: 'Archivé',      color: '#8A6D6B', bg: 'rgba(138,109,107,0.10)', border: 'rgba(138,109,107,0.20)' },
-  prospecte:    { label: 'Prospecté',    color: '#8A6D6B', bg: 'rgba(138,109,107,0.12)', border: 'rgba(138,109,107,0.25)' },
+  // Phase 1 — Pas encore contacté
+  a_contacter:           { label: 'À contacter',           color: '#8A6D6B', bg: 'rgba(138,109,107,0.12)', border: 'rgba(138,109,107,0.25)' },
+  tentative_appel:       { label: "Tentative d'appel",     color: '#A88B89', bg: 'rgba(168,139,137,0.10)', border: 'rgba(168,139,137,0.22)' },
+  // Phase 2 — Premier contact établi
+  contacte:              { label: 'Contacté',              color: '#5B8AB8', bg: 'rgba(91,138,184,0.12)',  border: 'rgba(91,138,184,0.25)' },
+  en_discussion:         { label: 'En discussion',         color: '#7BA9D4', bg: 'rgba(123,169,212,0.12)', border: 'rgba(123,169,212,0.25)' },
+  a_rappeler:            { label: 'À rappeler',            color: '#D4A852', bg: 'rgba(212,168,82,0.14)',  border: 'rgba(212,168,82,0.28)' },
+  en_attente_retour:     { label: 'En attente retour',     color: '#D49A52', bg: 'rgba(212,154,82,0.12)',  border: 'rgba(212,154,82,0.25)' },
+  // Phase 3 — Avancé
+  rdv_pris:              { label: 'RDV pris',              color: '#7B70C4', bg: 'rgba(123,112,196,0.12)', border: 'rgba(123,112,196,0.25)' },
+  devis_envoye:          { label: 'Devis envoyé',          color: '#C49A3C', bg: 'rgba(196,154,60,0.12)',  border: 'rgba(196,154,60,0.25)' },
+  gagne:                 { label: 'Devis signé',           color: '#5A8A3F', bg: 'rgba(90,138,63,0.12)',   border: 'rgba(90,138,63,0.25)' },
+  // Phase 4 — Parking / recontact futur
+  a_recontacter:         { label: 'À recontacter',         color: '#9B8FD4', bg: 'rgba(155,143,212,0.10)', border: 'rgba(155,143,212,0.22)' },
+  // Phase 5 — Sorties
+  pas_interesse:         { label: 'Pas intéressé',         color: '#C46A4F', bg: 'rgba(196,106,79,0.12)',  border: 'rgba(196,106,79,0.25)' },
+  coordonnees_invalides: { label: 'Coordonnées invalides', color: '#6F6F6F', bg: 'rgba(111,111,111,0.10)', border: 'rgba(111,111,111,0.22)' },
+  ne_plus_demarcher:     { label: 'Ne plus démarcher',     color: '#A03A1A', bg: 'rgba(160,58,26,0.14)',   border: 'rgba(160,58,26,0.30)' },
+  processus_termine:     { label: 'Processus terminé',     color: '#7A7A7A', bg: 'rgba(122,122,122,0.10)', border: 'rgba(122,122,122,0.22)' },
+  perdu:                 { label: 'Perdu',                 color: '#B5421F', bg: 'rgba(181,66,31,0.12)',   border: 'rgba(181,66,31,0.25)' },
+  archived:              { label: 'Archivé',               color: '#8A6D6B', bg: 'rgba(138,109,107,0.10)', border: 'rgba(138,109,107,0.20)' },
+  prospecte:             { label: 'Prospecté',             color: '#8A6D6B', bg: 'rgba(138,109,107,0.12)', border: 'rgba(138,109,107,0.25)' },
 };
 
 export const CLASSIF_CONFIG: Record<string, { color: string; bg: string; border: string }> = {
@@ -73,14 +87,28 @@ export const CLASSIF_CONFIG: Record<string, { color: string; bg: string; border:
 };
 
 const STATUS_OPTIONS: Array<{ value: string; label: string }> = [
-  { value: 'a_contacter',  label: 'À contacter' },
-  { value: 'contacte',     label: 'Contacté' },
-  { value: 'rdv_pris',     label: 'RDV pris' },
-  { value: 'devis_envoye', label: 'Devis envoyé' },
-  { value: 'gagne',        label: 'Devis signé' },
-  { value: 'perdu',        label: 'Perdu' },
-  { value: 'archived',     label: 'Archivé' },
-  { value: 'prospecte',    label: 'Prospecté' },
+  // Phase 1 — Pas encore contacté
+  { value: 'a_contacter',           label: 'À contacter' },
+  { value: 'tentative_appel',       label: "Tentative d'appel" },
+  // Phase 2 — Premier contact établi
+  { value: 'contacte',              label: 'Contacté' },
+  { value: 'en_discussion',         label: 'En discussion' },
+  { value: 'a_rappeler',            label: 'À rappeler' },
+  { value: 'en_attente_retour',     label: 'En attente retour' },
+  // Phase 3 — Avancé
+  { value: 'rdv_pris',              label: 'RDV pris' },
+  { value: 'devis_envoye',          label: 'Devis envoyé' },
+  { value: 'gagne',                 label: 'Devis signé' },
+  // Phase 4 — Parking / recontact futur
+  { value: 'a_recontacter',         label: 'À recontacter' },
+  // Phase 5 — Sorties
+  { value: 'pas_interesse',         label: 'Pas intéressé' },
+  { value: 'coordonnees_invalides', label: 'Coordonnées invalides' },
+  { value: 'ne_plus_demarcher',     label: 'Ne plus démarcher' },
+  { value: 'processus_termine',     label: 'Processus terminé' },
+  { value: 'perdu',                 label: 'Perdu' },
+  { value: 'archived',              label: 'Archivé' },
+  { value: 'prospecte',             label: 'Prospecté' },
 ];
 
 const CLASSIF_OPTIONS: Array<{ value: string; label: string }> = [
@@ -657,7 +685,7 @@ export function PipelineSection({
             })}
             <span style={{ width: 1, height: 14, background: 'rgba(232,133,61,0.10)', margin: '0 4px' }} />
             <Mono size={8} color="rgba(253,246,238,0.4)" style={{ marginRight: 4 }}>STATUT :</Mono>
-            {[{ id: 'all', label: 'Tous' }, { id: 'a_contacter', label: 'À contacter' }, { id: 'contacte', label: 'Contacté' }, { id: 'rdv_pris', label: 'RDV' }, { id: 'devis_envoye', label: 'Devis' }, { id: 'gagne', label: 'Signé' }].map((opt) => (
+            {[{ id: 'all', label: 'Tous' }, { id: 'a_contacter', label: 'À contacter' }, { id: 'tentative_appel', label: 'Tentative' }, { id: 'contacte', label: 'Contacté' }, { id: 'en_discussion', label: 'Discussion' }, { id: 'a_rappeler', label: 'À rappeler' }, { id: 'en_attente_retour', label: 'Attente' }, { id: 'rdv_pris', label: 'RDV' }, { id: 'devis_envoye', label: 'Devis' }, { id: 'gagne', label: 'Signé' }, { id: 'a_recontacter', label: 'Recontact' }, { id: 'pas_interesse', label: 'Pas int.' }].map((opt) => (
               <button key={opt.id} onClick={() => setFilterStatus(opt.id)} style={{ padding: '3px 9px', borderRadius: 8, cursor: 'pointer', background: filterStatus === opt.id ? 'rgba(232,133,61,0.15)' : 'transparent', border: `1px solid ${filterStatus === opt.id ? 'rgba(232,133,61,0.30)' : 'rgba(232,133,61,0.10)'}`, color: filterStatus === opt.id ? '#E8853D' : 'rgba(253,246,238,0.4)', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.14em' }}>{opt.label}</button>
             ))}
             <button onClick={() => setShowArchived((v) => !v)} style={{ padding: '3px 9px', borderRadius: 8, cursor: 'pointer', marginLeft: 'auto', background: showArchived ? 'rgba(107,107,107,0.15)' : 'transparent', border: `1px solid ${showArchived ? 'rgba(107,107,107,0.30)' : 'rgba(232,133,61,0.10)'}`, color: showArchived ? '#8A8A8A' : 'rgba(253,246,238,0.4)', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.14em' }}>{showArchived ? '⊙' : '○'} Archivés</button>
