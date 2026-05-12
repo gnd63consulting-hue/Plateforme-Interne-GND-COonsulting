@@ -17,7 +17,12 @@
 /** Statuts affichables. Le legacy 'prospecte' n'est plus dans la liste
  *  visible (cf. migration 0008 qui retag les rows existantes en
  *  'a_contacter'), mais le type le couvre encore pour tolérer des lignes
- *  héritées éventuelles côté BDD. */
+ *  héritées éventuelles côté BDD.
+ *
+ *  Mai 2026: extension avec 9 nouveaux statuts terrain commercial pour
+ *  matcher la réalité du démarchage téléphonique (Roodny, brief Vague α).
+ *  Migration SQL appliquée: prospects_status_check étendu à 16 valeurs.
+ *  Notion select 'statut' aligné: 34 options au total. */
 export type ProspectStatus =
   | 'prospecte'
   | 'a_contacter'
@@ -26,7 +31,17 @@ export type ProspectStatus =
   | 'devis_envoye'
   | 'gagne'
   | 'perdu'
-  | 'archived';
+  | 'archived'
+  // Nouveaux statuts terrain commercial (mai 2026)
+  | 'tentative_appel'
+  | 'a_rappeler'
+  | 'en_discussion'
+  | 'en_attente_retour'
+  | 'a_recontacter'
+  | 'pas_interesse'
+  | 'coordonnees_invalides'
+  | 'ne_plus_demarcher'
+  | 'processus_termine';
 
 export type Prospect = {
   id: string;
@@ -127,20 +142,38 @@ export const PROSPECT_SELECT_COLUMNS = [
 ].join(', ');
 
 /** Options proposées dans les dropdowns de statut (commercials + filtres).
- *  Ordre logique du pipeline commercial. 'prospecte' (legacy) est volontaire-
- *  ment absent — les anciennes rows ont été retag a_contacter par 0008.
- *  `gagne` porte le label "Devis signé" (vocabulaire commercial réel) —
- *  même code Supabase, juste un label aligné sur Notion. */
+ *  Ordre logique du pipeline commercial groupé par phase. 'prospecte'
+ *  (legacy) est volontairement absent — les anciennes rows ont été retag
+ *  a_contacter par 0008. `gagne` porte le label "Devis signé" (vocabulaire
+ *  commercial réel) — même code Supabase, juste un label aligné sur Notion.
+ *
+ *  Mai 2026: 9 nouveaux statuts insérés dans le bon bucket de phase pour
+ *  donner aux commerciaux des cases qui correspondent à leur réalité
+ *  terrain (téléphone, relances, frigo, opt-out RGPD). */
 export const STATUS_OPTIONS: {
   value: ProspectStatus;
   label: string;
   tone: string;
 }[] = [
+  // Phase 1 — Pas encore contacté
   { value: 'a_contacter', label: 'À contacter', tone: 'bg-slate-100 text-slate-700' },
+  { value: 'tentative_appel', label: "Tentative d'appel", tone: 'bg-slate-100 text-slate-600' },
+  // Phase 2 — Premier contact établi
   { value: 'contacte', label: 'Contacté', tone: 'bg-blue-100 text-blue-700' },
+  { value: 'en_discussion', label: 'En discussion', tone: 'bg-sky-100 text-sky-700' },
+  { value: 'a_rappeler', label: 'À rappeler', tone: 'bg-yellow-100 text-yellow-800' },
+  { value: 'en_attente_retour', label: 'En attente retour', tone: 'bg-orange-100 text-orange-700' },
+  // Phase 3 — Avancé
   { value: 'rdv_pris', label: 'RDV pris', tone: 'bg-indigo-100 text-indigo-700' },
   { value: 'devis_envoye', label: 'Devis envoyé', tone: 'bg-amber-100 text-amber-700' },
   { value: 'gagne', label: 'Devis signé', tone: 'bg-emerald-100 text-emerald-700' },
+  // Phase 4 — Parking / recontact futur
+  { value: 'a_recontacter', label: 'À recontacter', tone: 'bg-purple-100 text-purple-700' },
+  // Phase 5 — Sorties
+  { value: 'pas_interesse', label: 'Pas intéressé', tone: 'bg-red-100 text-red-700' },
+  { value: 'coordonnees_invalides', label: 'Coordonnées invalides', tone: 'bg-gray-100 text-gray-600' },
+  { value: 'ne_plus_demarcher', label: 'Ne plus démarcher', tone: 'bg-red-200 text-red-800' },
+  { value: 'processus_termine', label: 'Processus terminé', tone: 'bg-stone-100 text-stone-600' },
   { value: 'perdu', label: 'Perdu', tone: 'bg-rose-100 text-rose-700' },
   { value: 'archived', label: 'Archivé', tone: 'bg-zinc-200 text-zinc-600' },
 ];
