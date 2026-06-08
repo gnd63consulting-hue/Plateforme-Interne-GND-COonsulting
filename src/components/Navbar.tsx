@@ -25,6 +25,11 @@ type NavLink = {
 
 const LINKS: NavLink[] = [
   {
+    href: '/onboarding',
+    label: 'Onboarding',
+    match: (p) => p.startsWith('/onboarding'),
+  },
+  {
     href: '/formation',
     label: 'Formation',
     match: (p) => p === '/formation' || p.startsWith('/formation/'),
