@@ -38,7 +38,7 @@ const SECTIONS: NavSection[] = [
     title: 'ADMIN',
     items: [
       { id: 'vue-globale', icon: Shield, label: 'Vue globale', href: '/admin' },
-      { id: 'equipe', icon: Users, label: 'Équipe', href: '/admin' },
+      { id: 'equipe', icon: Users, label: 'Équipe', href: '/admin/invitations' },
       { id: 'paliers', icon: Rocket, label: 'Paliers bonus', href: '/admin' },
     ],
   },
@@ -159,9 +159,9 @@ export default function AdminSidebar({
             {section.items.map((item) => {
               const Icon = item.icon;
               const isActive =
-                pathname === item.href ||
-                (item.href === '/admin' && pathname.startsWith('/admin')) ||
-                (item.href !== '/admin' && pathname.startsWith(item.href));
+                item.href === '/admin'
+                  ? pathname === '/admin'
+                  : pathname.startsWith(item.href);
               return (
                 <Link
                   key={item.id}
