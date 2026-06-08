@@ -134,7 +134,7 @@ export default async function AdminV2Page() {
   const progressions = (progRaw ?? []) as Progression[];
 
   const freelances = users
-    .filter((u) => FREELANCE_ROLES.has(u.role))
+    .filter((u) => FREELANCE_ROLES.has(u.role) && u.active !== false)
     .sort((a, b) => (a.full_name ?? a.email).localeCompare(b.full_name ?? b.email));
 
   const commerciaux: CommercialV2[] = freelances.map((c) => {
@@ -278,7 +278,7 @@ export default async function AdminV2Page() {
     };
   };
 
-  const adminUsers = users.filter(u => ADMIN_ROLES.has(u.role));
+  const adminUsers = users.filter(u => ADMIN_ROLES.has(u.role) && u.active !== false);
   const formation: FormationEntry[] = [
     ...adminUsers.map(u => buildFormationEntry(u, true)),
     ...freelances.map(u => buildFormationEntry(u, false)),

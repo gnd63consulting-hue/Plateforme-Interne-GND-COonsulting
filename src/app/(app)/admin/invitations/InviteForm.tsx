@@ -8,8 +8,37 @@ type Role = 'freelance' | 'stagiaire' | 'admin_limited' | 'admin';
 const ROLE_LABELS: Record<Role, string> = {
   freelance: 'Freelance (commercial)',
   stagiaire: 'Stagiaire (formation)',
-  admin_limited: 'Admin Limited (acces large)',
-  admin: 'Admin (acces complet)',
+  admin_limited: 'Admin Limited (accès large)',
+  admin: 'Admin (accès complet)',
+};
+
+const CREAM = '#FDF6EE';
+const CREAM_SOFT = 'rgba(253,246,238,0.55)';
+const AMBER = '#E8853D';
+const MONO = 'var(--font-geist-mono), ui-monospace, monospace';
+
+const labelStyle: React.CSSProperties = {
+  display: 'block',
+  fontFamily: MONO,
+  fontSize: 10,
+  fontWeight: 600,
+  textTransform: 'uppercase',
+  letterSpacing: '0.14em',
+  color: 'rgba(253,246,238,0.6)',
+  marginBottom: 8,
+};
+
+const fieldStyle: React.CSSProperties = {
+  width: '100%',
+  padding: '11px 14px',
+  borderRadius: 11,
+  background: 'rgba(0,0,0,0.22)',
+  border: '1px solid rgba(232,133,61,0.22)',
+  color: CREAM,
+  fontSize: 14,
+  fontFamily: 'var(--font-geist-sans), system-ui, sans-serif',
+  outline: 'none',
+  boxSizing: 'border-box',
 };
 
 export function InviteForm() {
@@ -27,13 +56,13 @@ export function InviteForm() {
       process.env.NEXT_PUBLIC_APP_URL ??
       (typeof window !== 'undefined' ? window.location.origin : '');
     return [
-      'Salut ! Tu es invite(e) sur la plateforme interne GND Consulting.',
+      'Salut ! Tu es invité(e) sur la plateforme interne GND Consulting.',
       '',
       `1. Va sur : ${appUrl}`,
       '2. Clique sur « Se connecter avec Google »',
       `3. Connecte-toi avec CET email exact : ${invitedEmail}`,
       '',
-      "⚠️ Si tu utilises un autre compte Google, l'acces sera refuse.",
+      "⚠️ Si tu utilises un autre compte Google, l'accès sera refusé.",
     ].join('\n');
   }
 
@@ -65,66 +94,114 @@ export function InviteForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
       <div>
-        <label className="block text-sm font-medium mb-1">Email</label>
+        <label style={labelStyle}>Email</label>
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
           placeholder="prenom.nom@gmail.com"
-          className="w-full px-3 py-2 border rounded text-sm"
+          style={fieldStyle}
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-1">Role</label>
+        <label style={labelStyle}>Rôle</label>
         <select
           value={role}
           onChange={(e) => setRole(e.target.value as Role)}
-          className="w-full px-3 py-2 border rounded text-sm"
+          style={{ ...fieldStyle, cursor: 'pointer' }}
         >
           {(Object.keys(ROLE_LABELS) as Role[]).map((r) => (
-            <option key={r} value={r}>
+            <option key={r} value={r} style={{ background: '#25140F', color: CREAM }}>
               {ROLE_LABELS[r]}
             </option>
           ))}
         </select>
-        <p className="text-xs text-gray-500 mt-1">
-          Ajoute l&apos;email a la liste autorisee. La personne se connecte
-          ensuite avec Google &mdash; aucun email n&apos;est envoye
-          automatiquement.
+        <p style={{ fontSize: 12, lineHeight: 1.5, color: CREAM_SOFT, marginTop: 8 }}>
+          Ajoute l&apos;email à la liste autorisée. La personne se connecte ensuite avec
+          Google &mdash; aucun email n&apos;est envoyé automatiquement.
         </p>
       </div>
 
       <button
         type="submit"
         disabled={isPending}
-        className="px-4 py-2 bg-blue-600 text-white rounded text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
+        style={{
+          alignSelf: 'flex-start',
+          padding: '11px 22px',
+          borderRadius: 999,
+          border: 'none',
+          background: isPending
+            ? 'rgba(232,133,61,0.4)'
+            : 'linear-gradient(135deg, #E8853D, #D4732A)',
+          color: '#2A1410',
+          fontSize: 13,
+          fontWeight: 700,
+          fontFamily: 'var(--font-geist-sans), system-ui, sans-serif',
+          cursor: isPending ? 'not-allowed' : 'pointer',
+          letterSpacing: '0.01em',
+        }}
       >
-        {isPending ? 'Ajout…' : "Creer l'invitation"}
+        {isPending ? 'Ajout…' : "Créer l'invitation"}
       </button>
 
-      {error && <p className="text-sm text-red-700">{error}</p>}
+      {error && (
+        <p style={{ fontSize: 13, color: '#F0A088', margin: 0 }}>{error}</p>
+      )}
 
       {invited && (
-        <div className="rounded-lg border border-green-200 bg-green-50 p-4 space-y-3">
-          <p className="text-sm font-medium text-green-800">
-            &#9989; {invited.email} est maintenant autorise(e).
+        <div
+          style={{
+            borderRadius: 14,
+            border: '1px solid rgba(120,200,140,0.3)',
+            background: 'rgba(90,180,120,0.08)',
+            padding: 18,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 12,
+          }}
+        >
+          <p style={{ fontSize: 14, fontWeight: 600, color: '#9FE0B4', margin: 0 }}>
+            ✅ {invited.email} est maintenant autorisé(e).
           </p>
-          <p className="text-xs text-gray-600">
-            Copie ce message et envoie-le a la personne (WhatsApp, SMS, mail) :
+          <p style={{ fontSize: 12, color: CREAM_SOFT, margin: 0 }}>
+            Copie ce message et envoie-le à la personne (WhatsApp, SMS, mail) :
           </p>
-          <pre className="whitespace-pre-wrap rounded bg-white border p-3 text-xs text-gray-800 font-sans">
+          <pre
+            style={{
+              whiteSpace: 'pre-wrap',
+              margin: 0,
+              borderRadius: 10,
+              background: 'rgba(0,0,0,0.3)',
+              border: '1px solid rgba(253,246,238,0.1)',
+              padding: 14,
+              fontSize: 12.5,
+              lineHeight: 1.55,
+              color: CREAM,
+              fontFamily: 'var(--font-geist-sans), system-ui, sans-serif',
+            }}
+          >
             {invited.message}
           </pre>
           <button
             type="button"
             onClick={handleCopy}
-            className="px-3 py-1.5 bg-gray-900 text-white rounded text-xs font-medium hover:bg-gray-700"
+            style={{
+              alignSelf: 'flex-start',
+              padding: '8px 16px',
+              borderRadius: 999,
+              border: '1px solid rgba(253,246,238,0.2)',
+              background: copied ? 'rgba(120,200,140,0.18)' : 'rgba(253,246,238,0.06)',
+              color: CREAM,
+              fontSize: 12,
+              fontWeight: 600,
+              cursor: 'pointer',
+            }}
           >
-            {copied ? 'Copie ✓' : 'Copier le message'}
+            {copied ? 'Copié ✓' : 'Copier le message'}
           </button>
         </div>
       )}
