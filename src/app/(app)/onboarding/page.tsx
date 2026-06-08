@@ -9,7 +9,7 @@ const CONTACT_EMAIL = 'contact@gndconsulting.fr';
 
 /** Paliers bonus officiels (commerciaux 20%) — sur 3 mois. */
 const BONUS_TIERS = [
-  { contrats: 20, bonus: 150 },
+  { contrats: 20, bonus: 250 },
   { contrats: 25, bonus: 500 },
   { contrats: 30, bonus: 750 },
 ];
