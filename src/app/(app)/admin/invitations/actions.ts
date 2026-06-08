@@ -4,13 +4,26 @@ import { createClient } from '@/lib/supabase-server';
 import { createAdminClient } from '@/lib/supabase-admin';
 import { revalidatePath } from 'next/cache';
 
+/**
+ * Cree une invitation = ajoute l'email a la whitelist `invitations`.
+ *
+ * IMPORTANT : la plateforme se connecte UNIQUEMENT via Google OAuth. Le
+ * trigger Postgres `handle_new_user` provisionne automatiquement le compte
+ * (table `users`) au premier login Google, a condition que l'email soit
+ * present dans `invitations`. On n'envoie donc AUCUN email ici : l'admin
+ * transmet lui-meme la consigne de connexion (cf. InviteForm).
+ *
+ * Historique : on envoyait avant un magic-link via inviteUserByEmail(), ce
+ * qui entrait en conflit avec le login Google (email confus, identites
+ * dupliquees, invites bloques). Retire le 2026-06-08.
+ */
 export async function createInvitation(
   email: string,
-  role: 'freelance' | 'admin' | 'admin_limited'
+  role: 'freelance' | 'admin' | 'admin_limited' | 'stagiaire'
 ): Promise<{ error: string | null }> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { error: 'Non authentifié' };
+  if (!user) return { error: 'Non authentifie' };
 
   const { data: profile } = await supabase
     .from('users')
@@ -22,7 +35,7 @@ export async function createInvitation(
     return { error: 'Permissions insuffisantes' };
   }
 
-  // Insert invitation (whitelist côté DB) — service role pour bypass RLS si nécessaire
+  // Insert invitation (whitelist cote DB) — service role pour bypass RLS si necessaire
   const admin = createAdminClient();
   const { error: insertError } = await admin.from('invitations').insert({
     email: email.toLowerCase().trim(),
@@ -32,18 +45,9 @@ export async function createInvitation(
 
   if (insertError) {
     if (insertError.code === '23505') {
-      return { error: 'Cet email a déjà une invitation en attente.' };
+      return { error: 'Cet email a deja une invitation en attente.' };
     }
     return { error: `Erreur DB: ${insertError.message}` };
-  }
-
-  // Envoie le mail magique via Supabase Auth Admin API
-  const { error: mailError } = await admin.auth.admin.inviteUserByEmail(email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
-  });
-
-  if (mailError) {
-    return { error: `Erreur envoi mail: ${mailError.message}` };
   }
 
   revalidatePath('/admin/invitations');
@@ -77,7 +81,7 @@ export async function revokeInvitation(formData: FormData): Promise<void> {
 export async function markTotpEnabled(): Promise<{ error: string | null }> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { error: 'Non authentifié' };
+  if (!user) return { error: 'Non authentifie' };
 
   const admin = createAdminClient();
   const { error } = await admin
