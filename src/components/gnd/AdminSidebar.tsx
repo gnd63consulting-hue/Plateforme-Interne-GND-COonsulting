@@ -10,6 +10,7 @@ import {
   Shield,
   Users,
   Rocket,
+  CalendarClock,
 } from 'lucide-react';
 
 type NavItem = {
@@ -38,6 +39,7 @@ const SECTIONS: NavSection[] = [
     title: 'ADMIN',
     items: [
       { id: 'vue-globale', icon: Shield, label: 'Vue globale', href: '/admin' },
+      { id: 'relances', icon: CalendarClock, label: 'Relances', href: '/admin/relances' },
       { id: 'equipe', icon: Users, label: 'Équipe', href: '/admin/invitations' },
       { id: 'paliers', icon: Rocket, label: 'Paliers bonus', href: '/admin' },
     ],
