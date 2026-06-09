@@ -38,6 +38,18 @@ type ProspectsClientProps = {
   firstName: string;
 };
 
+/** Statuts qui appellent une date de relance (on propose d'en poser une). */
+const FOLLOWUP_STATUSES = new Set([
+  'a_rappeler',
+  'en_attente_retour',
+  'a_recontacter',
+]);
+
+/** ISO → 'yyyy-mm-dd' pour un <input type="date">. */
+function toDateInput(iso: string | null | undefined): string {
+  return iso ? iso.slice(0, 10) : '';
+}
+
 export default function ProspectsClient({
   initialProspects,
   currentUserId,
@@ -53,6 +65,7 @@ export default function ProspectsClient({
   const [viewing, setViewing] = useState<Prospect | null>(null);
   const [notesFor, setNotesFor] = useState<Prospect | null>(null);
   const [notesDraft, setNotesDraft] = useState('');
+  const [relanceDraft, setRelanceDraft] = useState('');
   const [error, setError] = useState<string | null>(null);
 
   const supabase = useMemo(() => createClient(), []);
@@ -163,11 +176,17 @@ export default function ProspectsClient({
       const updated = data as Prospect;
       setProspects((prev) => prev.map((p) => (p.id === prospect.id ? updated : p)));
       if (updated.notion_page_id) pushStatusToNotion(updated.id);
+      // Statut de relance sans date posee → on propose d'en planifier une.
+      if (FOLLOWUP_STATUSES.has(status) && !updated.next_action_at) {
+        setNotesFor(updated);
+        setNotesDraft(updated.notes ?? '');
+        setRelanceDraft('');
+      }
     }
   }
 
   async function handleDelete(prospect: Prospect) {
-    if (!confirm(`Supprimer le prospect « ${prospect.company_name} » ?`)) return;
+    if (!confirm(`Supprimer le prospect « ${prospect.company_name} » ?`)) return;
     setError(null);
     const { error } = await supabase.from('prospects').delete().eq('id', prospect.id);
     if (error) { setError(error.message); return; }
@@ -177,7 +196,15 @@ export default function ProspectsClient({
   async function handleSaveNotes() {
     if (!notesFor) return;
     setError(null);
-    const { data, error } = await supabase.from('prospects').update({ notes: notesDraft.trim() || null }).eq('id', notesFor.id).select().single();
+    const next_action_at = relanceDraft
+      ? new Date(`${relanceDraft}T12:00:00`).toISOString()
+      : null;
+    const { data, error } = await supabase
+      .from('prospects')
+      .update({ notes: notesDraft.trim() || null, next_action_at })
+      .eq('id', notesFor.id)
+      .select()
+      .single();
     if (error) { setError(error.message); return; }
     if (data) setProspects((prev) => prev.map((p) => (p.id === notesFor.id ? (data as Prospect) : p)));
     setNotesFor(null);
@@ -325,7 +352,7 @@ export default function ProspectsClient({
                   Bonus
                 </p>
                 <p className="font-display text-lg font-medium text-gnd-amber">
-                  {earnedBonus} €
+                  {earnedBonus} €
                 </p>
               </div>
             </div>
@@ -463,7 +490,7 @@ export default function ProspectsClient({
               onView={() => setViewing(p)}
               onEdit={() => setEditing(p)}
               onDelete={() => handleDelete(p)}
-              onNotes={() => { setNotesFor(p); setNotesDraft(p.notes ?? ''); }}
+              onNotes={() => { setNotesFor(p); setNotesDraft(p.notes ?? ''); setRelanceDraft(toDateInput(p.next_action_at)); }}
               onStatusChange={(s) => handleStatusChange(p, s)}
               hasEnrichment={hasEnrichment(p)}
             />
@@ -542,7 +569,7 @@ export default function ProspectsClient({
             <div className="p-7">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-gnd-amber-dim">Notes privées</p>
+                  <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-gnd-amber-dim">Notes &amp; relance</p>
                   <h3 className="mt-1 font-display text-xl font-medium text-gnd-bronze">{notesFor.company_name}</h3>
                 </div>
                 <button onClick={() => setNotesFor(null)} className="rounded-full p-2 text-gnd-bronze-soft transition-colors hover:bg-gnd-bronze/8 hover:text-gnd-bronze" aria-label="Fermer">✕</button>
@@ -552,9 +579,34 @@ export default function ProspectsClient({
                 value={notesDraft}
                 onChange={(e) => setNotesDraft(e.target.value)}
                 className="mt-5 w-full rounded-2xl border border-gnd-bronze/10 bg-white p-4 text-sm text-gnd-bronze placeholder:text-gnd-bronze-faded focus:border-gnd-amber focus:outline-none focus:ring-1 focus:ring-gnd-amber"
-                placeholder="Contexte, historique, prochaines actions…"
+                placeholder="Contexte, historique, comment s'est passé l'appel…"
               />
-              <div className="mt-4 flex justify-end gap-2">
+              <div className="mt-4">
+                <label className="mb-1.5 block font-mono text-[10px] font-semibold uppercase tracking-[0.15em] text-gnd-amber-dim">
+                  Date de relance
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="date"
+                    value={relanceDraft}
+                    onChange={(e) => setRelanceDraft(e.target.value)}
+                    className="rounded-xl border border-gnd-bronze/10 bg-white px-3 py-2 text-sm text-gnd-bronze focus:border-gnd-amber focus:outline-none focus:ring-1 focus:ring-gnd-amber"
+                  />
+                  {relanceDraft && (
+                    <button
+                      type="button"
+                      onClick={() => setRelanceDraft('')}
+                      className="text-xs font-semibold text-gnd-bronze-soft underline underline-offset-2 hover:text-gnd-bronze"
+                    >
+                      Retirer
+                    </button>
+                  )}
+                </div>
+                <p className="mt-1.5 text-[11px] text-gnd-bronze-soft">
+                  Visible par toi et par l&apos;admin dans « Relances à venir ».
+                </p>
+              </div>
+              <div className="mt-5 flex justify-end gap-2">
                 <button onClick={() => setNotesFor(null)} className="rounded-full border border-gnd-bronze/10 bg-white px-5 py-2.5 text-sm font-semibold text-gnd-bronze transition-colors hover:bg-gnd-cream">Annuler</button>
                 <button onClick={handleSaveNotes} className="rounded-full bg-gnd-bronze px-5 py-2.5 text-sm font-semibold text-gnd-cream transition-colors hover:bg-gnd-ink">Enregistrer</button>
               </div>
@@ -637,6 +689,11 @@ function ProspectRow({ prospect: p, index, onView, onEdit, onDelete, onNotes, on
           ))}
         </select>
         <p className="mt-1 font-mono text-[9px] uppercase tracking-[0.15em] text-gnd-bronze-faded">MAJ {formatDate(p.updated_at)}</p>
+        {p.next_action_at && (
+          <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-gnd-amber/10 px-2 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-[0.12em] text-gnd-amber-dim">
+            ⏰ Relance {formatDate(p.next_action_at)}
+          </span>
+        )}
       </div>
       <div className="flex shrink-0 items-center gap-1">
         {hasEnrichment && (
