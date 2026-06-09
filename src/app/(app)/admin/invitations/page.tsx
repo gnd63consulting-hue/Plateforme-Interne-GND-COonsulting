@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase-server';
 import { redirect } from 'next/navigation';
 import { InviteForm } from './InviteForm';
 import { revokeInvitation } from './actions';
+import { MemberManager, type Member } from './MemberManager';
 
 const CREAM = '#FDF6EE';
 const CREAM_SOFT = 'rgba(253,246,238,0.62)';
@@ -35,6 +36,42 @@ export default async function InvitationsPage() {
   const pending = (invitations ?? []).filter((i) => !i.consumed_at);
   const consumed = (invitations ?? []).filter((i) => i.consumed_at);
 
+  // Membres actifs + nb de prospects assignes
+  const { data: membersRaw } = await supabase
+    .from('users')
+    .select('id, full_name, email, role, commission_rate, active')
+    .in('role', ['admin', 'admin_limited', 'freelance', 'commercial'])
+    .order('created_at', { ascending: true });
+
+  const activeMembers = ((membersRaw ?? []) as {
+    id: string;
+    full_name: string | null;
+    email: string;
+    role: string;
+    commission_rate: number | null;
+    active: boolean | null;
+  }[]).filter((u) => u.active !== false);
+
+  const memberIds = activeMembers.map((u) => u.id);
+  const { data: assignedRows } = await supabase
+    .from('prospects')
+    .select('assigned_to')
+    .in('assigned_to', memberIds.length ? memberIds : ['00000000-0000-0000-0000-000000000000']);
+
+  const countByUser = new Map<string, number>();
+  for (const r of (assignedRows ?? []) as { assigned_to: string | null }[]) {
+    if (r.assigned_to) countByUser.set(r.assigned_to, (countByUser.get(r.assigned_to) ?? 0) + 1);
+  }
+
+  const members: Member[] = activeMembers.map((u) => ({
+    id: u.id,
+    name: u.full_name ?? u.email.split('@')[0],
+    email: u.email,
+    role: u.role,
+    commissionPct: u.commission_rate != null ? Math.round(Number(u.commission_rate) * 100) : null,
+    prospectCount: countByUser.get(u.id) ?? 0,
+  }));
+
   return (
     <div style={{ maxWidth: 920, margin: '0 auto', padding: '40px 28px 64px', color: CREAM }}>
       {/* Header */}
@@ -63,13 +100,29 @@ export default async function InvitationsPage() {
             lineHeight: 1.1,
           }}
         >
-          Gestion des invitations
+          Équipe &amp; invitations
         </h1>
         <p style={{ fontSize: 14, lineHeight: 1.55, color: CREAM_SOFT, marginTop: 12, maxWidth: 560 }}>
-          Seules les personnes invitées peuvent se connecter (login Google). Tu ajoutes
-          un email ci-dessous, puis tu envoies à la personne le message généré.
+          Gère tes membres (commission, prospects) et invite de nouvelles personnes.
+          Login Google uniquement — tu ajoutes un email, la personne se connecte.
         </p>
       </header>
+
+      {/* Membres actifs */}
+      <section style={{ marginBottom: 36 }}>
+        <h2 style={{ fontFamily: MONO, fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.18em', color: AMBER, margin: '0 0 16px' }}>
+          Membres actifs ({members.length})
+        </h2>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {members.map((m) => (
+            <MemberManager key={m.id} member={m} />
+          ))}
+        </div>
+        <p style={{ fontSize: 12, color: CREAM_SOFT, marginTop: 12 }}>
+          Règle le taux de commission (15/20%) et assigne des prospects frais à chaque commercial — sans SQL.
+          L&apos;assignation pioche uniquement dans le pool « à contacter » (jamais chez un autre commercial).
+        </p>
+      </section>
 
       {/* Invite form card */}
       <section

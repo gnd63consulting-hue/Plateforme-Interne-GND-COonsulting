@@ -94,3 +94,98 @@ export async function markTotpEnabled(): Promise<{ error: string | null }> {
   revalidatePath('/dashboard');
   return { error: null };
 }
+
+const MGMT_ADMIN_ROLES = ['admin', 'admin_limited'];
+
+async function requireAdmin() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+  const { data: profile } = await supabase
+    .from('users')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+  if (!profile || !MGMT_ADMIN_ROLES.includes(profile.role)) return null;
+  return user;
+}
+
+/** Definit le taux de commission d'un membre (0 a 1, ex. 0.20). */
+export async function setCommissionRate(
+  userId: string,
+  rate: number
+): Promise<{ error: string | null }> {
+  const admin = await requireAdmin();
+  if (!admin) return { error: 'Permissions insuffisantes' };
+  if (!Number.isFinite(rate) || rate < 0 || rate > 1) {
+    return { error: 'Taux invalide (entre 0 et 1, ex. 0.20).' };
+  }
+  const adminClient = createAdminClient();
+  const { error } = await adminClient
+    .from('users')
+    .update({ commission_rate: rate, updated_at: new Date().toISOString() })
+    .eq('id', userId);
+  if (error) return { error: error.message };
+  revalidatePath('/admin/invitations');
+  return { error: null };
+}
+
+/**
+ * Assigne `count` prospects FRAIS (status='a_contacter') du pool admin
+ * vers le commercial `userId`. Ne touche jamais a un prospect deja assigne
+ * a un autre commercial. Retourne le nombre reellement assigne.
+ */
+export async function assignFreshProspects(
+  userId: string,
+  count: number
+): Promise<{ error: string | null; assigned: number }> {
+  const admin = await requireAdmin();
+  if (!admin) return { error: 'Permissions insuffisantes', assigned: 0 };
+  const n = Math.max(1, Math.min(500, Math.floor(count)));
+
+  const adminClient = createAdminClient();
+
+  const { data: target } = await adminClient
+    .from('users')
+    .select('id')
+    .eq('id', userId)
+    .maybeSingle();
+  if (!target) {
+    return {
+      error: "Ce membre n'existe pas encore (il doit s'etre connecte au moins une fois).",
+      assigned: 0,
+    };
+  }
+
+  const { data: adminUsers } = await adminClient
+    .from('users')
+    .select('id')
+    .in('role', MGMT_ADMIN_ROLES);
+  const adminIds = (adminUsers ?? []).map((u) => u.id);
+  if (adminIds.length === 0) {
+    return { error: 'Aucun pool admin trouve.', assigned: 0 };
+  }
+
+  const { data: pool, error: poolErr } = await adminClient
+    .from('prospects')
+    .select('id')
+    .eq('status', 'a_contacter')
+    .in('assigned_to', adminIds)
+    .order('created_at', { ascending: true })
+    .limit(n);
+  if (poolErr) return { error: poolErr.message, assigned: 0 };
+
+  const ids = (pool ?? []).map((p) => p.id);
+  if (ids.length === 0) {
+    return { error: 'Aucun prospect frais disponible dans le pool.', assigned: 0 };
+  }
+
+  const { error: updErr } = await adminClient
+    .from('prospects')
+    .update({ assigned_to: userId, updated_at: new Date().toISOString() })
+    .in('id', ids);
+  if (updErr) return { error: updErr.message, assigned: 0 };
+
+  revalidatePath('/admin/invitations');
+  return { error: null, assigned: ids.length };
+}
