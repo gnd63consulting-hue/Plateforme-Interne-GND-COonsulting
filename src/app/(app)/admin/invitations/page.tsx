@@ -4,13 +4,16 @@ import { InviteForm } from './InviteForm';
 import { revokeInvitation } from './actions';
 import { MemberManager, type Member } from './MemberManager';
 
-const CREAM = '#FDF6EE';
-const CREAM_SOFT = 'rgba(253,246,238,0.62)';
-const AMBER = '#E8853D';
-const CARD_BG = 'rgba(253,246,238,0.04)';
-const CARD_BORDER = '1px solid rgba(232,133,61,0.14)';
-const SERIF = 'var(--font-fraunces), Georgia, serif';
-const MONO = 'var(--font-geist-mono), ui-monospace, monospace';
+// Design System crème/orange — tokens locaux (suite admin claire).
+const INK = '#2A2320';           // texte corps (ex CREAM)
+const INK_SOFT = '#7B665C';      // texte secondaire (ex CREAM_SOFT)
+const INK_FAINT = '#9B8A7E';     // texte tertiaire
+const CHOCO = '#532418';         // titres serif
+const AMBER = '#B5601C';         // accent lisible sur clair (ex AMBER)
+const CARD_BG = '#FFFFFF';       // cartes (ex CARD_BG)
+const CARD_BORDER = '1px solid #E2D5C3';
+const SERIF = 'var(--font-marcellus), Georgia, serif';
+const MONO = 'var(--font-inter), ui-sans-serif, system-ui, sans-serif';
 
 export default async function InvitationsPage() {
   const supabase = await createClient();
@@ -73,7 +76,7 @@ export default async function InvitationsPage() {
   }));
 
   return (
-    <div style={{ maxWidth: 920, margin: '0 auto', padding: '40px 28px 64px', color: CREAM }}>
+    <div style={{ maxWidth: 920, margin: '0 auto', padding: '40px 28px 64px', color: INK }}>
       {/* Header */}
       <header style={{ marginBottom: 32 }}>
         <div
@@ -95,14 +98,14 @@ export default async function InvitationsPage() {
             fontSize: 32,
             fontWeight: 500,
             letterSpacing: '-0.01em',
-            color: CREAM,
+            color: CHOCO,
             margin: 0,
             lineHeight: 1.1,
           }}
         >
           Équipe &amp; invitations
         </h1>
-        <p style={{ fontSize: 14, lineHeight: 1.55, color: CREAM_SOFT, marginTop: 12, maxWidth: 560 }}>
+        <p style={{ fontSize: 14, lineHeight: 1.55, color: INK_SOFT, marginTop: 12, maxWidth: 560 }}>
           Gère tes membres (commission, prospects) et invite de nouvelles personnes.
           Login Google uniquement — tu ajoutes un email, la personne se connecte.
         </p>
@@ -118,7 +121,7 @@ export default async function InvitationsPage() {
             <MemberManager key={m.id} member={m} />
           ))}
         </div>
-        <p style={{ fontSize: 12, color: CREAM_SOFT, marginTop: 12 }}>
+        <p style={{ fontSize: 12, color: INK_SOFT, marginTop: 12 }}>
           Règle le taux de commission (15/20%) et assigne des prospects frais à chaque commercial — sans SQL.
           L&apos;assignation pioche uniquement dans le pool « à contacter » (jamais chez un autre commercial).
         </p>
@@ -132,9 +135,10 @@ export default async function InvitationsPage() {
           borderRadius: 18,
           padding: 28,
           marginBottom: 36,
+          boxShadow: '0 1px 3px rgba(83,36,24,0.06)',
         }}
       >
-        <h2 style={{ fontFamily: SERIF, fontSize: 19, fontWeight: 500, color: CREAM, margin: '0 0 18px' }}>
+        <h2 style={{ fontFamily: SERIF, fontSize: 19, fontWeight: 500, color: CHOCO, margin: '0 0 18px' }}>
           Inviter quelqu&apos;un
         </h2>
         <InviteForm />
@@ -156,7 +160,7 @@ export default async function InvitationsPage() {
           Invitations en attente ({pending.length})
         </h2>
         {pending.length === 0 ? (
-          <p style={{ fontSize: 13, color: CREAM_SOFT }}>Aucune invitation en attente.</p>
+          <p style={{ fontSize: 13, color: INK_SOFT }}>Aucune invitation en attente.</p>
         ) : (
           <div
             style={{
@@ -164,11 +168,12 @@ export default async function InvitationsPage() {
               border: CARD_BORDER,
               borderRadius: 16,
               overflow: 'hidden',
+              boxShadow: '0 1px 3px rgba(83,36,24,0.06)',
             }}
           >
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
               <thead>
-                <tr>
+                <tr style={{ background: '#FBF7F2' }}>
                   {['Email', 'Rôle', 'Envoyée le', 'Expire le', ''].map((h) => (
                     <th
                       key={h}
@@ -180,8 +185,8 @@ export default async function InvitationsPage() {
                         fontWeight: 600,
                         textTransform: 'uppercase',
                         letterSpacing: '0.16em',
-                        color: 'rgba(253,246,238,0.45)',
-                        borderBottom: '1px solid rgba(232,133,61,0.12)',
+                        color: INK_FAINT,
+                        borderBottom: '1px solid #E2D5C3',
                       }}
                     >
                       {h}
@@ -191,8 +196,8 @@ export default async function InvitationsPage() {
               </thead>
               <tbody>
                 {pending.map((inv) => (
-                  <tr key={inv.id} style={{ borderBottom: '1px solid rgba(253,246,238,0.06)' }}>
-                    <td style={{ padding: '13px 16px', color: CREAM, fontFamily: MONO, fontSize: 12 }}>
+                  <tr key={inv.id} style={{ borderBottom: '1px solid #F0E7DA' }}>
+                    <td style={{ padding: '13px 16px', color: INK, fontFamily: MONO, fontSize: 12 }}>
                       {inv.email}
                     </td>
                     <td style={{ padding: '13px 16px' }}>
@@ -201,8 +206,8 @@ export default async function InvitationsPage() {
                           display: 'inline-block',
                           padding: '3px 9px',
                           borderRadius: 999,
-                          background: 'rgba(232,133,61,0.14)',
-                          border: '1px solid rgba(232,133,61,0.28)',
+                          background: 'rgba(243,146,83,0.14)',
+                          border: '1px solid rgba(243,146,83,0.32)',
                           color: AMBER,
                           fontSize: 11,
                           fontWeight: 600,
@@ -211,10 +216,10 @@ export default async function InvitationsPage() {
                         {inv.role}
                       </span>
                     </td>
-                    <td style={{ padding: '13px 16px', color: CREAM_SOFT }}>
+                    <td style={{ padding: '13px 16px', color: INK_SOFT }}>
                       {new Date(inv.invited_at).toLocaleDateString('fr-FR')}
                     </td>
-                    <td style={{ padding: '13px 16px', color: CREAM_SOFT }}>
+                    <td style={{ padding: '13px 16px', color: INK_SOFT }}>
                       {new Date(inv.expires_at).toLocaleDateString('fr-FR')}
                     </td>
                     <td style={{ padding: '13px 16px' }}>
@@ -225,7 +230,7 @@ export default async function InvitationsPage() {
                           style={{
                             background: 'transparent',
                             border: 'none',
-                            color: '#E8896B',
+                            color: '#B5421F',
                             fontSize: 12,
                             fontWeight: 600,
                             cursor: 'pointer',
@@ -254,14 +259,14 @@ export default async function InvitationsPage() {
             fontWeight: 600,
             textTransform: 'uppercase',
             letterSpacing: '0.18em',
-            color: 'rgba(253,246,238,0.45)',
+            color: INK_FAINT,
             margin: '0 0 16px',
           }}
         >
           Membres déjà entrés ({consumed.length})
         </h2>
         {consumed.length === 0 ? (
-          <p style={{ fontSize: 13, color: CREAM_SOFT }}>Aucun.</p>
+          <p style={{ fontSize: 13, color: INK_SOFT }}>Aucun.</p>
         ) : (
           <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
             {consumed.slice(0, 20).map((inv) => (
@@ -269,17 +274,17 @@ export default async function InvitationsPage() {
                 key={inv.id}
                 style={{
                   fontSize: 13,
-                  color: CREAM_SOFT,
+                  color: INK_SOFT,
                   display: 'flex',
                   gap: 10,
                   alignItems: 'center',
                   flexWrap: 'wrap',
                 }}
               >
-                <span style={{ fontFamily: MONO, fontSize: 12, color: CREAM }}>{inv.email}</span>
-                <span style={{ color: 'rgba(253,246,238,0.35)' }}>·</span>
+                <span style={{ fontFamily: MONO, fontSize: 12, color: INK }}>{inv.email}</span>
+                <span style={{ color: '#C9BBAE' }}>·</span>
                 <span>{inv.role}</span>
-                <span style={{ color: 'rgba(253,246,238,0.35)' }}>·</span>
+                <span style={{ color: '#C9BBAE' }}>·</span>
                 <span>
                   entré le{' '}
                   {inv.consumed_at ? new Date(inv.consumed_at).toLocaleDateString('fr-FR') : '—'}
