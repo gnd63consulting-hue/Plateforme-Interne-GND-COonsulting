@@ -1,3 +1,0 @@
-line1
-	tab and "quote"
-édité
