@@ -46,11 +46,16 @@ export type MonTableauData = {
   pipelineActifCount: number; // prospects encore en jeu
   statusBreakdown: StatusBreakdownEntry[];
   // CA
-  caPotentiel: number; // € — pipeline en cours (prix service GND)
-  caRealise: number; // € — signatures (prix service GND)
-  // Commission
-  commissionRealisee: number; // €
-  commissionPotentielle: number; // €
+  caPotentiel: number; // € — pipeline en cours (prix service GND, estimé)
+  caRealise: number; // € — signatures (prix service GND, estimé via ca_estime)
+  // Commission ESTIMÉE (depuis ca_estime, prisme prix service GND)
+  commissionEstimeeRealisee: number; // € — estimée sur les signatures
+  commissionPotentielle: number; // € — estimée sur le pipeline en cours
+  // Commission RÉELLE (table commissions, Sprint 8 — montant signé × taux figé)
+  commissionReelleAPayer: number; // € — commissions statut 'a_payer'
+  commissionReellePayee: number; // € — commissions statut 'paye'
+  commissionReelleTotale: number; // € — à payer + payée (réalisée)
+  commissionsCount: number; // nb de lignes de commission
   // Signatures / paliers
   signatures: number; // nb prospects 'gagne'
   // Relances
