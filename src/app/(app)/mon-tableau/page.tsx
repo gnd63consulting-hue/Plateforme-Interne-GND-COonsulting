@@ -10,6 +10,7 @@ import {
   type Activity,
 } from '@/lib/activities';
 import { sumCaMidpointGndPriceEur } from '@/lib/ca-utils';
+import { COMMISSION_SELECT_COLUMNS, type Commission } from '@/lib/finance';
 import {
   type MonTableauData,
   type RecentActivityEntry,
@@ -22,28 +23,23 @@ export const dynamic = 'force-dynamic';
 /**
  * Tableau de bord commercial PERSONNEL — scopé au commercial courant.
  *
- * Les chiffres sont calculés avec EXACTEMENT la même logique que le cockpit
- * admin v2 (src/app/(app)/admin/v2/page.tsx) pour rester cohérents :
- *   - CA réalisé    = sumCaMidpointGndPriceEur(status='gagne')
- *   - CA potentiel  = sumCaMidpointGndPriceEur(statuts encore en jeu :
- *                     a_contacter / contacte / rdv_pris / devis_envoye).
- *     On EXCLUT 'gagne' du potentiel (déjà compté dans le réalisé), comme
- *     le header KPI global de l'admin v2.
- *   - Commission    = CA × users.commission_rate (réalisée + potentielle,
- *                     affichées distinctement).
+ * Deux prismes de commission coexistent désormais (Sprint 8) :
  *
- * Le prisme est TOUJOURS « prix service GND » (sumCaMidpointGndPriceEur),
- * jamais le CA entreprise du prospect — cf. avertissements de ca-utils.ts.
+ *   1. Commission RÉELLE (source de vérité, table `commissions`) :
+ *      somme des commissions effectivement générées à la signature
+ *      (montant HT signé × taux figé au moment du gain). Découpée en
+ *      « à payer » / « payée ». C'est le chiffre qui compte vraiment.
  *
- * NB : les types partagés (MonTableauData, StatusBreakdownEntry,
- * RecentActivityEntry) et la constante BONUS_TIERS vivent désormais dans
- * ./types.ts (module pur), pour que MonTableauClient ("use client") puisse les
- * réutiliser sans tirer ce server component — et donc supabase-server
- * (next/headers) — dans le bundle client.
+ *   2. Commission ESTIMÉE (héritée, depuis `ca_estime`, prisme prix service
+ *      GND via sumCaMidpointGndPriceEur) : projection du pipeline en cours
+ *      → commission potentielle. Garde aussi une estimation « réalisée »
+ *      depuis les midpoints des signatures, à titre indicatif.
+ *
+ * Le CA potentiel/réalisé reste calculé comme avant (cohérent cockpit admin
+ * v2). Le prisme est TOUJOURS « prix service GND » — cf. ca-utils.ts.
  */
 
-/** Statuts encore « en jeu » pour le CA potentiel (pipeline en cours).
- *  Aligné sur CA_POTENTIEL_ACTIVE_STATUSES du cockpit admin v2. */
+/** Statuts encore « en jeu » pour le CA potentiel (pipeline en cours). */
 const PIPELINE_ACTIVE_STATUSES = new Set([
   'a_contacter',
   'contacte',
@@ -77,8 +73,7 @@ export default async function MonTableauPage() {
     .eq('id', user.id)
     .maybeSingle();
 
-  // Prospects scopés au commercial courant (RLS owner + filtre explicite,
-  // cohérent avec /prospects et /prospects/relances).
+  // Prospects scopés au commercial courant (RLS owner + filtre explicite).
   const { data: prospectsRaw } = await supabase
     .from('prospects')
     .select(PROSPECT_SELECT_COLUMNS)
@@ -96,6 +91,18 @@ export default async function MonTableauPage() {
 
   const activities = (activitiesRaw ?? []) as unknown as Activity[];
 
+  // Commissions RÉELLES du commercial. Filtre explicite sur commercial_id :
+  // la RLS commissions_select_own scope déjà au user, mais un admin (qui a
+  // commissions_admin_all) verrait TOUT — or « ma commission » doit rester
+  // strictement personnelle. On force donc le filtre côté requête.
+  const { data: commissionsRaw } = await supabase
+    .from('commissions')
+    .select(COMMISSION_SELECT_COLUMNS)
+    .eq('commercial_id', user.id)
+    .order('created_at', { ascending: false });
+
+  const commissions = (commissionsRaw ?? []) as unknown as Commission[];
+
   // ---- Calculs CA (prisme prix service GND, via ca-utils) -------------------
   const signedProspects = prospects.filter((p) => p.status === 'gagne');
   const activeProspects = prospects.filter((p) =>
@@ -105,20 +112,30 @@ export default async function MonTableauPage() {
   const caRealise = sumCaMidpointGndPriceEur(signedProspects);
   const caPotentiel = sumCaMidpointGndPriceEur(activeProspects);
 
-  // ---- Commission ----------------------------------------------------------
+  // ---- Commission ESTIMÉE (depuis ca_estime) -------------------------------
   const commissionRate =
     profile?.commission_rate != null ? Number(profile.commission_rate) : null;
   const commissionPct =
     commissionRate != null ? Math.round(commissionRate * 100) : null;
-  const commissionRealisee =
+  const commissionEstimeeRealisee =
     commissionRate != null ? Math.round(caRealise * commissionRate) : 0;
   const commissionPotentielle =
     commissionRate != null ? Math.round(caPotentiel * commissionRate) : 0;
 
-  // ---- Répartition par statut (compte + valeur), pipeline actif uniquement -
-  // On parcourt STATUS_OPTIONS pour conserver l'ordre logique du pipeline et
-  // les couleurs (tone) existantes. On n'affiche que les statuts encore en
-  // jeu + 'gagne' (utile de voir les signatures dans le funnel perso).
+  // ---- Commission RÉELLE (table commissions, source de vérité) -------------
+  let commissionReelleAPayer = 0;
+  let commissionReellePayee = 0;
+  for (const c of commissions) {
+    if (c.statut === 'a_payer') commissionReelleAPayer += Number(c.amount);
+    else if (c.statut === 'paye') commissionReellePayee += Number(c.amount);
+    // 'annule' ignoré.
+  }
+  commissionReelleAPayer = Math.round(commissionReelleAPayer);
+  commissionReellePayee = Math.round(commissionReellePayee);
+  const commissionReelleTotale =
+    commissionReelleAPayer + commissionReellePayee;
+
+  // ---- Répartition par statut (compte + valeur), funnel ---------------------
   const FUNNEL_STATUSES = [
     'a_contacter',
     'contacte',
@@ -154,7 +171,7 @@ export default async function MonTableauPage() {
   let relancesAujourdhui = 0;
   for (const p of prospects) {
     if (!p.next_action_at) continue;
-    if (CLOSED_STATUSES.has(p.status)) continue; // pas de relance sur les clos
+    if (CLOSED_STATUSES.has(p.status)) continue;
     const d = new Date(p.next_action_at);
     if (d < startToday) relancesEnRetard += 1;
     else if (d < endToday) relancesAujourdhui += 1;
@@ -183,8 +200,12 @@ export default async function MonTableauPage() {
     statusBreakdown,
     caPotentiel,
     caRealise,
-    commissionRealisee,
+    commissionEstimeeRealisee,
     commissionPotentielle,
+    commissionReelleAPayer,
+    commissionReellePayee,
+    commissionReelleTotale,
+    commissionsCount: commissions.length,
     signatures: signedProspects.length,
     relancesEnRetard,
     relancesAujourdhui,

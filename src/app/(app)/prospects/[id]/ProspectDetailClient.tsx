@@ -31,6 +31,7 @@ import {
   TrendingUp,
   User,
   Users,
+  X,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase-client';
 import {
@@ -48,7 +49,10 @@ import {
   type ActivityKind,
 } from '@/lib/activities';
 import type { Sequence, SequenceEnrollment } from '@/lib/sequences';
+import { formatEurExact, type Quote } from '@/lib/finance';
 import SequenceEnrollPanel from './SequenceEnrollPanel';
+import QuotesPanel from './QuotesPanel';
+import { recordCommission } from './finance-actions';
 
 /* ====================================================================== */
 /* Constantes                                                              */
@@ -149,6 +153,7 @@ type ProspectDetailClientProps = {
   initialActivities: Activity[];
   activeSequences: Sequence[];
   initialEnrollment: SequenceEnrollment | null;
+  initialQuotes: Quote[];
 };
 
 export default function ProspectDetailClient({
@@ -156,6 +161,7 @@ export default function ProspectDetailClient({
   initialActivities,
   activeSequences,
   initialEnrollment,
+  initialQuotes,
 }: ProspectDetailClientProps) {
   const supabase = useMemo(() => createClient(), []);
   const reduceMotion = useReducedMotion();
@@ -168,6 +174,8 @@ export default function ProspectDetailClient({
   const [errorMsg, setErrorMsg] = useState<string>('');
   // Quel panneau de saisie rapide est ouvert (kind) — un seul à la fois.
   const [openQuick, setOpenQuick] = useState<QuickKind | null>(null);
+  // Modale « Montant du contrat signé » (ouverte au passage en 'gagne').
+  const [winDealOpen, setWinDealOpen] = useState(false);
 
   // ---- Insertion d'activité (client anon, RLS owner, owner_id=auth.uid()) --
   /**
@@ -303,8 +311,31 @@ export default function ProspectDetailClient({
       announce(
         `Statut mis à jour : ${labelForStatus(previous)} → ${labelForStatus(next)}.`
       );
+      // Passage en « gagné » → capture du montant signé + commission réelle.
+      if (next === 'gagne') setWinDealOpen(true);
     },
     [supabase, prospect.id, prospect.status, insertActivity, pushStatusToNotion]
+  );
+
+  /* ---- Confirmation du montant signé (modale gain) ------------------- */
+  const handleConfirmDeal = useCallback(
+    async (amountHt: number): Promise<boolean> => {
+      setErrorMsg('');
+      // Optimistic local sur deal_amount.
+      setProspect((p) => ({ ...p, deal_amount: amountHt }));
+      const res = await recordCommission(prospect.id, amountHt);
+      if (res.error) {
+        setErrorMsg(res.error);
+        return false;
+      }
+      await insertActivity('note', {
+        body: `Contrat signé : ${formatEurExact(amountHt)} HT.`,
+      });
+      announce('Montant signé enregistré et commission générée.');
+      setWinDealOpen(false);
+      return true;
+    },
+    [prospect.id, insertActivity]
   );
 
   /* ---- Édition rapide des notes (update + log note si modifié) -------- */
@@ -463,6 +494,12 @@ export default function ProspectDetailClient({
                     {prospect.city}
                   </span>
                 )}
+                {prospect.deal_amount != null && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+                    <Banknote className="h-3 w-3" aria-hidden />
+                    Signé {formatEurExact(Number(prospect.deal_amount))} HT
+                  </span>
+                )}
                 {prospect.notion_page_id && (
                   <span className="inline-flex items-center gap-1 rounded-full bg-gnd-amber/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-gnd-amber-dim">
                     <Sparkles className="h-3 w-3" aria-hidden />
@@ -509,7 +546,7 @@ export default function ProspectDetailClient({
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_minmax(20rem,24rem)]">
         {/* =============================================================== */}
-        {/* COLONNE GAUCHE : infos + analyse + timeline                     */}
+        {/* COLONNE GAUCHE : infos + analyse + devis + timeline             */}
         {/* =============================================================== */}
         <div className="space-y-6">
           {/* B. BLOC INFOS */}
@@ -528,6 +565,9 @@ export default function ProspectDetailClient({
 
           {/* Analyse & approche (enrichissement Notion) */}
           {hasEnrichment && <AnalysisSection prospect={prospect} />}
+
+          {/* Devis (Sprint 8) */}
+          <QuotesPanel prospectId={prospect.id} initialQuotes={initialQuotes} />
 
           {/* E. TIMELINE */}
           <section className="rounded-3xl border border-gnd-bronze/8 bg-gnd-paper p-6 shadow-warm">
@@ -586,6 +626,129 @@ export default function ProspectDetailClient({
             onSaveNotes={handleSaveNotes}
           />
         </aside>
+      </div>
+
+      {/* Modale « Montant du contrat signé » */}
+      {winDealOpen && (
+        <WinDealModal
+          companyName={prospect.company_name}
+          initialAmount={prospect.deal_amount != null ? Number(prospect.deal_amount) : null}
+          onConfirm={handleConfirmDeal}
+          onClose={() => setWinDealOpen(false)}
+        />
+      )}
+    </div>
+  );
+}
+
+/* ====================================================================== */
+/* Modale « Montant du contrat signé (HT) »                                */
+/* ====================================================================== */
+
+function WinDealModal({
+  companyName,
+  initialAmount,
+  onConfirm,
+  onClose,
+}: {
+  companyName: string;
+  initialAmount: number | null;
+  onConfirm: (amountHt: number) => Promise<boolean>;
+  onClose: () => void;
+}) {
+  const [value, setValue] = useState(
+    initialAmount != null ? String(initialAmount) : ''
+  );
+  const [saving, setSaving] = useState(false);
+  const [err, setErr] = useState('');
+
+  async function confirm() {
+    const n = parseFloat(value.replace(',', '.'));
+    if (!Number.isFinite(n) || n < 0) {
+      setErr('Saisis un montant HT valide.');
+      return;
+    }
+    setErr('');
+    setSaving(true);
+    const ok = await onConfirm(Math.round(n * 100) / 100);
+    setSaving(false);
+    if (!ok) setErr('Enregistrement impossible. Réessaie.');
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-gnd-ink/40 p-4 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Montant du contrat signé"
+    >
+      <div className="w-full max-w-md rounded-3xl border border-gnd-bronze/10 bg-gnd-paper p-6 shadow-warm-lg">
+        <div className="mb-1 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
+              <Banknote className="h-5 w-5" aria-hidden />
+            </span>
+            <h3 className="font-display text-xl font-medium text-gnd-bronze">
+              Contrat signé 🎉
+            </h3>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Fermer"
+            className="rounded-lg p-1.5 text-gnd-bronze-soft transition-colors hover:bg-gnd-bronze/8 hover:text-gnd-bronze"
+          >
+            <X className="h-5 w-5" aria-hidden />
+          </button>
+        </div>
+        <p className="mb-4 text-sm text-gnd-bronze-soft">
+          Indique le montant HT du contrat signé avec{' '}
+          <strong className="text-gnd-bronze">{companyName}</strong>. Il
+          déclenche le calcul de ta commission réelle.
+        </p>
+
+        <label className="block">
+          <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-gnd-bronze-faded">
+            Montant HT signé (€)
+          </span>
+          <input
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            inputMode="decimal"
+            autoFocus
+            placeholder="Ex. 8500"
+            className="w-full rounded-xl border border-gnd-bronze/10 bg-white px-3 py-2.5 text-lg font-semibold tabular-nums text-gnd-bronze focus:border-gnd-amber focus:outline-none focus:ring-1 focus:ring-gnd-amber"
+          />
+        </label>
+
+        {err && (
+          <p role="alert" className="mt-2 text-sm text-rose-700">
+            {err}
+          </p>
+        )}
+
+        <div className="mt-6 flex items-center justify-end gap-2">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-xl px-4 py-2 text-sm font-semibold text-gnd-bronze-soft transition-colors hover:bg-gnd-bronze/8 hover:text-gnd-bronze"
+          >
+            Plus tard
+          </button>
+          <button
+            type="button"
+            onClick={confirm}
+            disabled={saving}
+            className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-700 disabled:opacity-50"
+          >
+            {saving ? (
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+            ) : (
+              <Check className="h-4 w-4" aria-hidden />
+            )}
+            Enregistrer
+          </button>
+        </div>
       </div>
     </div>
   );
