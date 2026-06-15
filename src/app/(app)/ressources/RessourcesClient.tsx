@@ -259,7 +259,7 @@ export default function RessourcesClient() {
             </div>
           </motion.div>
 
-          {/* Carte Module 03 — version CREME lisible (etait sombre/illisible) */}
+          {/* Carte Module 03 — crème claire */}
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -379,32 +379,28 @@ export default function RessourcesClient() {
           />
         </div>
 
-        {/* Footer contact — CHOCOLAT PLEIN + texte CREME (etait fonce-sur-fonce illisible) */}
+        {/* Footer contact — carte CREME harmonisee (plus d'ilot sombre) */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-50px' }}
           transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-          className="relative mt-8 overflow-hidden rounded-3xl border border-choco bg-choco p-10 text-cream shadow-soft-lg md:p-14"
+          className="relative mt-8 overflow-hidden rounded-3xl border border-border-soft bg-gradient-to-br from-white to-cream p-10 shadow-soft md:p-14"
         >
           <div
             aria-hidden
-            className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full bg-brand/20 blur-3xl"
-          />
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-brand/10 blur-3xl"
+            className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-brand/10 blur-3xl"
           />
           <div className="relative flex flex-col items-start gap-6 md:flex-row md:items-center md:justify-between">
             <div className="max-w-xl">
-              <p className="mb-3 font-inter text-[10px] font-semibold uppercase tracking-[0.2em] text-brand">
+              <p className="mb-3 font-inter text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-dark">
                 Une question, un projet ?
               </p>
-              <h3 className="font-marcellus text-3xl font-medium leading-tight md:text-4xl">
+              <h3 className="font-marcellus text-3xl font-medium leading-tight text-choco md:text-4xl">
                 On en discute{' '}
-                <span className="italic text-brand">directement</span>.
+                <span className="italic text-brand-dark">directement</span>.
               </h3>
-              <p className="mt-4 text-sm leading-relaxed text-cream/70">
+              <p className="mt-4 text-sm leading-relaxed text-muted-warm">
                 GND Consulting — agence créative et tech.
               </p>
             </div>
@@ -418,7 +414,7 @@ export default function RessourcesClient() {
               </a>
               <a
                 href="mailto:contact@gndconsulting.fr"
-                className="group inline-flex items-center gap-3 rounded-full border border-cream/25 bg-cream/5 px-6 py-3.5 text-sm font-semibold text-cream transition-all hover:bg-cream/10"
+                className="group inline-flex items-center gap-3 rounded-full border border-border-soft bg-white px-6 py-3.5 text-sm font-semibold text-ink-warm transition-all hover:bg-cream-deep"
               >
                 <Mail className="h-4 w-4" aria-hidden />
                 contact@gndconsulting.fr
@@ -640,16 +636,15 @@ const PACKS: Pack[] = [
 function PricingCard({ pack, index }: { pack: Pack; index: number }) {
   const { num, name, priceLabel, highlight, forWho, why, features } = pack;
   if (highlight) {
-    // Pack premium : carte CHOCOLAT PLEIN + texte CREME (lisible, intentionnel).
+    // Pack recommandé : carte BLANCHE emphasée (bord orange épais) — harmonisée.
     return (
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-50px' }}
         transition={{ duration: 0.7, delay: index * 0.1, ease: [0.22, 1, 0.36, 1] }}
-        className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-choco bg-choco p-8 text-cream shadow-soft-lg lg:scale-[1.03] lg:z-10"
+        className="group relative flex h-full flex-col overflow-hidden rounded-3xl border-2 border-brand bg-white p-8 shadow-soft-md lg:scale-[1.03] lg:z-10"
       >
-        <div aria-hidden className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-brand/25 blur-3xl" />
         <div className="absolute right-6 top-0 -translate-y-1/2">
           <span className="inline-flex items-center gap-1 rounded-full bg-brand px-3 py-1 font-inter text-[9px] font-semibold uppercase tracking-[0.18em] text-choco shadow-soft-md">
             <Sparkles className="h-2.5 w-2.5" aria-hidden />
@@ -657,27 +652,27 @@ function PricingCard({ pack, index }: { pack: Pack; index: number }) {
           </span>
         </div>
         <div className="relative">
-          <p className="mb-1 font-inter text-[10px] font-semibold uppercase tracking-[0.2em] text-brand">Pack {num}</p>
-          <h3 className="font-marcellus text-2xl font-medium leading-tight tracking-tight">{name}</h3>
-          <p className="mt-5 font-inter text-[10px] uppercase tracking-[0.18em] text-cream/50">À partir de</p>
+          <p className="mb-1 font-inter text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-dark">Pack {num}</p>
+          <h3 className="font-marcellus text-2xl font-medium leading-tight tracking-tight text-choco">{name}</h3>
+          <p className="mt-5 font-inter text-[10px] uppercase tracking-[0.18em] text-muted-warm">À partir de</p>
           <div className="mt-1 flex items-baseline gap-1.5">
-            <span className="font-marcellus text-4xl font-medium leading-none text-cream md:text-5xl">{priceLabel}</span>
-            <span className="font-marcellus text-2xl text-brand">€</span>
-            <span className="ml-1 font-inter text-[10px] uppercase tracking-[0.15em] text-cream/50">TTC</span>
+            <span className="font-marcellus text-4xl font-medium leading-none text-choco md:text-5xl">{priceLabel}</span>
+            <span className="font-marcellus text-2xl text-brand-dark">€</span>
+            <span className="ml-1 font-inter text-[10px] uppercase tracking-[0.15em] text-muted-warm">TTC</span>
           </div>
         </div>
-        <p className="relative mt-6 border-l-2 border-brand/40 pl-3 text-xs italic leading-relaxed text-cream/70">{forWho}</p>
+        <p className="relative mt-6 border-l-2 border-brand/40 pl-3 text-xs italic leading-relaxed text-muted-warm">{forWho}</p>
         <ul className="relative mt-6 flex-grow space-y-2.5">
           {features.map((f, i) => (
-            <motion.li key={f} initial={{ opacity: 0, x: -4 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.4, delay: 0.3 + i * 0.04 }} className="flex items-start gap-2.5 text-sm leading-relaxed text-cream/85">
-              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-brand" aria-hidden />
+            <motion.li key={f} initial={{ opacity: 0, x: -4 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.4, delay: 0.3 + i * 0.04 }} className="flex items-start gap-2.5 text-sm leading-relaxed text-muted-warm">
+              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-brand-dark" aria-hidden />
               <span>{f}</span>
             </motion.li>
           ))}
         </ul>
-        <div className="relative mt-6 rounded-2xl bg-white/10 p-4">
-          <p className="font-inter text-[9px] font-semibold uppercase tracking-[0.2em] text-brand">Pourquoi le choisir</p>
-          <p className="mt-1.5 text-xs italic leading-relaxed text-cream/80">{why}</p>
+        <div className="relative mt-6 rounded-2xl bg-brand-soft p-4">
+          <p className="font-inter text-[9px] font-semibold uppercase tracking-[0.2em] text-brand-dark">Pourquoi le choisir</p>
+          <p className="mt-1.5 text-xs italic leading-relaxed text-muted-warm">{why}</p>
         </div>
       </motion.div>
     );
