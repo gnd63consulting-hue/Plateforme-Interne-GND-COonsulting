@@ -3,10 +3,11 @@
 import { useState, useTransition } from 'react';
 import { createInvitation } from './actions';
 
-type Role = 'freelance' | 'stagiaire' | 'admin_limited' | 'admin';
+type Role = 'freelance' | 'assistant' | 'stagiaire' | 'admin_limited' | 'admin';
 
 const ROLE_LABELS: Record<Role, string> = {
   freelance: 'Freelance (commercial)',
+  assistant: 'Assistant commercial (suivi, sans finances)',
   stagiaire: 'Stagiaire (formation)',
   admin_limited: 'Admin Limited (accès large)',
   admin: 'Admin (accès complet)',
