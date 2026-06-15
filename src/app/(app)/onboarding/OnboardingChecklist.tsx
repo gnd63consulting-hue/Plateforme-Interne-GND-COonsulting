@@ -43,7 +43,7 @@ function Ring({ pct }: { pct: number }) {
         y="22"
         textAnchor="middle"
         dominantBaseline="central"
-        className="fill-gnd-bronze font-display"
+        className="fill-gnd-bronze font-marcellus"
         style={{ fontSize: 11, fontWeight: 600 }}
       >
         {pct}%
@@ -88,10 +88,10 @@ export function OnboardingChecklist({ storageKey }: { storageKey: string }) {
       <div className="mb-4 flex items-center gap-3">
         <Ring pct={pct} />
         <div>
-          <p className="font-display text-base font-medium text-gnd-bronze">
+          <p className="font-marcellus text-base font-medium text-choco">
             {allDone ? 'Tout est prêt 🎉' : 'Ta checklist de démarrage'}
           </p>
-          <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-gnd-amber">
+          <p className="font-inter text-[11px] font-semibold uppercase tracking-[0.16em] text-brand-dark">
             {completed}/{STEPS.length} terminé{completed > 1 ? 's' : ''}
           </p>
         </div>
@@ -110,14 +110,14 @@ export function OnboardingChecklist({ storageKey }: { storageKey: string }) {
                   'flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left transition-all ' +
                   (checked
                     ? 'border-gnd-amber/30 bg-gnd-amber/[0.06]'
-                    : 'border-gnd-bronze/10 bg-white/60 hover:border-gnd-bronze/25 hover:shadow-warm')
+                    : 'border-border-soft bg-white/60 hover:border-gnd-bronze/25 hover:shadow-soft')
                 }
               >
                 <span
                   className={
                     'flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition-colors ' +
                     (checked
-                      ? 'border-gnd-amber bg-gnd-amber text-white'
+                      ? 'border-gnd-amber bg-brand text-white'
                       : 'border-gnd-bronze/25 bg-white')
                   }
                 >
@@ -138,8 +138,8 @@ export function OnboardingChecklist({ storageKey }: { storageKey: string }) {
                   className={
                     'text-sm transition-colors ' +
                     (checked
-                      ? 'text-gnd-bronze-soft line-through'
-                      : 'text-gnd-bronze')
+                      ? 'text-muted-warm line-through'
+                      : 'text-ink-warm')
                   }
                 >
                   {step}
@@ -159,8 +159,8 @@ export function OnboardingChecklist({ storageKey }: { storageKey: string }) {
             transition={{ type: 'spring', stiffness: 200, damping: 18 }}
             className="mt-4 flex items-center gap-3 rounded-xl border border-gnd-amber/25 bg-gradient-to-r from-gnd-amber/10 to-gnd-cream/40 px-4 py-3"
           >
-            <PartyPopper className="h-5 w-5 shrink-0 text-gnd-amber" aria-hidden />
-            <p className="text-sm font-medium text-gnd-bronze">
+            <PartyPopper className="h-5 w-5 shrink-0 text-brand-dark" aria-hidden />
+            <p className="text-sm font-medium text-ink-warm">
               Bravo, tu es prêt à closer. Lance ta prospection !
             </p>
           </motion.div>
