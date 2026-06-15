@@ -1,7 +1,6 @@
 'use client';
 
 import { memo, useCallback, useMemo, useRef, useState } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
 import {
   ChevronDown,
   Flame,
@@ -27,6 +26,11 @@ import { evaluateRotting } from '@/lib/rotting';
 /** Colonnes "vivantes" (ordre pipeline) pour la navigation clavier ⬅/➡. */
 const LIVE_COLUMN_IDS = PIPELINE_COLUMNS.filter((c) => !c.dead).map((c) => c.id);
 const ALL_COLUMN_IDS = PIPELINE_COLUMNS.map((c) => c.id);
+
+/** Nombre de cartes rendues d'emblée par colonne. Le bouton « Afficher plus »
+ *  incrémente la limite locale de ce pas. Plafonner le DOM évite le jank sur
+ *  les colonnes massives (ex. 556 cartes « À contacter »). */
+const PAGE_SIZE = 30;
 
 /** Extrait un montant € à partir de ca_estime (texte libre : "12 000 €",
  *  "12k", "12 000-15 000", "≈ 8000€"). Retourne 0 si rien d'exploitable.
@@ -63,12 +67,25 @@ export default function ProspectKanban({
   onMoveToColumn,
   onOpenNotes,
 }: ProspectKanbanProps) {
-  const reduceMotion = useReducedMotion();
   const [deadOpen, setDeadOpen] = useState(false);
   const [dragOverCol, setDragOverCol] = useState<PipelineColumnId | null>(null);
   const draggingId = useRef<string | null>(null);
   // Région aria-live : annonce le résultat d'un déplacement (clavier ou souris).
   const [announce, setAnnounce] = useState('');
+  // Limite d'affichage par colonne (rendu plafonné, +PAGE_SIZE par clic).
+  const [limits, setLimits] = useState<Record<PipelineColumnId, number>>({
+    a_contacter: PAGE_SIZE,
+    tentative: PAGE_SIZE,
+    contact_etabli: PAGE_SIZE,
+    en_attente: PAGE_SIZE,
+    rdv_devis: PAGE_SIZE,
+    gagne: PAGE_SIZE,
+    mort: PAGE_SIZE,
+  });
+
+  const showMore = useCallback((columnId: PipelineColumnId) => {
+    setLimits((prev) => ({ ...prev, [columnId]: prev[columnId] + PAGE_SIZE }));
+  }, []);
 
   // Regroupe les prospects par colonne, une seule passe.
   const byColumn = useMemo(() => {
@@ -131,12 +148,16 @@ export default function ProspectKanban({
         {announce}
       </div>
 
-      {/* Board : colonnes vivantes en scroll horizontal sur petits écrans */}
-      <div className="-mx-1 flex snap-x gap-4 overflow-x-auto px-1 pb-4">
+      {/* Board borné : hauteur fixe (ne pousse pas la page), scroll horizontal
+          fluide pour les colonnes. Chaque colonne scrolle verticalement seule. */}
+      <div className="flex h-[calc(100vh-220px)] min-h-[24rem] gap-4 overflow-x-auto overflow-y-hidden px-1 pb-2">
         {liveColumns.map((col) => {
           const cards = byColumn[col.id];
           const total = cards.reduce((s, p) => s + parseCaEstime(p.ca_estime), 0);
           const isOver = dragOverCol === col.id;
+          const limit = limits[col.id];
+          const visible = cards.length > limit ? cards.slice(0, limit) : cards;
+          const remaining = cards.length - visible.length;
           return (
             <section
               key={col.id}
@@ -160,14 +181,14 @@ export default function ProspectKanban({
                 const p = prospects.find((x) => x.id === id);
                 if (p) move(p, col.id);
               }}
-              className={`flex w-[17rem] shrink-0 snap-start flex-col rounded-2xl border bg-gnd-paper/60 transition-colors sm:w-[18.5rem] ${
+              className={`flex h-full w-[320px] shrink-0 flex-col overflow-hidden rounded-2xl border bg-gnd-paper/60 transition-colors ${
                 isOver
                   ? 'border-gnd-amber bg-gnd-amber/5 ring-2 ring-gnd-amber/40'
                   : 'border-gnd-bronze/8'
               }`}
             >
-              {/* Entête colonne */}
-              <header className="sticky top-0 z-10 flex items-center justify-between gap-2 rounded-t-2xl border-b border-gnd-bronze/8 bg-gnd-paper/95 px-4 py-3 backdrop-blur">
+              {/* Entête colonne — sticky en tête du corps scrollable */}
+              <header className="sticky top-0 z-10 flex shrink-0 items-center justify-between gap-2 border-b border-gnd-bronze/8 bg-gnd-paper/95 px-4 py-3 backdrop-blur">
                 <div className="flex min-w-0 items-center gap-2">
                   <span className={`h-2 w-2 shrink-0 rounded-full ${col.accent}`} aria-hidden />
                   <h3
@@ -192,32 +213,44 @@ export default function ProspectKanban({
                 </div>
               </header>
 
-              {/* Cartes */}
-              <ul className="flex flex-1 flex-col gap-2.5 p-2.5">
+              {/* Corps scrollable vertical — chaque colonne défile seule */}
+              <ul className="flex flex-1 flex-col gap-2.5 overflow-y-auto p-2.5">
                 {cards.length === 0 ? (
                   <li className="rounded-xl border border-dashed border-gnd-bronze/10 px-3 py-6 text-center font-mono text-[10px] uppercase tracking-[0.15em] text-gnd-bronze-faded">
                     Vide
                   </li>
                 ) : (
-                  cards.map((p) => (
-                    <KanbanCard
-                      key={p.id}
-                      prospect={p}
-                      reduceMotion={!!reduceMotion}
-                      onOpenNotes={onOpenNotes}
-                      onDragStart={(e) => {
-                        draggingId.current = p.id;
-                        e.dataTransfer.setData('text/plain', p.id);
-                        e.dataTransfer.effectAllowed = 'move';
-                      }}
-                      onDragEnd={() => {
-                        draggingId.current = null;
-                        setDragOverCol(null);
-                      }}
-                      onKeyDown={(e) => handleCardKeyDown(e, p)}
-                      onMove={(colId) => move(p, colId)}
-                    />
-                  ))
+                  <>
+                    {visible.map((p) => (
+                      <KanbanCard
+                        key={p.id}
+                        prospect={p}
+                        onOpenNotes={onOpenNotes}
+                        onDragStart={(e) => {
+                          draggingId.current = p.id;
+                          e.dataTransfer.setData('text/plain', p.id);
+                          e.dataTransfer.effectAllowed = 'move';
+                        }}
+                        onDragEnd={() => {
+                          draggingId.current = null;
+                          setDragOverCol(null);
+                        }}
+                        onKeyDown={(e) => handleCardKeyDown(e, p)}
+                        onMove={(colId) => move(p, colId)}
+                      />
+                    ))}
+                    {remaining > 0 && (
+                      <li className="list-none">
+                        <button
+                          type="button"
+                          onClick={() => showMore(col.id)}
+                          className="w-full rounded-xl border border-dashed border-gnd-bronze/12 px-3 py-2 text-center font-mono text-[10px] font-semibold uppercase tracking-[0.1em] text-gnd-bronze-soft transition-colors hover:bg-gnd-bronze/[0.04] hover:text-gnd-bronze"
+                        >
+                          Afficher plus ({remaining} restant{remaining > 1 ? 's' : ''})
+                        </button>
+                      </li>
+                    )}
+                  </>
                 )}
               </ul>
             </section>
@@ -278,33 +311,23 @@ export default function ProspectKanban({
           </button>
         </h3>
         {deadOpen && (
-          <ul className="grid grid-cols-1 gap-2.5 p-2.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {deadCards.length === 0 ? (
-              <li className="col-span-full rounded-xl border border-dashed border-gnd-bronze/10 px-3 py-6 text-center font-mono text-[10px] uppercase tracking-[0.15em] text-gnd-bronze-faded">
-                Aucune sortie
-              </li>
-            ) : (
-              deadCards.map((p) => (
-                <KanbanCard
-                  key={p.id}
-                  prospect={p}
-                  reduceMotion={!!reduceMotion}
-                  onOpenNotes={onOpenNotes}
-                  onDragStart={(e) => {
-                    draggingId.current = p.id;
-                    e.dataTransfer.setData('text/plain', p.id);
-                    e.dataTransfer.effectAllowed = 'move';
-                  }}
-                  onDragEnd={() => {
-                    draggingId.current = null;
-                    setDragOverCol(null);
-                  }}
-                  onKeyDown={(e) => handleCardKeyDown(e, p)}
-                  onMove={(colId) => move(p, colId)}
-                />
-              ))
-            )}
-          </ul>
+          <DeadColumnBody
+            cards={deadCards}
+            limit={limits[deadColumn.id]}
+            onShowMore={() => showMore(deadColumn.id)}
+            onOpenNotes={onOpenNotes}
+            onDragStartFactory={(p) => (e) => {
+              draggingId.current = p.id;
+              e.dataTransfer.setData('text/plain', p.id);
+              e.dataTransfer.effectAllowed = 'move';
+            }}
+            onDragEnd={() => {
+              draggingId.current = null;
+              setDragOverCol(null);
+            }}
+            onCardKeyDown={handleCardKeyDown}
+            onMoveFactory={(p) => (colId) => move(p, colId)}
+          />
         )}
       </section>
     </div>
@@ -312,12 +335,74 @@ export default function ProspectKanban({
 }
 
 /* ====================================================================== */
-/* Carte — mémoïsée pour éviter le re-render global au drag                */
+/* Corps de la colonne morte — extrait pour garder le rendu plafonné      */
+/* ====================================================================== */
+
+type DeadColumnBodyProps = {
+  cards: Prospect[];
+  limit: number;
+  onShowMore: () => void;
+  onOpenNotes: (p: Prospect) => void;
+  onDragStartFactory: (p: Prospect) => (e: React.DragEvent) => void;
+  onDragEnd: () => void;
+  onCardKeyDown: (e: React.KeyboardEvent, p: Prospect) => void;
+  onMoveFactory: (p: Prospect) => (columnId: PipelineColumnId) => void;
+};
+
+function DeadColumnBody({
+  cards,
+  limit,
+  onShowMore,
+  onOpenNotes,
+  onDragStartFactory,
+  onDragEnd,
+  onCardKeyDown,
+  onMoveFactory,
+}: DeadColumnBodyProps) {
+  const visible = cards.length > limit ? cards.slice(0, limit) : cards;
+  const remaining = cards.length - visible.length;
+  return (
+    <>
+      <ul className="grid grid-cols-1 gap-2.5 p-2.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {cards.length === 0 ? (
+          <li className="col-span-full rounded-xl border border-dashed border-gnd-bronze/10 px-3 py-6 text-center font-mono text-[10px] uppercase tracking-[0.15em] text-gnd-bronze-faded">
+            Aucune sortie
+          </li>
+        ) : (
+          visible.map((p) => (
+            <KanbanCard
+              key={p.id}
+              prospect={p}
+              onOpenNotes={onOpenNotes}
+              onDragStart={onDragStartFactory(p)}
+              onDragEnd={onDragEnd}
+              onKeyDown={(e) => onCardKeyDown(e, p)}
+              onMove={onMoveFactory(p)}
+            />
+          ))
+        )}
+      </ul>
+      {remaining > 0 && (
+        <div className="px-2.5 pb-2.5">
+          <button
+            type="button"
+            onClick={onShowMore}
+            className="w-full rounded-xl border border-dashed border-gnd-bronze/12 px-3 py-2 text-center font-mono text-[10px] font-semibold uppercase tracking-[0.1em] text-gnd-bronze-soft transition-colors hover:bg-gnd-bronze/[0.04] hover:text-gnd-bronze"
+          >
+            Afficher plus ({remaining} restant{remaining > 1 ? 's' : ''})
+          </button>
+        </div>
+      )}
+    </>
+  );
+}
+
+/* ====================================================================== */
+/* Carte — mémoïsée pour éviter le re-render global au drag/scroll         */
 /* ====================================================================== */
 
 type KanbanCardProps = {
   prospect: Prospect;
-  reduceMotion: boolean;
   onOpenNotes: (p: Prospect) => void;
   onDragStart: (e: React.DragEvent) => void;
   onDragEnd: () => void;
@@ -327,7 +412,6 @@ type KanbanCardProps = {
 
 const KanbanCard = memo(function KanbanCard({
   prospect: p,
-  reduceMotion,
   onOpenNotes,
   onDragStart,
   onDragEnd,
@@ -340,16 +424,10 @@ const KanbanCard = memo(function KanbanCard({
     !!p.classification && /chaud|hot|🔥|prioritaire/i.test(p.classification);
 
   return (
-    <motion.li
-      className="list-none"
-      layout={!reduceMotion}
-      initial={reduceMotion ? false : { opacity: 0, y: 6 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25, ease: 'easeOut' }}
-    >
-      {/* Carte draggable : <div> HTML natif requis pour le DnD HTML5
-          (onDragStart/onDragEnd natifs). L'animation d'entrée + layout sont
-          portées par le <motion.li> parent, qui n'a AUCUN handler onDrag*. */}
+    <li className="list-none">
+      {/* Carte draggable : <div> HTML natif pour le DnD HTML5
+          (onDragStart/onDragEnd natifs). Plus aucune animation framer-motion
+          par carte — rendre 500+ cartes animées provoquait le jank. */}
       <div
         draggable
         onDragStart={onDragStart}
@@ -365,7 +443,7 @@ const KanbanCard = memo(function KanbanCard({
             onOpenNotes(p);
           }
         }}
-        className={`group relative cursor-grab rounded-xl border bg-white p-3 shadow-warm outline-none transition-shadow focus-visible:ring-2 focus-visible:ring-gnd-amber active:cursor-grabbing ${
+        className={`group relative w-full cursor-grab rounded-xl border bg-white p-3 shadow-warm outline-none transition-shadow focus-visible:ring-2 focus-visible:ring-gnd-amber active:cursor-grabbing ${
           rot.rotten ? 'border-l-[3px]' : 'border-gnd-bronze/8'
         }`}
         style={rot.rotten ? { borderColor: '#F39253', borderLeftColor: '#F39253' } : undefined}
@@ -409,7 +487,7 @@ const KanbanCard = memo(function KanbanCard({
             {labelForStatus(p.status)}
           </span>
           {p.ca_estime && (
-            <span className="font-mono text-[10px] text-gnd-amber-dim" title="CA estimé">
+            <span className="truncate font-mono text-[10px] text-gnd-amber-dim" title="CA estimé">
               {p.ca_estime}
             </span>
           )}
@@ -418,15 +496,15 @@ const KanbanCard = memo(function KanbanCard({
         {/* Méta : téléphone, ville, relance */}
         <div className="mt-2 flex flex-col gap-1">
           {p.phone && (
-            <span className="inline-flex items-center gap-1 font-mono text-[10px] text-gnd-bronze-soft">
-              <Phone className="h-3 w-3 text-gnd-bronze-faded" aria-hidden />
-              {p.phone}
+            <span className="inline-flex items-center gap-1 truncate font-mono text-[10px] text-gnd-bronze-soft">
+              <Phone className="h-3 w-3 shrink-0 text-gnd-bronze-faded" aria-hidden />
+              <span className="truncate">{p.phone}</span>
             </span>
           )}
           {p.city && (
-            <span className="inline-flex items-center gap-1 text-[11px] text-gnd-bronze-soft">
-              <MapPin className="h-3 w-3 text-gnd-bronze-faded" aria-hidden />
-              {p.city}
+            <span className="inline-flex items-center gap-1 truncate text-[11px] text-gnd-bronze-soft">
+              <MapPin className="h-3 w-3 shrink-0 text-gnd-bronze-faded" aria-hidden />
+              <span className="truncate">{p.city}</span>
             </span>
           )}
           {p.next_action_at && (
@@ -505,6 +583,6 @@ const KanbanCard = memo(function KanbanCard({
           </div>
         </div>
       </div>
-    </motion.li>
+    </li>
   );
 });
