@@ -4,6 +4,10 @@
     {
       "path": "/api/admin/sync-prospects",
       "schedule": "0 */6 * * *"
+    },
+    {
+      "path": "/api/sequences/tick",
+      "schedule": "0 8 * * *"
     }
   ]
 }
