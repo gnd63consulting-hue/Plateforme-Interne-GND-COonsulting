@@ -420,70 +420,9 @@ function SyncSection({ commerciaux }: { commerciaux: CommercialV2[] }) {
 }
 
 
-// Top bar de variantes (cockpit / dense / japon). Conforme à la source design
-// `Vue Admin v2-print.html` lignes 1138-1157. Dupliqué localement — DRY refactor
-// avec PR #4 (variante G activée).
-function TopBarVariantSwitcher({ active }: { active: 'A' | 'C' | 'G' }) {
-  const variants: { k: 'A' | 'C' | 'G'; label: string; href: string; disabled?: boolean }[] = [
-    { k: 'A', label: 'Cockpit', href: '/admin' },
-    { k: 'C', label: 'Dense', href: '/admin/dense' },
-    { k: 'G', label: 'Japon-Magazine', href: '/admin/japon' },
-  ];
-  return (
-    <div style={{
-      display: 'flex',
-      gap: 6,
-      padding: '8px 16px',
-      alignItems: 'center',
-      background: '#FBF7F2',
-      borderBottom: '1px solid #E2D5C3',
-      flexShrink: 0,
-    }}>
-      <span style={{
-        fontFamily: 'var(--font-inter)',
-        fontSize: 8,
-        textTransform: 'uppercase',
-        letterSpacing: '0.22em',
-        color: '#B5601C',
-        marginRight: 8,
-      }}>VARIANTE :</span>
-      {variants.map((v) => {
-        const isActive = active === v.k;
-        return (
-          <Link
-            key={v.k}
-            href={v.disabled ? '#' : v.href}
-            onClick={(e) => { if (v.disabled) e.preventDefault(); }}
-            title={v.disabled ? 'Bientôt disponible' : undefined}
-            style={{
-              padding: '4px 10px',
-              borderRadius: 8,
-              cursor: v.disabled ? 'not-allowed' : 'pointer',
-              opacity: v.disabled ? 0.4 : 1,
-              background: isActive ? 'rgba(243,146,83,0.18)' : '#FFFFFF',
-              border: `1px solid ${isActive ? 'rgba(243,146,83,0.40)' : '#E2D5C3'}`,
-              color: isActive ? '#B5601C' : '#7B665C',
-              fontFamily: 'var(--font-inter)',
-              fontSize: 8,
-              fontWeight: 600,
-              textTransform: 'uppercase',
-              letterSpacing: '0.14em',
-              transition: 'all 0.15s',
-              textDecoration: 'none',
-              display: 'inline-block',
-            }}
-          >{v.k} · {v.label}</Link>
-        );
-      })}
-      <div style={{ marginLeft: 'auto' }} />
-    </div>
-  );
-}
-
 export default function AdminV2Client({ data }: { data: AdminV2PageData }) {
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
-      <TopBarVariantSwitcher active="A" />
       <div style={{ flex: 1, background: '#F6EFE7', overflowY: 'auto' }}>
       <header style={{ position: 'relative', padding: '28px 40px', overflow: 'hidden', borderBottom: '1px solid #E2D5C3' }}>
         <span aria-hidden style={{ position: 'absolute', right: -20, top: -40, fontFamily: 'var(--font-marcellus)', fontSize: 200, fontWeight: 500, lineHeight: 1, letterSpacing: '-0.04em', color: 'rgba(243,146,83,0.08)', whiteSpace: 'nowrap', pointerEvents: 'none', userSelect: 'none' }}>Pipeline.</span>
