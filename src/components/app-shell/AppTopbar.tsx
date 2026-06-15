@@ -15,12 +15,12 @@ export type TopbarUser = {
 };
 
 /**
- * AppTopbar — barre fine du nouveau shell SaaS (Sprint 10).
+ * AppTopbar — barre fine en haut du panneau blanc (Sprint 10, réf Drive).
  *
- * Burger (mobile, ouvre le drawer), recherche (décorative, non câblée au
- * back), cloche de notifications (décorative), menu profil avec déconnexion.
- * La recherche et la cloche sont volontairement passives : aucune logique
- * métier n'est ajoutée côté client.
+ * Search PILL arrondie (fond crème #F7EEE3), à droite cloche + menu profil
+ * (avatar/nom/rôle). Fin liseré bas beige. Burger (mobile) pour le drawer.
+ * La recherche et la cloche sont décoratives : aucune logique métier côté
+ * client n'est ajoutée.
  */
 export default function AppTopbar({
   user,
@@ -52,28 +52,28 @@ export default function AppTopbar({
     user.role === 'admin' ? 'Administrateur' : 'Commercial';
 
   return (
-    <header className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-border-soft/60 bg-cream/80 px-4 backdrop-blur-xl md:px-6">
+    <header className="flex h-16 shrink-0 items-center gap-3 border-b border-border-soft/60 bg-surface-soft px-4 md:px-7">
       {/* Burger (mobile) */}
       <button
         type="button"
         onClick={onOpenMenu}
         aria-label="Ouvrir le menu"
-        className="flex h-10 w-10 items-center justify-center rounded-xl text-ink-warm transition-colors hover:bg-surface-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring lg:hidden"
+        className="flex h-10 w-10 items-center justify-center rounded-xl text-ink-warm transition-colors hover:bg-cream-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring lg:hidden"
       >
         <Menu className="h-5 w-5" aria-hidden />
       </button>
 
-      {/* Recherche (décorative) */}
-      <div className="relative hidden max-w-sm flex-1 sm:block">
+      {/* Search pill (décorative) — fond crème #F7EEE3 (cream-deep). */}
+      <div className="relative hidden max-w-md flex-1 sm:block">
         <Search
-          className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-warm"
+          className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-warm"
           aria-hidden
         />
         <input
           type="search"
           placeholder="Rechercher un prospect, une ressource…"
           aria-label="Rechercher"
-          className="h-10 w-full rounded-full border border-border-soft/70 bg-surface-soft pl-9 pr-4 text-sm text-ink-warm placeholder:text-muted-warm/70 transition-colors focus:border-brand/40 focus:outline-none focus:ring-2 focus:ring-brand-ring"
+          className="h-10 w-full rounded-full bg-cream-deep pl-10 pr-4 text-sm text-ink-warm placeholder:text-muted-warm/70 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-ring"
         />
       </div>
 
@@ -83,12 +83,12 @@ export default function AppTopbar({
       <button
         type="button"
         aria-label="Notifications"
-        className="relative flex h-10 w-10 items-center justify-center rounded-full text-muted-warm transition-colors hover:bg-surface-soft hover:text-ink-warm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring"
+        className="relative flex h-10 w-10 items-center justify-center rounded-full text-muted-warm transition-colors hover:bg-cream-deep hover:text-ink-warm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring"
       >
         <Bell className="h-[18px] w-[18px]" aria-hidden />
         <span
           aria-hidden
-          className="absolute right-2.5 top-2.5 h-1.5 w-1.5 rounded-full bg-brand ring-2 ring-cream"
+          className="absolute right-2.5 top-2.5 h-1.5 w-1.5 rounded-full bg-brand ring-2 ring-surface-soft"
         />
       </button>
 

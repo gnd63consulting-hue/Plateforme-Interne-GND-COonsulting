@@ -5,12 +5,24 @@ import AppSidebar, { type SidebarUser } from './AppSidebar';
 import AppTopbar from './AppTopbar';
 
 /**
- * AppShell — coquille SaaS cliente (Sprint 10).
+ * AppShell — coquille SaaS cliente (Sprint 10, redesign réf Google Drive).
  *
- * Orchestre l'état du drawer mobile entre le topbar (burger) et la sidebar.
+ * Toute l'app est posée sur un FOND CRÈME teinté ; un GRAND PANNEAU BLANC aux
+ * coins très arrondis (`rounded-[28px]`/`32px`) « flotte » au-dessus, avec une
+ * marge crème visible tout autour (le fond déborde). Le panneau contient la
+ * sidebar (à gauche, intégrée), le topbar (en haut) et le contenu scrollable.
+ *
+ * - Desktop : panneau plein écran, sidebar collée à gauche DANS le panneau,
+ *   colonne droite = topbar sticky + zone de contenu qui scrolle.
+ * - Mobile : la sidebar devient un drawer (géré dans AppSidebar) ; le panneau
+ *   occupe toute la largeur.
+ *
+ * Le smooth-scroll global (Lenis) ne touche PAS aux conteneurs marqués
+ * `data-lenis-prevent` : la zone de contenu et la nav de la sidebar scrollent
+ * donc nativement à la molette.
+ *
  * Le layout serveur (`(app)/layout.tsx`) reste server-only (auth + fetch
- * profil) et délègue le rendu interactif ici. Le contenu de chaque page est
- * rendu dans un panneau crème ; les pages restent inchangées.
+ * profil) et délègue le rendu interactif ici. Les pages restent inchangées.
  */
 export default function AppShell({
   user,
@@ -24,27 +36,36 @@ export default function AppShell({
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-cream">
-      <AppSidebar
-        user={user}
-        isAdmin={isAdmin}
-        mobileOpen={mobileOpen}
-        onMobileClose={() => setMobileOpen(false)}
-      />
+    <div className="min-h-screen bg-cream bg-gradient-cream-app">
+      {/* Marge crème visible autour du panneau (réf Drive). */}
+      <div className="mx-auto h-screen max-w-[1680px] p-3 sm:p-4 lg:p-5">
+        {/* GRAND PANNEAU BLANC arrondi — contient sidebar + topbar + contenu. */}
+        <div className="flex h-full overflow-hidden rounded-[28px] border border-border-soft/60 bg-surface-soft shadow-soft-lg lg:rounded-[32px]">
+          {/* Sidebar intégrée (desktop) + drawer (mobile) */}
+          <AppSidebar
+            user={user}
+            isAdmin={isAdmin}
+            mobileOpen={mobileOpen}
+            onMobileClose={() => setMobileOpen(false)}
+          />
 
-      <div className="lg:pl-[264px]">
-        <AppTopbar
-          user={user}
-          isAdmin={isAdmin}
-          onOpenMenu={() => setMobileOpen(true)}
-        />
+          {/* Colonne droite : topbar fin + contenu scrollable */}
+          <div className="flex min-w-0 flex-1 flex-col">
+            <AppTopbar
+              user={user}
+              isAdmin={isAdmin}
+              onOpenMenu={() => setMobileOpen(true)}
+            />
 
-        <main className="px-4 pb-12 pt-5 md:px-6 lg:px-8">
-          {/* Panneau de contenu arrondi posé sur le fond crème (réf Drive). */}
-          <div className="mx-auto min-h-[calc(100vh-7rem)] max-w-screen-2xl rounded-3xl border border-border-soft/50 bg-surface-soft p-5 shadow-soft sm:p-7 lg:p-9">
-            {children}
+            {/* Zone de contenu : scroll natif (Lenis ignore data-lenis-prevent). */}
+            <main
+              data-lenis-prevent
+              className="flex-1 overflow-y-auto overflow-x-hidden px-4 pb-10 pt-5 md:px-7 lg:px-9 lg:pt-7"
+            >
+              <div className="mx-auto w-full max-w-screen-xl">{children}</div>
+            </main>
           </div>
-        </main>
+        </div>
       </div>
     </div>
   );

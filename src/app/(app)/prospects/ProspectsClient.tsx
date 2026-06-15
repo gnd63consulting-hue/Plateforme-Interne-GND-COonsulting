@@ -1,10 +1,10 @@
 'use client';
 
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
-  Activity,
+  Award,
   ChevronLeft,
   ChevronRight,
   Edit3,
@@ -18,9 +18,11 @@ import {
   Search,
   Sparkles,
   StickyNote,
+  Target,
   Trash2,
   TrendingUp,
-  Zap,
+  Trophy,
+  Users,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase-client';
 import {
@@ -36,10 +38,8 @@ import { resolveDropStatus, type PipelineColumnId } from '@/lib/pipeline';
 import ProspectModal, { type ProspectFormValues } from '@/components/ProspectModal';
 import ProspectDetailsModal from '@/components/ProspectDetailsModal';
 import ProspectTimeline from '@/components/ProspectTimeline';
-import ProspectsHeroVisual from '@/components/ProspectsHeroVisual';
 import ProspectKanban from '@/components/ProspectKanban';
-import SpeedometerGauge from '@/components/SpeedometerGauge';
-import RocketProgress from '@/components/RocketProgress';
+import { SectionHeader, StatCard, Button } from '@/components/ui';
 
 type ProspectsClientProps = {
   initialProspects: Prospect[];
@@ -110,13 +110,6 @@ export default function ProspectsClient({
   } | null>(null);
 
   const supabase = useMemo(() => createClient(), []);
-  const heroRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ['start start', 'end start'],
-  });
-  const watermarkY = useTransform(scrollYProgress, [0, 1], ['0%', '40%']);
-  const watermarkOpacity = useTransform(scrollYProgress, [0, 1], [1, 0.3]);
 
   // Restaure le choix de vue (table/kanban) depuis localStorage au montage.
   useEffect(() => {
@@ -462,191 +455,90 @@ export default function ProspectsClient({
   ];
   const earnedBonus = TIERS.filter((t) => stats.signed >= t.threshold).reduce((sum, t) => sum + t.bonus, 0);
   const nextTier = TIERS.find((t) => stats.signed < t.threshold);
-  const tierProgress = nextTier ? (stats.signed / nextTier.threshold) * 100 : 100;
 
   return (
     <div className="relative">
-      {/* Hero */}
-      <header
-        ref={heroRef}
-        className="relative mb-12 grid min-h-[60vh] grid-cols-1 items-center gap-12 overflow-hidden lg:grid-cols-[7fr_5fr] lg:gap-16"
+      {/* ---- En-tête clair (réf shell Drive) ---- */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        className="mb-7"
       >
-        <motion.span
-          aria-hidden
-          style={{ y: watermarkY, opacity: watermarkOpacity }}
-          className="pointer-events-none absolute -bottom-10 -left-4 select-none whitespace-nowrap font-display text-[20vw] font-medium leading-none tracking-tighter text-gnd-bronze/[0.04] sm:-bottom-20 sm:text-[16rem]"
-        >
-          Prospects.
-        </motion.span>
-
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          className="relative z-10 max-w-2xl"
-        >
-          <div className="mb-4 flex items-center gap-2">
-            <span className="h-px w-8 bg-gnd-amber" />
-            <span className="font-mono text-[10px] font-medium uppercase tracking-[0.2em] text-gnd-amber">
-              Mon pipeline
-            </span>
-          </div>
-          <h1 className="font-display text-display-xl font-medium leading-[0.95] tracking-tight text-gnd-bronze">
-            Tes <span className="italic text-gnd-amber">prospects</span>,
-            <br />
-            {firstName}.
-          </h1>
-          <p className="mt-6 max-w-xl text-pretty text-base leading-relaxed text-gnd-bronze-soft sm:text-lg">
-            Carnet de bord personnel. Crée, édite, fais évoluer tes prospects au fil des contacts. Ta progression et tes paliers de bonus en direct.
-          </p>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, x: 30 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.9, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-          className="relative z-10"
-        >
-          <ProspectsHeroVisual total={stats.total} contacted={stats.contacted} signed={stats.signed} />
-        </motion.div>
-      </header>
-
-      {/* ==================================================================== */}
-      {/* Dashboard cockpit — dark bronze/ink avec glow amber                    */}
-      {/* ==================================================================== */}
-      <motion.section
-        initial={{ opacity: 0, y: 32 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-50px' }}
-        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        className="relative mb-12 overflow-hidden rounded-3xl border border-gnd-amber/15 bg-gradient-to-br from-gnd-bronze via-gnd-bronze to-gnd-ink p-6 shadow-warm-xl sm:p-8"
-        style={{
-          backgroundImage: `
-            radial-gradient(circle at 20% 0%, rgba(232, 133, 61, 0.12) 0%, transparent 50%),
-            radial-gradient(circle at 80% 100%, rgba(232, 133, 61, 0.08) 0%, transparent 50%),
-            linear-gradient(135deg, #3D1F1E 0%, #1A0F0E 100%)
-          `,
-        }}
-      >
-        {/* HUD top bar */}
-        <div className="mb-6 flex items-center justify-between border-b border-gnd-amber/15 pb-4">
-          <div className="flex items-center gap-3">
-            <span className="flex h-2 w-2 animate-pulse rounded-full bg-gnd-amber shadow-[0_0_8px_rgba(232,133,61,0.8)]" />
-            <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.25em] text-gnd-amber">
-              Console Personnelle · Live
-            </span>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-gnd-cream/50">
-              {new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase()}
-            </span>
-            <span className="flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.2em] text-gnd-cream/70">
-              <Activity className="h-3 w-3 text-gnd-amber" aria-hidden />
-              {stats.total} sig.
-            </span>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[auto_1fr]">
-          {/* SPEEDOMETER */}
-          <div className="flex flex-col items-center justify-center rounded-2xl border border-gnd-amber/10 bg-gnd-ink/40 p-6 backdrop-blur-sm">
-            <div className="mb-2 flex items-center gap-2">
-              <TrendingUp className="h-3.5 w-3.5 text-gnd-amber" aria-hidden />
-              <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-gnd-amber">
-                Conversion
+        <SectionHeader
+          as="h1"
+          eyebrow="Mon pipeline"
+          title={
+            <>
+              Tes <span className="italic text-brand-dark">prospects</span>,{' '}
+              {firstName}.
+            </>
+          }
+          subtitle="Carnet de bord personnel. Crée, édite et fais évoluer tes prospects au fil des contacts ; ta progression et tes paliers de bonus en direct."
+          action={
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-brand/25 bg-brand-soft px-3.5 py-1.5 text-sm font-semibold text-choco tabular-nums">
+                <Trophy className="h-3.5 w-3.5 text-brand-dark" aria-hidden />
+                Bonus&nbsp;: {earnedBonus} €
               </span>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => setCreateOpen(true)}
+              >
+                <Plus className="h-4 w-4" aria-hidden />
+                Nouveau
+              </Button>
             </div>
-            <SpeedometerGauge
-              value={stats.conversionRate}
-              label="Taux conversion"
-              formatValue={(v) => `${Math.round(v)}`}
-              subtitle="%"
-              subLeft={{ value: stats.contactRate, label: 'CTC' }}
-              subRight={{ value: stats.rdvRate, label: 'RDV' }}
-            />
-            {/* Footer stats */}
-            <div className="mt-4 flex w-full items-center justify-between border-t border-gnd-amber/10 pt-3 text-center">
-              <div>
-                <p className="font-mono text-[8px] uppercase tracking-[0.18em] text-gnd-cream/50">
-                  Signés
-                </p>
-                <p className="font-display text-lg font-medium text-gnd-cream">{stats.signed}</p>
-              </div>
-              <div className="h-6 w-px bg-gnd-amber/20" />
-              <div>
-                <p className="font-mono text-[8px] uppercase tracking-[0.18em] text-gnd-cream/50">
-                  Total
-                </p>
-                <p className="font-display text-lg font-medium text-gnd-cream">{stats.total}</p>
-              </div>
-              <div className="h-6 w-px bg-gnd-amber/20" />
-              <div>
-                <p className="font-mono text-[8px] uppercase tracking-[0.18em] text-gnd-cream/50">
-                  Bonus
-                </p>
-                <p className="font-display text-lg font-medium text-gnd-amber">
-                  {earnedBonus} €
-                </p>
-              </div>
-            </div>
-          </div>
+          }
+        />
+      </motion.div>
 
-          {/* ROCKET + BONUS PANEL */}
-          <div className="relative flex flex-col rounded-2xl border border-gnd-amber/10 bg-gnd-ink/40 p-6 backdrop-blur-sm">
-            <div className="mb-4 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Zap className="h-3.5 w-3.5 text-gnd-amber" aria-hidden />
-                <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-gnd-amber">
-                  Trajectoire bonus
-                </span>
-              </div>
-              <span className="rounded-full border border-gnd-amber/30 bg-gnd-amber/10 px-2.5 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-[0.18em] text-gnd-amber-glow">
-                {stats.signed} signé{stats.signed > 1 ? 's' : ''}
+      {/* ---- Bandeau KPI léger (réf Dropify, ton clair) ---- */}
+      <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          icon={<Users className="h-5 w-5" aria-hidden />}
+          label="Total prospects"
+          value={String(stats.total)}
+          delta={`${stats.contacted} contactés`}
+          deltaDirection={stats.contacted > 0 ? 'up' : 'flat'}
+        />
+        <StatCard
+          icon={<Target className="h-5 w-5" aria-hidden />}
+          label="RDV pris"
+          value={String(stats.rdv)}
+          delta={stats.rdvRate > 0 ? `${Math.round(stats.rdvRate)}%` : undefined}
+          deltaDirection={stats.rdv > 0 ? 'up' : 'flat'}
+        />
+        <StatCard
+          icon={<TrendingUp className="h-5 w-5" aria-hidden />}
+          label="Taux de conversion"
+          value={`${Math.round(stats.conversionRate)}%`}
+          delta={`${stats.signed} signé${stats.signed > 1 ? 's' : ''}`}
+          deltaDirection={stats.signed > 0 ? 'up' : 'flat'}
+        />
+        <StatCard
+          accent
+          icon={<Award className="h-5 w-5" aria-hidden />}
+          label="Signés"
+          value={String(stats.signed)}
+          delta={nextTier ? `→ ${nextTier.threshold}` : 'max'}
+          deltaDirection={stats.signed > 0 ? 'up' : 'flat'}
+          sub={
+            nextTier ? (
+              <span>
+                Plus que{' '}
+                <strong className="text-choco tabular-nums">
+                  {nextTier.threshold - stats.signed}
+                </strong>{' '}
+                pour {nextTier.bonus} €
               </span>
-            </div>
-            <h3 className="mb-1 font-display text-2xl font-medium text-gnd-cream">
-              Décolle vers ton{' '}
-              <span className="italic text-gnd-amber">prochain palier</span>
-            </h3>
-            <p className="mb-6 max-w-md text-sm text-gnd-cream/60">
-              La fusée progresse en continu. Chaque palier débloqué ajoute son bonus au
-              compteur.
-            </p>
-
-            <div className="flex h-52 items-stretch">
-              <RocketProgress signed={stats.signed} />
-            </div>
-
-            {/* Mini progress to next tier */}
-            {nextTier && (
-              <div className="mt-4 border-t border-gnd-amber/10 pt-4">
-                <div className="flex items-center justify-between font-mono text-[9px] uppercase tracking-[0.18em] text-gnd-cream/60">
-                  <span>Prochain palier</span>
-                  <span className="text-gnd-amber">
-                    {stats.signed} / {nextTier.threshold}
-                  </span>
-                </div>
-                <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-gnd-bronze/40">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${tierProgress}%` }}
-                    transition={{ duration: 1.4, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                    className="h-full rounded-full bg-gradient-to-r from-gnd-amber-dim via-gnd-amber to-gnd-amber-glow shadow-[0_0_8px_rgba(232,133,61,0.6)]"
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* HUD bottom bar with KPIs */}
-        <div className="mt-6 grid grid-cols-2 gap-3 border-t border-gnd-amber/15 pt-4 sm:grid-cols-4">
-          <HudKpi label="Total" value={stats.total} />
-          <HudKpi label="Contactés" value={stats.contacted} highlight />
-          <HudKpi label="RDV pris" value={stats.rdv} highlight />
-          <HudKpi label="Signés" value={stats.signed} accent />
-        </div>
-      </motion.section>
+            ) : (
+              <span className="text-emerald-700">Tous paliers atteints</span>
+            )
+          }
+        />
+      </div>
 
       {/* ==================================================================== */}
       {/* Filters + actions                                                      */}
@@ -977,18 +869,6 @@ export default function ProspectsClient({
           </div>
         </div>
       )}
-    </div>
-  );
-}
-
-function HudKpi({ label, value, highlight, accent }: { label: string; value: number; highlight?: boolean; accent?: boolean }) {
-  const fg = accent ? 'text-gnd-amber-glow' : highlight ? 'text-gnd-amber' : 'text-gnd-cream';
-  return (
-    <div className="flex flex-col items-center gap-1 rounded-xl border border-gnd-amber/10 bg-gnd-ink/40 p-3 backdrop-blur-sm">
-      <p className="font-mono text-[8px] font-semibold uppercase tracking-[0.22em] text-gnd-cream/60">
-        {label}
-      </p>
-      <p className={`font-display text-2xl font-medium ${fg}`}>{value}</p>
     </div>
   );
 }
