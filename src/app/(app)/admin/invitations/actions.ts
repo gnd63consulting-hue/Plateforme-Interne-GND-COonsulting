@@ -19,7 +19,7 @@ import { revalidatePath } from 'next/cache';
  */
 export async function createInvitation(
   email: string,
-  role: 'freelance' | 'admin' | 'admin_limited' | 'stagiaire'
+  role: 'freelance' | 'assistant' | 'admin' | 'admin_limited' | 'stagiaire'
 ): Promise<{ error: string | null }> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

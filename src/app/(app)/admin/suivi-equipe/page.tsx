@@ -25,7 +25,8 @@ const SERIF = 'var(--font-marcellus), Georgia, serif';
 const MONO = 'var(--font-inter), ui-monospace, monospace';
 const SANS = 'var(--font-inter), system-ui, sans-serif';
 
-const ADMIN_ROLES = new Set(['admin', 'admin_limited']);
+// Console : admins + assistant (team.view). Le financier reste hors de ces pages.
+const CONSOLE_ROLES = new Set(['admin', 'admin_limited', 'assistant']);
 
 /**
  * /admin/suivi-equipe (Sprint 20) — couche MANAGER.
@@ -47,7 +48,7 @@ export default async function SuiviEquipePage() {
     .select('role')
     .eq('id', user.id)
     .maybeSingle();
-  if (!me || !ADMIN_ROLES.has(me.role)) redirect('/dashboard');
+  if (!me || !CONSOLE_ROLES.has(me.role)) redirect('/dashboard');
 
   const admin = createAdminClient();
   const now = new Date();

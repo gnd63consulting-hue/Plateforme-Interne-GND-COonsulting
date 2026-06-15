@@ -1,10 +1,9 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase-server';
 import AdminSidebar from '@/components/gnd/AdminSidebar';
+import { CONSOLE_ROLES, roleLabel } from '@/lib/permissions';
 
 export const dynamic = 'force-dynamic';
-
-const ADMIN_ROLES = new Set(['admin', 'admin_limited']);
 
 /**
  * Layout fullscreen pour /admin (et toutes ses sous-routes : /admin/v2,
@@ -42,17 +41,12 @@ export default async function AdminLayout({
     .eq('id', user.id)
     .maybeSingle();
 
-  if (!profile || !ADMIN_ROLES.has(profile.role)) {
+  if (!profile || !CONSOLE_ROLES.has(profile.role)) {
     redirect('/dashboard');
   }
 
   const userName = profile.full_name ?? profile.email.split('@')[0];
-  const userRole =
-    profile.role === 'admin'
-      ? 'FONDATEUR'
-      : profile.role === 'admin_limited'
-      ? 'CO-ADMIN'
-      : 'ADMIN';
+  const userRole = roleLabel(profile.role);
 
   return (
     <div
@@ -70,6 +64,7 @@ export default async function AdminLayout({
         userName={userName}
         userEmail={profile.email}
         userRole={userRole}
+        roleKey={profile.role}
       />
       <main
         data-lenis-prevent
