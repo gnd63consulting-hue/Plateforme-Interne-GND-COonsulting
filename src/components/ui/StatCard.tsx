@@ -5,13 +5,14 @@ import { Card } from './Card';
 import { SparklineSVG } from './SparklineSVG';
 
 /**
- * StatCard — carte KPI du Design System Sprint 10 (réf Dropify).
+ * StatCard — carte KPI du Design System Sprint 10 (réf mockup ChatGPT).
  *
- * Pastille icône (carré arrondi ~40px, fond orange pâle) + label + grand
- * nombre + delta % + mini-sparkline. Variante `accent` (orange de marque)
- * pour la carte la plus importante de la rangée. a11y : le nombre reste en
- * charbon (sauf accent → orange foncé) pour le contraste ; le delta a une
- * couleur sémantique + une icône (pas couleur seule).
+ * Pastille icône (carré arrondi ~40px, fond orange pâle) + label majuscule
+ * discret + grand nombre, et à droite SOIT un mini-graph (sparkline/donut via
+ * `chart`), SOIT un badge delta. Variante `accent` (orange de marque) pour la
+ * carte la plus importante de la rangée. a11y : le nombre reste en charbon
+ * (sauf accent → orange foncé) pour le contraste ; le delta a une couleur
+ * sémantique + une icône (jamais couleur seule).
  */
 export type DeltaDirection = 'up' | 'down' | 'flat';
 
@@ -19,12 +20,15 @@ export interface StatCardProps {
   label: string;
   value: string;
   icon: React.ReactNode;
-  /** Texte du delta (ex. « +12% », « 3 cette semaine »). */
+  /** Texte du delta (ex. « ↗ 56 cette… », « 3 en retard »). */
   delta?: string;
   deltaDirection?: DeltaDirection;
-  /** Données pour la mini-sparkline (optionnelle). */
+  /** Données pour la mini-sparkline (optionnelle, ignorée si `chart` fourni). */
   sparkline?: number[];
   sparklineVariant?: 'area' | 'bars';
+  /** Mini-graph libre (donut, courbe custom…) posé en bas-droite. Prioritaire
+   *  sur `sparkline` quand fourni. */
+  chart?: React.ReactNode;
   sub?: React.ReactNode;
   accent?: boolean;
   className?: string;
@@ -45,6 +49,7 @@ export function StatCard({
   deltaDirection = 'flat',
   sparkline,
   sparklineVariant = 'area',
+  chart,
   sub,
   accent = false,
   className,
@@ -58,7 +63,7 @@ export function StatCard({
       className={cn('rounded-2xl p-5', className)}
     >
       <div className="flex items-start justify-between gap-3">
-        {/* Pastille icône — carré arrondi ~40px, fond teinté orange (réf Dropify). */}
+        {/* Pastille icône — carré arrondi ~40px, fond teinté orange. */}
         <span
           aria-hidden
           className={cn(
@@ -94,12 +99,17 @@ export function StatCard({
         >
           {value}
         </p>
-        {sparkline && sparkline.length > 0 && (
-          <SparklineSVG
-            data={sparkline}
-            variant={sparklineVariant}
-            className="mb-0.5 shrink-0"
-          />
+        {chart ? (
+          <span className="mb-0.5 shrink-0">{chart}</span>
+        ) : (
+          sparkline &&
+          sparkline.length > 0 && (
+            <SparklineSVG
+              data={sparkline}
+              variant={sparklineVariant}
+              className="mb-0.5 shrink-0"
+            />
+          )
         )}
       </div>
 
