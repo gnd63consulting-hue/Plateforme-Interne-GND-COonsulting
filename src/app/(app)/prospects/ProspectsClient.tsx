@@ -29,9 +29,9 @@ import {
   formatDate,
   labelForStatus,
   STATUS_OPTIONS,
-  toneForStatus,
   type Prospect,
 } from '@/lib/prospects';
+import { pastelClassesForStatus } from '@/lib/status-tone';
 import { phoneKey9 } from '@/lib/dedup';
 import { insertActivityRow } from '@/lib/activities';
 import { resolveDropStatus, type PipelineColumnId } from '@/lib/pipeline';
@@ -39,7 +39,7 @@ import ProspectModal, { type ProspectFormValues } from '@/components/ProspectMod
 import ProspectDetailsModal from '@/components/ProspectDetailsModal';
 import ProspectTimeline from '@/components/ProspectTimeline';
 import ProspectKanban from '@/components/ProspectKanban';
-import { SectionHeader, StatCard, Button } from '@/components/ui';
+import { SectionHeader, StatCard, Button, Avatar } from '@/components/ui';
 
 type ProspectsClientProps = {
   initialProspects: Prospect[];
@@ -458,7 +458,7 @@ export default function ProspectsClient({
 
   return (
     <div className="relative">
-      {/* ---- En-tête clair (réf shell Drive) ---- */}
+      {/* ---- En-tête sobre (Design System Sprint 10) ---- */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
@@ -468,13 +468,8 @@ export default function ProspectsClient({
         <SectionHeader
           as="h1"
           eyebrow="Mon pipeline"
-          title={
-            <>
-              Tes <span className="italic text-brand-dark">prospects</span>,{' '}
-              {firstName}.
-            </>
-          }
-          subtitle="Carnet de bord personnel. Crée, édite et fais évoluer tes prospects au fil des contacts ; ta progression et tes paliers de bonus en direct."
+          title="Mes prospects"
+          subtitle={`Carnet de bord de ${firstName} — crée, édite et fais évoluer tes prospects au fil des contacts. Progression et paliers de bonus en direct.`}
           action={
             <div className="flex flex-wrap items-center gap-2">
               <span className="inline-flex items-center gap-1.5 rounded-full border border-brand/25 bg-brand-soft px-3.5 py-1.5 text-sm font-semibold text-choco tabular-nums">
@@ -494,7 +489,7 @@ export default function ProspectsClient({
         />
       </motion.div>
 
-      {/* ---- Bandeau KPI léger (réf Dropify, ton clair) ---- */}
+      {/* ---- Bandeau KPI léger (StatCard DS) ---- */}
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           icon={<Users className="h-5 w-5" aria-hidden />}
@@ -549,7 +544,7 @@ export default function ProspectsClient({
           <div
             role="group"
             aria-label="Mode d'affichage"
-            className="inline-flex shrink-0 items-center gap-1 rounded-full border border-gnd-bronze/10 bg-white p-1"
+            className="inline-flex shrink-0 items-center gap-1 rounded-full border border-border-soft bg-white p-1 shadow-soft"
           >
             <button
               type="button"
@@ -557,8 +552,8 @@ export default function ProspectsClient({
               aria-pressed={view === 'table'}
               className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
                 view === 'table'
-                  ? 'bg-gnd-bronze text-gnd-cream'
-                  : 'text-gnd-bronze-soft hover:bg-gnd-bronze/8'
+                  ? 'bg-brand text-choco'
+                  : 'text-muted-warm hover:bg-cream-deep'
               }`}
             >
               <List className="h-3.5 w-3.5" aria-hidden />
@@ -570,8 +565,8 @@ export default function ProspectsClient({
               aria-pressed={view === 'kanban'}
               className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
                 view === 'kanban'
-                  ? 'bg-gnd-bronze text-gnd-cream'
-                  : 'text-gnd-bronze-soft hover:bg-gnd-bronze/8'
+                  ? 'bg-brand text-choco'
+                  : 'text-muted-warm hover:bg-cream-deep'
               }`}
             >
               <LayoutGrid className="h-3.5 w-3.5" aria-hidden />
@@ -580,21 +575,21 @@ export default function ProspectsClient({
           </div>
 
           <div className="relative flex-1 sm:max-w-sm">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gnd-bronze-soft" aria-hidden />
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-warm" aria-hidden />
             <input
               type="text"
               value={search}
               onChange={(e) => { setSearch(e.target.value); setPage(1); }}
               placeholder="Rechercher entreprise, contact, ville…"
-              className="w-full rounded-full border border-gnd-bronze/10 bg-white py-2.5 pl-10 pr-4 text-sm text-gnd-bronze placeholder:text-gnd-bronze-faded focus:border-gnd-amber focus:outline-none focus:ring-1 focus:ring-gnd-amber"
+              className="w-full rounded-full border border-border-soft bg-white py-2.5 pl-10 pr-4 text-sm text-ink-warm placeholder:text-muted-warm/70 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
             />
           </div>
           <div className="relative">
-            <Filter className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gnd-bronze-soft" aria-hidden />
+            <Filter className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-warm" aria-hidden />
             <select
               value={filter}
               onChange={(e) => { setFilter(e.target.value); setPage(1); }}
-              className="appearance-none rounded-full border border-gnd-bronze/10 bg-white py-2.5 pl-9 pr-9 text-sm text-gnd-bronze focus:border-gnd-amber focus:outline-none focus:ring-1 focus:ring-gnd-amber"
+              className="appearance-none rounded-full border border-border-soft bg-white py-2.5 pl-9 pr-9 text-sm text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
             >
               <option value="all">Tous statuts</option>
               {STATUS_OPTIONS.map((opt) => (
@@ -606,7 +601,7 @@ export default function ProspectsClient({
             <select
               value={pageSize}
               onChange={(e) => { setPageSize(Number(e.target.value)); setPage(1); }}
-              className="rounded-full border border-gnd-bronze/10 bg-white px-4 py-2.5 text-sm text-gnd-bronze focus:border-gnd-amber focus:outline-none focus:ring-1 focus:ring-gnd-amber"
+              className="rounded-full border border-border-soft bg-white px-4 py-2.5 text-sm text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
             >
               <option value={20}>20 par page</option>
               <option value={30}>30 par page</option>
@@ -615,17 +610,14 @@ export default function ProspectsClient({
           )}
         </div>
         <div className="flex items-center gap-3">
-          <span className="font-mono text-[11px] uppercase tracking-[0.15em] text-gnd-bronze-soft">
+          <span className="font-inter text-[11px] uppercase tracking-[0.15em] text-muted-warm">
             {filtered.length} prospect{filtered.length > 1 ? 's' : ''}
             {(filter !== 'all' || search) ? ` / ${prospects.length}` : ''}
           </span>
-          <button
-            onClick={() => setCreateOpen(true)}
-            className="inline-flex items-center gap-2 rounded-full bg-gnd-bronze px-5 py-2.5 text-sm font-semibold text-gnd-cream transition-all hover:bg-gnd-ink hover:shadow-warm-lg"
-          >
+          <Button variant="primary" size="sm" onClick={() => setCreateOpen(true)}>
             <Plus className="h-4 w-4" aria-hidden />
             Nouveau prospect
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -694,9 +686,9 @@ export default function ProspectsClient({
       {/* ==================================================================== */}
       {view === 'kanban' ? (
         filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-3xl border border-gnd-bronze/8 bg-gnd-paper p-16 text-center shadow-warm">
-            <p className="font-display text-xl text-gnd-bronze">Aucun prospect trouvé.</p>
-            <p className="mt-2 text-sm text-gnd-bronze-soft">Ajuste tes filtres ou crée ton premier prospect.</p>
+          <div className="flex flex-col items-center justify-center rounded-3xl border border-border-soft bg-cream p-16 text-center shadow-soft">
+            <p className="font-marcellus text-xl text-choco">Aucun prospect trouvé.</p>
+            <p className="mt-2 text-sm text-muted-warm">Ajuste tes filtres ou crée ton premier prospect.</p>
           </div>
         ) : (
           <ProspectKanban
@@ -709,9 +701,9 @@ export default function ProspectsClient({
         <>
           {/* Prospect cards (vue Liste) */}
           {paginated.length === 0 ? (
-            <div className="flex flex-col items-center justify-center rounded-3xl border border-gnd-bronze/8 bg-gnd-paper p-16 text-center shadow-warm">
-              <p className="font-display text-xl text-gnd-bronze">Aucun prospect trouvé.</p>
-              <p className="mt-2 text-sm text-gnd-bronze-soft">Ajuste tes filtres ou crée ton premier prospect.</p>
+            <div className="flex flex-col items-center justify-center rounded-3xl border border-border-soft bg-cream p-16 text-center shadow-soft">
+              <p className="font-marcellus text-xl text-choco">Aucun prospect trouvé.</p>
+              <p className="mt-2 text-sm text-muted-warm">Ajuste tes filtres ou crée ton premier prospect.</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -733,28 +725,28 @@ export default function ProspectsClient({
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="mt-8 flex items-center justify-between rounded-2xl border border-gnd-bronze/8 bg-gnd-paper px-4 py-3 shadow-warm sm:px-6">
-              <p className="font-mono text-[11px] uppercase tracking-[0.15em] text-gnd-bronze-soft">
-                Page <span className="font-semibold text-gnd-bronze">{safePage}</span> sur <span className="text-gnd-bronze">{totalPages}</span>
+            <div className="mt-8 flex items-center justify-between rounded-2xl border border-border-soft bg-cream px-4 py-3 shadow-soft sm:px-6">
+              <p className="font-inter text-[11px] uppercase tracking-[0.15em] text-muted-warm">
+                Page <span className="font-semibold text-choco">{safePage}</span> sur <span className="text-choco">{totalPages}</span>
               </p>
               <div className="flex items-center gap-1">
                 <button
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={safePage === 1}
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-full text-gnd-bronze transition-colors hover:bg-gnd-amber/10 disabled:cursor-not-allowed disabled:opacity-30"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-full text-ink-warm transition-colors hover:bg-brand-soft disabled:cursor-not-allowed disabled:opacity-30"
                   aria-label="Page précédente"
                 >
                   <ChevronLeft className="h-4 w-4" aria-hidden />
                 </button>
                 {pageNumbers(safePage, totalPages).map((n, idx) =>
                   n === '…' ? (
-                    <span key={`gap-${idx}`} className="px-2 text-xs text-gnd-bronze-faded">…</span>
+                    <span key={`gap-${idx}`} className="px-2 text-xs text-muted-warm/70">…</span>
                   ) : (
                     <button
                       key={n}
                       onClick={() => setPage(n as number)}
                       className={`inline-flex h-9 min-w-[2.25rem] items-center justify-center rounded-full px-2 text-sm font-semibold transition-colors ${
-                        n === safePage ? 'bg-gnd-bronze text-gnd-cream' : 'text-gnd-bronze hover:bg-gnd-amber/10'
+                        n === safePage ? 'bg-brand text-choco' : 'text-ink-warm hover:bg-brand-soft'
                       }`}
                     >
                       {n}
@@ -764,7 +756,7 @@ export default function ProspectsClient({
                 <button
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                   disabled={safePage === totalPages}
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-full text-gnd-bronze transition-colors hover:bg-gnd-amber/10 disabled:cursor-not-allowed disabled:opacity-30"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-full text-ink-warm transition-colors hover:bg-brand-soft disabled:cursor-not-allowed disabled:opacity-30"
                   aria-label="Page suivante"
                 >
                   <ChevronRight className="h-4 w-4" aria-hidden />
@@ -798,26 +790,26 @@ export default function ProspectsClient({
       <ProspectDetailsModal prospect={viewing} onClose={() => setViewing(null)} />
 
       {notesFor && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gnd-bronze/40 p-4 backdrop-blur-sm">
-          <div className="flex max-h-[90vh] w-full max-w-md flex-col overflow-hidden rounded-3xl border border-gnd-bronze/8 bg-gnd-paper shadow-warm-xl">
-            <div className="h-px w-full shrink-0 bg-gradient-to-r from-transparent via-gnd-amber to-transparent" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-choco/40 p-4 backdrop-blur-sm">
+          <div className="flex max-h-[90vh] w-full max-w-md flex-col overflow-hidden rounded-3xl border border-border-soft bg-cream shadow-soft-lg">
+            <div className="h-px w-full shrink-0 bg-gradient-to-r from-transparent via-brand to-transparent" />
             <div className="flex-1 overflow-y-auto p-7">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-gnd-amber-dim">Notes &amp; relance</p>
-                  <h3 className="mt-1 font-display text-xl font-medium text-gnd-bronze">{notesFor.company_name}</h3>
+                  <p className="font-inter text-[10px] font-semibold uppercase tracking-[0.18em] text-brand-dark">Notes &amp; relance</p>
+                  <h3 className="mt-1 font-marcellus text-xl font-normal text-choco">{notesFor.company_name}</h3>
                 </div>
-                <button onClick={() => setNotesFor(null)} className="rounded-full p-2 text-gnd-bronze-soft transition-colors hover:bg-gnd-bronze/8 hover:text-gnd-bronze" aria-label="Fermer la modale">✕</button>
+                <button onClick={() => setNotesFor(null)} className="rounded-full p-2 text-muted-warm transition-colors hover:bg-cream-deep hover:text-ink-warm" aria-label="Fermer la modale">✕</button>
               </div>
               <textarea
                 rows={7}
                 value={notesDraft}
                 onChange={(e) => setNotesDraft(e.target.value)}
-                className="mt-5 w-full rounded-2xl border border-gnd-bronze/10 bg-white p-4 text-sm text-gnd-bronze placeholder:text-gnd-bronze-faded focus:border-gnd-amber focus:outline-none focus:ring-1 focus:ring-gnd-amber"
+                className="mt-5 w-full rounded-2xl border border-border-soft bg-white p-4 text-sm text-ink-warm placeholder:text-muted-warm/70 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
                 placeholder="Contexte, historique, comment s'est passé l'appel…"
               />
               <div className="mt-4">
-                <label htmlFor="relance-datetime" className="mb-1.5 block font-mono text-[10px] font-semibold uppercase tracking-[0.15em] text-gnd-amber-dim">
+                <label htmlFor="relance-datetime" className="mb-1.5 block font-inter text-[10px] font-semibold uppercase tracking-[0.15em] text-brand-dark">
                   Prochaine relance
                 </label>
                 <div className="flex items-center gap-2">
@@ -826,19 +818,19 @@ export default function ProspectsClient({
                     type="datetime-local"
                     value={relanceDraft}
                     onChange={(e) => setRelanceDraft(e.target.value)}
-                    className="rounded-xl border border-gnd-bronze/10 bg-white px-3 py-2 text-sm text-gnd-bronze focus:border-gnd-amber focus:outline-none focus:ring-1 focus:ring-gnd-amber"
+                    className="rounded-xl border border-border-soft bg-white px-3 py-2 text-sm text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
                   />
                   {relanceDraft && (
                     <button
                       type="button"
                       onClick={() => setRelanceDraft('')}
-                      className="text-xs font-semibold text-gnd-bronze-soft underline underline-offset-2 hover:text-gnd-bronze"
+                      className="text-xs font-semibold text-muted-warm underline underline-offset-2 hover:text-ink-warm"
                     >
                       Retirer
                     </button>
                   )}
                 </div>
-                <p className="mt-1.5 text-[11px] text-gnd-bronze-soft">
+                <p className="mt-1.5 text-[11px] text-muted-warm">
                   Visible dans « Mes relances » (et par l&apos;admin dans son pilotage).
                 </p>
               </div>
@@ -847,7 +839,7 @@ export default function ProspectsClient({
               <div className="mt-5">
                 <Link
                   href={`/prospects/${notesFor.id}`}
-                  className="inline-flex items-center gap-2 rounded-full border border-gnd-amber/30 bg-gnd-amber/10 px-4 py-2 text-sm font-semibold text-gnd-amber-dim transition-colors hover:bg-gnd-amber/20"
+                  className="inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand-soft px-4 py-2 text-sm font-semibold text-brand-dark transition-colors hover:bg-brand-pale"
                 >
                   <FolderOpen className="h-4 w-4" aria-hidden />
                   Ouvrir la fiche complète
@@ -855,16 +847,20 @@ export default function ProspectsClient({
               </div>
 
               {/* Timeline d'activité */}
-              <div className="mt-6 border-t border-gnd-bronze/8 pt-5">
-                <p className="mb-3 font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-gnd-amber-dim">
+              <div className="mt-6 border-t border-border-soft pt-5">
+                <p className="mb-3 font-inter text-[10px] font-semibold uppercase tracking-[0.18em] text-brand-dark">
                   Historique d&apos;activité
                 </p>
                 <ProspectTimeline prospectId={notesFor.id} />
               </div>
             </div>
-            <div className="flex shrink-0 justify-end gap-2 border-t border-gnd-bronze/8 bg-gnd-paper p-5">
-              <button onClick={() => setNotesFor(null)} className="rounded-full border border-gnd-bronze/10 bg-white px-5 py-2.5 text-sm font-semibold text-gnd-bronze transition-colors hover:bg-gnd-cream">Annuler</button>
-              <button onClick={handleSaveNotes} className="rounded-full bg-gnd-bronze px-5 py-2.5 text-sm font-semibold text-gnd-cream transition-colors hover:bg-gnd-ink">Enregistrer</button>
+            <div className="flex shrink-0 justify-end gap-2 border-t border-border-soft bg-cream p-5">
+              <Button variant="outline" size="sm" onClick={() => setNotesFor(null)}>
+                Annuler
+              </Button>
+              <Button variant="primary" size="sm" onClick={handleSaveNotes}>
+                Enregistrer
+              </Button>
             </div>
           </div>
         </div>
@@ -876,58 +872,58 @@ export default function ProspectsClient({
 function ProspectRow({ prospect: p, index, onView, onEdit, onDelete, onNotes, onStatusChange, hasEnrichment }: {
   prospect: Prospect; index: number; onView: () => void; onEdit: () => void; onDelete: () => void; onNotes: () => void; onStatusChange: (status: string) => void; hasEnrichment: boolean;
 }) {
-  const statusTone = toneForStatus(p.status);
+  const statusTone = pastelClassesForStatus(p.status);
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: Math.min(index * 0.03, 0.4), ease: 'easeOut' }}
-      className="group flex flex-col gap-4 rounded-2xl border border-gnd-bronze/8 bg-gnd-paper p-5 shadow-warm transition-all hover:-translate-y-0.5 hover:border-gnd-amber/30 hover:shadow-warm-lg sm:p-6 lg:flex-row lg:items-center"
+      className="group flex flex-col gap-4 rounded-2xl border border-border-soft bg-white p-5 shadow-soft transition-all hover:-translate-y-0.5 hover:border-brand/40 hover:shadow-soft-md sm:p-6 lg:flex-row lg:items-center"
     >
       <div className="flex flex-1 items-start gap-4 lg:max-w-[28%]">
-        <Avatar text={p.company_name} />
+        <Avatar name={p.company_name} size="lg" tone="choco" className="rounded-2xl" />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <Link
               href={`/prospects/${p.id}`}
-              className="truncate font-display text-base font-medium text-gnd-bronze underline-offset-4 transition-colors hover:text-gnd-amber-dim hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gnd-amber"
+              className="truncate font-marcellus text-base font-normal text-choco underline-offset-4 transition-colors hover:text-brand-dark hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring"
               title="Ouvrir la fiche 360"
             >
               {p.company_name}
             </Link>
             {p.notion_page_id && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-gnd-amber/15 px-2 py-0.5 font-mono text-[8px] font-semibold uppercase tracking-[0.18em] text-gnd-amber-dim">
+              <span className="inline-flex items-center gap-1 rounded-full bg-brand-soft px-2 py-0.5 font-inter text-[8px] font-semibold uppercase tracking-[0.18em] text-brand-dark">
                 <Sparkles className="h-2.5 w-2.5" aria-hidden />
                 Notion
               </span>
             )}
           </div>
           {p.contact_name && (
-            <p className="mt-0.5 text-sm text-gnd-bronze-soft">
+            <p className="mt-0.5 text-sm text-muted-warm">
               {p.contact_name}
-              {p.role_contact && <span className="text-gnd-bronze-faded"> · {p.role_contact}</span>}
+              {p.role_contact && <span className="text-muted-warm/70"> · {p.role_contact}</span>}
             </p>
           )}
         </div>
       </div>
       <div className="flex flex-col gap-1 text-sm lg:max-w-[22%] lg:flex-1">
-        {p.phone && <a href={`tel:${p.phone}`} className="inline-flex items-center gap-1.5 font-mono text-xs text-gnd-amber-dim transition-colors hover:text-gnd-amber">{p.phone}</a>}
+        {p.phone && <a href={`tel:${p.phone}`} className="inline-flex items-center gap-1.5 font-inter text-xs text-brand-dark transition-colors hover:text-brand">{p.phone}</a>}
         {p.email && (
-          <a href={`mailto:${p.email}`} className="inline-flex items-center gap-1.5 truncate font-mono text-xs text-gnd-bronze-soft transition-colors hover:text-gnd-amber">
+          <a href={`mailto:${p.email}`} className="inline-flex items-center gap-1.5 truncate font-inter text-xs text-muted-warm transition-colors hover:text-brand-dark">
             {p.email}
             <ExternalLink className="h-3 w-3" aria-hidden />
           </a>
         )}
       </div>
       <div className="flex flex-col gap-1 text-xs lg:max-w-[18%] lg:flex-1">
-        {p.city && <span className="inline-flex items-center gap-1 text-gnd-bronze-soft"><MapPin className="h-3 w-3 text-gnd-bronze-faded" aria-hidden />{p.city}</span>}
-        {p.sector && <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-gnd-bronze-faded">{p.sector}</span>}
+        {p.city && <span className="inline-flex items-center gap-1 text-muted-warm"><MapPin className="h-3 w-3 text-muted-warm/70" aria-hidden />{p.city}</span>}
+        {p.sector && <span className="font-inter text-[10px] uppercase tracking-[0.15em] text-muted-warm/70">{p.sector}</span>}
       </div>
       <div className="lg:max-w-[16%]">
         <select
           value={p.status}
           onChange={(e) => onStatusChange(e.target.value)}
-          className={`rounded-full border-0 px-3 py-1 text-xs font-semibold ${statusTone}`}
+          className={`rounded-full border px-3 py-1 text-xs font-semibold ${statusTone}`}
           aria-label={`Statut de ${p.company_name}`}
         >
           {!STATUS_OPTIONS.some((o) => o.value === p.status) && (
@@ -937,9 +933,9 @@ function ProspectRow({ prospect: p, index, onView, onEdit, onDelete, onNotes, on
             <option key={opt.value} value={opt.value}>{opt.label}</option>
           ))}
         </select>
-        <p className="mt-1 font-mono text-[9px] uppercase tracking-[0.15em] text-gnd-bronze-faded">MAJ {formatDate(p.updated_at)}</p>
+        <p className="mt-1 font-inter text-[9px] uppercase tracking-[0.15em] text-muted-warm/70">MAJ {formatDate(p.updated_at)}</p>
         {p.next_action_at && (
-          <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-gnd-amber/10 px-2 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-[0.12em] text-gnd-amber-dim">
+          <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-brand-soft px-2 py-0.5 font-inter text-[9px] font-semibold uppercase tracking-[0.12em] text-brand-dark">
             ⏰ Relance {formatDate(p.next_action_at)}
           </span>
         )}
@@ -947,21 +943,21 @@ function ProspectRow({ prospect: p, index, onView, onEdit, onDelete, onNotes, on
       <div className="flex shrink-0 items-center gap-1">
         <Link
           href={`/prospects/${p.id}`}
-          className="inline-flex h-9 w-9 items-center justify-center rounded-full text-gnd-bronze-soft transition-colors hover:bg-gnd-amber/10 hover:text-gnd-amber-dim"
+          className="inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-warm transition-colors hover:bg-brand-soft hover:text-brand-dark"
           aria-label={`Ouvrir la fiche de ${p.company_name}`}
           title="Ouvrir la fiche 360"
         >
           <FolderOpen className="h-4 w-4" aria-hidden />
         </Link>
         {hasEnrichment && (
-          <button onClick={onView} className="inline-flex h-9 w-9 items-center justify-center rounded-full text-gnd-amber-dim transition-colors hover:bg-gnd-amber/10 hover:text-gnd-amber" aria-label="Voir l'analyse complète" title="Voir l'analyse complète">
+          <button onClick={onView} className="inline-flex h-9 w-9 items-center justify-center rounded-full text-brand-dark transition-colors hover:bg-brand-soft hover:text-brand" aria-label="Voir l'analyse complète" title="Voir l'analyse complète">
             <Sparkles className="h-4 w-4" aria-hidden />
           </button>
         )}
-        <button onClick={onNotes} className="inline-flex h-9 w-9 items-center justify-center rounded-full text-gnd-bronze-soft transition-colors hover:bg-gnd-bronze/8 hover:text-gnd-bronze" aria-label={p.notes ? 'Voir les notes et la relance' : 'Ajouter des notes ou une relance'} title={p.notes ? 'Voir les notes' : 'Ajouter des notes'}>
+        <button onClick={onNotes} className="inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-warm transition-colors hover:bg-cream-deep hover:text-ink-warm" aria-label={p.notes ? 'Voir les notes et la relance' : 'Ajouter des notes ou une relance'} title={p.notes ? 'Voir les notes' : 'Ajouter des notes'}>
           <StickyNote className="h-4 w-4" aria-hidden />
         </button>
-        <button onClick={onEdit} className="inline-flex h-9 w-9 items-center justify-center rounded-full text-gnd-bronze-soft transition-colors hover:bg-gnd-bronze/8 hover:text-gnd-bronze" aria-label="Modifier" title="Modifier">
+        <button onClick={onEdit} className="inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-warm transition-colors hover:bg-cream-deep hover:text-ink-warm" aria-label="Modifier" title="Modifier">
           <Edit3 className="h-4 w-4" aria-hidden />
         </button>
         <button onClick={onDelete} className="inline-flex h-9 w-9 items-center justify-center rounded-full text-rose-500/70 transition-colors hover:bg-rose-50 hover:text-rose-600" aria-label="Supprimer" title="Supprimer">
@@ -969,28 +965,6 @@ function ProspectRow({ prospect: p, index, onView, onEdit, onDelete, onNotes, on
         </button>
       </div>
     </motion.div>
-  );
-}
-
-function Avatar({ text }: { text: string }) {
-  const hash = useMemo(() => {
-    let h = 0;
-    for (let i = 0; i < text.length; i++) h = (h << 5) - h + text.charCodeAt(i);
-    return Math.abs(h);
-  }, [text]);
-  const palette = [
-    'from-gnd-amber to-gnd-amber-dim',
-    'from-gnd-bronze to-gnd-ink',
-    'from-gnd-amber-glow to-gnd-amber',
-    'from-gnd-bronze-soft to-gnd-bronze',
-    'from-gnd-clay to-gnd-amber-dim',
-  ];
-  const grad = palette[hash % palette.length];
-  const initials = text.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase() ?? '').join('');
-  return (
-    <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br font-display text-sm font-medium text-gnd-cream shadow-warm ${grad}`}>
-      {initials || '?'}
-    </div>
   );
 }
 
