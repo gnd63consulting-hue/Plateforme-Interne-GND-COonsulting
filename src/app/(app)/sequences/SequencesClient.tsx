@@ -22,6 +22,7 @@ import {
   type SequenceStep,
   type SequenceWithSteps,
 } from '@/lib/sequences';
+import { SectionHeader, Button } from '@/components/ui';
 import {
   createSequence,
   deleteSequence,
@@ -66,36 +67,30 @@ export default function SequencesClient({
 
   return (
     <div className="mx-auto max-w-5xl pb-16">
-      {/* En-tête */}
-      <header className="mb-8">
-        <div className="mb-1.5 flex items-center gap-2">
-          <span className="h-px w-8 bg-gnd-amber" />
-          <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-gnd-amber">
-            CRM · Relances
-          </span>
-        </div>
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <h1 className="font-display text-display-md font-medium leading-[1] tracking-tight text-gnd-bronze">
-              Séquences de relance
-            </h1>
-            <p className="mt-2 max-w-xl text-sm text-gnd-bronze-soft">
-              Des cadences multi-étapes qui génèrent automatiquement les tâches
-              de relance au bon moment. Inscris un prospect depuis sa fiche.
-            </p>
-          </div>
-          {canEdit && (
-            <button
-              type="button"
+      {/* En-tête — nouveau langage DS (SectionHeader) */}
+      <SectionHeader
+        as="h1"
+        eyebrow="CRM · Relances"
+        title={
+          <>
+            Séquences de <span className="italic text-brand-dark">relance</span>
+          </>
+        }
+        subtitle="Des cadences multi-étapes qui génèrent automatiquement les tâches de relance au bon moment. Inscris un prospect depuis sa fiche."
+        className="mb-8"
+        action={
+          canEdit ? (
+            <Button
+              variant="primary"
+              size="sm"
               onClick={() => setCreating((v) => !v)}
-              className="inline-flex items-center gap-1.5 rounded-full bg-gnd-bronze px-4 py-2 text-sm font-semibold text-gnd-cream transition-colors hover:bg-gnd-ink"
             >
               <Plus className="h-4 w-4" aria-hidden />
               Nouvelle séquence
-            </button>
-          )}
-        </div>
-      </header>
+            </Button>
+          ) : undefined
+        }
+      />
 
       {error && (
         <div
@@ -121,12 +116,14 @@ export default function SequencesClient({
 
       {/* Liste */}
       {initialSequences.length === 0 ? (
-        <div className="rounded-3xl border border-dashed border-gnd-bronze/15 bg-gnd-paper p-10 text-center">
-          <p className="text-sm text-gnd-bronze-soft">
+        <div className="rounded-3xl border border-border-soft/70 bg-surface-soft p-12 text-center shadow-soft">
+          <p className="font-marcellus text-lg text-choco">
             Aucune séquence pour l&apos;instant.
+          </p>
+          <p className="mt-2 text-sm text-muted-warm">
             {canEdit
-              ? ' Crée ta première cadence de relance ci-dessus.'
-              : ' Un administrateur doit en créer une.'}
+              ? 'Crée ta première cadence de relance ci-dessus.'
+              : 'Un administrateur doit en créer une.'}
           </p>
         </div>
       ) : (

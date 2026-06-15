@@ -360,7 +360,7 @@ export default function AppSidebar({
   return (
     <>
       {/* Desktop : rail intégré dans le panneau blanc (liseré beige à droite). */}
-      <aside className="hidden w-[248px] shrink-0 border-r border-border-soft/60 bg-surface-soft lg:block">
+      <aside className="hidden w-[264px] shrink-0 border-r border-border-soft/60 bg-surface-soft lg:block">
         <SidebarInner user={user} isAdmin={isAdmin} />
       </aside>
 

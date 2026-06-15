@@ -30,6 +30,7 @@ import {
   formatDateTime,
   formatTime,
 } from '@/lib/tasks';
+import { SectionHeader } from '@/components/ui';
 
 export type RelanceLite = {
   id: string;
@@ -220,22 +221,18 @@ export default function TachesClient({
         {status}
       </p>
 
-      {/* Header */}
-      <header className="mb-8">
-        <div className="mb-2 flex items-center gap-2">
-          <span className="h-px w-8 bg-gnd-amber" />
-          <span className="font-mono text-[10px] font-medium uppercase tracking-[0.2em] text-gnd-amber">
-            Mon pilotage · Tâches
-          </span>
-        </div>
-        <h1 className="font-display text-display-md font-medium leading-[0.95] tracking-tight text-gnd-bronze sm:text-4xl">
-          Mes <span className="italic text-gnd-amber">tâches</span> &amp; to-do
-        </h1>
-        <p className="mt-3 max-w-xl text-sm leading-relaxed text-gnd-bronze-soft sm:text-base">
-          Ton to-do du jour réunit tes tâches et tes relances dues. Plus bas, gère
-          toutes tes tâches : crée, édite, coche, classe par échéance.
-        </p>
-      </header>
+      {/* Header — nouveau langage DS (SectionHeader) */}
+      <SectionHeader
+        as="h1"
+        eyebrow="Mon pilotage · Tâches"
+        title={
+          <>
+            Mes <span className="italic text-brand-dark">tâches</span> &amp; to-do
+          </>
+        }
+        subtitle="Ton to-do du jour réunit tes tâches et tes relances dues. Plus bas, gère toutes tes tâches : crée, édite, coche, classe par échéance."
+        className="mb-8"
+      />
 
       {error && (
         <div
