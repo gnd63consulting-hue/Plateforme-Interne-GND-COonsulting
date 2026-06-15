@@ -47,6 +47,8 @@ import {
   type Activity,
   type ActivityKind,
 } from '@/lib/activities';
+import type { Sequence, SequenceEnrollment } from '@/lib/sequences';
+import SequenceEnrollPanel from './SequenceEnrollPanel';
 
 /* ====================================================================== */
 /* Constantes                                                              */
@@ -145,11 +147,15 @@ function isHotClassification(classification: string | null): boolean {
 type ProspectDetailClientProps = {
   initialProspect: Prospect;
   initialActivities: Activity[];
+  activeSequences: Sequence[];
+  initialEnrollment: SequenceEnrollment | null;
 };
 
 export default function ProspectDetailClient({
   initialProspect,
   initialActivities,
+  activeSequences,
+  initialEnrollment,
 }: ProspectDetailClientProps) {
   const supabase = useMemo(() => createClient(), []);
   const reduceMotion = useReducedMotion();
@@ -560,7 +566,13 @@ export default function ProspectDetailClient({
         {/* =============================================================== */}
         {/* COLONNE DROITE : PANNEAU ACTIONS RAPIDES (sticky)               */}
         {/* =============================================================== */}
-        <aside className="lg:sticky lg:top-6 lg:self-start">
+        <aside className="lg:sticky lg:top-6 lg:self-start space-y-4">
+          <SequenceEnrollPanel
+            prospectId={prospect.id}
+            prospectOwnerId={prospect.assigned_to ?? prospect.created_by}
+            sequences={activeSequences}
+            initialEnrollment={initialEnrollment}
+          />
           <ActionsPanel
             status={status}
             relanceIso={relanceIso}
