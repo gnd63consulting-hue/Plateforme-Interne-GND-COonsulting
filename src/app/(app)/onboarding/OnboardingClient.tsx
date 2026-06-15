@@ -82,14 +82,14 @@ function WelcomeOverlay({
     >
       {/* fond chaleureux animé */}
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-gnd-cream via-white to-gnd-cream-dim" />
+        <div className="absolute inset-0 bg-gradient-to-br from-cream via-white to-cream" />
         <motion.div
-          className="absolute right-[-12%] top-[-18%] h-[55%] w-[55%] rounded-full bg-gnd-amber/15 blur-[130px]"
+          className="absolute right-[-12%] top-[-18%] h-[55%] w-[55%] rounded-full bg-brand-soft blur-[130px]"
           animate={reduce ? {} : { scale: [1, 1.18, 1], opacity: [0.7, 1, 0.7] }}
           transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
         />
         <motion.div
-          className="absolute bottom-[-15%] left-[-10%] h-[55%] w-[55%] rounded-full bg-gnd-bronze/10 blur-[130px]"
+          className="absolute bottom-[-15%] left-[-10%] h-[55%] w-[55%] rounded-full bg-brand-soft blur-[130px]"
           animate={reduce ? {} : { scale: [1.1, 1, 1.1], opacity: [0.6, 0.9, 0.6] }}
           transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
         />
@@ -98,7 +98,7 @@ function WelcomeOverlay({
           [...Array(6)].map((_, i) => (
             <motion.span
               key={i}
-              className="absolute h-1.5 w-1.5 rounded-full bg-gnd-amber/40"
+              className="absolute h-1.5 w-1.5 rounded-full bg-brand/40"
               style={{ left: `${12 + i * 14}%`, top: `${70 - (i % 3) * 8}%` }}
               animate={{ y: [0, -26, 0], opacity: [0, 1, 0] }}
               transition={{
@@ -203,7 +203,7 @@ function Card({
       whileHover={{ y: -4 }}
       transition={{ type: 'spring', stiffness: 300, damping: 22 }}
       className={
-        'rounded-3xl border border-border-soft bg-white/80 p-7 shadow-soft backdrop-blur-sm transition-shadow hover:shadow-soft-md ' +
+        'rounded-3xl border border-border-soft bg-white/80 p-5 shadow-soft backdrop-blur-sm transition-shadow hover:shadow-soft-md md:p-7 ' +
         (wide ? 'md:col-span-2' : '')
       }
     >
@@ -270,7 +270,7 @@ export default function OnboardingClient({
         <motion.header variants={item} className="relative mb-8 overflow-hidden">
           <span
             aria-hidden
-            className="pointer-events-none absolute -right-6 -top-16 select-none font-marcellus text-[12rem] font-black leading-none text-gnd-bronze/[0.04] md:text-[16rem]"
+            className="pointer-events-none absolute -right-6 -top-16 select-none font-marcellus text-[12rem] font-black leading-none text-choco/[0.04] md:text-[16rem]"
             style={{ fontFamily: 'var(--font-fraunces), Georgia, serif' }}
           >
             G
@@ -292,14 +292,14 @@ export default function OnboardingClient({
                 <motion.span
                   initial={{ scale: 0.9 }}
                   animate={contentReady ? { scale: 1 } : {}}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-gnd-amber/25 bg-brand-soft px-3.5 py-1.5 text-sm font-semibold text-brand-dark tabular-nums"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-brand/25 bg-brand-soft px-3.5 py-1.5 text-sm font-semibold text-brand-dark tabular-nums"
                 >
                   Commission&nbsp;: {commissionShown}%
                 </motion.span>
               )}
               <Link
                 href="/prospects"
-                className="group inline-flex items-center gap-1.5 rounded-full border border-border-soft bg-white px-3.5 py-1.5 text-sm font-medium text-ink-warm transition-all hover:border-gnd-bronze/30 hover:shadow-soft"
+                className="group inline-flex items-center gap-1.5 rounded-full border border-border-soft bg-white px-3.5 py-1.5 text-sm font-medium text-ink-warm transition-all hover:border-brand/30 hover:shadow-soft"
               >
                 {nbProspects} prospect{nbProspects > 1 ? 's' : ''} assigné
                 {nbProspects > 1 ? 's' : ''}
@@ -328,7 +328,7 @@ export default function OnboardingClient({
                 Acompte 50% → livraison → solde 50% → tu factures → payé sous 15 j.
               </li>
             </ul>
-            <div className="mt-4 rounded-2xl bg-gnd-cream/60 p-4">
+            <div className="mt-4 rounded-2xl bg-cream-deep p-4">
               <p className="mb-2.5 font-inter text-[10px] font-semibold uppercase tracking-[0.15em] text-brand-dark">
                 Paliers bonus (sur 3 mois)
               </p>
@@ -379,7 +379,7 @@ export default function OnboardingClient({
             </ul>
             <a
               href={`mailto:${CONTACT_EMAIL}`}
-              className="mt-3 inline-block text-sm font-semibold text-brand-dark underline decoration-gnd-amber/30 underline-offset-4 hover:decoration-gnd-amber"
+              className="mt-3 inline-block text-sm font-semibold text-brand-dark underline decoration-brand/30 underline-offset-4 hover:decoration-brand"
             >
               {CONTACT_EMAIL}
             </a>
@@ -451,7 +451,7 @@ export default function OnboardingClient({
               </Link>
               <Link
                 href="/formation"
-                className="rounded-full border border-border-soft bg-white px-4 py-2 text-sm font-semibold text-ink-warm transition-all hover:border-gnd-bronze/30 hover:shadow-soft"
+                className="rounded-full border border-border-soft bg-white px-4 py-2 text-sm font-semibold text-ink-warm transition-all hover:border-brand/30 hover:shadow-soft"
               >
                 Formation (7 modules) →
               </Link>
