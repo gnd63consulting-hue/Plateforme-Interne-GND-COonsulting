@@ -8,20 +8,28 @@ import {
   ACTIVITY_SELECT_COLUMNS,
   type Activity,
 } from '@/lib/activities';
+import {
+  ENROLLMENT_SELECT_COLUMNS,
+  SEQUENCE_SELECT_COLUMNS,
+  isEnrollmentOpen,
+  type Sequence,
+  type SequenceEnrollment,
+} from '@/lib/sequences';
 import ProspectDetailClient from './ProspectDetailClient';
 
 export const dynamic = 'force-dynamic';
 
 /**
- * Fiche Prospect 360° — route serveur (Sprint 4).
+ * Fiche Prospect 360° — route serveur (Sprint 4, étendu Sprint 7).
  *
  * Charge UN prospect par id via le client serveur (session user). La RLS
  * owner-based filtre automatiquement : un commercial ne récupère que SES
  * prospects (created_by/assigned_to), l'admin voit tout. Si la fiche est
  * introuvable OU non autorisée, la requête renvoie 0 ligne → notFound().
  *
- * Charge aussi en SSR les activités récentes du prospect pour un premier
- * rendu immédiat de la timeline (la suite est gérée côté client).
+ * Charge aussi en SSR les activités récentes du prospect, les séquences
+ * actives (pour le panneau d'inscription) et l'inscription en cours
+ * éventuelle (RLS owner sur sequence_enrollments).
  *
  * Next 15 : `params` est une Promise à await.
  */
@@ -51,20 +59,42 @@ export default async function ProspectDetailPage({
 
   const prospect = prospectRow as unknown as Prospect;
 
-  // Timeline initiale (récente) en SSR — la RLS filtre aussi les activités.
-  const { data: activityRows } = await supabase
-    .from('activities')
-    .select(ACTIVITY_SELECT_COLUMNS)
-    .eq('prospect_id', id)
-    .order('occurred_at', { ascending: false })
-    .limit(30);
+  // Timeline + séquences actives + inscription en cours, en parallèle.
+  // La RLS filtre les activités (owner) et les enrollments (owner). Les
+  // séquences sont lisibles par tout authenticated (bibliothèque partagée).
+  const [activityRes, sequencesRes, enrollmentRes] = await Promise.all([
+    supabase
+      .from('activities')
+      .select(ACTIVITY_SELECT_COLUMNS)
+      .eq('prospect_id', id)
+      .order('occurred_at', { ascending: false })
+      .limit(30),
+    supabase
+      .from('sequences')
+      .select(SEQUENCE_SELECT_COLUMNS)
+      .eq('active', true)
+      .order('name', { ascending: true }),
+    supabase
+      .from('sequence_enrollments')
+      .select(ENROLLMENT_SELECT_COLUMNS)
+      .eq('prospect_id', id)
+      .order('created_at', { ascending: false }),
+  ]);
 
-  const initialActivities = (activityRows ?? []) as unknown as Activity[];
+  const initialActivities = (activityRes.data ?? []) as unknown as Activity[];
+  const activeSequences = (sequencesRes.data ?? []) as unknown as Sequence[];
+
+  const allEnrollments = (enrollmentRes.data ?? []) as unknown as SequenceEnrollment[];
+  // Inscription « ouverte » la plus récente (active ou en pause) si elle existe.
+  const activeEnrollment =
+    allEnrollments.find((e) => isEnrollmentOpen(e.status)) ?? null;
 
   return (
     <ProspectDetailClient
       initialProspect={prospect}
       initialActivities={initialActivities}
+      activeSequences={activeSequences}
+      initialEnrollment={activeEnrollment}
     />
   );
 }
