@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Activity,
   ChevronLeft,
@@ -9,6 +9,8 @@ import {
   Edit3,
   ExternalLink,
   Filter,
+  LayoutGrid,
+  List,
   MapPin,
   Plus,
   Search,
@@ -26,10 +28,12 @@ import {
   toneForStatus,
   type Prospect,
 } from '@/lib/prospects';
+import { resolveDropStatus, type PipelineColumnId } from '@/lib/pipeline';
 import ProspectModal, { type ProspectFormValues } from '@/components/ProspectModal';
 import ProspectDetailsModal from '@/components/ProspectDetailsModal';
 import ProspectTimeline from '@/components/ProspectTimeline';
 import ProspectsHeroVisual from '@/components/ProspectsHeroVisual';
+import ProspectKanban from '@/components/ProspectKanban';
 import SpeedometerGauge from '@/components/SpeedometerGauge';
 import RocketProgress from '@/components/RocketProgress';
 
@@ -38,6 +42,9 @@ type ProspectsClientProps = {
   currentUserId: string;
   firstName: string;
 };
+
+type ViewMode = 'table' | 'kanban';
+const VIEW_STORAGE_KEY = 'gnd:prospects:view';
 
 /** Statuts qui appellent une date de relance (on propose d'en poser une). */
 const FOLLOWUP_STATUSES = new Set([
@@ -70,6 +77,7 @@ export default function ProspectsClient({
   firstName,
 }: ProspectsClientProps) {
   const [prospects, setProspects] = useState<Prospect[]>(initialProspects);
+  const [view, setView] = useState<ViewMode>('table');
   const [filter, setFilter] = useState<string>('all');
   const [search, setSearch] = useState('');
   const [pageSize, setPageSize] = useState(20);
@@ -90,6 +98,25 @@ export default function ProspectsClient({
   });
   const watermarkY = useTransform(scrollYProgress, [0, 1], ['0%', '40%']);
   const watermarkOpacity = useTransform(scrollYProgress, [0, 1], [1, 0.3]);
+
+  // Restaure le choix de vue (table/kanban) depuis localStorage au montage.
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem(VIEW_STORAGE_KEY);
+      if (saved === 'kanban' || saved === 'table') setView(saved);
+    } catch {
+      /* localStorage indisponible (SSR/privé) — on garde le défaut. */
+    }
+  }, []);
+
+  function changeView(next: ViewMode) {
+    setView(next);
+    try {
+      window.localStorage.setItem(VIEW_STORAGE_KEY, next);
+    } catch {
+      /* no-op */
+    }
+  }
 
   /** Insère une activité dans la timeline du prospect (fire-and-forget).
    *  owner_id et occurred_at sont posés par défaut côté Postgres (auth.uid() /
@@ -232,6 +259,61 @@ export default function ProspectsClient({
         setRelanceDraft('');
       }
     }
+  }
+
+  /**
+   * Déplacement Kanban : carte → colonne de pipeline. Calcule le statut exact
+   * (resolveDropStatus), applique un optimistic update, persiste via le client
+   * anon (RLS owner), log l'activité status_change {from,to} (helper Sprint 1)
+   * et rollback si l'update échoue.
+   */
+  async function handleMoveToColumn(prospect: Prospect, columnId: PipelineColumnId) {
+    setError(null);
+    const previousStatus = prospect.status;
+    const nextStatus = resolveDropStatus(previousStatus, columnId);
+    if (nextStatus === previousStatus) return; // pas de changement réel
+
+    // Optimistic update.
+    setProspects((prev) =>
+      prev.map((p) => (p.id === prospect.id ? { ...p, status: nextStatus } : p))
+    );
+
+    const { data, error } = await supabase
+      .from('prospects')
+      .update({ status: nextStatus })
+      .eq('id', prospect.id)
+      .select()
+      .single();
+
+    if (error) {
+      // Rollback.
+      setProspects((prev) =>
+        prev.map((p) => (p.id === prospect.id ? { ...p, status: previousStatus } : p))
+      );
+      setError(`Déplacement impossible : ${error.message}`);
+      return;
+    }
+
+    if (data) {
+      const updated = data as Prospect;
+      setProspects((prev) => prev.map((p) => (p.id === prospect.id ? updated : p)));
+      logActivity(updated.id, 'status_change', {
+        metadata: { from: previousStatus, to: nextStatus },
+      });
+      if (updated.notion_page_id) pushStatusToNotion(updated.id);
+      // Statut de relance sans date posée → propose d'en planifier une.
+      if (FOLLOWUP_STATUSES.has(nextStatus) && !updated.next_action_at) {
+        setNotesFor(updated);
+        setNotesDraft(updated.notes ?? '');
+        setRelanceDraft('');
+      }
+    }
+  }
+
+  function openNotes(prospect: Prospect) {
+    setNotesFor(prospect);
+    setNotesDraft(prospect.notes ?? '');
+    setRelanceDraft(toDateTimeInput(prospect.next_action_at));
   }
 
   async function handleDelete(prospect: Prospect) {
@@ -476,6 +558,40 @@ export default function ProspectsClient({
       {/* ==================================================================== */}
       <div className="mb-6 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center">
+          {/* Toggle Table / Kanban */}
+          <div
+            role="group"
+            aria-label="Mode d'affichage"
+            className="inline-flex shrink-0 items-center gap-1 rounded-full border border-gnd-bronze/10 bg-white p-1"
+          >
+            <button
+              type="button"
+              onClick={() => changeView('table')}
+              aria-pressed={view === 'table'}
+              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
+                view === 'table'
+                  ? 'bg-gnd-bronze text-gnd-cream'
+                  : 'text-gnd-bronze-soft hover:bg-gnd-bronze/8'
+              }`}
+            >
+              <List className="h-3.5 w-3.5" aria-hidden />
+              Liste
+            </button>
+            <button
+              type="button"
+              onClick={() => changeView('kanban')}
+              aria-pressed={view === 'kanban'}
+              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
+                view === 'kanban'
+                  ? 'bg-gnd-bronze text-gnd-cream'
+                  : 'text-gnd-bronze-soft hover:bg-gnd-bronze/8'
+              }`}
+            >
+              <LayoutGrid className="h-3.5 w-3.5" aria-hidden />
+              Kanban
+            </button>
+          </div>
+
           <div className="relative flex-1 sm:max-w-sm">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gnd-bronze-soft" aria-hidden />
             <input
@@ -499,15 +615,17 @@ export default function ProspectsClient({
               ))}
             </select>
           </div>
-          <select
-            value={pageSize}
-            onChange={(e) => { setPageSize(Number(e.target.value)); setPage(1); }}
-            className="rounded-full border border-gnd-bronze/10 bg-white px-4 py-2.5 text-sm text-gnd-bronze focus:border-gnd-amber focus:outline-none focus:ring-1 focus:ring-gnd-amber"
-          >
-            <option value={20}>20 par page</option>
-            <option value={30}>30 par page</option>
-            <option value={40}>40 par page</option>
-          </select>
+          {view === 'table' && (
+            <select
+              value={pageSize}
+              onChange={(e) => { setPageSize(Number(e.target.value)); setPage(1); }}
+              className="rounded-full border border-gnd-bronze/10 bg-white px-4 py-2.5 text-sm text-gnd-bronze focus:border-gnd-amber focus:outline-none focus:ring-1 focus:ring-gnd-amber"
+            >
+              <option value={20}>20 par page</option>
+              <option value={30}>30 par page</option>
+              <option value={40}>40 par page</option>
+            </select>
+          )}
         </div>
         <div className="flex items-center gap-3">
           <span className="font-mono text-[11px] uppercase tracking-[0.15em] text-gnd-bronze-soft">
@@ -534,70 +652,90 @@ export default function ProspectsClient({
         </div>
       )}
 
-      {/* Prospect cards */}
-      {paginated.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-3xl border border-gnd-bronze/8 bg-gnd-paper p-16 text-center shadow-warm">
-          <p className="font-display text-xl text-gnd-bronze">Aucun prospect trouvé.</p>
-          <p className="mt-2 text-sm text-gnd-bronze-soft">Ajuste tes filtres ou crée ton premier prospect.</p>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {paginated.map((p, i) => (
-            <ProspectRow
-              key={p.id}
-              prospect={p}
-              index={i}
-              onView={() => setViewing(p)}
-              onEdit={() => setEditing(p)}
-              onDelete={() => handleDelete(p)}
-              onNotes={() => { setNotesFor(p); setNotesDraft(p.notes ?? ''); setRelanceDraft(toDateTimeInput(p.next_action_at)); }}
-              onStatusChange={(s) => handleStatusChange(p, s)}
-              hasEnrichment={hasEnrichment(p)}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="mt-8 flex items-center justify-between rounded-2xl border border-gnd-bronze/8 bg-gnd-paper px-4 py-3 shadow-warm sm:px-6">
-          <p className="font-mono text-[11px] uppercase tracking-[0.15em] text-gnd-bronze-soft">
-            Page <span className="font-semibold text-gnd-bronze">{safePage}</span> sur <span className="text-gnd-bronze">{totalPages}</span>
-          </p>
-          <div className="flex items-center gap-1">
-            <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={safePage === 1}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full text-gnd-bronze transition-colors hover:bg-gnd-amber/10 disabled:cursor-not-allowed disabled:opacity-30"
-              aria-label="Page précédente"
-            >
-              <ChevronLeft className="h-4 w-4" aria-hidden />
-            </button>
-            {pageNumbers(safePage, totalPages).map((n, idx) =>
-              n === '…' ? (
-                <span key={`gap-${idx}`} className="px-2 text-xs text-gnd-bronze-faded">…</span>
-              ) : (
-                <button
-                  key={n}
-                  onClick={() => setPage(n as number)}
-                  className={`inline-flex h-9 min-w-[2.25rem] items-center justify-center rounded-full px-2 text-sm font-semibold transition-colors ${
-                    n === safePage ? 'bg-gnd-bronze text-gnd-cream' : 'text-gnd-bronze hover:bg-gnd-amber/10'
-                  }`}
-                >
-                  {n}
-                </button>
-              )
-            )}
-            <button
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={safePage === totalPages}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full text-gnd-bronze transition-colors hover:bg-gnd-amber/10 disabled:cursor-not-allowed disabled:opacity-30"
-              aria-label="Page suivante"
-            >
-              <ChevronRight className="h-4 w-4" aria-hidden />
-            </button>
+      {/* ==================================================================== */}
+      {/* Vue Kanban                                                             */}
+      {/* ==================================================================== */}
+      {view === 'kanban' ? (
+        filtered.length === 0 ? (
+          <div className="flex flex-col items-center justify-center rounded-3xl border border-gnd-bronze/8 bg-gnd-paper p-16 text-center shadow-warm">
+            <p className="font-display text-xl text-gnd-bronze">Aucun prospect trouvé.</p>
+            <p className="mt-2 text-sm text-gnd-bronze-soft">Ajuste tes filtres ou crée ton premier prospect.</p>
           </div>
-        </div>
+        ) : (
+          <ProspectKanban
+            prospects={filtered}
+            onMoveToColumn={handleMoveToColumn}
+            onOpenNotes={openNotes}
+          />
+        )
+      ) : (
+        <>
+          {/* Prospect cards (vue Liste) */}
+          {paginated.length === 0 ? (
+            <div className="flex flex-col items-center justify-center rounded-3xl border border-gnd-bronze/8 bg-gnd-paper p-16 text-center shadow-warm">
+              <p className="font-display text-xl text-gnd-bronze">Aucun prospect trouvé.</p>
+              <p className="mt-2 text-sm text-gnd-bronze-soft">Ajuste tes filtres ou crée ton premier prospect.</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {paginated.map((p, i) => (
+                <ProspectRow
+                  key={p.id}
+                  prospect={p}
+                  index={i}
+                  onView={() => setViewing(p)}
+                  onEdit={() => setEditing(p)}
+                  onDelete={() => handleDelete(p)}
+                  onNotes={() => openNotes(p)}
+                  onStatusChange={(s) => handleStatusChange(p, s)}
+                  hasEnrichment={hasEnrichment(p)}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="mt-8 flex items-center justify-between rounded-2xl border border-gnd-bronze/8 bg-gnd-paper px-4 py-3 shadow-warm sm:px-6">
+              <p className="font-mono text-[11px] uppercase tracking-[0.15em] text-gnd-bronze-soft">
+                Page <span className="font-semibold text-gnd-bronze">{safePage}</span> sur <span className="text-gnd-bronze">{totalPages}</span>
+              </p>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={safePage === 1}
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-full text-gnd-bronze transition-colors hover:bg-gnd-amber/10 disabled:cursor-not-allowed disabled:opacity-30"
+                  aria-label="Page précédente"
+                >
+                  <ChevronLeft className="h-4 w-4" aria-hidden />
+                </button>
+                {pageNumbers(safePage, totalPages).map((n, idx) =>
+                  n === '…' ? (
+                    <span key={`gap-${idx}`} className="px-2 text-xs text-gnd-bronze-faded">…</span>
+                  ) : (
+                    <button
+                      key={n}
+                      onClick={() => setPage(n as number)}
+                      className={`inline-flex h-9 min-w-[2.25rem] items-center justify-center rounded-full px-2 text-sm font-semibold transition-colors ${
+                        n === safePage ? 'bg-gnd-bronze text-gnd-cream' : 'text-gnd-bronze hover:bg-gnd-amber/10'
+                      }`}
+                    >
+                      {n}
+                    </button>
+                  )
+                )}
+                <button
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={safePage === totalPages}
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-full text-gnd-bronze transition-colors hover:bg-gnd-amber/10 disabled:cursor-not-allowed disabled:opacity-30"
+                  aria-label="Page suivante"
+                >
+                  <ChevronRight className="h-4 w-4" aria-hidden />
+                </button>
+              </div>
+            </div>
+          )}
+        </>
       )}
 
       {/* Modals */}
