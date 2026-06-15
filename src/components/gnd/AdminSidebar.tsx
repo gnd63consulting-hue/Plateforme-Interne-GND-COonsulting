@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { can, type Capability } from '@/lib/permissions';
 import {
   Gauge,
   Target,
@@ -21,6 +22,7 @@ type NavItem = {
   icon: typeof Gauge;
   label: string;
   href: string;
+  cap?: Capability;
 };
 
 type NavSection = {
@@ -41,13 +43,13 @@ const SECTIONS: NavSection[] = [
   {
     title: 'ADMIN',
     items: [
-      { id: 'vue-globale', icon: Shield, label: 'Vue globale', href: '/admin' },
-      { id: 'relances', icon: CalendarClock, label: 'Relances', href: '/admin/relances' },
-      { id: 'suivi', icon: ClipboardList, label: 'Suivi équipe', href: '/admin/suivi-equipe' },
-      { id: 'commissions', icon: BadgeEuro, label: 'Commissions', href: '/admin/commissions' },
-      { id: 'doublons', icon: CopyCheck, label: 'Doublons', href: '/admin/doublons' },
-      { id: 'equipe', icon: Users, label: 'Équipe', href: '/admin/invitations' },
-      { id: 'paliers', icon: Rocket, label: 'Paliers bonus', href: '/admin' },
+      { id: 'vue-globale', icon: Shield, label: 'Vue globale', href: '/admin', cap: 'finance.view' },
+      { id: 'relances', icon: CalendarClock, label: 'Relances', href: '/admin/relances', cap: 'team.view' },
+      { id: 'suivi', icon: ClipboardList, label: 'Suivi équipe', href: '/admin/suivi-equipe', cap: 'team.view' },
+      { id: 'commissions', icon: BadgeEuro, label: 'Commissions', href: '/admin/commissions', cap: 'finance.view' },
+      { id: 'doublons', icon: CopyCheck, label: 'Doublons', href: '/admin/doublons', cap: 'members.manage' },
+      { id: 'equipe', icon: Users, label: 'Équipe', href: '/admin/invitations', cap: 'members.manage' },
+      { id: 'paliers', icon: Rocket, label: 'Paliers bonus', href: '/admin', cap: 'finance.view' },
     ],
   },
 ];
@@ -68,10 +70,12 @@ export default function AdminSidebar({
   userName,
   userEmail,
   userRole,
+  roleKey,
 }: {
   userName: string;
   userEmail: string;
   userRole: string;
+  roleKey: string;
 }) {
   const pathname = usePathname();
 
@@ -177,7 +181,9 @@ export default function AdminSidebar({
             >
               {section.title}
             </div>
-            {section.items.map((item) => {
+            {section.items
+              .filter((item) => !item.cap || can(roleKey, item.cap))
+              .map((item) => {
               const Icon = item.icon;
               const isActive =
                 item.href === '/admin'
