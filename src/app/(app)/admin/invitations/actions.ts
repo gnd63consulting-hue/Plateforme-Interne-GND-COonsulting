@@ -253,3 +253,55 @@ export async function reactivateMemberAction(formData: FormData): Promise<void> 
     .eq('id', id);
   revalidatePath('/admin/invitations');
 }
+
+
+/** Roles assignables a un membre depuis la console (= valeurs du CHECK 0018). */
+const ASSIGNABLE_ROLES = new Set([
+  'commercial',
+  'freelance',
+  'assistant',
+  'admin_limited',
+  'admin',
+  'stagiaire',
+]);
+
+/**
+ * Change le role (= niveau d'autorisations) d'un membre depuis la console.
+ * Garde requireAdmin (admin / admin_limited). Interdit de changer son PROPRE role
+ * (anti-lockout) ; seul un 'admin' (fondateur) peut promouvoir quelqu'un 'admin'.
+ */
+export async function setMemberRole(
+  userId: string,
+  role: string
+): Promise<{ error: string | null }> {
+  const actor = await requireAdmin();
+  if (!actor) return { error: 'Permissions insuffisantes' };
+  if (!ASSIGNABLE_ROLES.has(role)) return { error: 'Role invalide.' };
+  if (userId === actor.id) {
+    return { error: "Tu ne peux pas changer ton propre role (demande a un autre admin)." };
+  }
+
+  const adminClient = createAdminClient();
+
+  // Seul un fondateur ('admin') peut accorder le role 'admin'.
+  if (role === 'admin') {
+    const { data: me } = await adminClient
+      .from('users')
+      .select('role')
+      .eq('id', actor.id)
+      .maybeSingle();
+    if (me?.role !== 'admin') {
+      return { error: "Seul un fondateur peut promouvoir quelqu'un Administrateur." };
+    }
+  }
+
+  const { error } = await adminClient
+    .from('users')
+    .update({ role, updated_at: new Date().toISOString() })
+    .eq('id', userId);
+  if (error) return { error: error.message };
+
+  revalidatePath('/admin/invitations');
+  revalidatePath('/admin');
+  return { error: null };
+}

@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { setCommissionRate, assignFreshProspects, archiveMember } from './actions';
+import { setCommissionRate, assignFreshProspects, archiveMember, setMemberRole } from './actions';
 
 // Design System crème/orange — texte FONCÉ sur fond clair (AA).
 const CREAM = '#2A2320';
@@ -34,7 +34,17 @@ const ROLE_LABELS: Record<string, string> = {
   admin: 'Admin',
   admin_limited: 'Admin',
   stagiaire: 'Stagiaire',
+  assistant: 'Assistant',
 };
+
+// Roles assignables + ce qu'ils accordent (legende facon Notion / vrai CRM).
+const ROLE_OPTIONS: { value: string; label: string; hint: string }[] = [
+  { value: 'freelance', label: 'Commercial', hint: 'Ses propres prospects + sa commission. Pas la console admin.' },
+  { value: 'assistant', label: 'Assistant commercial', hint: 'Suivi + edition du pipeline de toute l\'equipe, SANS le financier.' },
+  { value: 'admin_limited', label: 'Co-admin', hint: 'Acces complet : financier + gestion des membres.' },
+  { value: 'admin', label: 'Fondateur (admin)', hint: 'Acces total (reserve au fondateur).' },
+  { value: 'stagiaire', label: 'Stagiaire', hint: 'Formation / ressources uniquement.' },
+];
 
 const labelStyle: React.CSSProperties = {
   display: 'block',
@@ -64,7 +74,8 @@ export function MemberManager({ member }: { member: Member }) {
   const [commission, setCommission] = useState(
     member.commissionPct != null ? String(member.commissionPct) : '20'
   );
-  const [busy, setBusy] = useState<false | 'commission' | 'archive' | number>(false);
+  const [role, setRole] = useState(member.role === 'commercial' ? 'freelance' : member.role);
+  const [busy, setBusy] = useState<false | 'commission' | 'archive' | 'role' | number>(false);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
   const isFreelance = member.role === 'freelance' || member.role === 'commercial';
@@ -110,6 +121,24 @@ export function MemberManager({ member }: { member: Member }) {
     if (res.error) setMsg({ ok: false, text: res.error });
     else {
       setMsg({ ok: true, text: `Archivé. ${res.reassigned} prospect(s) réassigné(s) à toi.` });
+      startTransition(() => router.refresh());
+    }
+  }
+
+  async function saveRole() {
+    if (role === member.role) {
+      setMsg({ ok: true, text: 'Rôle inchangé.' });
+      return;
+    }
+    const label = ROLE_OPTIONS.find((o) => o.value === role)?.label ?? role;
+    if (!window.confirm(`Changer le rôle de ${member.name} en « ${label} » ?`)) return;
+    setBusy('role');
+    setMsg(null);
+    const res = await setMemberRole(member.id, role);
+    setBusy(false);
+    if (res.error) setMsg({ ok: false, text: res.error });
+    else {
+      setMsg({ ok: true, text: `Rôle mis à jour : ${label}.` });
       startTransition(() => router.refresh());
     }
   }
@@ -168,6 +197,55 @@ export function MemberManager({ member }: { member: Member }) {
             prospects
           </div>
         </div>
+      </div>
+
+      {/* Role / autorisations */}
+      <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid rgba(83,36,24,0.06)' }}>
+        <label style={labelStyle}>Rôle / autorisations</label>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+          <select
+            value={role}
+            onChange={(e) => setRole(e.target.value)}
+            style={{
+              padding: '9px 12px',
+              borderRadius: 10,
+              border: '1px solid #E2D5C3',
+              background: PANEL,
+              color: CREAM,
+              fontSize: 13,
+              fontFamily: SANS,
+              cursor: 'pointer',
+            }}
+          >
+            {ROLE_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </select>
+          <button
+            type="button"
+            onClick={saveRole}
+            disabled={busy !== false}
+            style={{
+              padding: '9px 18px',
+              borderRadius: 999,
+              border: '1px solid rgba(243,146,83,0.35)',
+              background: 'rgba(243,146,83,0.14)',
+              color: AMBER,
+              fontSize: 13,
+              fontWeight: 600,
+              fontFamily: SANS,
+              cursor: busy !== false ? 'wait' : 'pointer',
+              opacity: busy !== false ? 0.5 : 1,
+            }}
+          >
+            {busy === 'role' ? 'Application…' : 'Appliquer'}
+          </button>
+        </div>
+        <p style={{ fontSize: 11, lineHeight: 1.5, color: CREAM_FAINT, marginTop: 6 }}>
+          {ROLE_OPTIONS.find((o) => o.value === role)?.hint}
+        </p>
       </div>
 
       {/* Commission */}
