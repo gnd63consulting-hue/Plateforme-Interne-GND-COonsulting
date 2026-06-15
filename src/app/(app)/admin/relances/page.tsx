@@ -4,17 +4,18 @@ import { labelForStatus } from '@/lib/prospects';
 
 export const dynamic = 'force-dynamic';
 
-const CREAM = '#FDF6EE';
-const CREAM_SOFT = 'rgba(253,246,238,0.6)';
-const CREAM_FAINT = 'rgba(253,246,238,0.4)';
-const AMBER = '#E8853D';
-const RED = '#E8896B';
-const GREEN = '#7FC9A3';
-const CARD_BG = 'rgba(253,246,238,0.04)';
-const BORDER = '1px solid rgba(232,133,61,0.14)';
-const SERIF = 'var(--font-fraunces), Georgia, serif';
-const MONO = 'var(--font-geist-mono), ui-monospace, monospace';
-const SANS = 'var(--font-geist-sans), system-ui, sans-serif';
+// Design System crème/orange — texte FONCÉ sur fond clair (contraste AA).
+const CREAM = '#2A2320';        // texte principal
+const CREAM_SOFT = '#7B665C';   // texte secondaire
+const CREAM_FAINT = '#9A8A80';  // texte tertiaire
+const AMBER = '#B5601C';        // accent orange foncé (AA)
+const RED = '#A04A4A';
+const GREEN = '#4F7A38';
+const CARD_BG = '#FFFFFF';      // cartes blanches
+const BORDER = '1px solid #E2D5C3';
+const SERIF = 'var(--font-marcellus), Georgia, serif';
+const MONO = 'var(--font-inter), ui-monospace, monospace';
+const SANS = 'var(--font-inter), system-ui, sans-serif';
 
 const ADMIN_ROLES = new Set(['admin', 'admin_limited']);
 
@@ -87,7 +88,7 @@ export default async function RelancesPage() {
         <div style={{ fontFamily: MONO, fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.22em', color: AMBER, marginBottom: 10 }}>
           ADMIN · PILOTAGE
         </div>
-        <h1 style={{ fontFamily: SERIF, fontSize: 32, fontWeight: 500, letterSpacing: '-0.01em', color: CREAM, margin: 0, lineHeight: 1.1 }}>
+        <h1 style={{ fontFamily: SERIF, fontSize: 32, fontWeight: 500, letterSpacing: '-0.01em', color: '#532418', margin: 0, lineHeight: 1.1 }}>
           Relances à venir
         </h1>
         <p style={{ fontSize: 14, lineHeight: 1.55, color: CREAM_SOFT, marginTop: 12, maxWidth: 620 }}>
@@ -164,7 +165,7 @@ function Group({ title, rows, color, userName, emptyText }: { title: string; row
             <thead>
               <tr>
                 {['Date', 'Commercial', 'Prospect', 'Contact', 'Statut'].map((h) => (
-                  <th key={h} style={{ textAlign: 'left', padding: '11px 16px', fontFamily: MONO, fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.14em', color: CREAM_FAINT, borderBottom: '1px solid rgba(232,133,61,0.12)' }}>{h}</th>
+                  <th key={h} style={{ textAlign: 'left', padding: '11px 16px', fontFamily: MONO, fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.14em', color: CREAM_FAINT, borderBottom: '1px solid #E2D5C3' }}>{h}</th>
                 ))}
               </tr>
             </thead>
@@ -172,7 +173,7 @@ function Group({ title, rows, color, userName, emptyText }: { title: string; row
               {rows.map((r) => {
                 const name = r.assigned_to ? userName.get(r.assigned_to) ?? '—' : 'Non assigné';
                 return (
-                  <tr key={r.id} style={{ borderBottom: '1px solid rgba(253,246,238,0.06)' }}>
+                  <tr key={r.id} style={{ borderBottom: '1px solid rgba(83,36,24,0.07)' }}>
                     <td style={{ padding: '12px 16px', fontFamily: MONO, fontSize: 12, color, fontWeight: 600, whiteSpace: 'nowrap' }}>
                       {fmt(new Date(r.next_action_at))}
                     </td>
