@@ -28,6 +28,7 @@ import {
   toneForStatus,
   type Prospect,
 } from '@/lib/prospects';
+import { phoneKey9 } from '@/lib/dedup';
 import { resolveDropStatus, type PipelineColumnId } from '@/lib/pipeline';
 import ProspectModal, { type ProspectFormValues } from '@/components/ProspectModal';
 import ProspectDetailsModal from '@/components/ProspectDetailsModal';
@@ -71,6 +72,12 @@ function dateTimeInputToIso(value: string): string | null {
   return Number.isNaN(d.getTime()) ? null : d.toISOString();
 }
 
+/** Normalise un email comme la colonne générée email_norm (migration 0013). */
+function normEmail(email: string): string | null {
+  const v = email.trim().toLowerCase();
+  return v || null;
+}
+
 export default function ProspectsClient({
   initialProspects,
   currentUserId,
@@ -89,6 +96,12 @@ export default function ProspectsClient({
   const [notesDraft, setNotesDraft] = useState('');
   const [relanceDraft, setRelanceDraft] = useState('');
   const [error, setError] = useState<string | null>(null);
+  // Alerte anti-doublon non bloquante : payload en attente + libellé du match.
+  const [dupWarn, setDupWarn] = useState<{
+    payload: Record<string, unknown>;
+    match: string;
+    reason: 'email' | 'phone';
+  } | null>(null);
 
   const supabase = useMemo(() => createClient(), []);
   const heroRef = useRef<HTMLDivElement>(null);
@@ -190,6 +203,56 @@ export default function ProspectsClient({
     });
   }
 
+  /**
+   * Cherche un prospect EXISTANT (parmi ceux du commercial — RLS owner) qui
+   * partage le même email (normalisé) ou les 9 derniers chiffres du téléphone.
+   * Check best-effort : en cas d'erreur réseau, on ne bloque pas la création.
+   */
+  async function findDuplicate(
+    email: string | null,
+    phone: string | null
+  ): Promise<{ match: string; reason: 'email' | 'phone' } | null> {
+    const eNorm = email ? normEmail(email) : null;
+    const pKey = phone ? phoneKey9(phone.replace(/\D/g, '')) : null;
+    if (!eNorm && !pKey) return null;
+
+    try {
+      const { data, error } = await supabase
+        .from('prospects')
+        .select('company_name, email_norm, phone_norm, status')
+        .neq('status', 'archived')
+        .or(
+          [eNorm ? `email_norm.eq.${eNorm}` : null, pKey ? `phone_norm.ilike.%${pKey}` : null]
+            .filter(Boolean)
+            .join(',')
+        )
+        .limit(5);
+      if (error || !data) return null;
+      for (const row of data as {
+        company_name: string;
+        email_norm: string | null;
+        phone_norm: string | null;
+      }[]) {
+        if (eNorm && row.email_norm === eNorm) {
+          return { match: row.company_name, reason: 'email' };
+        }
+        if (pKey && row.phone_norm && phoneKey9(row.phone_norm) === pKey) {
+          return { match: row.company_name, reason: 'phone' };
+        }
+      }
+      return null;
+    } catch {
+      return null; // jamais bloquant
+    }
+  }
+
+  /** Exécute réellement l'insert d'un prospect et met à jour l'état local. */
+  async function insertProspect(payload: Record<string, unknown>) {
+    const { data, error } = await supabase.from('prospects').insert(payload).select().single();
+    if (error) { setError(error.message); throw error; }
+    if (data) setProspects((prev) => [data as Prospect, ...prev]);
+  }
+
   async function handleCreate(values: ProspectFormValues) {
     setError(null);
     const payload = {
@@ -205,9 +268,29 @@ export default function ProspectsClient({
       status: values.status,
       notes: values.notes.trim() || null,
     };
-    const { data, error } = await supabase.from('prospects').insert(payload).select().single();
-    if (error) { setError(error.message); throw error; }
-    if (data) setProspects((prev) => [data as Prospect, ...prev]);
+
+    // Prévention anti-doublon (non bloquante) : si une fiche existe déjà avec
+    // le même email/téléphone, on affiche une alerte et on attend confirmation.
+    const dup = await findDuplicate(payload.email, payload.phone);
+    if (dup) {
+      setDupWarn({ payload, match: dup.match, reason: dup.reason });
+      return; // l'insert se fera via confirmCreateDespiteDuplicate()
+    }
+
+    await insertProspect(payload);
+  }
+
+  /** Confirme la création malgré un doublon détecté. */
+  async function confirmCreateDespiteDuplicate() {
+    if (!dupWarn) return;
+    const payload = dupWarn.payload;
+    setDupWarn(null);
+    try {
+      await insertProspect(payload);
+      setCreateOpen(false);
+    } catch {
+      /* erreur déjà posée dans setError */
+    }
   }
 
   async function handleEdit(values: ProspectFormValues) {
@@ -649,6 +732,37 @@ export default function ProspectsClient({
           className="mb-4 rounded-2xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800"
         >
           {error}
+        </div>
+      )}
+
+      {/* Alerte anti-doublon non bloquante */}
+      {dupWarn && (
+        <div
+          role="alert"
+          aria-live="assertive"
+          className="mb-4 flex flex-col gap-3 rounded-2xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <span>
+            ⚠️ Un prospect avec ce{' '}
+            {dupWarn.reason === 'email' ? 'email' : 'téléphone'} existe déjà :{' '}
+            <strong>{dupWarn.match}</strong>. Créer quand même&nbsp;?
+          </span>
+          <span className="flex shrink-0 items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setDupWarn(null)}
+              className="rounded-full border border-amber-300 bg-white px-4 py-2 text-xs font-semibold text-amber-900 transition-colors hover:bg-amber-100"
+            >
+              Annuler
+            </button>
+            <button
+              type="button"
+              onClick={confirmCreateDespiteDuplicate}
+              className="rounded-full bg-amber-600 px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-amber-700"
+            >
+              Créer quand même
+            </button>
+          </span>
         </div>
       )}
 
