@@ -13,13 +13,14 @@ import {
   Compass,
   BookOpen,
   ShieldCheck,
+  History,
   Plus,
   X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 /* ------------------------------------------------------------------ */
-/*  Modèle de navigation                                               */
+/*  Modele de navigation                                               */
 /* ------------------------------------------------------------------ */
 
 export type NavItem = {
@@ -37,8 +38,8 @@ type NavGroup = {
 
 /**
  * Groupes de navigation — reprend TOUS les liens de l'ancienne Navbar,
- * réorganisés en sections lisibles. L'item Admin n'est rendu que pour les
- * admins (même logique de rôle que l'ancien shell : `isAdmin`).
+ * reorganises en sections lisibles. Les items Admin ne sont rendus que pour
+ * les admins (meme logique de role que l'ancien shell : `isAdmin`).
  */
 const NAV_GROUPS: NavGroup[] = [
   {
@@ -72,13 +73,13 @@ const NAV_GROUPS: NavGroup[] = [
       },
       {
         href: '/prospects/taches',
-        label: 'Tâches',
+        label: 'Taches',
         icon: CheckSquare,
         match: (p) => p.startsWith('/prospects/taches'),
       },
       {
         href: '/sequences',
-        label: 'Séquences',
+        label: 'Sequences',
         icon: Workflow,
         match: (p) => p.startsWith('/sequences'),
       },
@@ -114,7 +115,14 @@ const NAV_GROUPS: NavGroup[] = [
         href: '/admin',
         label: 'Admin',
         icon: ShieldCheck,
-        match: (p) => p.startsWith('/admin'),
+        match: (p) => p.startsWith('/admin') && !p.startsWith('/admin/journal'),
+        admin: true,
+      },
+      {
+        href: '/admin/journal',
+        label: 'Journal',
+        icon: History,
+        match: (p) => p.startsWith('/admin/journal'),
         admin: true,
       },
     ],
@@ -153,7 +161,7 @@ function Logo() {
 }
 
 /**
- * Pill CTA primaire « + Nouveau prospect » (réf Drive « + Nouveau »).
+ * Pill CTA primaire « + Nouveau prospect » (ref Drive « + Nouveau »).
  * Fond orange officiel #F39253, TEXTE CHOCOLAT (#2A1810) — l'orange clair en
  * texte blanc manque de contraste, le chocolat passe AAA. Ombre orange douce.
  */
@@ -201,14 +209,14 @@ function NavLink({
     >
       {active && (
         <>
-          {/* Surbrillance arrondie douce orange (réf Drive item actif). */}
+          {/* Surbrillance arrondie douce orange (ref Drive item actif). */}
           <motion.span
             layoutId="sidebar-active"
             transition={{ type: 'spring', stiffness: 380, damping: 32 }}
             className="absolute inset-0 -z-10 rounded-xl bg-brand/[0.12]"
             aria-hidden
           />
-          {/* Petit indicateur à gauche. */}
+          {/* Petit indicateur a gauche. */}
           <span
             aria-hidden
             className="absolute left-0 top-1/2 h-5 w-1 -translate-y-1/2 rounded-full bg-brand"
@@ -309,7 +317,7 @@ function SidebarInner({
       {/*
         Nav scrollable. `data-lenis-prevent` => le smooth-scroll global Lenis
         ignore ce conteneur, donc la molette scrolle la sidebar NATIVEMENT.
-        Espacement vertical généreux entre sections (réf Drive).
+        Espacement vertical genereux entre sections (ref Drive).
       */}
       <nav
         data-lenis-prevent
@@ -341,7 +349,7 @@ function SidebarInner({
 }
 
 /* ------------------------------------------------------------------ */
-/*  Export — rail intégré (desktop) + drawer (mobile)                  */
+/*  Export — rail integre (desktop) + drawer (mobile)                  */
 /* ------------------------------------------------------------------ */
 
 export default function AppSidebar({
@@ -359,7 +367,7 @@ export default function AppSidebar({
 
   return (
     <>
-      {/* Desktop : rail intégré dans le panneau blanc (liseré beige à droite). */}
+      {/* Desktop : rail integre dans le panneau blanc (lisere beige a droite). */}
       <aside className="hidden w-[264px] shrink-0 border-r border-border-soft/60 bg-surface-soft lg:block">
         <SidebarInner user={user} isAdmin={isAdmin} />
       </aside>
