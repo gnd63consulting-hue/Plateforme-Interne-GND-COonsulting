@@ -466,7 +466,7 @@ function StepRow({
           <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-warm">
             {kindLabel(step.kind)}
           </span>
-          <span className="rounded-full bg-gnd-sand px-2 py-0.5 font-inter text-[10px] font-semibold text-muted-warm">
+          <span className="rounded-full bg-brand-soft px-2 py-0.5 font-inter text-[10px] font-semibold text-muted-warm">
             {step.delay_days === 0
               ? 'immédiat'
               : `+${step.delay_days} j`}
