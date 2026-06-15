@@ -7,10 +7,11 @@ import { SparklineSVG } from './SparklineSVG';
 /**
  * StatCard — carte KPI du Design System Sprint 10 (réf Dropify).
  *
- * Pastille icône colorée + label + grand nombre + delta % + mini-sparkline.
- * Variante `accent` (orange de marque) pour la carte la plus importante de la
- * rangée. a11y : le nombre reste en charbon (sauf accent → orange foncé) pour
- * le contraste ; delta a une couleur sémantique + une icône (pas couleur seule).
+ * Pastille icône (carré arrondi ~40px, fond orange pâle) + label + grand
+ * nombre + delta % + mini-sparkline. Variante `accent` (orange de marque)
+ * pour la carte la plus importante de la rangée. a11y : le nombre reste en
+ * charbon (sauf accent → orange foncé) pour le contraste ; le delta a une
+ * couleur sémantique + une icône (pas couleur seule).
  */
 export type DeltaDirection = 'up' | 'down' | 'flat';
 
@@ -54,13 +55,14 @@ export function StatCard({
   return (
     <Card
       tone={accent ? 'brand' : 'surface'}
-      className={cn('p-5', className)}
+      className={cn('rounded-2xl p-5', className)}
     >
       <div className="flex items-start justify-between gap-3">
+        {/* Pastille icône — carré arrondi ~40px, fond teinté orange (réf Dropify). */}
         <span
           aria-hidden
           className={cn(
-            'flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl',
+            'flex h-10 w-10 shrink-0 items-center justify-center rounded-xl',
             accent ? 'bg-brand text-white' : 'bg-brand-soft text-brand-dark'
           )}
         >
@@ -86,7 +88,7 @@ export function StatCard({
       <div className="mt-1 flex items-end justify-between gap-3">
         <p
           className={cn(
-            'font-marcellus text-3xl font-normal leading-none tabular-nums',
+            'font-marcellus text-[34px] font-normal leading-none tabular-nums',
             accent ? 'text-brand-dark' : 'text-choco'
           )}
         >

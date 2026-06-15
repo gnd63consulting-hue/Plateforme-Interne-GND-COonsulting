@@ -16,3 +16,5 @@ export { SectionHeader } from './SectionHeader';
 export type { SectionHeaderProps } from './SectionHeader';
 export { Avatar, AvatarStack, getInitials } from './Avatar';
 export type { AvatarProps, AvatarStackProps } from './Avatar';
+export { QuickAccessCard } from './QuickAccessCard';
+export type { QuickAccessCardProps } from './QuickAccessCard';
