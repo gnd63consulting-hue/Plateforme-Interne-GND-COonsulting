@@ -39,6 +39,55 @@ export const ACTIVITY_SELECT_COLUMNS = [
   'occurred_at',
 ].join(', ');
 
+/**
+ * Forme minimale du client Supabase dont ce helper a besoin (insert sur une
+ * table). Typage structurel volontaire : évite d'importer le type lourd
+ * `SupabaseClient` et garde ce module sans dépendance serveur (importable
+ * depuis un composant `"use client"`).
+ */
+type ActivityInsertClient = {
+  from: (table: string) => {
+    // PromiseLike (et non Promise) : le builder PostgREST de supabase-js est un
+    // thenable, pas une vraie Promise → on type au plus large pour rester
+    // compatible avec le client réel sans cast.
+    insert: (
+      values: Record<string, unknown>
+    ) => PromiseLike<{ error: { message: string } | null }>;
+  };
+};
+
+/**
+ * Insère une activité dans la timeline d'un prospect et ATTEND le résultat.
+ *
+ * Contrairement à un fire-and-forget (`.insert().then()` non awaité), ce helper
+ * renvoie `{ ok }` : le caller peut donc savoir si la trace a réellement été
+ * persistée et avertir le commercial le cas échéant (exigence de traçabilité
+ * fiable du Sprint 9 — jamais d'échec silencieux de l'historique).
+ *
+ * `owner_id` et `occurred_at` sont posés par défaut côté Postgres
+ * (auth.uid() / now()) — on ne les force jamais à la main. RLS owner-based :
+ * un commercial n'écrit que ses propres activités.
+ */
+export async function insertActivityRow(
+  supabase: ActivityInsertClient,
+  prospectId: string,
+  kind: ActivityKind,
+  opts: { body?: string | null; metadata?: Record<string, unknown> } = {}
+): Promise<{ ok: boolean }> {
+  const { error } = await supabase.from('activities').insert({
+    prospect_id: prospectId,
+    kind,
+    body: opts.body ?? null,
+    metadata: opts.metadata ?? null,
+  });
+  if (error) {
+    // eslint-disable-next-line no-console
+    console.error(`[activities] insert ${kind} failed:`, error.message);
+    return { ok: false };
+  }
+  return { ok: true };
+}
+
 /** Libellé FR + emoji par type d'activité (pour la timeline). */
 const ACTIVITY_META: Record<
   ActivityKind,
