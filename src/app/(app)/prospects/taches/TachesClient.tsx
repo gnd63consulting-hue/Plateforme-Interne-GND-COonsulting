@@ -221,7 +221,7 @@ export default function TachesClient({
         {status}
       </p>
 
-      {/* Header — nouveau langage DS (SectionHeader) */}
+      {/* Header — langage DS (SectionHeader) */}
       <SectionHeader
         as="h1"
         eyebrow="Mon pilotage · Tâches"
@@ -250,23 +250,23 @@ export default function TachesClient({
       <section className="mb-12" aria-labelledby="todo-today-heading">
         <div className="mb-4 flex items-center gap-2">
           <span
-            className="flex h-2 w-2 rounded-full bg-gnd-amber shadow-[0_0_8px_rgba(243,146,83,0.7)]"
+            className="flex h-2 w-2 rounded-full bg-brand shadow-[0_0_8px_rgba(243,146,83,0.7)]"
             aria-hidden
           />
           <h2
             id="todo-today-heading"
-            className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-gnd-bronze"
+            className="font-inter text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-warm"
           >
             À faire aujourd&apos;hui ({agenda.length})
           </h2>
         </div>
 
         {agenda.length === 0 ? (
-          <div className="rounded-3xl border border-gnd-bronze/8 bg-gnd-paper p-10 text-center shadow-warm">
-            <p className="font-display text-lg text-gnd-bronze">
+          <div className="rounded-3xl border border-border-soft bg-white p-10 text-center shadow-soft">
+            <p className="font-marcellus text-lg text-choco">
               Rien d&apos;urgent aujourd&apos;hui. 👌
             </p>
-            <p className="mt-2 text-sm text-gnd-bronze-soft">
+            <p className="mt-2 text-sm text-muted-warm">
               Aucune tâche ni relance due. Profites-en pour en planifier une.
             </p>
           </div>
@@ -318,7 +318,7 @@ export default function TachesClient({
         <div className="mb-4 flex items-center justify-between gap-3">
           <h2
             id="my-tasks-heading"
-            className="font-display text-xl font-medium text-gnd-bronze sm:text-2xl"
+            className="font-marcellus text-xl font-medium text-choco sm:text-2xl"
           >
             Mes tâches
           </h2>
@@ -326,7 +326,7 @@ export default function TachesClient({
             type="button"
             onClick={() => setCreateOpen((v) => !v)}
             aria-expanded={createOpen}
-            className="inline-flex items-center gap-2 rounded-full bg-gnd-bronze px-5 py-2.5 text-sm font-semibold text-gnd-cream transition-all hover:bg-gnd-ink hover:shadow-warm-lg"
+            className="inline-flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-choco transition-all hover:bg-brand-dark hover:shadow-soft-md"
           >
             <Plus className="h-4 w-4" aria-hidden />
             Nouvelle tâche
@@ -357,11 +357,11 @@ export default function TachesClient({
 
         {/* Liste groupée */}
         {activeTasks.length === 0 ? (
-          <div className="mt-4 rounded-3xl border border-gnd-bronze/8 bg-gnd-paper p-10 text-center shadow-warm">
-            <p className="font-display text-lg text-gnd-bronze">
+          <div className="mt-4 rounded-3xl border border-border-soft bg-white p-10 text-center shadow-soft">
+            <p className="font-marcellus text-lg text-choco">
               Aucune tâche active.
             </p>
-            <p className="mt-2 text-sm text-gnd-bronze-soft">
+            <p className="mt-2 text-sm text-muted-warm">
               Crée ta première tâche pour la voir apparaître ici.
             </p>
           </div>
@@ -384,7 +384,7 @@ export default function TachesClient({
             <TaskGroup
               title="Aujourd'hui"
               bucket="today"
-              dotClass="bg-gnd-amber"
+              dotClass="bg-brand"
               tasks={grouped.today}
               editingId={editing?.id ?? null}
               prospectName={prospectName}
@@ -412,7 +412,7 @@ export default function TachesClient({
             <TaskGroup
               title="Sans date"
               bucket="undated"
-              dotClass="bg-gnd-bronze-faded"
+              dotClass="bg-muted-warm/50"
               tasks={grouped.undated}
               editingId={editing?.id ?? null}
               prospectName={prospectName}
@@ -434,7 +434,7 @@ export default function TachesClient({
               onClick={() => setShowDone((v) => !v)}
               aria-expanded={showDone}
               aria-controls="done-tasks-panel"
-              className="inline-flex items-center gap-2 rounded-full border border-gnd-bronze/10 bg-white px-4 py-2 text-xs font-semibold text-gnd-bronze-soft transition-colors hover:bg-gnd-cream hover:text-gnd-bronze"
+              className="inline-flex items-center gap-2 rounded-full border border-border-soft bg-white px-4 py-2 text-xs font-semibold text-muted-warm transition-colors hover:bg-cream-deep hover:text-ink-warm"
             >
               <ChevronDown
                 className={`h-3.5 w-3.5 transition-transform ${showDone ? 'rotate-180' : ''}`}
@@ -497,10 +497,10 @@ function Checkbox({
       aria-checked={checked}
       aria-label={label}
       onClick={onChange}
-      className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gnd-amber ${
+      className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring ${
         checked
           ? 'border-emerald-500 bg-emerald-500 text-white'
-          : 'border-gnd-bronze/30 bg-white text-transparent hover:border-gnd-amber'
+          : 'border-border-soft bg-white text-transparent hover:border-brand'
       }`}
     >
       <Check className="h-3.5 w-3.5" aria-hidden />
@@ -519,29 +519,29 @@ function AgendaTaskRow({
 }) {
   const due = effectiveDue(task);
   return (
-    <div className="flex items-center gap-4 rounded-2xl border border-gnd-bronze/8 bg-gnd-paper p-4 shadow-warm transition-colors hover:border-gnd-amber/30">
+    <div className="flex items-center gap-4 rounded-2xl border border-border-soft bg-white p-4 shadow-soft transition-colors hover:border-brand/30">
       <Checkbox
         checked={false}
         onChange={onToggle}
         label={`Marquer « ${task.title} » comme terminée`}
       />
-      <span className="shrink-0 font-mono text-xs font-semibold tabular-nums text-gnd-amber-dim">
+      <span className="shrink-0 font-inter text-xs font-semibold tabular-nums text-brand-dark">
         {due ? formatTime(due) : '—'}
       </span>
       <div className="min-w-0 flex-1">
-        <p className="truncate font-display text-base font-medium text-gnd-bronze">
+        <p className="truncate font-marcellus text-base font-medium text-choco">
           {task.title}
         </p>
         {prospectName && task.prospect_id && (
           <Link
             href={`/prospects/${task.prospect_id}`}
-            className="truncate text-sm text-gnd-bronze-soft underline-offset-2 hover:text-gnd-amber-dim hover:underline"
+            className="truncate text-sm text-muted-warm underline-offset-2 hover:text-brand-dark hover:underline"
           >
             {prospectName}
           </Link>
         )}
       </div>
-      <span className="hidden shrink-0 items-center gap-1 rounded-full bg-gnd-bronze/8 px-2.5 py-1 font-mono text-[9px] font-semibold uppercase tracking-[0.12em] text-gnd-bronze-soft sm:inline-flex">
+      <span className="hidden shrink-0 items-center gap-1 rounded-full bg-cream-deep px-2.5 py-1 font-inter text-[9px] font-semibold uppercase tracking-[0.12em] text-muted-warm sm:inline-flex">
         <CheckSquare className="h-3 w-3" aria-hidden />
         Tâche
       </span>
@@ -553,26 +553,26 @@ function AgendaRelanceRow({ relance }: { relance: RelanceLite }) {
   return (
     <Link
       href={`/prospects/${relance.id}`}
-      className="flex items-center gap-4 rounded-2xl border border-gnd-bronze/8 bg-gnd-paper p-4 shadow-warm transition-all hover:-translate-y-0.5 hover:border-gnd-amber/30 hover:shadow-warm-lg"
+      className="flex items-center gap-4 rounded-2xl border border-border-soft bg-white p-4 shadow-soft transition-all hover:-translate-y-0.5 hover:border-brand/30 hover:shadow-soft-md"
     >
       <span
-        className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-gnd-amber/12 text-gnd-amber-dim"
+        className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-brand-soft text-brand-dark"
         aria-hidden
       >
         <Phone className="h-3.5 w-3.5" />
       </span>
-      <span className="shrink-0 font-mono text-xs font-semibold tabular-nums text-gnd-amber-dim">
+      <span className="shrink-0 font-inter text-xs font-semibold tabular-nums text-brand-dark">
         {formatTime(relance.next_action_at)}
       </span>
       <div className="min-w-0 flex-1">
-        <p className="truncate font-display text-base font-medium text-gnd-bronze">
+        <p className="truncate font-marcellus text-base font-medium text-choco">
           {relance.company_name}
         </p>
-        <p className="truncate text-sm text-gnd-bronze-soft">
+        <p className="truncate text-sm text-muted-warm">
           {relance.contact_name ?? labelForStatus(relance.status)}
         </p>
       </div>
-      <span className="hidden shrink-0 items-center gap-1 rounded-full bg-gnd-amber/12 px-2.5 py-1 font-mono text-[9px] font-semibold uppercase tracking-[0.12em] text-gnd-amber-dim sm:inline-flex">
+      <span className="hidden shrink-0 items-center gap-1 rounded-full bg-brand-soft px-2.5 py-1 font-inter text-[9px] font-semibold uppercase tracking-[0.12em] text-brand-dark sm:inline-flex">
         <CalendarClock className="h-3 w-3" aria-hidden />
         Relance
       </span>
@@ -616,7 +616,7 @@ function TaskGroup({
     <section>
       <div className="mb-3 flex items-center gap-2">
         <span className={`h-2 w-2 rounded-full ${dotClass}`} aria-hidden />
-        <h3 className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-gnd-bronze">
+        <h3 className="font-inter text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-warm">
           {title} ({tasks.length})
         </h3>
       </div>
@@ -675,10 +675,10 @@ function TaskRow({
   const due = effectiveDue(task);
   return (
     <div
-      className={`group flex items-center gap-4 rounded-2xl border bg-gnd-paper p-4 shadow-warm transition-colors ${
+      className={`group flex items-center gap-4 rounded-2xl border bg-white p-4 shadow-soft transition-colors ${
         danger
           ? 'border-rose-200 hover:border-rose-300'
-          : 'border-gnd-bronze/8 hover:border-gnd-amber/30'
+          : 'border-border-soft hover:border-brand/30'
       }`}
     >
       <Checkbox
@@ -687,14 +687,14 @@ function TaskRow({
         label={`Marquer « ${task.title} » comme terminée`}
       />
       <div className="min-w-0 flex-1">
-        <p className="truncate font-display text-base font-medium text-gnd-bronze">
+        <p className="truncate font-marcellus text-base font-medium text-choco">
           {task.title}
         </p>
         <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs">
           {due && (
             <span
-              className={`inline-flex items-center gap-1 font-mono ${
-                danger ? 'text-rose-600' : 'text-gnd-bronze-soft'
+              className={`inline-flex items-center gap-1 font-inter ${
+                danger ? 'text-rose-600' : 'text-muted-warm'
               }`}
             >
               <Clock className="h-3 w-3" aria-hidden />
@@ -704,7 +704,7 @@ function TaskRow({
           {prospectName && task.prospect_id && (
             <Link
               href={`/prospects/${task.prospect_id}`}
-              className="truncate text-gnd-amber-dim underline-offset-2 hover:underline"
+              className="truncate text-brand-dark underline-offset-2 hover:underline"
             >
               {prospectName}
             </Link>
@@ -715,7 +715,7 @@ function TaskRow({
         <button
           type="button"
           onClick={onEdit}
-          className="inline-flex h-9 w-9 items-center justify-center rounded-full text-gnd-bronze-soft transition-colors hover:bg-gnd-bronze/8 hover:text-gnd-bronze"
+          className="inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-warm transition-colors hover:bg-cream-deep hover:text-ink-warm"
           aria-label={`Modifier « ${task.title} »`}
         >
           <Edit3 className="h-4 w-4" aria-hidden />
@@ -745,24 +745,24 @@ function DoneTaskRow({
   onDelete: () => void;
 }) {
   return (
-    <div className="flex items-center gap-4 rounded-2xl border border-gnd-bronze/8 bg-white/60 p-4">
+    <div className="flex items-center gap-4 rounded-2xl border border-border-soft bg-white/60 p-4">
       <Checkbox
         checked
         onChange={onUncheck}
         label={`Réactiver « ${task.title} »`}
       />
       <div className="min-w-0 flex-1">
-        <p className="truncate font-display text-base font-medium text-gnd-bronze-soft line-through">
+        <p className="truncate font-marcellus text-base font-medium text-muted-warm line-through">
           {task.title}
         </p>
-        <div className="mt-0.5 flex flex-wrap items-center gap-x-3 text-xs text-gnd-bronze-faded">
+        <div className="mt-0.5 flex flex-wrap items-center gap-x-3 text-xs text-muted-warm/70">
           {task.done_at && (
-            <span className="font-mono">Fait le {formatDateTime(task.done_at)}</span>
+            <span className="font-inter">Fait le {formatDateTime(task.done_at)}</span>
           )}
           {prospectName && task.prospect_id && (
             <Link
               href={`/prospects/${task.prospect_id}`}
-              className="truncate underline-offset-2 hover:text-gnd-amber-dim hover:underline"
+              className="truncate underline-offset-2 hover:text-brand-dark hover:underline"
             >
               {prospectName}
             </Link>
@@ -843,13 +843,13 @@ function TaskForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="mt-4 rounded-3xl border border-gnd-bronze/8 bg-gnd-paper p-6 shadow-warm"
+      className="mt-4 rounded-3xl border border-border-soft bg-white p-6 shadow-soft"
     >
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="sm:col-span-2">
           <label
             htmlFor="task-title"
-            className="mb-1.5 block font-mono text-[10px] font-semibold uppercase tracking-[0.15em] text-gnd-amber-dim"
+            className="mb-1.5 block font-inter text-[10px] font-semibold uppercase tracking-[0.15em] text-brand-dark"
           >
             Titre <span className="text-rose-500">*</span>
           </label>
@@ -860,14 +860,14 @@ function TaskForm({
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Rappeler le restaurant, préparer le devis…"
-            className="w-full rounded-2xl border border-gnd-bronze/10 bg-white px-4 py-2.5 text-sm text-gnd-bronze placeholder:text-gnd-bronze-faded focus:border-gnd-amber focus:outline-none focus:ring-1 focus:ring-gnd-amber"
+            className="w-full rounded-2xl border border-border-soft bg-white px-4 py-2.5 text-sm text-ink-warm placeholder:text-muted-warm/70 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
           />
         </div>
 
         <div>
           <label
             htmlFor="task-due"
-            className="mb-1.5 block font-mono text-[10px] font-semibold uppercase tracking-[0.15em] text-gnd-amber-dim"
+            className="mb-1.5 block font-inter text-[10px] font-semibold uppercase tracking-[0.15em] text-brand-dark"
           >
             Échéance
           </label>
@@ -876,14 +876,14 @@ function TaskForm({
             type="datetime-local"
             value={dueAt}
             onChange={(e) => setDueAt(e.target.value)}
-            className="w-full rounded-2xl border border-gnd-bronze/10 bg-white px-4 py-2.5 text-sm text-gnd-bronze focus:border-gnd-amber focus:outline-none focus:ring-1 focus:ring-gnd-amber"
+            className="w-full rounded-2xl border border-border-soft bg-white px-4 py-2.5 text-sm text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
           />
         </div>
 
         <div>
           <label
             htmlFor="task-remind"
-            className="mb-1.5 block font-mono text-[10px] font-semibold uppercase tracking-[0.15em] text-gnd-amber-dim"
+            className="mb-1.5 block font-inter text-[10px] font-semibold uppercase tracking-[0.15em] text-brand-dark"
           >
             Rappel
           </label>
@@ -892,14 +892,14 @@ function TaskForm({
             type="datetime-local"
             value={remindAt}
             onChange={(e) => setRemindAt(e.target.value)}
-            className="w-full rounded-2xl border border-gnd-bronze/10 bg-white px-4 py-2.5 text-sm text-gnd-bronze focus:border-gnd-amber focus:outline-none focus:ring-1 focus:ring-gnd-amber"
+            className="w-full rounded-2xl border border-border-soft bg-white px-4 py-2.5 text-sm text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
           />
         </div>
 
         <div className="sm:col-span-2">
           <label
             htmlFor="task-prospect-search"
-            className="mb-1.5 block font-mono text-[10px] font-semibold uppercase tracking-[0.15em] text-gnd-amber-dim"
+            className="mb-1.5 block font-inter text-[10px] font-semibold uppercase tracking-[0.15em] text-brand-dark"
           >
             Rattacher à un prospect (optionnel)
           </label>
@@ -910,14 +910,14 @@ function TaskForm({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Filtrer la liste…"
-              className="mb-2 w-full rounded-2xl border border-gnd-bronze/10 bg-white px-4 py-2 text-sm text-gnd-bronze placeholder:text-gnd-bronze-faded focus:border-gnd-amber focus:outline-none focus:ring-1 focus:ring-gnd-amber"
+              className="mb-2 w-full rounded-2xl border border-border-soft bg-white px-4 py-2 text-sm text-ink-warm placeholder:text-muted-warm/70 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
             />
           )}
           <select
             aria-label="Prospect rattaché"
             value={prospectId}
             onChange={(e) => setProspectId(e.target.value)}
-            className="w-full rounded-2xl border border-gnd-bronze/10 bg-white px-4 py-2.5 text-sm text-gnd-bronze focus:border-gnd-amber focus:outline-none focus:ring-1 focus:ring-gnd-amber"
+            className="w-full rounded-2xl border border-border-soft bg-white px-4 py-2.5 text-sm text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
           >
             <option value="">— Aucun —</option>
             {filteredProspects.map((p) => (
@@ -934,14 +934,14 @@ function TaskForm({
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-full border border-gnd-bronze/10 bg-white px-5 py-2.5 text-sm font-semibold text-gnd-bronze transition-colors hover:bg-gnd-cream"
+          className="rounded-full border border-border-soft bg-white px-5 py-2.5 text-sm font-semibold text-ink-warm transition-colors hover:bg-cream-deep"
         >
           Annuler
         </button>
         <button
           type="submit"
           disabled={!canSubmit}
-          className="inline-flex items-center gap-2 rounded-full bg-gnd-bronze px-5 py-2.5 text-sm font-semibold text-gnd-cream transition-colors hover:bg-gnd-ink disabled:cursor-not-allowed disabled:opacity-40"
+          className="inline-flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-choco transition-colors hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-40"
         >
           {submitting ? 'Création…' : 'Créer la tâche'}
         </button>
@@ -981,7 +981,7 @@ function InlineEdit({
   return (
     <form
       onSubmit={handleSave}
-      className="rounded-2xl border border-gnd-amber/30 bg-white p-4 shadow-warm"
+      className="rounded-2xl border border-brand/30 bg-white p-4 shadow-soft"
     >
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div className="sm:col-span-2">
@@ -994,13 +994,13 @@ function InlineEdit({
             required
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full rounded-xl border border-gnd-bronze/10 bg-white px-3 py-2 text-sm text-gnd-bronze focus:border-gnd-amber focus:outline-none focus:ring-1 focus:ring-gnd-amber"
+            className="w-full rounded-xl border border-border-soft bg-white px-3 py-2 text-sm text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
           />
         </div>
         <div>
           <label
             htmlFor={`edit-due-${task.id}`}
-            className="mb-1 block font-mono text-[9px] font-semibold uppercase tracking-[0.15em] text-gnd-amber-dim"
+            className="mb-1 block font-inter text-[9px] font-semibold uppercase tracking-[0.15em] text-brand-dark"
           >
             Échéance
           </label>
@@ -1009,13 +1009,13 @@ function InlineEdit({
             type="datetime-local"
             value={dueAt}
             onChange={(e) => setDueAt(e.target.value)}
-            className="w-full rounded-xl border border-gnd-bronze/10 bg-white px-3 py-2 text-sm text-gnd-bronze focus:border-gnd-amber focus:outline-none focus:ring-1 focus:ring-gnd-amber"
+            className="w-full rounded-xl border border-border-soft bg-white px-3 py-2 text-sm text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
           />
         </div>
         <div>
           <label
             htmlFor={`edit-remind-${task.id}`}
-            className="mb-1 block font-mono text-[9px] font-semibold uppercase tracking-[0.15em] text-gnd-amber-dim"
+            className="mb-1 block font-inter text-[9px] font-semibold uppercase tracking-[0.15em] text-brand-dark"
           >
             Rappel
           </label>
@@ -1024,7 +1024,7 @@ function InlineEdit({
             type="datetime-local"
             value={remindAt}
             onChange={(e) => setRemindAt(e.target.value)}
-            className="w-full rounded-xl border border-gnd-bronze/10 bg-white px-3 py-2 text-sm text-gnd-bronze focus:border-gnd-amber focus:outline-none focus:ring-1 focus:ring-gnd-amber"
+            className="w-full rounded-xl border border-border-soft bg-white px-3 py-2 text-sm text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
           />
         </div>
       </div>
@@ -1032,7 +1032,7 @@ function InlineEdit({
         <button
           type="button"
           onClick={onCancel}
-          className="inline-flex items-center gap-1.5 rounded-full border border-gnd-bronze/10 bg-white px-4 py-2 text-xs font-semibold text-gnd-bronze transition-colors hover:bg-gnd-cream"
+          className="inline-flex items-center gap-1.5 rounded-full border border-border-soft bg-white px-4 py-2 text-xs font-semibold text-ink-warm transition-colors hover:bg-cream-deep"
         >
           <X className="h-3.5 w-3.5" aria-hidden />
           Annuler
@@ -1040,7 +1040,7 @@ function InlineEdit({
         <button
           type="submit"
           disabled={!title.trim()}
-          className="inline-flex items-center gap-1.5 rounded-full bg-gnd-bronze px-4 py-2 text-xs font-semibold text-gnd-cream transition-colors hover:bg-gnd-ink disabled:cursor-not-allowed disabled:opacity-40"
+          className="inline-flex items-center gap-1.5 rounded-full bg-brand px-4 py-2 text-xs font-semibold text-choco transition-colors hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-40"
         >
           <Check className="h-3.5 w-3.5" aria-hidden />
           Enregistrer

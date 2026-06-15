@@ -60,7 +60,7 @@ export default function FormationClient({
         <motion.span
           aria-hidden
           style={{ y: watermarkY, opacity: watermarkOpacity }}
-          className="pointer-events-none absolute -bottom-10 -left-4 select-none whitespace-nowrap font-display text-[20vw] font-medium leading-none tracking-tighter text-gnd-bronze/[0.04] sm:-bottom-20 sm:text-[16rem]"
+          className="pointer-events-none absolute -bottom-10 -left-4 select-none whitespace-nowrap font-marcellus text-[20vw] font-medium leading-none tracking-tighter text-gnd-bronze/[0.04] sm:-bottom-20 sm:text-[16rem]"
         >
           Formation.
         </motion.span>
@@ -74,17 +74,17 @@ export default function FormationClient({
             className="max-w-2xl"
           >
             <div className="mb-4 flex items-center gap-2">
-              <span className="h-px w-8 bg-gnd-amber" />
-              <span className="font-mono text-[10px] font-medium uppercase tracking-[0.2em] text-gnd-amber">
+              <span className="h-px w-8 bg-brand" />
+              <span className="font-inter text-[10px] font-medium uppercase tracking-[0.2em] text-brand-dark">
                 E-learning path
               </span>
             </div>
-            <h1 className="font-display text-display-xl font-medium leading-[0.95] tracking-tight text-gnd-bronze">
+            <h1 className="font-marcellus text-display-xl font-medium leading-[0.95] tracking-tight text-choco">
               Bienvenue,
               <br />
-              <span className="italic text-gnd-amber">{firstName}.</span>
+              <span className="italic text-brand-dark">{firstName}.</span>
             </h1>
-            <p className="mt-6 max-w-md text-pretty text-base leading-relaxed text-gnd-bronze-soft sm:text-lg">
+            <p className="mt-6 max-w-md text-pretty text-base leading-relaxed text-muted-warm sm:text-lg">
               {isComplete
                 ? "Tu as terminé le parcours. Reviens à tout moment pour réviser."
                 : `${totalCount - completedCount} module${totalCount - completedCount > 1 ? 's' : ''} à valider pour atteindre ta certification.`}
@@ -104,10 +104,10 @@ export default function FormationClient({
               total={totalCount}
             />
             <div className="flex flex-col gap-1">
-              <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-gnd-bronze-soft">
+              <span className="font-inter text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-warm">
                 Avancement global
               </span>
-              <span className="font-display text-lg font-medium text-gnd-bronze">
+              <span className="font-marcellus text-lg font-medium text-choco">
                 {isComplete ? 'Parcours terminé' : 'En progression'}
               </span>
             </div>
@@ -138,11 +138,11 @@ export default function FormationClient({
         <div className="mb-8 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="h-px w-6 bg-gnd-bronze/30" />
-            <span className="font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-gnd-bronze-soft">
+            <span className="font-inter text-[10px] font-medium uppercase tracking-[0.18em] text-muted-warm">
               {totalCount} modules
             </span>
           </div>
-          <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-gnd-bronze-soft">
+          <span className="font-inter text-[10px] uppercase tracking-[0.15em] text-muted-warm">
             {completedCount} validé{completedCount > 1 ? 's' : ''}
           </span>
         </div>
@@ -198,7 +198,7 @@ export default function FormationClient({
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-100px' }}
         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        className="relative mt-20 overflow-hidden rounded-3xl border border-gnd-bronze/10 bg-gnd-bronze p-10 text-gnd-cream md:p-16"
+        className="relative mt-20 overflow-hidden rounded-3xl border border-border-soft bg-brand p-10 text-choco md:p-16"
       >
         <div
           aria-hidden
@@ -206,30 +206,30 @@ export default function FormationClient({
         />
         <div
           aria-hidden
-          className="pointer-events-none absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-gnd-amber/10 blur-3xl"
+          className="pointer-events-none absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-brand-soft blur-3xl"
         />
         <span
           aria-hidden
-          className="pointer-events-none absolute -bottom-20 right-10 select-none font-display text-[14rem] font-medium italic leading-none text-gnd-cream/[0.04] sm:text-[18rem]"
+          className="pointer-events-none absolute -bottom-20 right-10 select-none font-marcellus text-[14rem] font-medium italic leading-none text-gnd-cream/[0.04] sm:text-[18rem]"
         >
           {totalCount}
         </span>
 
         <div className="relative max-w-2xl">
-          <p className="mb-3 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-gnd-amber">
+          <p className="mb-3 font-inter text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-dark">
             {isComplete ? 'Formation complète' : 'Certification'}
           </p>
-          <h2 className="font-display text-display-md font-medium leading-tight text-gnd-cream">
+          <h2 className="font-marcellus text-display-md font-medium leading-tight text-choco">
             {isComplete ? (
               <>
                 Tu es{' '}
-                <span className="italic text-gnd-amber">certifié</span>
+                <span className="italic text-brand-dark">certifié</span>
                 {' '}GND Consulting.
               </>
             ) : (
               <>
                 {totalCount} modules pour devenir{' '}
-                <span className="italic text-gnd-amber">certifié</span>
+                <span className="italic text-brand-dark">certifié</span>
                 .
               </>
             )}
@@ -298,11 +298,11 @@ function ProgressionDial({
       </svg>
 
       <div className="flex flex-col items-center text-center">
-        <span className="font-display text-3xl font-medium leading-none text-gnd-bronze md:text-4xl">
+        <span className="font-marcellus text-3xl font-medium leading-none text-choco md:text-4xl">
           {percent}
-          <span className="text-lg text-gnd-bronze-soft">%</span>
+          <span className="text-lg text-muted-warm">%</span>
         </span>
-        <span className="mt-1 font-mono text-[9px] uppercase tracking-[0.18em] text-gnd-bronze-soft">
+        <span className="mt-1 font-inter text-[9px] uppercase tracking-[0.18em] text-muted-warm">
           {completed} / {total}
         </span>
       </div>

@@ -455,7 +455,7 @@ export default function ProspectDetailClient({
       <div className="mb-6">
         <Link
           href="/prospects"
-          className="inline-flex items-center gap-2 rounded-full border border-gnd-bronze/10 bg-white px-4 py-2 text-sm font-semibold text-gnd-bronze transition-colors hover:bg-gnd-cream"
+          className="inline-flex items-center gap-2 rounded-full border border-border-soft bg-white px-4 py-2 text-sm font-semibold text-ink-warm transition-colors hover:bg-cream-deep"
         >
           <ArrowLeft className="h-4 w-4" aria-hidden />
           Retour aux prospects
@@ -467,7 +467,7 @@ export default function ProspectDetailClient({
       {/* ================================================================= */}
       <motion.header
         {...motionProps}
-        className="relative mb-8 overflow-hidden rounded-3xl border border-gnd-bronze/8 bg-gnd-paper p-6 shadow-warm sm:p-8"
+        className="relative mb-8 overflow-hidden rounded-3xl border border-border-soft bg-white p-6 shadow-soft sm:p-8"
       >
         <div className="h-px w-full" />
         <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
@@ -475,7 +475,7 @@ export default function ProspectDetailClient({
             <Avatar text={prospect.company_name} />
             <div className="min-w-0">
               <div className="mb-1.5 flex flex-wrap items-center gap-2">
-                <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-gnd-amber">
+                <span className="font-inter text-[10px] font-semibold uppercase tracking-[0.18em] text-brand-dark">
                   Fiche prospect
                 </span>
                 {isHot && (
@@ -485,14 +485,14 @@ export default function ProspectDetailClient({
                   </span>
                 )}
               </div>
-              <h1 className="font-display text-display-md font-medium leading-[1] tracking-tight text-gnd-bronze">
+              <h1 className="font-marcellus text-display-md font-medium leading-[1] tracking-tight text-choco">
                 {prospect.company_name}
               </h1>
               {(prospect.contact_name || prospect.role_contact) && (
-                <p className="mt-2 text-base text-gnd-bronze-soft">
+                <p className="mt-2 text-base text-muted-warm">
                   {prospect.contact_name ?? prospect.prenom_contact ?? '—'}
                   {prospect.role_contact && (
-                    <span className="text-gnd-bronze-faded">
+                    <span className="text-muted-warm/70">
                       {' '}
                       · {prospect.role_contact}
                     </span>
@@ -506,13 +506,13 @@ export default function ProspectDetailClient({
                   {labelForStatus(status)}
                 </span>
                 {prospect.classification && (
-                  <span className="inline-flex items-center gap-1 rounded-full border border-gnd-bronze/10 bg-white px-2.5 py-1 text-xs font-medium text-gnd-bronze-soft">
+                  <span className="inline-flex items-center gap-1 rounded-full border border-border-soft bg-white px-2.5 py-1 text-xs font-medium text-muted-warm">
                     <Target className="h-3 w-3" aria-hidden />
                     {prospect.classification}
                   </span>
                 )}
                 {prospect.city && (
-                  <span className="inline-flex items-center gap-1 rounded-full border border-gnd-bronze/10 bg-white px-2.5 py-1 text-xs font-medium text-gnd-bronze-soft">
+                  <span className="inline-flex items-center gap-1 rounded-full border border-border-soft bg-white px-2.5 py-1 text-xs font-medium text-muted-warm">
                     <MapPin className="h-3 w-3" aria-hidden />
                     {prospect.city}
                   </span>
@@ -524,7 +524,7 @@ export default function ProspectDetailClient({
                   </span>
                 )}
                 {prospect.notion_page_id && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-gnd-amber/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-gnd-amber-dim">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-gnd-amber/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-brand-dark">
                     <Sparkles className="h-3 w-3" aria-hidden />
                     Notion
                   </span>
@@ -538,7 +538,7 @@ export default function ProspectDetailClient({
             {telHref && (
               <a
                 href={telHref}
-                className="inline-flex items-center gap-1.5 rounded-full bg-gnd-bronze px-4 py-2 text-sm font-semibold text-gnd-cream transition-colors hover:bg-gnd-ink"
+                className="inline-flex items-center gap-1.5 rounded-full bg-brand px-4 py-2 text-sm font-semibold text-choco transition-colors hover:bg-brand-dark"
               >
                 <Phone className="h-4 w-4" aria-hidden />
                 Appeler
@@ -547,7 +547,7 @@ export default function ProspectDetailClient({
             {mailHref && (
               <a
                 href={mailHref}
-                className="inline-flex items-center gap-1.5 rounded-full border border-gnd-bronze/10 bg-white px-4 py-2 text-sm font-semibold text-gnd-bronze transition-colors hover:bg-gnd-cream"
+                className="inline-flex items-center gap-1.5 rounded-full border border-border-soft bg-white px-4 py-2 text-sm font-semibold text-ink-warm transition-colors hover:bg-cream-deep"
               >
                 <Mail className="h-4 w-4" aria-hidden />
                 Email
@@ -593,15 +593,15 @@ export default function ProspectDetailClient({
           <QuotesPanel prospectId={prospect.id} initialQuotes={initialQuotes} />
 
           {/* E. TIMELINE */}
-          <section className="rounded-3xl border border-gnd-bronze/8 bg-gnd-paper p-6 shadow-warm">
+          <section className="rounded-3xl border border-border-soft bg-white p-6 shadow-soft">
             <div className="mb-4 flex items-center gap-2">
-              <span className="h-px w-8 bg-gnd-amber" />
-              <h2 className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-gnd-amber">
+              <span className="h-px w-8 bg-brand" />
+              <h2 className="font-inter text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-dark">
                 Historique d&apos;activité
               </h2>
             </div>
             {activities.length === 0 ? (
-              <p className="text-sm italic text-gnd-bronze-faded">
+              <p className="text-sm italic text-muted-warm/70">
                 Aucune activité pour l&apos;instant. Utilise les actions rapides
                 pour commencer à tracer ce prospect.
               </p>
@@ -616,7 +616,7 @@ export default function ProspectDetailClient({
                   <button
                     type="button"
                     onClick={() => setVisibleCount((c) => c + 30)}
-                    className="mt-5 w-full rounded-xl border border-dashed border-gnd-bronze/12 px-3 py-2 text-center font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-gnd-bronze-soft transition-colors hover:bg-gnd-bronze/[0.04] hover:text-gnd-bronze"
+                    className="mt-5 w-full rounded-xl border border-dashed border-border-soft px-3 py-2 text-center font-inter text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-warm transition-colors hover:bg-gnd-bronze/[0.04] hover:text-ink-warm"
                   >
                     Voir plus ({activities.length - visibleCount} restantes)
                   </button>
@@ -705,13 +705,13 @@ function WinDealModal({
       aria-modal="true"
       aria-label="Montant du contrat signé"
     >
-      <div className="w-full max-w-md rounded-3xl border border-gnd-bronze/10 bg-gnd-paper p-6 shadow-warm-lg">
+      <div className="w-full max-w-md rounded-3xl border border-border-soft bg-white p-6 shadow-soft-md">
         <div className="mb-1 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
               <Banknote className="h-5 w-5" aria-hidden />
             </span>
-            <h3 className="font-display text-xl font-medium text-gnd-bronze">
+            <h3 className="font-marcellus text-xl font-medium text-choco">
               Contrat signé 🎉
             </h3>
           </div>
@@ -719,19 +719,19 @@ function WinDealModal({
             type="button"
             onClick={onClose}
             aria-label="Fermer"
-            className="rounded-lg p-1.5 text-gnd-bronze-soft transition-colors hover:bg-gnd-bronze/8 hover:text-gnd-bronze"
+            className="rounded-lg p-1.5 text-muted-warm transition-colors hover:bg-cream-deep hover:text-ink-warm"
           >
             <X className="h-5 w-5" aria-hidden />
           </button>
         </div>
-        <p className="mb-4 text-sm text-gnd-bronze-soft">
+        <p className="mb-4 text-sm text-muted-warm">
           Indique le montant HT du contrat signé avec{' '}
-          <strong className="text-gnd-bronze">{companyName}</strong>. Il
+          <strong className="text-ink-warm">{companyName}</strong>. Il
           déclenche le calcul de ta commission réelle.
         </p>
 
         <label className="block">
-          <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-gnd-bronze-faded">
+          <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-muted-warm/70">
             Montant HT signé (€)
           </span>
           <input
@@ -740,7 +740,7 @@ function WinDealModal({
             inputMode="decimal"
             autoFocus
             placeholder="Ex. 8500"
-            className="w-full rounded-xl border border-gnd-bronze/10 bg-white px-3 py-2.5 text-lg font-semibold tabular-nums text-gnd-bronze focus:border-gnd-amber focus:outline-none focus:ring-1 focus:ring-gnd-amber"
+            className="w-full rounded-xl border border-border-soft bg-white px-3 py-2.5 text-lg font-semibold tabular-nums text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
           />
         </label>
 
@@ -754,7 +754,7 @@ function WinDealModal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-xl px-4 py-2 text-sm font-semibold text-gnd-bronze-soft transition-colors hover:bg-gnd-bronze/8 hover:text-gnd-bronze"
+            className="rounded-xl px-4 py-2 text-sm font-semibold text-muted-warm transition-colors hover:bg-cream-deep hover:text-ink-warm"
           >
             Plus tard
           </button>
@@ -814,10 +814,10 @@ function ActionsPanel({
       />
 
       {/* Panneau actions */}
-      <section className="rounded-3xl border border-gnd-amber/20 bg-gnd-paper p-5 shadow-warm-lg">
+      <section className="rounded-3xl border border-gnd-amber/20 bg-white p-5 shadow-soft-md">
         <div className="mb-4 flex items-center gap-2">
-          <span className="flex h-2 w-2 animate-pulse rounded-full bg-gnd-amber" />
-          <h2 className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-gnd-amber">
+          <span className="flex h-2 w-2 animate-pulse rounded-full bg-brand" />
+          <h2 className="font-inter text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-dark">
             Actions rapides
           </h2>
         </div>
@@ -832,8 +832,8 @@ function ActionsPanel({
               aria-expanded={openQuick === qa.kind}
               className={`inline-flex items-center justify-center gap-1.5 rounded-xl border px-3 py-2.5 text-sm font-semibold transition-colors ${
                 openQuick === qa.kind
-                  ? 'border-gnd-amber bg-gnd-amber/10 text-gnd-amber-dim'
-                  : 'border-gnd-bronze/10 bg-white text-gnd-bronze hover:border-gnd-amber/40 hover:bg-gnd-cream'
+                  ? 'border-gnd-amber bg-brand-soft text-brand-dark'
+                  : 'border-border-soft bg-white text-ink-warm hover:border-gnd-amber/40 hover:bg-cream-deep'
               }`}
             >
               <span aria-hidden>{iconForActivityKind(qa.kind)}</span>
@@ -856,15 +856,15 @@ function ActionsPanel({
         )}
 
         {/* Planifier une relance */}
-        <div className="mt-5 border-t border-gnd-bronze/8 pt-5">
+        <div className="mt-5 border-t border-border-soft pt-5">
           <RelancePlanner relanceIso={relanceIso} onPlanRelance={onPlanRelance} />
         </div>
 
         {/* Changer le statut */}
-        <div className="mt-5 border-t border-gnd-bronze/8 pt-5">
+        <div className="mt-5 border-t border-border-soft pt-5">
           <label
             htmlFor="fiche-status"
-            className="mb-1.5 block font-mono text-[10px] font-semibold uppercase tracking-[0.15em] text-gnd-amber-dim"
+            className="mb-1.5 block font-inter text-[10px] font-semibold uppercase tracking-[0.15em] text-brand-dark"
           >
             Statut du prospect
           </label>
@@ -872,7 +872,7 @@ function ActionsPanel({
             id="fiche-status"
             value={status}
             onChange={(e) => onStatusChange(e.target.value)}
-            className="w-full rounded-xl border border-gnd-bronze/10 bg-white px-3 py-2.5 text-sm font-semibold text-gnd-bronze focus:border-gnd-amber focus:outline-none focus:ring-1 focus:ring-gnd-amber"
+            className="w-full rounded-xl border border-border-soft bg-white px-3 py-2.5 text-sm font-semibold text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
           >
             {!STATUS_OPTIONS.some((o) => o.value === status) && (
               <option value={status}>{labelForStatus(status)}</option>
@@ -886,7 +886,7 @@ function ActionsPanel({
         </div>
 
         {/* Édition rapide des notes */}
-        <div className="mt-5 border-t border-gnd-bronze/8 pt-5">
+        <div className="mt-5 border-t border-border-soft pt-5">
           <NotesEditor notes={notes} onSave={onSaveNotes} />
         </div>
       </section>
@@ -921,16 +921,16 @@ function NextActionBanner({
   if (overdueOrMissing) {
     return (
       <section
-        className="rounded-3xl border border-gnd-amber bg-gnd-amber/10 p-5 shadow-warm"
+        className="rounded-3xl border border-gnd-amber bg-brand-soft p-5 shadow-soft"
         aria-label="Prochaine action requise"
       >
         <div className="flex items-start gap-2">
-          <CalendarClock className="mt-0.5 h-5 w-5 shrink-0 text-gnd-amber-dim" aria-hidden />
+          <CalendarClock className="mt-0.5 h-5 w-5 shrink-0 text-brand-dark" aria-hidden />
           <div className="min-w-0 flex-1">
-            <p className="font-display text-base font-medium text-gnd-bronze">
+            <p className="font-marcellus text-base font-medium text-choco">
               ⚠️ Planifie ta prochaine action
             </p>
-            <p className="mt-0.5 text-xs text-gnd-bronze-soft">
+            <p className="mt-0.5 text-xs text-muted-warm">
               {relanceIso
                 ? `Relance dépassée (${formatDate(relanceIso)}). Pose une nouvelle date.`
                 : 'Aucune relance prévue sur ce prospect actif.'}
@@ -942,13 +942,13 @@ function NextActionBanner({
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
                 aria-label="Date et heure de la prochaine relance"
-                className="rounded-xl border border-gnd-bronze/10 bg-white px-3 py-2 text-sm text-gnd-bronze focus:border-gnd-amber focus:outline-none focus:ring-1 focus:ring-gnd-amber"
+                className="rounded-xl border border-border-soft bg-white px-3 py-2 text-sm text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
               />
               <button
                 type="button"
                 onClick={save}
                 disabled={!value || saving}
-                className="inline-flex items-center gap-1.5 rounded-xl bg-gnd-amber px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-gnd-amber-dim disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-brand px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-gnd-amber-dim disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {saving ? (
                   <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
@@ -966,16 +966,16 @@ function NextActionBanner({
 
   return (
     <section
-      className="rounded-3xl border border-gnd-bronze/8 bg-gnd-paper p-5 shadow-warm"
+      className="rounded-3xl border border-border-soft bg-white p-5 shadow-soft"
       aria-label="Prochaine relance"
     >
       <div className="flex items-center gap-2">
-        <CalendarClock className="h-5 w-5 shrink-0 text-gnd-amber" aria-hidden />
+        <CalendarClock className="h-5 w-5 shrink-0 text-brand-dark" aria-hidden />
         <div>
-          <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.15em] text-gnd-amber-dim">
+          <p className="font-inter text-[10px] font-semibold uppercase tracking-[0.15em] text-brand-dark">
             Prochaine relance
           </p>
-          <p className="mt-0.5 font-display text-base font-medium text-gnd-bronze">
+          <p className="mt-0.5 font-marcellus text-base font-medium text-choco">
             {relanceIso ? formatRelance(relanceIso) : 'Aucune'}
           </p>
         </div>
@@ -1024,8 +1024,8 @@ function QuickEntry({
               aria-pressed={outcome === o.value}
               className={`rounded-full px-2.5 py-1 text-xs font-semibold transition-colors ${
                 outcome === o.value
-                  ? 'bg-gnd-bronze text-gnd-cream'
-                  : 'bg-gnd-cream text-gnd-bronze-soft hover:bg-gnd-sand'
+                  ? 'bg-brand text-choco'
+                  : 'bg-cream text-muted-warm hover:bg-gnd-sand'
               }`}
             >
               {o.label}
@@ -1040,13 +1040,13 @@ function QuickEntry({
         placeholder={placeholder}
         aria-label={`Détail — ${labelForActivityKind(kind)}`}
         autoFocus
-        className="w-full resize-y rounded-xl border border-gnd-bronze/10 bg-white p-2.5 text-sm text-gnd-bronze placeholder:text-gnd-bronze-faded focus:border-gnd-amber focus:outline-none focus:ring-1 focus:ring-gnd-amber"
+        className="w-full resize-y rounded-xl border border-border-soft bg-white p-2.5 text-sm text-ink-warm placeholder:text-muted-warm/70 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
       />
       <div className="mt-2 flex items-center justify-end gap-2">
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-lg px-3 py-1.5 text-xs font-semibold text-gnd-bronze-soft transition-colors hover:bg-gnd-bronze/8 hover:text-gnd-bronze"
+          className="rounded-lg px-3 py-1.5 text-xs font-semibold text-muted-warm transition-colors hover:bg-cream-deep hover:text-ink-warm"
         >
           Annuler
         </button>
@@ -1054,7 +1054,7 @@ function QuickEntry({
           type="button"
           onClick={submit}
           disabled={saving}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-gnd-bronze px-3.5 py-1.5 text-xs font-semibold text-gnd-cream transition-colors hover:bg-gnd-ink disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-brand px-3.5 py-1.5 text-xs font-semibold text-choco transition-colors hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-50"
         >
           {saving ? (
             <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
@@ -1097,7 +1097,7 @@ function RelancePlanner({
     <div>
       <label
         htmlFor="fiche-relance"
-        className="mb-1.5 block font-mono text-[10px] font-semibold uppercase tracking-[0.15em] text-gnd-amber-dim"
+        className="mb-1.5 block font-inter text-[10px] font-semibold uppercase tracking-[0.15em] text-brand-dark"
       >
         Planifier une relance
       </label>
@@ -1107,13 +1107,13 @@ function RelancePlanner({
           type="datetime-local"
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          className="flex-1 rounded-xl border border-gnd-bronze/10 bg-white px-3 py-2 text-sm text-gnd-bronze focus:border-gnd-amber focus:outline-none focus:ring-1 focus:ring-gnd-amber"
+          className="flex-1 rounded-xl border border-border-soft bg-white px-3 py-2 text-sm text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
         />
         <button
           type="button"
           onClick={save}
           disabled={saving || !value}
-          className="inline-flex items-center gap-1.5 rounded-xl bg-gnd-bronze px-3.5 py-2 text-sm font-semibold text-gnd-cream transition-colors hover:bg-gnd-ink disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-xl bg-brand px-3.5 py-2 text-sm font-semibold text-choco transition-colors hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-50"
         >
           {saving ? (
             <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
@@ -1128,7 +1128,7 @@ function RelancePlanner({
           type="button"
           onClick={clear}
           disabled={saving}
-          className="mt-2 text-xs font-semibold text-gnd-bronze-soft underline underline-offset-2 hover:text-gnd-bronze disabled:opacity-50"
+          className="mt-2 text-xs font-semibold text-muted-warm underline underline-offset-2 hover:text-ink-warm disabled:opacity-50"
         >
           Retirer la relance
         </button>
@@ -1160,7 +1160,7 @@ function NotesEditor({
   return (
     <div>
       <div className="mb-1.5 flex items-center justify-between">
-        <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.15em] text-gnd-amber-dim">
+        <span className="font-inter text-[10px] font-semibold uppercase tracking-[0.15em] text-brand-dark">
           Notes
         </span>
         {!editing && (
@@ -1170,7 +1170,7 @@ function NotesEditor({
               setDraft(notes ?? '');
               setEditing(true);
             }}
-            className="inline-flex items-center gap-1 text-xs font-semibold text-gnd-bronze-soft transition-colors hover:text-gnd-bronze"
+            className="inline-flex items-center gap-1 text-xs font-semibold text-muted-warm transition-colors hover:text-ink-warm"
           >
             <Edit3 className="h-3.5 w-3.5" aria-hidden />
             {notes ? 'Modifier' : 'Ajouter'}
@@ -1186,13 +1186,13 @@ function NotesEditor({
             placeholder="Contexte, historique, points clés sur ce prospect…"
             aria-label="Notes du prospect"
             autoFocus
-            className="w-full resize-y rounded-xl border border-gnd-bronze/10 bg-white p-2.5 text-sm text-gnd-bronze placeholder:text-gnd-bronze-faded focus:border-gnd-amber focus:outline-none focus:ring-1 focus:ring-gnd-amber"
+            className="w-full resize-y rounded-xl border border-border-soft bg-white p-2.5 text-sm text-ink-warm placeholder:text-muted-warm/70 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
           />
           <div className="mt-2 flex items-center justify-end gap-2">
             <button
               type="button"
               onClick={() => setEditing(false)}
-              className="rounded-lg px-3 py-1.5 text-xs font-semibold text-gnd-bronze-soft transition-colors hover:bg-gnd-bronze/8 hover:text-gnd-bronze"
+              className="rounded-lg px-3 py-1.5 text-xs font-semibold text-muted-warm transition-colors hover:bg-cream-deep hover:text-ink-warm"
             >
               Annuler
             </button>
@@ -1200,7 +1200,7 @@ function NotesEditor({
               type="button"
               onClick={save}
               disabled={saving}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-gnd-bronze px-3.5 py-1.5 text-xs font-semibold text-gnd-cream transition-colors hover:bg-gnd-ink disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-brand px-3.5 py-1.5 text-xs font-semibold text-choco transition-colors hover:bg-brand-dark disabled:opacity-50"
             >
               {saving ? (
                 <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
@@ -1212,11 +1212,11 @@ function NotesEditor({
           </div>
         </>
       ) : notes ? (
-        <p className="whitespace-pre-wrap break-words rounded-xl bg-white p-3 text-sm text-gnd-bronze-soft ring-1 ring-gnd-bronze/8">
+        <p className="whitespace-pre-wrap break-words rounded-xl bg-white p-3 text-sm text-muted-warm ring-1 ring-gnd-bronze/8">
           {notes}
         </p>
       ) : (
-        <p className="text-xs italic text-gnd-bronze-faded">
+        <p className="text-xs italic text-muted-warm/70">
           Aucune note pour ce prospect.
         </p>
       )}
@@ -1293,7 +1293,7 @@ function ContactCard({
               reset();
               setEditing(true);
             }}
-            className="inline-flex items-center gap-1 text-xs font-semibold text-gnd-bronze-soft transition-colors hover:text-gnd-bronze"
+            className="inline-flex items-center gap-1 text-xs font-semibold text-muted-warm transition-colors hover:text-ink-warm"
           >
             <Edit3 className="h-3.5 w-3.5" aria-hidden />
             Modifier
@@ -1312,7 +1312,7 @@ function ContactCard({
             <button
               type="button"
               onClick={() => setEditing(false)}
-              className="rounded-lg px-3 py-1.5 text-xs font-semibold text-gnd-bronze-soft transition-colors hover:bg-gnd-bronze/8 hover:text-gnd-bronze"
+              className="rounded-lg px-3 py-1.5 text-xs font-semibold text-muted-warm transition-colors hover:bg-cream-deep hover:text-ink-warm"
             >
               Annuler
             </button>
@@ -1320,7 +1320,7 @@ function ContactCard({
               type="button"
               onClick={save}
               disabled={saving}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-gnd-bronze px-3.5 py-1.5 text-xs font-semibold text-gnd-cream transition-colors hover:bg-gnd-ink disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-brand px-3.5 py-1.5 text-xs font-semibold text-choco transition-colors hover:bg-brand-dark disabled:opacity-50"
             >
               {saving ? (
                 <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
@@ -1363,7 +1363,7 @@ function ContactCard({
             !prospect.email &&
             !prospect.website &&
             !adresse && (
-              <p className="text-xs italic text-gnd-bronze-faded">
+              <p className="text-xs italic text-muted-warm/70">
                 Aucune coordonnée renseignée.
               </p>
             )}
@@ -1414,7 +1414,7 @@ function SocialCard({ prospect }: { prospect: Prospect }) {
   return (
     <InfoCard icon={<Globe className="h-4 w-4" />} title="Réseaux sociaux">
       {socials.length === 0 ? (
-        <p className="text-xs italic text-gnd-bronze-faded">
+        <p className="text-xs italic text-muted-warm/70">
           Aucune présence sociale renseignée.
         </p>
       ) : (
@@ -1425,16 +1425,16 @@ function SocialCard({ prospect }: { prospect: Prospect }) {
               href={s.href(s.value as string)}
               target="_blank"
               rel="noopener noreferrer"
-              className="-mx-1.5 flex items-center gap-2 rounded-lg px-1.5 py-1.5 transition-colors hover:bg-gnd-cream"
+              className="-mx-1.5 flex items-center gap-2 rounded-lg px-1.5 py-1.5 transition-colors hover:bg-cream-deep"
             >
-              <span className="shrink-0 text-gnd-bronze-faded">{s.icon}</span>
+              <span className="shrink-0 text-muted-warm/70">{s.icon}</span>
               <div className="min-w-0 flex-1">
-                <p className="text-[10px] font-semibold uppercase tracking-wide text-gnd-bronze-faded">
+                <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-warm/70">
                   {s.label}
                 </p>
-                <p className="truncate text-sm text-gnd-amber-dim">{s.value}</p>
+                <p className="truncate text-sm text-brand-dark">{s.value}</p>
               </div>
-              <ExternalLink className="h-3.5 w-3.5 shrink-0 text-gnd-bronze-faded" aria-hidden />
+              <ExternalLink className="h-3.5 w-3.5 shrink-0 text-muted-warm/70" aria-hidden />
             </a>
           ))}
         </div>
@@ -1484,10 +1484,10 @@ function QualificationCard({ prospect }: { prospect: Prospect }) {
 
 function AnalysisSection({ prospect }: { prospect: Prospect }) {
   return (
-    <section className="rounded-3xl border border-gnd-bronze/8 bg-gnd-paper p-6 shadow-warm">
+    <section className="rounded-3xl border border-border-soft bg-white p-6 shadow-soft">
       <div className="mb-4 flex items-center gap-2">
-        <span className="h-px w-8 bg-gnd-amber" />
-        <h2 className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-gnd-amber">
+        <span className="h-px w-8 bg-brand" />
+        <h2 className="font-inter text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-dark">
           Analyse &amp; approche
         </h2>
       </div>
@@ -1579,7 +1579,7 @@ function AnalysisBlock({
         <span aria-hidden>{icon}</span>
         {title}
       </div>
-      <p className="whitespace-pre-wrap break-words text-sm leading-7 text-gnd-bronze">
+      <p className="whitespace-pre-wrap break-words text-sm leading-7 text-ink-warm">
         {text}
       </p>
     </div>
@@ -1599,7 +1599,7 @@ function TagGroup({
 }) {
   return (
     <div>
-      <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-gnd-bronze-faded">
+      <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-warm/70">
         <span aria-hidden>{icon}</span>
         {title}
       </div>
@@ -1639,34 +1639,34 @@ function TimelineItem({ activity: a }: { activity: Activity }) {
   return (
     <li className="flex gap-3">
       <span
-        className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gnd-cream text-sm ring-1 ring-gnd-bronze/10"
+        className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-cream text-sm ring-1 ring-gnd-bronze/10"
         aria-hidden
       >
         {iconForActivityKind(a.kind)}
       </span>
       <div className="min-w-0 flex-1 border-b border-gnd-bronze/6 pb-4">
         <div className="flex flex-wrap items-baseline gap-x-2">
-          <span className="text-[11px] font-semibold uppercase tracking-wide text-gnd-bronze-soft">
+          <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-warm">
             {labelForActivityKind(a.kind)}
           </span>
           {outcomeLabel && (
-            <span className="rounded-full bg-gnd-sand px-2 py-0.5 text-[10px] font-semibold text-gnd-bronze-soft">
+            <span className="rounded-full bg-gnd-sand px-2 py-0.5 text-[10px] font-semibold text-muted-warm">
               {outcomeLabel}
             </span>
           )}
-          <span className="font-mono text-[11px] text-gnd-bronze-faded">
+          <span className="font-inter text-[11px] text-muted-warm/70">
             {formatStamp(a.occurred_at)}
           </span>
         </div>
         {a.kind === 'status_change' && (from || to) ? (
-          <p className="mt-0.5 text-sm text-gnd-bronze-soft">
+          <p className="mt-0.5 text-sm text-muted-warm">
             {from ? labelForStatus(from) : '—'} <span aria-hidden>→</span>{' '}
-            <span className="font-medium text-gnd-bronze">
+            <span className="font-medium text-ink-warm">
               {to ? labelForStatus(to) : '—'}
             </span>
           </p>
         ) : a.body ? (
-          <p className="mt-0.5 whitespace-pre-wrap break-words text-sm text-gnd-bronze">
+          <p className="mt-0.5 whitespace-pre-wrap break-words text-sm text-ink-warm">
             {a.body}
           </p>
         ) : null}
@@ -1691,10 +1691,10 @@ function InfoCard({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-3xl border border-gnd-bronze/8 bg-gnd-paper p-5 shadow-warm">
+    <section className="rounded-3xl border border-border-soft bg-white p-5 shadow-soft">
       <header className="mb-3 flex items-center justify-between">
-        <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gnd-bronze-faded">
-          <span aria-hidden className="text-gnd-amber-dim">
+        <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-warm/70">
+          <span aria-hidden className="text-brand-dark">
             {icon}
           </span>
           {title}
@@ -1722,14 +1722,14 @@ function KVLine({
   truncate?: boolean;
 }) {
   if (!value) return null;
-  const valueClass = `text-sm text-gnd-bronze ${truncate ? 'truncate' : 'break-words'}`;
+  const valueClass = `text-sm text-ink-warm ${truncate ? 'truncate' : 'break-words'}`;
   return (
     <div className="flex items-start gap-2">
-      <span className="mt-0.5 shrink-0 text-gnd-bronze-faded" aria-hidden>
+      <span className="mt-0.5 shrink-0 text-muted-warm/70" aria-hidden>
         {icon}
       </span>
       <div className="min-w-0 flex-1">
-        <p className="text-[10px] font-semibold uppercase tracking-wide text-gnd-bronze-faded">
+        <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-warm/70">
           {label}
         </p>
         {href ? (
@@ -1737,7 +1737,7 @@ function KVLine({
             href={href}
             target={external ? '_blank' : undefined}
             rel={external ? 'noopener noreferrer' : undefined}
-            className={`${valueClass} text-gnd-amber-dim hover:underline`}
+            className={`${valueClass} text-brand-dark hover:underline`}
           >
             {value}
           </a>
@@ -1760,11 +1760,11 @@ function Stat({
 }) {
   return (
     <div className="rounded-xl bg-white p-2.5 ring-1 ring-gnd-bronze/8">
-      <div className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-gnd-bronze-faded">
+      <div className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-muted-warm/70">
         {icon}
         {label}
       </div>
-      <p className="mt-1 break-words text-sm font-semibold text-gnd-bronze">
+      <p className="mt-1 break-words text-sm font-semibold text-ink-warm">
         {value ?? '—'}
       </p>
     </div>
@@ -1784,14 +1784,14 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-gnd-bronze-faded">
+      <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-muted-warm/70">
         {label}
       </span>
       <input
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-lg border border-gnd-bronze/10 bg-white px-2.5 py-1.5 text-sm text-gnd-bronze focus:border-gnd-amber focus:outline-none focus:ring-1 focus:ring-gnd-amber"
+        className="w-full rounded-lg border border-border-soft bg-white px-2.5 py-1.5 text-sm text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
       />
     </label>
   );
@@ -1820,7 +1820,7 @@ function Avatar({ text }: { text: string }) {
       .join('') || '?';
   return (
     <div
-      className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br font-display text-xl font-medium text-gnd-cream shadow-warm ${grad}`}
+      className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br font-marcellus text-xl font-medium text-choco shadow-soft ${grad}`}
       aria-hidden
     >
       {initials}

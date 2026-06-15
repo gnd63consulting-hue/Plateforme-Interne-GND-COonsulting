@@ -111,7 +111,7 @@ export default function ProspectTimeline({ prospectId }: ProspectTimelineProps) 
                 <span className="text-[11px] font-semibold uppercase tracking-wide text-gnd-muted">
                   {labelForActivityKind(a.kind)}
                 </span>
-                <span className="font-mono text-[11px] text-slate-400">
+                <span className="font-inter text-[11px] text-slate-400">
                   {formatStamp(a.occurred_at)}
                 </span>
               </div>

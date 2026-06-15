@@ -160,13 +160,13 @@ function CreateSequenceForm({
   const [description, setDescription] = useState('');
 
   return (
-    <div className="mb-6 rounded-3xl border border-gnd-amber/20 bg-gnd-paper p-5 shadow-warm">
-      <h2 className="mb-3 font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-gnd-amber">
+    <div className="mb-6 rounded-3xl border border-brand/20 bg-white p-5 shadow-soft">
+      <h2 className="mb-3 font-inter text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-dark">
         Nouvelle séquence
       </h2>
       <div className="space-y-3">
         <label className="block">
-          <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-gnd-bronze-faded">
+          <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-muted-warm/70">
             Nom
           </span>
           <input
@@ -175,11 +175,11 @@ function CreateSequenceForm({
             onChange={(e) => setName(e.target.value)}
             placeholder="Ex. Relance restaurateur froid — 4 touches"
             autoFocus
-            className="w-full rounded-lg border border-gnd-bronze/10 bg-white px-3 py-2 text-sm text-gnd-bronze focus:border-gnd-amber focus:outline-none focus:ring-1 focus:ring-gnd-amber"
+            className="w-full rounded-lg border border-border-soft bg-white px-3 py-2 text-sm text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
           />
         </label>
         <label className="block">
-          <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-gnd-bronze-faded">
+          <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-muted-warm/70">
             Description (facultatif)
           </span>
           <textarea
@@ -187,14 +187,14 @@ function CreateSequenceForm({
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="À qui s'adresse cette cadence, dans quel contexte…"
-            className="w-full resize-y rounded-lg border border-gnd-bronze/10 bg-white px-3 py-2 text-sm text-gnd-bronze focus:border-gnd-amber focus:outline-none focus:ring-1 focus:ring-gnd-amber"
+            className="w-full resize-y rounded-lg border border-border-soft bg-white px-3 py-2 text-sm text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
           />
         </label>
         <div className="flex items-center justify-end gap-2">
           <button
             type="button"
             onClick={onCancel}
-            className="rounded-lg px-3 py-1.5 text-xs font-semibold text-gnd-bronze-soft transition-colors hover:bg-gnd-bronze/8 hover:text-gnd-bronze"
+            className="rounded-lg px-3 py-1.5 text-xs font-semibold text-muted-warm transition-colors hover:bg-cream-deep hover:text-ink-warm"
           >
             Annuler
           </button>
@@ -202,7 +202,7 @@ function CreateSequenceForm({
             type="button"
             disabled={pending || !name.trim()}
             onClick={() => onCreate(name, description || null)}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-gnd-bronze px-3.5 py-1.5 text-xs font-semibold text-gnd-cream transition-colors hover:bg-gnd-ink disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-brand px-3.5 py-1.5 text-xs font-semibold text-choco transition-colors hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-50"
           >
             {pending ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
@@ -235,7 +235,7 @@ function SequenceCard({
   const [open, setOpen] = useState(false);
 
   return (
-    <section className="overflow-hidden rounded-3xl border border-gnd-bronze/8 bg-gnd-paper shadow-warm">
+    <section className="overflow-hidden rounded-3xl border border-border-soft bg-white shadow-soft">
       {/* Bandeau */}
       <div className="flex flex-wrap items-center justify-between gap-3 p-5">
         <button
@@ -244,7 +244,7 @@ function SequenceCard({
           className="flex min-w-0 flex-1 items-center gap-3 text-left"
           aria-expanded={open}
         >
-          <span className="text-gnd-bronze-faded">
+          <span className="text-muted-warm/70">
             {open ? (
               <ChevronUp className="h-4 w-4" aria-hidden />
             ) : (
@@ -253,7 +253,7 @@ function SequenceCard({
           </span>
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <h2 className="truncate font-display text-lg font-medium text-gnd-bronze">
+              <h2 className="truncate font-marcellus text-lg font-medium text-choco">
                 {sequence.name}
               </h2>
               {sequence.active ? (
@@ -266,12 +266,12 @@ function SequenceCard({
                 </span>
               )}
             </div>
-            <p className="mt-0.5 flex items-center gap-1.5 text-xs text-gnd-bronze-soft">
-              <Clock className="h-3 w-3 text-gnd-amber-dim" aria-hidden />
+            <p className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-warm">
+              <Clock className="h-3 w-3 text-brand-dark" aria-hidden />
               {cadenceSummary(sequence.steps)}
             </p>
             {sequence.description && (
-              <p className="mt-1 truncate text-xs text-gnd-bronze-faded">
+              <p className="mt-1 truncate text-xs text-muted-warm/70">
                 {sequence.description}
               </p>
             )}
@@ -286,7 +286,7 @@ function SequenceCard({
               onClick={() =>
                 run(() => toggleSequenceActive(sequence.id, !sequence.active))
               }
-              className="rounded-lg border border-gnd-bronze/10 bg-white px-2.5 py-1.5 text-xs font-semibold text-gnd-bronze-soft transition-colors hover:bg-gnd-cream hover:text-gnd-bronze disabled:opacity-50"
+              className="rounded-lg border border-border-soft bg-white px-2.5 py-1.5 text-xs font-semibold text-muted-warm transition-colors hover:bg-cream-deep hover:text-ink-warm disabled:opacity-50"
             >
               {sequence.active ? 'Désactiver' : 'Activer'}
             </button>
@@ -319,7 +319,7 @@ function SequenceCard({
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2, ease: 'easeOut' }}
-            className="overflow-hidden border-t border-gnd-bronze/8"
+            className="overflow-hidden border-t border-border-soft"
           >
             <StepsEditor
               sequence={sequence}
@@ -362,9 +362,9 @@ function StepsEditor({
   }
 
   return (
-    <div className="space-y-3 bg-gnd-cream/40 p-5">
+    <div className="space-y-3 bg-cream/40 p-5">
       {steps.length === 0 && !adding && (
-        <p className="text-xs italic text-gnd-bronze-faded">
+        <p className="text-xs italic text-muted-warm/70">
           Aucune étape. {canEdit ? 'Ajoute la première touche ci-dessous.' : ''}
         </p>
       )}
@@ -421,7 +421,7 @@ function StepsEditor({
             <button
               type="button"
               onClick={() => setAdding(true)}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-gnd-bronze/20 bg-white px-3 py-2 text-xs font-semibold text-gnd-bronze-soft transition-colors hover:border-gnd-amber/40 hover:text-gnd-bronze"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-border-soft bg-white px-3 py-2 text-xs font-semibold text-muted-warm transition-colors hover:border-brand/40 hover:text-ink-warm"
             >
               <Plus className="h-3.5 w-3.5" aria-hidden />
               Ajouter une étape
@@ -454,29 +454,29 @@ function StepRow({
   onMove: (dir: -1 | 1) => void;
 }) {
   return (
-    <div className="flex items-start gap-3 rounded-xl border border-gnd-bronze/8 bg-white p-3">
+    <div className="flex items-start gap-3 rounded-xl border border-border-soft bg-white p-3">
       <span
-        className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gnd-cream text-sm ring-1 ring-gnd-bronze/10"
+        className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-cream text-sm ring-1 ring-border-soft"
         aria-hidden
       >
         {kindIcon(step.kind)}
       </span>
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-[11px] font-semibold uppercase tracking-wide text-gnd-bronze-soft">
+          <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-warm">
             {kindLabel(step.kind)}
           </span>
-          <span className="rounded-full bg-gnd-sand px-2 py-0.5 font-mono text-[10px] font-semibold text-gnd-bronze-soft">
+          <span className="rounded-full bg-gnd-sand px-2 py-0.5 font-inter text-[10px] font-semibold text-muted-warm">
             {step.delay_days === 0
               ? 'immédiat'
               : `+${step.delay_days} j`}
           </span>
         </div>
-        <p className="mt-0.5 break-words text-sm font-medium text-gnd-bronze">
+        <p className="mt-0.5 break-words text-sm font-medium text-ink-warm">
           {step.title}
         </p>
         {step.template_body && (
-          <p className="mt-1 whitespace-pre-wrap break-words text-xs text-gnd-bronze-soft">
+          <p className="mt-1 whitespace-pre-wrap break-words text-xs text-muted-warm">
             {step.template_body}
           </p>
         )}
@@ -488,7 +488,7 @@ function StepRow({
             disabled={pending || index === 0}
             onClick={() => onMove(-1)}
             aria-label="Monter l'étape"
-            className="rounded p-1 text-gnd-bronze-faded transition-colors hover:bg-gnd-cream hover:text-gnd-bronze disabled:opacity-30"
+            className="rounded p-1 text-muted-warm/70 transition-colors hover:bg-cream hover:text-ink-warm disabled:opacity-30"
           >
             <ChevronUp className="h-3.5 w-3.5" aria-hidden />
           </button>
@@ -497,7 +497,7 @@ function StepRow({
             disabled={pending || index === total - 1}
             onClick={() => onMove(1)}
             aria-label="Descendre l'étape"
-            className="rounded p-1 text-gnd-bronze-faded transition-colors hover:bg-gnd-cream hover:text-gnd-bronze disabled:opacity-30"
+            className="rounded p-1 text-muted-warm/70 transition-colors hover:bg-cream hover:text-ink-warm disabled:opacity-30"
           >
             <ChevronDown className="h-3.5 w-3.5" aria-hidden />
           </button>
@@ -506,7 +506,7 @@ function StepRow({
             disabled={pending}
             onClick={onEdit}
             aria-label="Modifier l'étape"
-            className="rounded p-1 text-gnd-bronze-faded transition-colors hover:bg-gnd-cream hover:text-gnd-bronze disabled:opacity-50"
+            className="rounded p-1 text-muted-warm/70 transition-colors hover:bg-cream hover:text-ink-warm disabled:opacity-50"
           >
             <Pencil className="h-3.5 w-3.5" aria-hidden />
           </button>
@@ -558,16 +558,16 @@ function StepForm({
   }
 
   return (
-    <div className="rounded-xl border border-gnd-amber/25 bg-white p-3">
+    <div className="rounded-xl border border-brand/25 bg-white p-3">
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-[1fr_auto]">
         <label className="block">
-          <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-gnd-bronze-faded">
+          <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-muted-warm/70">
             Type
           </span>
           <select
             value={kind}
             onChange={(e) => setKind(e.target.value)}
-            className="w-full rounded-lg border border-gnd-bronze/10 bg-white px-2.5 py-1.5 text-sm font-semibold text-gnd-bronze focus:border-gnd-amber focus:outline-none focus:ring-1 focus:ring-gnd-amber"
+            className="w-full rounded-lg border border-border-soft bg-white px-2.5 py-1.5 text-sm font-semibold text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
           >
             {STEP_KIND_OPTIONS.map((o) => (
               <option key={o.value} value={o.value}>
@@ -577,7 +577,7 @@ function StepForm({
           </select>
         </label>
         <label className="block">
-          <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-gnd-bronze-faded">
+          <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-muted-warm/70">
             Délai (jours depuis l&apos;étape précédente)
           </span>
           <input
@@ -585,12 +585,12 @@ function StepForm({
             min={0}
             value={delay}
             onChange={(e) => setDelay(e.target.value)}
-            className="w-full rounded-lg border border-gnd-bronze/10 bg-white px-2.5 py-1.5 text-sm text-gnd-bronze focus:border-gnd-amber focus:outline-none focus:ring-1 focus:ring-gnd-amber"
+            className="w-full rounded-lg border border-border-soft bg-white px-2.5 py-1.5 text-sm text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
           />
         </label>
       </div>
       <label className="mt-2 block">
-        <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-gnd-bronze-faded">
+        <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-muted-warm/70">
           Intitulé de la tâche
         </span>
         <input
@@ -598,11 +598,11 @@ function StepForm({
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Ex. Premier appel de prise de contact"
-          className="w-full rounded-lg border border-gnd-bronze/10 bg-white px-2.5 py-1.5 text-sm text-gnd-bronze focus:border-gnd-amber focus:outline-none focus:ring-1 focus:ring-gnd-amber"
+          className="w-full rounded-lg border border-border-soft bg-white px-2.5 py-1.5 text-sm text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
         />
       </label>
       <label className="mt-2 block">
-        <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-gnd-bronze-faded">
+        <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-muted-warm/70">
           Script / modèle (facultatif)
         </span>
         <textarea
@@ -610,14 +610,14 @@ function StepForm({
           value={body}
           onChange={(e) => setBody(e.target.value)}
           placeholder="Trame d'appel, modèle d'email, points à aborder…"
-          className="w-full resize-y rounded-lg border border-gnd-bronze/10 bg-white px-2.5 py-1.5 text-sm text-gnd-bronze focus:border-gnd-amber focus:outline-none focus:ring-1 focus:ring-gnd-amber"
+          className="w-full resize-y rounded-lg border border-border-soft bg-white px-2.5 py-1.5 text-sm text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
         />
       </label>
       <div className="mt-2 flex items-center justify-end gap-2">
         <button
           type="button"
           onClick={onCancel}
-          className="inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-semibold text-gnd-bronze-soft transition-colors hover:bg-gnd-bronze/8 hover:text-gnd-bronze"
+          className="inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-semibold text-muted-warm transition-colors hover:bg-cream-deep hover:text-ink-warm"
         >
           <X className="h-3.5 w-3.5" aria-hidden />
           Annuler
@@ -626,7 +626,7 @@ function StepForm({
           type="button"
           disabled={pending || !title.trim()}
           onClick={submit}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-gnd-bronze px-3.5 py-1.5 text-xs font-semibold text-gnd-cream transition-colors hover:bg-gnd-ink disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-brand px-3.5 py-1.5 text-xs font-semibold text-choco transition-colors hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-50"
         >
           {pending ? (
             <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />

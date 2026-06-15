@@ -76,7 +76,7 @@ function WelcomeOverlay({
   return (
     <motion.div
       key="welcome"
-      className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden bg-gnd-cream"
+      className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden bg-cream"
       initial={{ opacity: 1 }}
       exit={{ opacity: 0, transition: { duration: 0.5 } }}
     >
@@ -117,7 +117,7 @@ function WelcomeOverlay({
           initial={{ scale: 0.5, rotate: -12, opacity: 0 }}
           animate={{ scale: 1, rotate: 0, opacity: 1 }}
           transition={{ type: 'spring', stiffness: 180, damping: 14, delay: 0.1 }}
-          className="mb-7 flex h-16 w-16 items-center justify-center rounded-2xl bg-gnd-bronze text-2xl font-bold text-gnd-cream shadow-warm-lg"
+          className="mb-7 flex h-16 w-16 items-center justify-center rounded-2xl bg-brand text-2xl font-bold text-choco shadow-soft-md"
           style={{ fontFamily: 'var(--font-fraunces), Georgia, serif' }}
         >
           G
@@ -127,13 +127,13 @@ function WelcomeOverlay({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.35 }}
-          className="mb-3 font-mono text-[11px] font-semibold uppercase tracking-[0.3em] text-gnd-amber"
+          className="mb-3 font-inter text-[11px] font-semibold uppercase tracking-[0.3em] text-brand-dark"
         >
           Bienvenue dans l&apos;équipe
         </motion.p>
 
         <h1
-          className="font-display text-4xl font-medium leading-tight text-gnd-bronze md:text-6xl"
+          className="font-marcellus text-4xl font-medium leading-tight text-choco md:text-6xl"
           style={{ fontFamily: 'var(--font-fraunces), Georgia, serif' }}
         >
           <motion.span
@@ -148,7 +148,7 @@ function WelcomeOverlay({
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.62, type: 'spring', stiffness: 120, damping: 16 }}
-            className="inline-block italic text-gnd-amber"
+            className="inline-block italic text-brand-dark"
           >
             {prenom}.
           </motion.span>
@@ -158,7 +158,7 @@ function WelcomeOverlay({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.85 }}
-          className="mt-4 max-w-md text-gnd-bronze-soft"
+          className="mt-4 max-w-md text-muted-warm"
         >
           On a hâte de t&apos;avoir avec nous. Voici ton espace pour tout
           comprendre et démarrer fort.
@@ -172,9 +172,9 @@ function WelcomeOverlay({
           transition={{ delay: 1.05, type: 'spring', stiffness: 160, damping: 16 }}
           whileHover={{ scale: 1.04 }}
           whileTap={{ scale: 0.97 }}
-          className="group mt-9 inline-flex items-center gap-2 rounded-full bg-gnd-bronze px-7 py-3.5 text-sm font-semibold text-gnd-cream shadow-warm-lg"
+          className="group mt-9 inline-flex items-center gap-2 rounded-full bg-brand px-7 py-3.5 text-sm font-semibold text-choco shadow-soft-md"
         >
-          <Sparkles className="h-4 w-4 text-gnd-amber" aria-hidden />
+          <Sparkles className="h-4 w-4 text-brand-dark" aria-hidden />
           Découvrir mon espace
           <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden />
         </motion.button>
@@ -203,11 +203,11 @@ function Card({
       whileHover={{ y: -4 }}
       transition={{ type: 'spring', stiffness: 300, damping: 22 }}
       className={
-        'rounded-3xl border border-gnd-bronze/10 bg-white/80 p-7 shadow-warm backdrop-blur-sm transition-shadow hover:shadow-warm-lg ' +
+        'rounded-3xl border border-border-soft bg-white/80 p-7 shadow-soft backdrop-blur-sm transition-shadow hover:shadow-soft-md ' +
         (wide ? 'md:col-span-2' : '')
       }
     >
-      <h2 className="mb-4 flex items-center gap-2.5 font-display text-lg font-medium text-gnd-bronze">
+      <h2 className="mb-4 flex items-center gap-2.5 font-marcellus text-lg font-medium text-choco">
         <span aria-hidden className="text-xl">
           {emoji}
         </span>
@@ -270,20 +270,20 @@ export default function OnboardingClient({
         <motion.header variants={item} className="relative mb-8 overflow-hidden">
           <span
             aria-hidden
-            className="pointer-events-none absolute -right-6 -top-16 select-none font-display text-[12rem] font-black leading-none text-gnd-bronze/[0.04] md:text-[16rem]"
+            className="pointer-events-none absolute -right-6 -top-16 select-none font-marcellus text-[12rem] font-black leading-none text-gnd-bronze/[0.04] md:text-[16rem]"
             style={{ fontFamily: 'var(--font-fraunces), Georgia, serif' }}
           >
             G
           </span>
           <div className="relative">
-            <p className="mb-3 font-mono text-[11px] font-semibold uppercase tracking-[0.2em] text-gnd-amber">
+            <p className="mb-3 font-inter text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-dark">
               Onboarding commercial
             </p>
-            <h1 className="font-display text-4xl font-medium leading-tight tracking-tight text-gnd-bronze md:text-5xl">
+            <h1 className="font-marcellus text-4xl font-medium leading-tight tracking-tight text-choco md:text-5xl">
               Bienvenue chez GND,{' '}
-              <span className="italic text-gnd-amber">{prenom}</span>.
+              <span className="italic text-brand-dark">{prenom}</span>.
             </h1>
-            <p className="mt-3 max-w-xl text-gnd-bronze-soft">
+            <p className="mt-3 max-w-xl text-muted-warm">
               Tout ce dont tu as besoin pour démarrer : ton espace, tes
               prospects, ta rémunération.
             </p>
@@ -292,14 +292,14 @@ export default function OnboardingClient({
                 <motion.span
                   initial={{ scale: 0.9 }}
                   animate={contentReady ? { scale: 1 } : {}}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-gnd-amber/25 bg-gnd-amber/10 px-3.5 py-1.5 text-sm font-semibold text-gnd-amber tabular-nums"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-gnd-amber/25 bg-brand-soft px-3.5 py-1.5 text-sm font-semibold text-brand-dark tabular-nums"
                 >
                   Commission&nbsp;: {commissionShown}%
                 </motion.span>
               )}
               <Link
                 href="/prospects"
-                className="group inline-flex items-center gap-1.5 rounded-full border border-gnd-bronze/15 bg-white px-3.5 py-1.5 text-sm font-medium text-gnd-bronze transition-all hover:border-gnd-bronze/30 hover:shadow-warm"
+                className="group inline-flex items-center gap-1.5 rounded-full border border-border-soft bg-white px-3.5 py-1.5 text-sm font-medium text-ink-warm transition-all hover:border-gnd-bronze/30 hover:shadow-soft"
               >
                 {nbProspects} prospect{nbProspects > 1 ? 's' : ''} assigné
                 {nbProspects > 1 ? 's' : ''}
@@ -315,7 +315,7 @@ export default function OnboardingClient({
           </Card>
 
           <Card emoji="💰" title="Ta rémunération">
-            <ul className="space-y-2 text-sm text-gnd-bronze">
+            <ul className="space-y-2 text-sm text-ink-warm">
               <li>
                 <strong>Ta commission : {commissionPct ?? '—'}%</strong> par
                 contrat signé.
@@ -324,12 +324,12 @@ export default function OnboardingClient({
                 <strong>Paiement</strong> : 15 jours après encaissement total du
                 client.
               </li>
-              <li className="text-gnd-bronze-soft">
+              <li className="text-muted-warm">
                 Acompte 50% → livraison → solde 50% → tu factures → payé sous 15 j.
               </li>
             </ul>
             <div className="mt-4 rounded-2xl bg-gnd-cream/60 p-4">
-              <p className="mb-2.5 font-mono text-[10px] font-semibold uppercase tracking-[0.15em] text-gnd-amber">
+              <p className="mb-2.5 font-inter text-[10px] font-semibold uppercase tracking-[0.15em] text-brand-dark">
                 Paliers bonus (sur 3 mois)
               </p>
               <div className="flex flex-wrap gap-2">
@@ -340,7 +340,7 @@ export default function OnboardingClient({
                     whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true }}
                     transition={{ delay: 0.1 * i }}
-                    className="rounded-full border border-gnd-bronze/12 bg-white px-3 py-1 text-xs font-medium text-gnd-bronze"
+                    className="rounded-full border border-border-soft bg-white px-3 py-1 text-xs font-medium text-ink-warm"
                   >
                     {t.contrats} contrats → <strong>{t.bonus}€</strong>
                   </motion.span>
@@ -350,20 +350,20 @@ export default function OnboardingClient({
           </Card>
 
           <Card emoji="🎯" title="Process de vente — A à Z">
-            <ol className="space-y-1.5 text-sm text-gnd-bronze">
+            <ol className="space-y-1.5 text-sm text-ink-warm">
               <li>1. Tu prospectes sur ta zone / liste attribuée</li>
               <li>2. Tu qualifies (besoin, budget, décideur)</li>
               <li>3. Tu présentes l&apos;offre adaptée</li>
               <li>4. Tu closes et fais signer le devis</li>
               <li>5. Tu transmets les infos par email</li>
             </ol>
-            <p className="mt-3 text-xs text-gnd-bronze-soft">
+            <p className="mt-3 text-xs text-muted-warm">
               Blocage majeur uniquement → tu me contactes, on voit ensemble.
             </p>
           </Card>
 
           <Card emoji="📞" title="Communication">
-            <ul className="space-y-2 text-sm text-gnd-bronze">
+            <ul className="space-y-2 text-sm text-ink-warm">
               <li>
                 Questions rapides / informel → <strong>WhatsApp</strong>
               </li>
@@ -379,17 +379,17 @@ export default function OnboardingClient({
             </ul>
             <a
               href={`mailto:${CONTACT_EMAIL}`}
-              className="mt-3 inline-block text-sm font-semibold text-gnd-amber underline decoration-gnd-amber/30 underline-offset-4 hover:decoration-gnd-amber"
+              className="mt-3 inline-block text-sm font-semibold text-brand-dark underline decoration-gnd-amber/30 underline-offset-4 hover:decoration-gnd-amber"
             >
               {CONTACT_EMAIL}
             </a>
           </Card>
 
           <Card emoji="✅" title="Déclarer un contrat signé">
-            <p className="mb-2 text-sm text-gnd-bronze-soft">
+            <p className="mb-2 text-sm text-muted-warm">
               Par email à {CONTACT_EMAIL}, avec :
             </p>
-            <ul className="space-y-1 text-sm text-gnd-bronze">
+            <ul className="space-y-1 text-sm text-ink-warm">
               <li>• Nom du commerce</li>
               <li>• Contact : nom + téléphone + email</li>
               <li>• Formule (Essentiel / Réservation / Pack Complet)</li>
@@ -401,14 +401,14 @@ export default function OnboardingClient({
           </Card>
 
           <Card emoji="👁️" title="Ton suivi">
-            <p className="text-sm text-gnd-bronze">
+            <p className="text-sm text-ink-warm">
               Suis chaque deal en temps réel : formule, montant, acompte 50%,
               livraison, solde, <strong>commission due</strong> et statut de
               paiement. Transparence totale.
             </p>
             <Link
               href="/prospects"
-              className="group mt-3 inline-flex items-center gap-1 text-sm font-semibold text-gnd-amber"
+              className="group mt-3 inline-flex items-center gap-1 text-sm font-semibold text-brand-dark"
             >
               Ouvrir mon Carnet de bord
               <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden />
@@ -416,7 +416,7 @@ export default function OnboardingClient({
           </Card>
 
           <Card emoji="🚫" title="Règles d'or">
-            <ol className="space-y-1.5 text-sm text-gnd-bronze">
+            <ol className="space-y-1.5 text-sm text-ink-warm">
               <li>
                 1. <strong>Confidentialité</strong> — tarifs, marges et méthodes
                 restent confidentiels.
@@ -436,7 +436,7 @@ export default function OnboardingClient({
           </Card>
 
           <Card emoji="📂" title="Tes ressources" wide>
-            <p className="mb-3 text-sm text-gnd-bronze-soft">
+            <p className="mb-3 text-sm text-muted-warm">
               Scripts d&apos;appel, templates emails, grille tarifaire, site
               démo, et les documents de closing (CGV, Brief Client, FAQ, Process
               de Livraison).
@@ -444,14 +444,14 @@ export default function OnboardingClient({
             <div className="flex flex-wrap gap-3">
               <Link
                 href="/ressources"
-                className="group inline-flex items-center gap-1.5 rounded-full bg-gnd-bronze px-4 py-2 text-sm font-semibold text-gnd-cream transition-all hover:opacity-90"
+                className="group inline-flex items-center gap-1.5 rounded-full bg-brand px-4 py-2 text-sm font-semibold text-choco transition-all hover:opacity-90"
               >
                 Sales toolkit
                 <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden />
               </Link>
               <Link
                 href="/formation"
-                className="rounded-full border border-gnd-bronze/15 bg-white px-4 py-2 text-sm font-semibold text-gnd-bronze transition-all hover:border-gnd-bronze/30 hover:shadow-warm"
+                className="rounded-full border border-border-soft bg-white px-4 py-2 text-sm font-semibold text-ink-warm transition-all hover:border-gnd-bronze/30 hover:shadow-soft"
               >
                 Formation (7 modules) →
               </Link>
@@ -461,7 +461,7 @@ export default function OnboardingClient({
 
         <motion.p
           variants={item}
-          className="mt-8 text-center text-xs text-gnd-bronze-soft"
+          className="mt-8 text-center text-xs text-muted-warm"
         >
           Des questions ? → WhatsApp · Infos clients / facturation ? → Email
         </motion.p>
