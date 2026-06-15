@@ -45,8 +45,6 @@ function relativeDate(iso: string): string {
 
 /**
  * Détermine la progression vers les paliers bonus.
- * Retourne le prochain palier non atteint (ou le dernier si tout atteint)
- * et le palier précédent comme base de la barre.
  */
 function bonusProgress(signatures: number) {
   const tiers = BONUS_TIERS;
@@ -56,14 +54,11 @@ function bonusProgress(signatures: number) {
   const target = next ?? tiers[tiers.length - 1];
   const base = lastReached ? lastReached.contrats : 0;
   const span = Math.max(1, target.contrats - base);
-  const progressInSpan = pct(
-    Math.max(0, signatures - base),
-    span
-  );
+  const progressInSpan = pct(Math.max(0, signatures - base), span);
   return { next, lastReached, target, progressInSpan, allReached: next == null };
 }
 
-/* ---------- variants (respectés si pas reduced-motion) ---------- */
+/* ---------- variants ---------- */
 const container: Variants = {
   hidden: {},
   show: { transition: { staggerChildren: 0.06, delayChildren: 0.04 } },
@@ -127,9 +122,7 @@ function KpiCard({
       >
         {value}
       </p>
-      {sub && (
-        <div className="mt-2 text-xs text-gnd-bronze-soft">{sub}</div>
-      )}
+      {sub && <div className="mt-2 text-xs text-gnd-bronze-soft">{sub}</div>}
     </motion.div>
   );
 }
@@ -148,18 +141,18 @@ export default function MonTableauClient({ data }: { data: MonTableauData }) {
     statusBreakdown,
     caPotentiel,
     caRealise,
-    commissionRealisee,
     commissionPotentielle,
+    commissionReelleAPayer,
+    commissionReellePayee,
+    commissionReelleTotale,
+    commissionsCount,
     signatures,
     relancesEnRetard,
     relancesAujourdhui,
     activites,
   } = data;
 
-  const maxFunnelValeur = Math.max(
-    1,
-    ...statusBreakdown.map((s) => s.valeur)
-  );
+  const maxFunnelValeur = Math.max(1, ...statusBreakdown.map((s) => s.valeur));
   const bonus = bonusProgress(signatures);
   const relancesTotal = relancesEnRetard + relancesAujourdhui;
 
@@ -234,19 +227,73 @@ export default function MonTableauClient({ data }: { data: MonTableauData }) {
             </span>
           }
         />
+        {/* Commission RÉELLE (source de vérité = montants signés × taux figé). */}
         <KpiCard
           icon={<Wallet className="h-4 w-4" aria-hidden />}
-          label="Ma commission"
-          value={formatEur(commissionRealisee)}
+          label="Ma commission réelle"
+          value={formatEur(commissionReelleTotale)}
           accent
           sub={
             <span>
-              réalisée · <strong>{formatEur(commissionPotentielle)}</strong>{' '}
-              potentielle
+              dont <strong>{formatEur(commissionReelleAPayer)}</strong> à payer ·{' '}
+              {formatEur(commissionReellePayee)} payée
             </span>
           }
         />
       </div>
+
+      {/* ---- Détail commission (réelle vs estimée) ---- */}
+      <motion.section
+        variants={item}
+        aria-label="Détail de ma commission"
+        className="mb-6 rounded-3xl border border-gnd-bronze/8 bg-gnd-paper p-6 shadow-warm"
+      >
+        <h2 className="mb-4 flex items-center gap-2 font-display text-lg font-medium text-gnd-bronze">
+          <Wallet className="h-4 w-4 text-gnd-amber" aria-hidden />
+          Ma commission
+        </h2>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div className="rounded-2xl border border-gnd-amber/25 bg-gnd-amber/[0.06] p-4">
+            <p className="font-mono text-[9px] font-semibold uppercase tracking-[0.16em] text-gnd-amber-dim">
+              Réelle à payer
+            </p>
+            <p className="mt-1.5 font-display text-2xl font-medium tabular-nums text-gnd-amber">
+              {formatEur(commissionReelleAPayer)}
+            </p>
+            <p className="mt-1 text-[11px] text-gnd-bronze-soft">
+              {commissionsCount} commission{commissionsCount > 1 ? 's' : ''}{' '}
+              générée{commissionsCount > 1 ? 's' : ''} à la signature
+            </p>
+          </div>
+          <div className="rounded-2xl border border-gnd-bronze/8 bg-white p-4">
+            <p className="font-mono text-[9px] font-semibold uppercase tracking-[0.16em] text-gnd-bronze-faded">
+              Réelle déjà payée
+            </p>
+            <p className="mt-1.5 font-display text-2xl font-medium tabular-nums text-emerald-600">
+              {formatEur(commissionReellePayee)}
+            </p>
+            <p className="mt-1 text-[11px] text-gnd-bronze-soft">
+              Réglée par l&apos;administration
+            </p>
+          </div>
+          <div className="rounded-2xl border border-gnd-bronze/8 bg-white p-4">
+            <p className="font-mono text-[9px] font-semibold uppercase tracking-[0.16em] text-gnd-bronze-faded">
+              Estimée (pipeline)
+            </p>
+            <p className="mt-1.5 font-display text-2xl font-medium tabular-nums text-gnd-bronze">
+              {formatEur(commissionPotentielle)}
+            </p>
+            <p className="mt-1 text-[11px] text-gnd-bronze-soft">
+              Projection sur tes prospects en cours (indicative)
+            </p>
+          </div>
+        </div>
+        <p className="mt-3 text-xs text-gnd-bronze-soft">
+          La commission <strong>réelle</strong> est calculée sur le montant HT
+          réellement signé (figé au moment du gain). L&apos;estimée n&apos;est
+          qu&apos;une projection du pipeline encore ouvert.
+        </p>
+      </motion.section>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* ---- Mon pipeline par statut ---- */}
@@ -377,13 +424,11 @@ export default function MonTableauClient({ data }: { data: MonTableauData }) {
             ) : (
               <span className="text-gnd-bronze-soft">
                 {' '}— prochain palier à{' '}
-                <strong>{bonus.target.contrats}</strong> (
-                {bonus.target.bonus}€)
+                <strong>{bonus.target.contrats}</strong> ({bonus.target.bonus}€)
               </span>
             )}
           </p>
 
-          {/* Barre vers le prochain palier */}
           <div
             className="h-2.5 w-full overflow-hidden rounded-full bg-gnd-bronze/8"
             role="progressbar"
@@ -400,7 +445,6 @@ export default function MonTableauClient({ data }: { data: MonTableauData }) {
             />
           </div>
 
-          {/* Jalons */}
           <div className="mt-4 flex flex-wrap gap-2">
             {BONUS_TIERS.map((t) => {
               const reached = signatures >= t.contrats;
