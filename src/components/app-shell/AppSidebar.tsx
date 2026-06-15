@@ -17,7 +17,6 @@ import {
   X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui';
 
 /* ------------------------------------------------------------------ */
 /*  Modèle de navigation                                               */
@@ -153,6 +152,30 @@ function Logo() {
   );
 }
 
+/**
+ * Pill CTA primaire « + Nouveau prospect » (réf Drive « + Nouveau »).
+ * Fond orange officiel #F39253, TEXTE CHOCOLAT (#2A1810) — l'orange clair en
+ * texte blanc manque de contraste, le chocolat passe AAA. Ombre orange douce.
+ */
+function NewProspectButton({ onNavigate }: { onNavigate?: () => void }) {
+  return (
+    <Link
+      href="/prospects"
+      onClick={onNavigate}
+      className={cn(
+        'group flex h-11 w-full items-center justify-center gap-2 rounded-full bg-brand px-5',
+        'font-inter text-sm font-semibold text-[#2A1810]',
+        'shadow-[0_8px_24px_rgba(243,146,83,0.35)] transition-all duration-200',
+        'hover:bg-brand-dark hover:shadow-[0_10px_28px_rgba(243,146,83,0.42)] active:scale-[0.98]',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:ring-offset-2 focus-visible:ring-offset-surface-soft'
+      )}
+    >
+      <Plus className="h-4 w-4" aria-hidden />
+      Nouveau prospect
+    </Link>
+  );
+}
+
 function NavLink({
   item,
   active,
@@ -169,20 +192,28 @@ function NavLink({
       onClick={onNavigate}
       aria-current={active ? 'page' : undefined}
       className={cn(
-        'group relative flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium transition-colors',
+        'group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring',
         active
-          ? 'text-choco'
+          ? 'text-[#532418]'
           : 'text-muted-warm hover:bg-cream-deep hover:text-ink-warm'
       )}
     >
       {active && (
-        <motion.span
-          layoutId="sidebar-active"
-          transition={{ type: 'spring', stiffness: 380, damping: 32 }}
-          className="absolute inset-0 -z-10 rounded-2xl bg-brand-soft"
-          aria-hidden
-        />
+        <>
+          {/* Surbrillance arrondie douce orange (réf Drive item actif). */}
+          <motion.span
+            layoutId="sidebar-active"
+            transition={{ type: 'spring', stiffness: 380, damping: 32 }}
+            className="absolute inset-0 -z-10 rounded-xl bg-brand/[0.12]"
+            aria-hidden
+          />
+          {/* Petit indicateur à gauche. */}
+          <span
+            aria-hidden
+            className="absolute left-0 top-1/2 h-5 w-1 -translate-y-1/2 rounded-full bg-brand"
+          />
+        </>
       )}
       <Icon
         className={cn(
@@ -268,32 +299,29 @@ function SidebarInner({
   })).filter((g) => g.items.length > 0);
 
   return (
-    <div className="flex h-full flex-col gap-6 p-4">
+    <div className="flex h-full flex-col gap-6 p-5">
       <div className="px-1 pt-1">
         <Logo />
       </div>
 
-      <Button
-        href="/prospects"
-        variant="primary"
-        size="md"
-        className="w-full"
-        onClick={onNavigate}
-      >
-        <Plus className="h-4 w-4" aria-hidden />
-        Nouveau prospect
-      </Button>
+      <NewProspectButton onNavigate={onNavigate} />
 
+      {/*
+        Nav scrollable. `data-lenis-prevent` => le smooth-scroll global Lenis
+        ignore ce conteneur, donc la molette scrolle la sidebar NATIVEMENT.
+        Espacement vertical généreux entre sections (réf Drive).
+      */}
       <nav
+        data-lenis-prevent
         aria-label="Navigation principale"
-        className="flex flex-1 flex-col gap-5 overflow-y-auto"
+        className="-mr-1 flex flex-1 flex-col gap-6 overflow-y-auto pr-1"
       >
         {groups.map((group) => (
           <div key={group.title}>
-            <p className="mb-1.5 px-3 font-inter text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-warm/80">
+            <p className="mb-2 px-3 font-inter text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-warm/80">
               {group.title}
             </p>
-            <div className="flex flex-col gap-0.5">
+            <div className="flex flex-col gap-1">
               {group.items.map((item) => (
                 <NavLink
                   key={item.href}
@@ -313,7 +341,7 @@ function SidebarInner({
 }
 
 /* ------------------------------------------------------------------ */
-/*  Export — desktop rail + mobile drawer                              */
+/*  Export — rail intégré (desktop) + drawer (mobile)                  */
 /* ------------------------------------------------------------------ */
 
 export default function AppSidebar({
@@ -331,8 +359,8 @@ export default function AppSidebar({
 
   return (
     <>
-      {/* Desktop : rail fixe */}
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-[264px] border-r border-border-soft/60 bg-surface-soft lg:block">
+      {/* Desktop : rail intégré dans le panneau blanc (liseré beige à droite). */}
+      <aside className="hidden w-[248px] shrink-0 border-r border-border-soft/60 bg-surface-soft lg:block">
         <SidebarInner user={user} isAdmin={isAdmin} />
       </aside>
 
