@@ -109,15 +109,15 @@ function StripeRowActions({ quote }: { quote: Quote }) {
   }
 
   return (
-    <div className="mt-1 flex w-full flex-wrap items-center gap-2 border-t border-gnd-bronze/8 pt-2">
-      <span className="font-mono text-[10px] font-semibold uppercase tracking-wide text-gnd-bronze-faded">
+    <div className="mt-1 flex w-full flex-wrap items-center gap-2 border-t border-border-soft pt-2">
+      <span className="font-inter text-[10px] font-semibold uppercase tracking-wide text-muted-warm/70">
         Stripe (test)
       </span>
       <button
         type="button"
         onClick={() => run('invoice')}
         disabled={busy !== null}
-        className="inline-flex items-center gap-1.5 rounded-lg border border-gnd-bronze/10 bg-white px-3 py-1.5 text-xs font-semibold text-gnd-bronze transition-colors hover:bg-gnd-cream disabled:opacity-50"
+        className="inline-flex items-center gap-1.5 rounded-lg border border-border-soft bg-white px-3 py-1.5 text-xs font-semibold text-ink-warm transition-colors hover:bg-cream-deep disabled:opacity-50"
       >
         {busy === 'invoice' ? (
           <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
@@ -130,7 +130,7 @@ function StripeRowActions({ quote }: { quote: Quote }) {
         type="button"
         onClick={() => run('link')}
         disabled={busy !== null}
-        className="inline-flex items-center gap-1.5 rounded-lg border border-gnd-bronze/10 bg-white px-3 py-1.5 text-xs font-semibold text-gnd-bronze transition-colors hover:bg-gnd-cream disabled:opacity-50"
+        className="inline-flex items-center gap-1.5 rounded-lg border border-border-soft bg-white px-3 py-1.5 text-xs font-semibold text-ink-warm transition-colors hover:bg-cream-deep disabled:opacity-50"
       >
         {busy === 'link' ? (
           <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
@@ -144,7 +144,7 @@ function StripeRowActions({ quote }: { quote: Quote }) {
           href={quote.stripe_invoice_url}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 text-xs font-semibold text-gnd-amber-dim hover:underline"
+          className="inline-flex items-center gap-1 text-xs font-semibold text-brand-dark hover:underline"
         >
           <ExternalLink className="h-3.5 w-3.5" aria-hidden /> Facture
         </a>
@@ -154,7 +154,7 @@ function StripeRowActions({ quote }: { quote: Quote }) {
           href={quote.stripe_payment_link_url}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 text-xs font-semibold text-gnd-amber-dim hover:underline"
+          className="inline-flex items-center gap-1 text-xs font-semibold text-brand-dark hover:underline"
         >
           <ExternalLink className="h-3.5 w-3.5" aria-hidden /> Lien
         </a>
@@ -250,11 +250,11 @@ export default function QuotesPanel({
   }, []);
 
   return (
-    <section className="rounded-3xl border border-gnd-bronze/8 bg-gnd-paper p-6 shadow-warm">
+    <section className="rounded-3xl border border-border-soft bg-white p-6 shadow-soft">
       <div className="mb-4 flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <span className="h-px w-8 bg-gnd-amber" />
-          <h2 className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-gnd-amber">
+          <span className="h-px w-8 bg-brand" />
+          <h2 className="font-inter text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-dark">
             Devis
           </h2>
         </div>
@@ -262,7 +262,7 @@ export default function QuotesPanel({
           type="button"
           onClick={handleNew}
           disabled={opening}
-          className="inline-flex items-center gap-1.5 rounded-full bg-gnd-bronze px-3.5 py-2 text-sm font-semibold text-gnd-cream transition-colors hover:bg-gnd-ink disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-full bg-brand px-3.5 py-2 text-sm font-semibold text-choco transition-colors hover:bg-brand-dark disabled:opacity-50"
         >
           {opening ? (
             <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
@@ -283,7 +283,7 @@ export default function QuotesPanel({
       )}
 
       {quotes.length === 0 ? (
-        <p className="text-sm italic text-gnd-bronze-faded">
+        <p className="text-sm italic text-muted-warm/70">
           Aucun devis pour ce prospect. Crée un devis pour chiffrer la
           prestation et l&apos;imprimer en PDF.
         </p>
@@ -292,17 +292,17 @@ export default function QuotesPanel({
           {quotes.map((q) => (
             <li
               key={q.id}
-              className="flex flex-wrap items-center gap-3 rounded-2xl border border-gnd-bronze/8 bg-white p-3"
+              className="flex flex-wrap items-center gap-3 rounded-2xl border border-border-soft bg-white p-3"
             >
               <FileText
-                className="h-4 w-4 shrink-0 text-gnd-amber-dim"
+                className="h-4 w-4 shrink-0 text-brand-dark"
                 aria-hidden
               />
               <div className="min-w-0 flex-1">
-                <p className="truncate font-mono text-sm font-semibold text-gnd-bronze">
+                <p className="truncate font-inter text-sm font-semibold text-ink-warm">
                   {q.numero ?? 'Devis'}
                 </p>
-                <p className="text-xs text-gnd-bronze-faded">
+                <p className="text-xs text-muted-warm/70">
                   {fmtDate(q.created_at)}
                 </p>
               </div>
@@ -311,20 +311,20 @@ export default function QuotesPanel({
               >
                 {labelForQuoteStatut(q.statut)}
               </span>
-              <span className="font-mono text-sm font-semibold tabular-nums text-gnd-bronze">
+              <span className="font-inter text-sm font-semibold tabular-nums text-ink-warm">
                 {formatEurExact(q.montant_ttc)} TTC
               </span>
               <div className="flex items-center gap-1.5">
                 <button
                   type="button"
                   onClick={() => handleEdit(q)}
-                  className="rounded-lg border border-gnd-bronze/10 bg-white px-3 py-1.5 text-xs font-semibold text-gnd-bronze transition-colors hover:bg-gnd-cream"
+                  className="rounded-lg border border-border-soft bg-white px-3 py-1.5 text-xs font-semibold text-ink-warm transition-colors hover:bg-cream-deep"
                 >
                   Éditer
                 </button>
                 <Link
                   href={`/prospects/${prospectId}/devis/${q.id}`}
-                  className="inline-flex items-center gap-1 rounded-lg border border-gnd-bronze/10 bg-white px-3 py-1.5 text-xs font-semibold text-gnd-bronze transition-colors hover:bg-gnd-cream"
+                  className="inline-flex items-center gap-1 rounded-lg border border-border-soft bg-white px-3 py-1.5 text-xs font-semibold text-ink-warm transition-colors hover:bg-cream-deep"
                 >
                   <Printer className="h-3.5 w-3.5" aria-hidden />
                   Imprimer
@@ -485,16 +485,16 @@ function QuoteEditor({
       aria-modal="true"
       aria-label="Éditeur de devis"
     >
-      <div className="my-8 w-full max-w-2xl rounded-3xl border border-gnd-bronze/10 bg-gnd-paper p-6 shadow-warm-lg">
+      <div className="my-8 w-full max-w-2xl rounded-3xl border border-border-soft bg-white p-6 shadow-soft-md">
         <div className="mb-5 flex items-center justify-between">
-          <h3 className="font-display text-xl font-medium text-gnd-bronze">
+          <h3 className="font-marcellus text-xl font-medium text-choco">
             {quote.numero ?? 'Devis'}
           </h3>
           <button
             type="button"
             onClick={onClose}
             aria-label="Fermer"
-            className="rounded-lg p-1.5 text-gnd-bronze-soft transition-colors hover:bg-gnd-bronze/8 hover:text-gnd-bronze"
+            className="rounded-lg p-1.5 text-muted-warm transition-colors hover:bg-cream-deep hover:text-ink-warm"
           >
             <X className="h-5 w-5" aria-hidden />
           </button>
@@ -511,7 +511,7 @@ function QuoteEditor({
 
         {/* Lignes */}
         <div className="space-y-2">
-          <div className="hidden grid-cols-[1fr_4.5rem_6rem_6rem_2rem] gap-2 px-1 text-[10px] font-semibold uppercase tracking-wide text-gnd-bronze-faded sm:grid">
+          <div className="hidden grid-cols-[1fr_4.5rem_6rem_6rem_2rem] gap-2 px-1 text-[10px] font-semibold uppercase tracking-wide text-muted-warm/70 sm:grid">
             <span>Désignation</span>
             <span className="text-right">Qté</span>
             <span className="text-right">PU HT</span>
@@ -536,7 +536,7 @@ function QuoteEditor({
                   }
                   placeholder="Prestation…"
                   aria-label="Désignation"
-                  className="col-span-2 rounded-lg border border-gnd-bronze/10 bg-white px-2.5 py-1.5 text-sm text-gnd-bronze focus:border-gnd-amber focus:outline-none focus:ring-1 focus:ring-gnd-amber sm:col-span-1"
+                  className="col-span-2 rounded-lg border border-border-soft bg-white px-2.5 py-1.5 text-sm text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:col-span-1"
                 />
                 <input
                   value={l.quantite}
@@ -545,7 +545,7 @@ function QuoteEditor({
                   }
                   inputMode="decimal"
                   aria-label="Quantité"
-                  className="rounded-lg border border-gnd-bronze/10 bg-white px-2.5 py-1.5 text-right text-sm tabular-nums text-gnd-bronze focus:border-gnd-amber focus:outline-none focus:ring-1 focus:ring-gnd-amber"
+                  className="rounded-lg border border-border-soft bg-white px-2.5 py-1.5 text-right text-sm tabular-nums text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
                 />
                 <input
                   value={l.prix_unitaire_ht}
@@ -554,9 +554,9 @@ function QuoteEditor({
                   }
                   inputMode="decimal"
                   aria-label="Prix unitaire HT"
-                  className="rounded-lg border border-gnd-bronze/10 bg-white px-2.5 py-1.5 text-right text-sm tabular-nums text-gnd-bronze focus:border-gnd-amber focus:outline-none focus:ring-1 focus:ring-gnd-amber"
+                  className="rounded-lg border border-border-soft bg-white px-2.5 py-1.5 text-right text-sm tabular-nums text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
                 />
-                <span className="px-1 text-right text-sm font-semibold tabular-nums text-gnd-bronze">
+                <span className="px-1 text-right text-sm font-semibold tabular-nums text-ink-warm">
                   {formatEurExact(total)}
                 </span>
                 <button
@@ -564,7 +564,7 @@ function QuoteEditor({
                   onClick={() => removeLine(l.key)}
                   aria-label="Retirer la ligne"
                   disabled={lines.length <= 1}
-                  className="justify-self-end rounded-lg p-1.5 text-gnd-bronze-soft transition-colors hover:bg-rose-50 hover:text-rose-600 disabled:opacity-30"
+                  className="justify-self-end rounded-lg p-1.5 text-muted-warm transition-colors hover:bg-rose-50 hover:text-rose-600 disabled:opacity-30"
                 >
                   <Trash2 className="h-4 w-4" aria-hidden />
                 </button>
@@ -576,45 +576,45 @@ function QuoteEditor({
         <button
           type="button"
           onClick={addLine}
-          className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-dashed border-gnd-bronze/15 px-3 py-1.5 text-xs font-semibold text-gnd-bronze-soft transition-colors hover:bg-gnd-bronze/[0.04] hover:text-gnd-bronze"
+          className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-dashed border-border-soft px-3 py-1.5 text-xs font-semibold text-muted-warm transition-colors hover:bg-gnd-bronze/[0.04] hover:text-ink-warm"
         >
           <Plus className="h-3.5 w-3.5" aria-hidden />
           Ajouter une ligne
         </button>
 
         {/* Totaux + TVA */}
-        <div className="mt-5 flex flex-col gap-3 border-t border-gnd-bronze/8 pt-5 sm:flex-row sm:items-start sm:justify-between">
+        <div className="mt-5 flex flex-col gap-3 border-t border-border-soft pt-5 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex items-end gap-2">
             <label className="block">
-              <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-gnd-bronze-faded">
+              <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-muted-warm/70">
                 Taux TVA (%)
               </span>
               <input
                 value={tvaRate}
                 onChange={(e) => setTvaRate(e.target.value)}
                 inputMode="decimal"
-                className="w-24 rounded-lg border border-gnd-bronze/10 bg-white px-2.5 py-1.5 text-sm tabular-nums text-gnd-bronze focus:border-gnd-amber focus:outline-none focus:ring-1 focus:ring-gnd-amber"
+                className="w-24 rounded-lg border border-border-soft bg-white px-2.5 py-1.5 text-sm tabular-nums text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
               />
             </label>
           </div>
           <div className="min-w-[12rem] space-y-1 text-sm">
             <div className="flex items-center justify-between gap-6">
-              <span className="text-gnd-bronze-soft">Total HT</span>
-              <span className="font-semibold tabular-nums text-gnd-bronze">
+              <span className="text-muted-warm">Total HT</span>
+              <span className="font-semibold tabular-nums text-ink-warm">
                 {formatEurExact(totals.montant_ht)}
               </span>
             </div>
             <div className="flex items-center justify-between gap-6">
-              <span className="text-gnd-bronze-soft">
+              <span className="text-muted-warm">
                 TVA ({num(tvaRate)}%)
               </span>
-              <span className="font-semibold tabular-nums text-gnd-bronze">
+              <span className="font-semibold tabular-nums text-ink-warm">
                 {formatEurExact(totals.montant_tva)}
               </span>
             </div>
-            <div className="flex items-center justify-between gap-6 border-t border-gnd-bronze/8 pt-1">
-              <span className="font-semibold text-gnd-bronze">Total TTC</span>
-              <span className="font-display text-lg font-semibold tabular-nums text-gnd-amber">
+            <div className="flex items-center justify-between gap-6 border-t border-border-soft pt-1">
+              <span className="font-semibold text-ink-warm">Total TTC</span>
+              <span className="font-marcellus text-lg font-semibold tabular-nums text-brand-dark">
                 {formatEurExact(totals.montant_ttc)}
               </span>
             </div>
@@ -622,15 +622,15 @@ function QuoteEditor({
         </div>
 
         {/* Statut + validité + notes */}
-        <div className="mt-5 grid grid-cols-1 gap-3 border-t border-gnd-bronze/8 pt-5 sm:grid-cols-2">
+        <div className="mt-5 grid grid-cols-1 gap-3 border-t border-border-soft pt-5 sm:grid-cols-2">
           <label className="block">
-            <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-gnd-bronze-faded">
+            <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-muted-warm/70">
               Statut du devis
             </span>
             <select
               value={statut}
               onChange={(e) => setStatut(e.target.value)}
-              className="w-full rounded-lg border border-gnd-bronze/10 bg-white px-2.5 py-2 text-sm font-semibold text-gnd-bronze focus:border-gnd-amber focus:outline-none focus:ring-1 focus:ring-gnd-amber"
+              className="w-full rounded-lg border border-border-soft bg-white px-2.5 py-2 text-sm font-semibold text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
             >
               {QUOTE_STATUT_OPTIONS.map((o) => (
                 <option key={o.value} value={o.value}>
@@ -640,18 +640,18 @@ function QuoteEditor({
             </select>
           </label>
           <label className="block">
-            <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-gnd-bronze-faded">
+            <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-muted-warm/70">
               Valable jusqu&apos;au
             </span>
             <input
               type="date"
               value={validUntil}
               onChange={(e) => setValidUntil(e.target.value)}
-              className="w-full rounded-lg border border-gnd-bronze/10 bg-white px-2.5 py-2 text-sm text-gnd-bronze focus:border-gnd-amber focus:outline-none focus:ring-1 focus:ring-gnd-amber"
+              className="w-full rounded-lg border border-border-soft bg-white px-2.5 py-2 text-sm text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
             />
           </label>
           <label className="block sm:col-span-2">
-            <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-gnd-bronze-faded">
+            <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-muted-warm/70">
               Notes / conditions
             </span>
             <textarea
@@ -659,7 +659,7 @@ function QuoteEditor({
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Conditions de paiement, périmètre, mentions…"
-              className="w-full resize-y rounded-lg border border-gnd-bronze/10 bg-white px-2.5 py-2 text-sm text-gnd-bronze focus:border-gnd-amber focus:outline-none focus:ring-1 focus:ring-gnd-amber"
+              className="w-full resize-y rounded-lg border border-border-soft bg-white px-2.5 py-2 text-sm text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
             />
           </label>
         </div>
@@ -669,7 +669,7 @@ function QuoteEditor({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-xl px-4 py-2 text-sm font-semibold text-gnd-bronze-soft transition-colors hover:bg-gnd-bronze/8 hover:text-gnd-bronze"
+            className="rounded-xl px-4 py-2 text-sm font-semibold text-muted-warm transition-colors hover:bg-cream-deep hover:text-ink-warm"
           >
             Fermer
           </button>
@@ -677,7 +677,7 @@ function QuoteEditor({
             type="button"
             onClick={save}
             disabled={saving}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-gnd-bronze px-4 py-2 text-sm font-semibold text-gnd-cream transition-colors hover:bg-gnd-ink disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-brand px-4 py-2 text-sm font-semibold text-choco transition-colors hover:bg-brand-dark disabled:opacity-50"
           >
             {saving ? (
               <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
