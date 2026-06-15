@@ -16,6 +16,9 @@
  * Déduplication (migration 0013) :
  *   - email_norm / phone_norm : colonnes GÉNÉRÉES STORED (lecture seule côté app)
  *   - merged_into             : id de la fiche maître si cette fiche a été fusionnée
+ *
+ * Finance (migration 0015) :
+ *   - deal_amount : montant HT du contrat signé (rempli au passage en status='gagne').
  */
 
 /** Statuts affichables. Le legacy 'prospecte' n'est plus dans la liste
@@ -93,6 +96,8 @@ export type Prospect = {
   nombre_avis: number | null;
   taille_entreprise: string | null;
   nombre_employes: number | null;
+  // Finance (migration 0015) — montant HT du contrat signé
+  deal_amount: number | null;
   // Sync Notion
   notion_page_id: string | null;
   synced_at: string | null;
@@ -143,6 +148,7 @@ export const PROSPECT_SELECT_COLUMNS = [
   'nombre_avis',
   'taille_entreprise',
   'nombre_employes',
+  'deal_amount',
   'notion_page_id',
   'synced_at',
   'email_norm',
