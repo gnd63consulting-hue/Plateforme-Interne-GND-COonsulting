@@ -191,50 +191,50 @@ export default function FormationClient({
       </section>
 
       {/* ====================================================== */}
-      {/* Certification CTA — orange plein, texte CHOCOLAT (lisible) */}
+      {/* Certification CTA — carte CREME harmonisee (plus d'orange plein) */}
       {/* ====================================================== */}
       <motion.section
         initial={{ opacity: 0, y: 32 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-100px' }}
         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        className="relative mt-20 overflow-hidden rounded-3xl border border-brand bg-brand p-10 text-choco md:p-16"
+        className="relative mt-20 overflow-hidden rounded-3xl border border-border-soft bg-gradient-to-br from-white to-cream p-10 text-ink-warm shadow-soft md:p-16"
       >
         <div
           aria-hidden
-          className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full bg-white/15 blur-3xl"
+          className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full bg-brand/10 blur-3xl"
         />
         <div
           aria-hidden
-          className="pointer-events-none absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-white/10 blur-3xl"
+          className="pointer-events-none absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-brand/[0.07] blur-3xl"
         />
         <span
           aria-hidden
-          className="pointer-events-none absolute -bottom-20 right-10 select-none font-marcellus text-[14rem] font-medium italic leading-none text-choco/[0.06] sm:text-[18rem]"
+          className="pointer-events-none absolute -bottom-20 right-10 select-none font-marcellus text-[14rem] font-medium italic leading-none text-brand/[0.08] sm:text-[18rem]"
         >
           {totalCount}
         </span>
 
         <div className="relative max-w-2xl">
-          <p className="mb-3 font-inter text-[10px] font-semibold uppercase tracking-[0.2em] text-choco">
+          <p className="mb-3 font-inter text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-dark">
             {isComplete ? 'Formation complète' : 'Certification'}
           </p>
           <h2 className="font-marcellus text-display-md font-medium leading-tight text-choco">
             {isComplete ? (
               <>
                 Tu es{' '}
-                <span className="italic text-[#2A1810]">certifié</span>
+                <span className="italic text-brand-dark">certifié</span>
                 {' '}GND Consulting.
               </>
             ) : (
               <>
                 {totalCount} modules pour devenir{' '}
-                <span className="italic text-[#2A1810]">certifié</span>
+                <span className="italic text-brand-dark">certifié</span>
                 .
               </>
             )}
           </h2>
-          <p className="mt-5 max-w-xl text-pretty text-base leading-relaxed text-choco/80">
+          <p className="mt-5 max-w-xl text-pretty text-base leading-relaxed text-muted-warm">
             {isComplete
               ? "Tu peux revenir à tout moment sur les modules pour réviser. Le savoir reste accessible."
               : "Chaque module se valide avec un quiz à 70 % minimum. Tu peux retenter autant de fois que nécessaire."}
@@ -271,7 +271,7 @@ function ProgressionDial({
           cy="65"
           r={radius}
           fill="none"
-          stroke="#3D1F1E"
+          stroke="#532418"
           strokeOpacity="0.08"
           strokeWidth="3"
         />
