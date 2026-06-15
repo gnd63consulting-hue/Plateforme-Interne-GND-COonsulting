@@ -187,7 +187,7 @@ function Group({
           {rows.map((r) => (
             <Link
               key={r.id}
-              href="/prospects"
+              href={`/prospects/${r.id}`}
               className="group flex items-center gap-4 rounded-2xl border border-gnd-bronze/8 bg-gnd-paper p-4 shadow-warm transition-all hover:-translate-y-0.5 hover:border-gnd-amber/30 hover:shadow-warm-lg"
             >
               <span

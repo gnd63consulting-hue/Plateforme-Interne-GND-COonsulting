@@ -1,9 +1,11 @@
 'use client';
 
+import Link from 'next/link';
 import { memo, useCallback, useMemo, useRef, useState } from 'react';
 import {
   ChevronDown,
   Flame,
+  FolderOpen,
   GripVertical,
   MapPin,
   Phone,
@@ -526,19 +528,31 @@ const KanbanCard = memo(function KanbanCard({
           )}
         </div>
 
-        {/* Actions : notes + déplacer (clavier/souris alternatif au drag) */}
+        {/* Actions : notes + ouvrir la fiche + déplacer (alternatif au drag) */}
         <div className="mt-2.5 flex items-center justify-between border-t border-gnd-bronze/6 pt-2">
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              onOpenNotes(p);
-            }}
-            className="inline-flex items-center gap-1 rounded-full px-1.5 py-1 text-[10px] font-semibold text-gnd-bronze-soft transition-colors hover:bg-gnd-bronze/8 hover:text-gnd-bronze"
-          >
-            <StickyNote className="h-3.5 w-3.5" aria-hidden />
-            Notes
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onOpenNotes(p);
+              }}
+              className="inline-flex items-center gap-1 rounded-full px-1.5 py-1 text-[10px] font-semibold text-gnd-bronze-soft transition-colors hover:bg-gnd-bronze/8 hover:text-gnd-bronze"
+            >
+              <StickyNote className="h-3.5 w-3.5" aria-hidden />
+              Notes
+            </button>
+            <Link
+              href={`/prospects/${p.id}`}
+              onClick={(e) => e.stopPropagation()}
+              aria-label={`Ouvrir la fiche de ${p.company_name}`}
+              title="Ouvrir la fiche 360"
+              className="inline-flex items-center gap-1 rounded-full px-1.5 py-1 text-[10px] font-semibold text-gnd-amber-dim transition-colors hover:bg-gnd-amber/10"
+            >
+              <FolderOpen className="h-3.5 w-3.5" aria-hidden />
+              Fiche
+            </Link>
+          </div>
 
           <div className="relative">
             <button
