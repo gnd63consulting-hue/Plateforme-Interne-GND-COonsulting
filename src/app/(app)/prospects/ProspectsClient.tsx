@@ -28,6 +28,7 @@ import {
 } from '@/lib/prospects';
 import ProspectModal, { type ProspectFormValues } from '@/components/ProspectModal';
 import ProspectDetailsModal from '@/components/ProspectDetailsModal';
+import ProspectTimeline from '@/components/ProspectTimeline';
 import ProspectsHeroVisual from '@/components/ProspectsHeroVisual';
 import SpeedometerGauge from '@/components/SpeedometerGauge';
 import RocketProgress from '@/components/RocketProgress';
@@ -45,9 +46,22 @@ const FOLLOWUP_STATUSES = new Set([
   'a_recontacter',
 ]);
 
-/** ISO → 'yyyy-mm-dd' pour un <input type="date">. */
-function toDateInput(iso: string | null | undefined): string {
-  return iso ? iso.slice(0, 10) : '';
+/** ISO → 'yyyy-mm-ddThh:mm' (heure locale) pour un <input type="datetime-local">. */
+function toDateTimeInput(iso: string | null | undefined): string {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  // Décale en heure locale pour que la valeur affichée corresponde au fuseau
+  // du commercial (toISOString() renverrait l'UTC).
+  const tzOffsetMs = d.getTimezoneOffset() * 60_000;
+  return new Date(d.getTime() - tzOffsetMs).toISOString().slice(0, 16);
+}
+
+/** 'yyyy-mm-ddThh:mm' (heure locale saisie) → ISO UTC, ou null si vide. */
+function dateTimeInputToIso(value: string): string | null {
+  if (!value) return null;
+  const d = new Date(value); // interprété en heure locale
+  return Number.isNaN(d.getTime()) ? null : d.toISOString();
 }
 
 export default function ProspectsClient({
@@ -76,6 +90,30 @@ export default function ProspectsClient({
   });
   const watermarkY = useTransform(scrollYProgress, [0, 1], ['0%', '40%']);
   const watermarkOpacity = useTransform(scrollYProgress, [0, 1], [1, 0.3]);
+
+  /** Insère une activité dans la timeline du prospect (fire-and-forget).
+   *  owner_id et occurred_at sont posés par défaut côté Postgres (auth.uid() /
+   *  now()). RLS owner-based : un commercial n'écrit que ses propres activités. */
+  function logActivity(
+    prospectId: string,
+    kind: 'note' | 'status_change',
+    opts: { body?: string | null; metadata?: Record<string, unknown> } = {}
+  ) {
+    supabase
+      .from('activities')
+      .insert({
+        prospect_id: prospectId,
+        kind,
+        body: opts.body ?? null,
+        metadata: opts.metadata ?? null,
+      })
+      .then(({ error }) => {
+        if (error) {
+          // eslint-disable-next-line no-console
+          console.error(`[activities] insert ${kind} failed:`, error.message);
+        }
+      });
+  }
 
   // Stats personnelles
   const stats = useMemo(() => {
@@ -164,17 +202,28 @@ export default function ProspectsClient({
     if (data) {
       const updated = data as Prospect;
       setProspects((prev) => prev.map((p) => (p.id === editing.id ? updated : p)));
-      if (values.status !== editing.status && updated.notion_page_id) pushStatusToNotion(updated.id);
+      if (values.status !== editing.status) {
+        logActivity(updated.id, 'status_change', {
+          metadata: { from: editing.status, to: values.status },
+        });
+        if (updated.notion_page_id) pushStatusToNotion(updated.id);
+      }
     }
   }
 
   async function handleStatusChange(prospect: Prospect, status: string) {
     setError(null);
+    const previousStatus = prospect.status;
     const { data, error } = await supabase.from('prospects').update({ status }).eq('id', prospect.id).select().single();
     if (error) { setError(error.message); return; }
     if (data) {
       const updated = data as Prospect;
       setProspects((prev) => prev.map((p) => (p.id === prospect.id ? updated : p)));
+      if (status !== previousStatus) {
+        logActivity(updated.id, 'status_change', {
+          metadata: { from: previousStatus, to: status },
+        });
+      }
       if (updated.notion_page_id) pushStatusToNotion(updated.id);
       // Statut de relance sans date posee → on propose d'en planifier une.
       if (FOLLOWUP_STATUSES.has(status) && !updated.next_action_at) {
@@ -196,17 +245,24 @@ export default function ProspectsClient({
   async function handleSaveNotes() {
     if (!notesFor) return;
     setError(null);
-    const next_action_at = relanceDraft
-      ? new Date(`${relanceDraft}T12:00:00`).toISOString()
-      : null;
+    const previousNotes = notesFor.notes ?? '';
+    const nextNotes = notesDraft.trim() || null;
+    const next_action_at = dateTimeInputToIso(relanceDraft);
     const { data, error } = await supabase
       .from('prospects')
-      .update({ notes: notesDraft.trim() || null, next_action_at })
+      .update({ notes: nextNotes, next_action_at })
       .eq('id', notesFor.id)
       .select()
       .single();
     if (error) { setError(error.message); return; }
-    if (data) setProspects((prev) => prev.map((p) => (p.id === notesFor.id ? (data as Prospect) : p)));
+    if (data) {
+      const updated = data as Prospect;
+      setProspects((prev) => prev.map((p) => (p.id === notesFor.id ? updated : p)));
+      // Trace la note dans la timeline si son contenu a changé.
+      if ((nextNotes ?? '') !== previousNotes && nextNotes) {
+        logActivity(updated.id, 'note', { body: nextNotes });
+      }
+    }
     setNotesFor(null);
   }
 
@@ -469,7 +525,11 @@ export default function ProspectsClient({
       </div>
 
       {error && (
-        <div className="mb-4 rounded-2xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800">
+        <div
+          role="alert"
+          aria-live="polite"
+          className="mb-4 rounded-2xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800"
+        >
           {error}
         </div>
       )}
@@ -490,7 +550,7 @@ export default function ProspectsClient({
               onView={() => setViewing(p)}
               onEdit={() => setEditing(p)}
               onDelete={() => handleDelete(p)}
-              onNotes={() => { setNotesFor(p); setNotesDraft(p.notes ?? ''); setRelanceDraft(toDateInput(p.next_action_at)); }}
+              onNotes={() => { setNotesFor(p); setNotesDraft(p.notes ?? ''); setRelanceDraft(toDateTimeInput(p.next_action_at)); }}
               onStatusChange={(s) => handleStatusChange(p, s)}
               hasEnrichment={hasEnrichment(p)}
             />
@@ -564,30 +624,31 @@ export default function ProspectsClient({
 
       {notesFor && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-gnd-bronze/40 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-md overflow-hidden rounded-3xl border border-gnd-bronze/8 bg-gnd-paper shadow-warm-xl">
-            <div className="h-px w-full bg-gradient-to-r from-transparent via-gnd-amber to-transparent" />
-            <div className="p-7">
+          <div className="flex max-h-[90vh] w-full max-w-md flex-col overflow-hidden rounded-3xl border border-gnd-bronze/8 bg-gnd-paper shadow-warm-xl">
+            <div className="h-px w-full shrink-0 bg-gradient-to-r from-transparent via-gnd-amber to-transparent" />
+            <div className="flex-1 overflow-y-auto p-7">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-gnd-amber-dim">Notes &amp; relance</p>
                   <h3 className="mt-1 font-display text-xl font-medium text-gnd-bronze">{notesFor.company_name}</h3>
                 </div>
-                <button onClick={() => setNotesFor(null)} className="rounded-full p-2 text-gnd-bronze-soft transition-colors hover:bg-gnd-bronze/8 hover:text-gnd-bronze" aria-label="Fermer">✕</button>
+                <button onClick={() => setNotesFor(null)} className="rounded-full p-2 text-gnd-bronze-soft transition-colors hover:bg-gnd-bronze/8 hover:text-gnd-bronze" aria-label="Fermer la modale">✕</button>
               </div>
               <textarea
-                rows={8}
+                rows={7}
                 value={notesDraft}
                 onChange={(e) => setNotesDraft(e.target.value)}
                 className="mt-5 w-full rounded-2xl border border-gnd-bronze/10 bg-white p-4 text-sm text-gnd-bronze placeholder:text-gnd-bronze-faded focus:border-gnd-amber focus:outline-none focus:ring-1 focus:ring-gnd-amber"
                 placeholder="Contexte, historique, comment s'est passé l'appel…"
               />
               <div className="mt-4">
-                <label className="mb-1.5 block font-mono text-[10px] font-semibold uppercase tracking-[0.15em] text-gnd-amber-dim">
-                  Date de relance
+                <label htmlFor="relance-datetime" className="mb-1.5 block font-mono text-[10px] font-semibold uppercase tracking-[0.15em] text-gnd-amber-dim">
+                  Prochaine relance
                 </label>
                 <div className="flex items-center gap-2">
                   <input
-                    type="date"
+                    id="relance-datetime"
+                    type="datetime-local"
                     value={relanceDraft}
                     onChange={(e) => setRelanceDraft(e.target.value)}
                     className="rounded-xl border border-gnd-bronze/10 bg-white px-3 py-2 text-sm text-gnd-bronze focus:border-gnd-amber focus:outline-none focus:ring-1 focus:ring-gnd-amber"
@@ -603,13 +664,21 @@ export default function ProspectsClient({
                   )}
                 </div>
                 <p className="mt-1.5 text-[11px] text-gnd-bronze-soft">
-                  Visible par toi et par l&apos;admin dans « Relances à venir ».
+                  Visible dans « Mes relances » (et par l&apos;admin dans son pilotage).
                 </p>
               </div>
-              <div className="mt-5 flex justify-end gap-2">
-                <button onClick={() => setNotesFor(null)} className="rounded-full border border-gnd-bronze/10 bg-white px-5 py-2.5 text-sm font-semibold text-gnd-bronze transition-colors hover:bg-gnd-cream">Annuler</button>
-                <button onClick={handleSaveNotes} className="rounded-full bg-gnd-bronze px-5 py-2.5 text-sm font-semibold text-gnd-cream transition-colors hover:bg-gnd-ink">Enregistrer</button>
+
+              {/* Timeline d'activité */}
+              <div className="mt-6 border-t border-gnd-bronze/8 pt-5">
+                <p className="mb-3 font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-gnd-amber-dim">
+                  Historique d&apos;activité
+                </p>
+                <ProspectTimeline prospectId={notesFor.id} />
               </div>
+            </div>
+            <div className="flex shrink-0 justify-end gap-2 border-t border-gnd-bronze/8 bg-gnd-paper p-5">
+              <button onClick={() => setNotesFor(null)} className="rounded-full border border-gnd-bronze/10 bg-white px-5 py-2.5 text-sm font-semibold text-gnd-bronze transition-colors hover:bg-gnd-cream">Annuler</button>
+              <button onClick={handleSaveNotes} className="rounded-full bg-gnd-bronze px-5 py-2.5 text-sm font-semibold text-gnd-cream transition-colors hover:bg-gnd-ink">Enregistrer</button>
             </div>
           </div>
         </div>
@@ -701,7 +770,7 @@ function ProspectRow({ prospect: p, index, onView, onEdit, onDelete, onNotes, on
             <Sparkles className="h-4 w-4" aria-hidden />
           </button>
         )}
-        <button onClick={onNotes} className="inline-flex h-9 w-9 items-center justify-center rounded-full text-gnd-bronze-soft transition-colors hover:bg-gnd-bronze/8 hover:text-gnd-bronze" aria-label={p.notes ? 'Voir les notes' : 'Ajouter des notes'} title={p.notes ? 'Voir les notes' : 'Ajouter des notes'}>
+        <button onClick={onNotes} className="inline-flex h-9 w-9 items-center justify-center rounded-full text-gnd-bronze-soft transition-colors hover:bg-gnd-bronze/8 hover:text-gnd-bronze" aria-label={p.notes ? 'Voir les notes et la relance' : 'Ajouter des notes ou une relance'} title={p.notes ? 'Voir les notes' : 'Ajouter des notes'}>
           <StickyNote className="h-4 w-4" aria-hidden />
         </button>
         <button onClick={onEdit} className="inline-flex h-9 w-9 items-center justify-center rounded-full text-gnd-bronze-soft transition-colors hover:bg-gnd-bronze/8 hover:text-gnd-bronze" aria-label="Modifier" title="Modifier">
