@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase-server';
 import { createAdminClient } from '@/lib/supabase-admin';
 import { revalidatePath } from 'next/cache';
+import type { PermMap } from '@/lib/permissions';
 
 /**
  * Cree une invitation = ajoute l'email a la whitelist `invitations`.
@@ -297,10 +298,34 @@ export async function setMemberRole(
 
   const { error } = await adminClient
     .from('users')
-    .update({ role, updated_at: new Date().toISOString() })
+    .update({ role, permissions: null, updated_at: new Date().toISOString() })
     .eq('id', userId);
   if (error) return { error: error.message };
 
+  revalidatePath('/admin/invitations');
+  revalidatePath('/admin');
+  return { error: null };
+}
+
+/**
+ * Definit les permissions GRANULAIRES (override par section) d'un membre.
+ * Garde requireAdmin + anti-self. perms = { section: 'none'|'view'|'edit' }.
+ */
+export async function setMemberPermissions(
+  userId: string,
+  perms: PermMap
+): Promise<{ error: string | null }> {
+  const actor = await requireAdmin();
+  if (!actor) return { error: 'Permissions insuffisantes' };
+  if (userId === actor.id) {
+    return { error: 'Tu ne peux pas changer tes propres autorisations (demande a un autre admin).' };
+  }
+  const adminClient = createAdminClient();
+  const { error } = await adminClient
+    .from('users')
+    .update({ permissions: perms, updated_at: new Date().toISOString() })
+    .eq('id', userId);
+  if (error) return { error: error.message };
   revalidatePath('/admin/invitations');
   revalidatePath('/admin');
   return { error: null };
