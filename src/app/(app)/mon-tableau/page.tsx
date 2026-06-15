@@ -49,6 +49,11 @@ export const dynamic = 'force-dynamic';
  * (colonnes kanban vivantes + quelques cartes d'aperçu par colonne) réutilisant
  * la logique de groupement existante (`getColumnForStatus`/`PIPELINE_COLUMNS`),
  * sans fetch supplémentaire — les prospects sont déjà chargés.
+ *
+ * Sprint 10.1 (résumé compact) : sur le DASHBOARD le pipeline est un résumé
+ * scannable (cartes-étapes), pas un clone du Kanban. On ne rend donc qu'un
+ * APERÇU très court par colonne (cf. SNAPSHOT_CARDS_PER_COLUMN) — le Kanban
+ * complet reste sur /prospects.
  */
 
 /** Statuts encore « en jeu » pour le CA potentiel (pipeline en cours). */
@@ -70,8 +75,12 @@ const CLOSED_STATUSES = new Set([
   'processus_termine',
 ]);
 
-/** Nombre de cartes d'aperçu rendues par colonne dans le snapshot. */
-const SNAPSHOT_CARDS_PER_COLUMN = 4;
+/**
+ * Nombre de cartes d'aperçu rendues par colonne dans le snapshot.
+ * Volontairement TRÈS court (résumé dashboard, pas le Kanban complet) : au plus
+ * 2 prospects par étape, le reste est résumé par « +N de plus ».
+ */
+const SNAPSHOT_CARDS_PER_COLUMN = 2;
 
 function isHot(p: Prospect): boolean {
   return (

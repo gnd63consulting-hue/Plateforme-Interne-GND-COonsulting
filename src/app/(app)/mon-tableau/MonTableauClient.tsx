@@ -15,11 +15,6 @@ import {
   Award,
   Upload,
   CalendarDays,
-  Phone,
-  MapPin,
-  StickyNote,
-  FolderOpen,
-  MoreHorizontal,
   Flame,
 } from 'lucide-react';
 import { formatEur } from '@/lib/ca-utils';
@@ -36,7 +31,11 @@ import {
   StatusBadge,
   Button,
 } from '@/components/ui';
-import { type MonTableauData, type SnapshotCard } from './types';
+import { columnById, type PipelineColumnId } from '@/lib/pipeline';
+import {
+  type MonTableauData,
+  type PipelineSnapshotColumn,
+} from './types';
 
 /* ---------- helpers ---------- */
 
@@ -102,81 +101,119 @@ const item: Variants = {
 };
 
 /* ============================================================ */
-/*  Carte prospect (snapshot pipeline) — réf mockup             */
+/*  Carte-étape compacte (résumé pipeline du dashboard)         */
+/*                                                              */
+/*  Une carte par colonne de pipeline : libellé + point         */
+/*  d'accent, compteur, valeur € totale, barre de répartition   */
+/*  (part du pipeline) et au plus 2 prospects en aperçu. Hauteur */
+/*  contenue, aucun scroll interne — c'est un RÉSUMÉ, le Kanban  */
+/*  complet vit sur /prospects.                                 */
 /* ============================================================ */
-function SnapshotProspectCard({ card }: { card: SnapshotCard }) {
+function StageCard({
+  col,
+  share,
+  reduce,
+}: {
+  col: PipelineSnapshotColumn;
+  /** Part du pipeline (0–100) que représente cette étape. */
+  share: number;
+  reduce: boolean;
+}) {
+  const accent = columnById(col.id as PipelineColumnId)?.accent ?? 'bg-brand';
+  const reste = col.count - col.cards.length;
+
   return (
-    <div className="rounded-xl border border-border-soft/70 bg-surface-soft p-3 shadow-soft">
-      <div className="flex items-start gap-1.5">
-        {card.hot && (
-          <Flame
-            className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand"
-            aria-label="Prospect prioritaire"
+    <Card
+      tone="cream"
+      as="section"
+      aria-label={`${col.label} — ${col.count} prospect${col.count > 1 ? 's' : ''}, ${formatEur(col.valeur)}`}
+      className="flex flex-col p-4"
+    >
+      {/* En-tête : libellé + point d'accent · compteur */}
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex min-w-0 items-center gap-2">
+          <span
+            aria-hidden
+            className={`h-2 w-2 shrink-0 rounded-full ${accent}`}
           />
-        )}
-        <div className="min-w-0 flex-1">
-          <p className="truncate font-marcellus text-sm text-choco">
-            {card.company}
-          </p>
-          {(card.contact || card.city) && (
-            <p className="mt-0.5 truncate text-[11px] text-muted-warm">
-              {card.contact}
-              {card.contact && card.city && ' · '}
-              {card.city}
-            </p>
-          )}
+          <h3 className="truncate font-marcellus text-sm leading-tight text-choco">
+            {col.label}
+          </h3>
         </div>
-      </div>
-
-      <div className="mt-2 flex flex-wrap items-center gap-1.5">
-        <StatusBadge status={card.status} size="sm" />
-        {card.caEstime && (
-          <span className="truncate font-inter text-[10px] font-semibold text-brand-dark">
-            {card.caEstime}
-          </span>
-        )}
-      </div>
-
-      {(card.phone || card.address) && (
-        <div className="mt-2 flex flex-col gap-1">
-          {card.phone && (
-            <span className="inline-flex items-center gap-1 truncate text-[10px] text-muted-warm">
-              <Phone className="h-3 w-3 shrink-0 text-muted-warm/70" aria-hidden />
-              <span className="truncate">{card.phone}</span>
-            </span>
-          )}
-          {card.address && (
-            <span className="inline-flex items-center gap-1 truncate text-[10px] text-muted-warm">
-              <MapPin className="h-3 w-3 shrink-0 text-muted-warm/70" aria-hidden />
-              <span className="truncate">{card.address}</span>
-            </span>
-          )}
-        </div>
-      )}
-
-      <div className="mt-2.5 flex items-center gap-1 border-t border-border-soft/60 pt-2">
-        <Link
-          href={`/prospects/${card.id}`}
-          className="inline-flex items-center gap-1 rounded-full px-1.5 py-1 text-[10px] font-semibold text-muted-warm transition-colors hover:bg-cream-deep hover:text-ink-warm"
-        >
-          <StickyNote className="h-3 w-3" aria-hidden />
-          Notes
-        </Link>
-        <Link
-          href={`/prospects/${card.id}`}
-          className="inline-flex items-center gap-1 rounded-full px-1.5 py-1 text-[10px] font-semibold text-brand-dark transition-colors hover:bg-brand-soft"
-        >
-          <FolderOpen className="h-3 w-3" aria-hidden />
-          Fiche
-        </Link>
-        <span
-          aria-hidden
-          className="ml-auto inline-flex h-6 w-6 items-center justify-center rounded-full text-muted-warm/70"
-        >
-          <MoreHorizontal className="h-3.5 w-3.5" />
+        <span className="shrink-0 font-marcellus text-lg leading-none tabular-nums text-brand-dark">
+          {col.count}
         </span>
       </div>
-    </div>
+
+      {/* Valeur € + barre de répartition (part du pipeline) */}
+      <p className="mt-1 font-inter text-[11px] font-semibold tabular-nums text-muted-warm">
+        {formatEur(col.valeur)}
+      </p>
+      <div
+        className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-cream-deep"
+        role="progressbar"
+        aria-valuenow={share}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label={`Part du pipeline : ${share}%`}
+      >
+        <motion.div
+          className="h-full rounded-full bg-gradient-brand"
+          initial={reduce ? false : { width: 0 }}
+          animate={{ width: `${share}%` }}
+          transition={{ type: 'spring', stiffness: 120, damping: 22 }}
+        />
+      </div>
+
+      {/* Aperçu : au plus 2 prospects (nom + montant), liens fiches */}
+      <div className="mt-3 flex flex-1 flex-col gap-1.5">
+        {col.cards.length === 0 ? (
+          <p className="rounded-lg border border-dashed border-border-soft/70 px-2.5 py-3 text-center font-inter text-[10px] uppercase tracking-[0.12em] text-muted-warm/70">
+            Vide
+          </p>
+        ) : (
+          col.cards.map((card) => (
+            <Link
+              key={card.id}
+              href={`/prospects/${card.id}`}
+              className="group flex items-center gap-1.5 rounded-lg border border-transparent px-1.5 py-1 transition-colors hover:border-border-soft/70 hover:bg-surface-soft focus-visible:border-border-soft focus-visible:bg-surface-soft focus-visible:outline-none"
+            >
+              {card.hot && (
+                <Flame
+                  className="h-3 w-3 shrink-0 text-brand"
+                  aria-label="Prospect prioritaire"
+                />
+              )}
+              <span className="min-w-0 flex-1 truncate text-xs text-ink-warm group-hover:text-choco">
+                {card.company}
+              </span>
+              {card.caEstime && (
+                <span className="shrink-0 font-inter text-[10px] font-semibold tabular-nums text-brand-dark">
+                  {card.caEstime}
+                </span>
+              )}
+            </Link>
+          ))
+        )}
+      </div>
+
+      {/* Footer : « +N de plus » discret OU lien étape */}
+      {reste > 0 ? (
+        <Link
+          href="/prospects"
+          className="mt-2.5 inline-flex items-center gap-1 self-start rounded-full px-1.5 py-0.5 font-inter text-[10px] font-semibold text-muted-warm transition-colors hover:text-brand-dark"
+        >
+          +{reste} de plus
+          <ArrowRight className="h-3 w-3" aria-hidden />
+        </Link>
+      ) : (
+        col.count > 0 && (
+          <span className="mt-2.5 font-inter text-[10px] text-muted-warm/70">
+            {col.count === 1 ? '1 prospect' : `${col.count} prospects`}
+          </span>
+        )
+      )}
+    </Card>
   );
 }
 
@@ -206,6 +243,12 @@ export default function MonTableauClient({ data }: { data: MonTableauData }) {
 
   const relancesTotal =
     relancesEnRetard + relancesAujourdhui + relancesAVenir;
+
+  // Total des prospects présents dans le snapshot (colonnes vivantes) — sert de
+  // dénominateur à la « part du pipeline » de chaque carte-étape. Purement
+  // dérivé du snapshot déjà calculé : aucune donnée supplémentaire.
+  const snapshotTotal = pipelineSnapshot.reduce((sum, c) => sum + c.count, 0);
+  const pipelineEmpty = pipelineSnapshot.every((c) => c.count === 0);
 
   // Objectif mensuel commission (réf mockup : « Objectif mensuel 20 000 € HT »).
   // Dérivé de la commission réelle déjà réalisée vs un objectif standard.
@@ -365,78 +408,52 @@ export default function MonTableauClient({ data }: { data: MonTableauData }) {
       </div>
 
       {/* ---------------------------------------------------------------- */}
-      {/* Zone principale : pipeline (gauche) + rail (droite)               */}
+      {/* Mon pipeline — RÉSUMÉ COMPACT (cartes-étapes), pleine largeur.     */}
+      {/* Plus de mini-kanban scrollable : une carte par étape, hauteur     */}
+      {/* contenue. Le Kanban complet vit sur /prospects.                   */}
       {/* ---------------------------------------------------------------- */}
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
-        {/* ============ GAUCHE — Mon pipeline (snapshot kanban) ========== */}
-        <motion.div variants={item} className="xl:col-span-2">
-          <Card className="flex h-full flex-col p-6">
-            <SectionHeader
-              icon={<TrendingUp className="h-4 w-4" aria-hidden />}
-              title="Mon pipeline"
-              action={
-                <Button href="/prospects" variant="ghost" size="sm">
-                  Voir tout le pipeline
-                  <ArrowRight className="h-3.5 w-3.5" aria-hidden />
-                </Button>
-              }
-            />
+      <motion.div variants={item}>
+        <Card className="p-6">
+          <SectionHeader
+            icon={<TrendingUp className="h-4 w-4" aria-hidden />}
+            title="Mon pipeline"
+            action={
+              <Button href="/prospects" variant="ghost" size="sm">
+                Voir tout le pipeline
+                <ArrowRight className="h-3.5 w-3.5" aria-hidden />
+              </Button>
+            }
+          />
 
-            {pipelineSnapshot.every((c) => c.count === 0) ? (
-              <p className="mt-6 text-sm text-muted-warm">
-                Aucun prospect dans le pipeline pour l&apos;instant. Dès que tu
-                avances une fiche, elle apparaît ici.
-              </p>
-            ) : (
-              <div
-                data-lenis-prevent
-                className="mt-5 flex gap-4 overflow-x-auto pb-2"
-              >
-                {pipelineSnapshot.map((col) => (
-                  <section
-                    key={col.id}
-                    aria-label={`${col.label} — ${col.count} prospect${col.count > 1 ? 's' : ''}`}
-                    className="flex w-[230px] shrink-0 flex-col rounded-2xl border border-border-soft/60 bg-cream p-3"
-                  >
-                    <header className="mb-3 flex items-center justify-between gap-2">
-                      <h3 className="truncate font-marcellus text-sm text-choco">
-                        {col.label}
-                      </h3>
-                      <span className="shrink-0 font-inter text-[10px] font-semibold tabular-nums text-muted-warm">
-                        {col.count} · {formatEur(col.valeur)}
-                      </span>
-                    </header>
-                    <div className="flex flex-col gap-2.5">
-                      {col.cards.length === 0 ? (
-                        <p className="rounded-xl border border-dashed border-border-soft/70 px-3 py-5 text-center font-inter text-[10px] uppercase tracking-[0.14em] text-muted-warm/70">
-                          Vide
-                        </p>
-                      ) : (
-                        col.cards.map((card) => (
-                          <SnapshotProspectCard key={card.id} card={card} />
-                        ))
-                      )}
-                      {col.count > col.cards.length && (
-                        <Link
-                          href="/prospects"
-                          className="rounded-xl border border-dashed border-border-soft/70 px-3 py-2 text-center font-inter text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-warm transition-colors hover:bg-cream-deep hover:text-ink-warm"
-                        >
-                          +{col.count - col.cards.length} autre
-                          {col.count - col.cards.length > 1 ? 's' : ''}
-                        </Link>
-                      )}
-                    </div>
-                  </section>
-                ))}
-              </div>
-            )}
-          </Card>
-        </motion.div>
+          {pipelineEmpty ? (
+            <p className="mt-6 text-sm text-muted-warm">
+              Aucun prospect dans le pipeline pour l&apos;instant. Dès que tu
+              avances une fiche, elle apparaît ici.
+            </p>
+          ) : (
+            <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+              {pipelineSnapshot.map((col) => (
+                <StageCard
+                  key={col.id}
+                  col={col}
+                  share={pct(col.count, Math.max(1, snapshotTotal))}
+                  reduce={!!reduce}
+                />
+              ))}
+            </div>
+          )}
+        </Card>
+      </motion.div>
 
-        {/* ============ DROITE — rail : Relances / Activité / Commission == */}
-        <motion.div variants={item} className="flex flex-col gap-6">
-          {/* Relances */}
-          <Card className="p-6">
+      {/* ---------------------------------------------------------------- */}
+      {/* Rail : Relances / Activité récente / Ma commission.               */}
+      {/* 3 colonnes alignées EN HAUT, sous le résumé pipeline — le         */}
+      {/* dashboard reste un cockpit scannable d'un coup d'œil.             */}
+      {/* ---------------------------------------------------------------- */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        {/* Relances */}
+        <motion.div variants={item}>
+          <Card className="h-full p-6">
             <SectionHeader
               icon={<AlarmClock className="h-4 w-4" aria-hidden />}
               title="Relances"
@@ -475,9 +492,11 @@ export default function MonTableauClient({ data }: { data: MonTableauData }) {
               <ArrowRight className="h-3.5 w-3.5" aria-hidden />
             </Link>
           </Card>
+        </motion.div>
 
-          {/* Activité récente */}
-          <Card className="p-6">
+        {/* Activité récente */}
+        <motion.div variants={item}>
+          <Card className="h-full p-6">
             <SectionHeader
               icon={<AlarmClock className="h-4 w-4" aria-hidden />}
               title="Activité récente"
@@ -520,9 +539,11 @@ export default function MonTableauClient({ data }: { data: MonTableauData }) {
               </ul>
             )}
           </Card>
+        </motion.div>
 
-          {/* Ma commission — objectif mensuel + barre */}
-          <Card className="p-6">
+        {/* Ma commission — objectif mensuel + barre */}
+        <motion.div variants={item}>
+          <Card className="h-full p-6">
             <SectionHeader
               icon={<Wallet className="h-4 w-4" aria-hidden />}
               title="Ma commission"
