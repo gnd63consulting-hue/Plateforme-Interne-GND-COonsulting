@@ -1,11 +1,12 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { ArrowRight, AlarmClock, CalendarClock, Phone } from 'lucide-react';
 import { createClient } from '@/lib/supabase-server';
-import { labelForStatus } from '@/lib/prospects';
+import { SectionHeader, StatusBadge, Button } from '@/components/ui';
 
 export const dynamic = 'force-dynamic';
 
-// Palette claire gnd-* (cohérente avec /prospects, thème clair commercial).
+// Nouveau langage Sprint 10 (cartes/badges/arrondis cohérents avec le mockup).
 type Row = {
   id: string;
   company_name: string;
@@ -62,65 +63,65 @@ export default async function MesRelancesPage() {
 
   return (
     <div className="mx-auto max-w-4xl">
-      <header className="mb-8">
-        <div className="mb-2 flex items-center gap-2">
-          <span className="h-px w-8 bg-gnd-amber" />
-          <span className="font-mono text-[10px] font-medium uppercase tracking-[0.2em] text-gnd-amber">
-            Mon pipeline · Relances
-          </span>
-        </div>
-        <h1 className="font-display text-display-md font-medium leading-[0.95] tracking-tight text-gnd-bronze sm:text-4xl">
-          Mes <span className="italic text-gnd-amber">relances</span>
-        </h1>
-        <p className="mt-3 max-w-xl text-sm leading-relaxed text-gnd-bronze-soft sm:text-base">
-          Tes prospects avec une date de relance posée. En retard d&apos;abord,
-          puis aujourd&apos;hui, puis les 7 prochains jours. Triés par date.
-        </p>
-      </header>
+      <SectionHeader
+        as="h1"
+        eyebrow="Mon pipeline · Relances"
+        title={
+          <>
+            Mes <span className="italic text-brand-dark">relances</span>
+          </>
+        }
+        subtitle="Tes prospects avec une date de relance posée. En retard d'abord, puis aujourd'hui, puis les 7 prochains jours. Triés par date."
+        className="mb-8"
+      />
 
-      {/* Stats */}
-      <div className="mb-8 grid grid-cols-3 gap-3">
-        <StatCard label="En retard" value={overdue.length} tone="rose" />
-        <StatCard label="Aujourd'hui" value={today.length} tone="amber" />
-        <StatCard label="À venir (7j)" value={upcoming.length} tone="emerald" />
+      {/* Stats — cartes au nouveau système */}
+      <div className="mb-8 grid grid-cols-3 gap-3 sm:gap-4">
+        <RelanceStat label="En retard" value={overdue.length} tone="rose" />
+        <RelanceStat label="Aujourd'hui" value={today.length} tone="amber" />
+        <RelanceStat label="À venir (7j)" value={upcoming.length} tone="emerald" />
       </div>
 
       {rows.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-3xl border border-gnd-bronze/8 bg-gnd-paper p-16 text-center shadow-warm">
-          <p className="font-display text-xl text-gnd-bronze">
+        <div className="flex flex-col items-center justify-center rounded-3xl border border-border-soft/70 bg-surface-soft p-16 text-center shadow-soft">
+          <span
+            aria-hidden
+            className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-soft text-brand-dark"
+          >
+            <AlarmClock className="h-6 w-6" />
+          </span>
+          <p className="font-marcellus text-xl text-choco">
             Aucune relance planifiée.
           </p>
-          <p className="mt-2 text-sm text-gnd-bronze-soft">
+          <p className="mt-2 max-w-sm text-sm text-muted-warm">
             Pose une date de relance depuis la fiche d&apos;un prospect (bouton
             notes) pour la voir apparaître ici.
           </p>
-          <Link
-            href="/prospects"
-            className="mt-5 inline-flex items-center rounded-full bg-gnd-bronze px-5 py-2.5 text-sm font-semibold text-gnd-cream transition-colors hover:bg-gnd-ink"
-          >
+          <Button href="/prospects" variant="primary" size="sm" className="mt-5">
             Voir mes prospects
-          </Link>
+            <ArrowRight className="h-3.5 w-3.5" aria-hidden />
+          </Button>
         </div>
       ) : (
         <div className="space-y-7">
           <Group
             title="En retard"
-            dotClass="bg-rose-500"
-            dateClass="text-rose-600"
+            dotClass="bg-[#A04A4A]"
+            dateClass="text-[#A04A4A]"
             rows={overdue}
             emptyText="Aucun retard. 👌"
           />
           <Group
             title="Aujourd'hui"
-            dotClass="bg-gnd-amber"
-            dateClass="text-gnd-amber-dim"
+            dotClass="bg-brand"
+            dateClass="text-brand-dark"
             rows={today}
             emptyText="Rien à rappeler aujourd'hui."
           />
           <Group
             title="À venir (7 jours)"
-            dotClass="bg-emerald-500"
-            dateClass="text-emerald-600"
+            dotClass="bg-[#3A7A52]"
+            dateClass="text-[#3A7A52]"
             rows={upcoming}
             emptyText="Rien de planifié dans les 7 prochains jours."
           />
@@ -130,7 +131,7 @@ export default async function MesRelancesPage() {
   );
 }
 
-function StatCard({
+function RelanceStat({
   label,
   value,
   tone,
@@ -141,18 +142,16 @@ function StatCard({
 }) {
   const valueClass =
     tone === 'rose'
-      ? 'text-rose-600'
+      ? 'text-[#A04A4A]'
       : tone === 'amber'
-        ? 'text-gnd-amber'
-        : 'text-emerald-600';
+        ? 'text-brand-dark'
+        : 'text-[#3A7A52]';
   return (
-    <div className="rounded-2xl border border-gnd-bronze/8 bg-gnd-paper p-4 shadow-warm">
-      <p className="font-mono text-[9px] font-semibold uppercase tracking-[0.16em] text-gnd-bronze-faded">
+    <div className="rounded-2xl border border-border-soft/70 bg-surface-soft p-4 shadow-soft">
+      <p className="font-inter text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-warm">
         {label}
       </p>
-      <p
-        className={`mt-1.5 font-display text-3xl font-medium tabular-nums ${valueClass}`}
-      >
+      <p className={`mt-1.5 font-marcellus text-3xl tabular-nums ${valueClass}`}>
         {value}
       </p>
     </div>
@@ -176,41 +175,47 @@ function Group({
     <section>
       <div className="mb-3 flex items-center gap-2">
         <span className={`h-2 w-2 rounded-full ${dotClass}`} aria-hidden />
-        <h2 className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-gnd-bronze">
+        <h2 className="font-inter text-[11px] font-semibold uppercase tracking-[0.18em] text-choco">
           {title} ({rows.length})
         </h2>
       </div>
       {rows.length === 0 ? (
-        <p className="pl-4 text-xs text-gnd-bronze-faded">{emptyText}</p>
+        <p className="inline-flex items-center gap-1.5 pl-4 text-xs text-muted-warm">
+          <CalendarClock className="h-3.5 w-3.5 text-muted-warm/70" aria-hidden />
+          {emptyText}
+        </p>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-2.5">
           {rows.map((r) => (
             <Link
               key={r.id}
               href={`/prospects/${r.id}`}
-              className="group flex items-center gap-4 rounded-2xl border border-gnd-bronze/8 bg-gnd-paper p-4 shadow-warm transition-all hover:-translate-y-0.5 hover:border-gnd-amber/30 hover:shadow-warm-lg"
+              className="group flex items-center gap-4 rounded-2xl border border-border-soft/70 bg-surface-soft p-4 shadow-soft transition-all hover:-translate-y-0.5 hover:border-brand/30 hover:shadow-soft-md"
             >
               <span
-                className={`shrink-0 font-mono text-xs font-semibold tabular-nums ${dateClass}`}
+                className={`shrink-0 font-inter text-xs font-semibold tabular-nums ${dateClass}`}
               >
                 {fmt(new Date(r.next_action_at))}
               </span>
               <div className="min-w-0 flex-1">
-                <p className="truncate font-display text-base font-medium text-gnd-bronze">
+                <p className="truncate font-marcellus text-base text-choco">
                   {r.company_name}
                 </p>
-                <p className="truncate text-sm text-gnd-bronze-soft">
+                <p className="truncate text-sm text-muted-warm">
                   {r.contact_name ?? '—'}
                   {r.phone && (
-                    <span className="ml-2 font-mono text-xs text-gnd-amber-dim">
+                    <span className="ml-2 inline-flex items-center gap-1 text-xs text-brand-dark">
+                      <Phone className="h-3 w-3" aria-hidden />
                       {r.phone}
                     </span>
                   )}
                 </p>
               </div>
-              <span className="hidden shrink-0 font-mono text-[10px] uppercase tracking-[0.12em] text-gnd-bronze-soft sm:inline">
-                {labelForStatus(r.status)}
-              </span>
+              <StatusBadge
+                status={r.status}
+                size="sm"
+                className="hidden shrink-0 sm:inline-flex"
+              />
             </Link>
           ))}
         </div>

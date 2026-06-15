@@ -8,13 +8,13 @@ import {
   FolderOpen,
   GripVertical,
   MapPin,
+  MoreHorizontal,
   Phone,
   StickyNote,
 } from 'lucide-react';
 import {
   formatDate,
   labelForStatus,
-  toneForStatus,
   type Prospect,
 } from '@/lib/prospects';
 import {
@@ -24,6 +24,7 @@ import {
   type PipelineColumnId,
 } from '@/lib/pipeline';
 import { evaluateRotting } from '@/lib/rotting';
+import { StatusBadge } from '@/components/ui';
 
 /** Colonnes "vivantes" (ordre pipeline) pour la navigation clavier ⬅/➡. */
 const LIVE_COLUMN_IDS = PIPELINE_COLUMNS.filter((c) => !c.dead).map((c) => c.id);
@@ -154,7 +155,7 @@ export default function ProspectKanban({
           fluide pour les colonnes. Chaque colonne scrolle verticalement seule. */}
       <div
         data-lenis-prevent
-        className="flex h-[calc(100vh-220px)] min-h-[24rem] gap-4 overflow-x-auto overflow-y-hidden px-1 pb-2"
+        className="flex h-[calc(100vh-260px)] min-h-[24rem] gap-4 overflow-x-auto overflow-y-hidden px-0.5 pb-2"
       >
         {liveColumns.map((col) => {
           const cards = byColumn[col.id];
@@ -186,18 +187,18 @@ export default function ProspectKanban({
                 const p = prospects.find((x) => x.id === id);
                 if (p) move(p, col.id);
               }}
-              className={`flex h-full w-[320px] shrink-0 flex-col overflow-hidden rounded-2xl border bg-gnd-paper/60 transition-colors ${
+              className={`flex h-full w-[320px] shrink-0 flex-col overflow-hidden rounded-2xl border bg-cream transition-colors ${
                 isOver
-                  ? 'border-gnd-amber bg-gnd-amber/5 ring-2 ring-gnd-amber/40'
-                  : 'border-gnd-bronze/8'
+                  ? 'border-brand bg-brand-pale ring-2 ring-brand-ring'
+                  : 'border-border-soft/60'
               }`}
             >
               {/* Entête colonne — sticky en tête du corps scrollable */}
-              <header className="sticky top-0 z-10 flex shrink-0 items-center justify-between gap-2 border-b border-gnd-bronze/8 bg-gnd-paper/95 px-4 py-3 backdrop-blur">
+              <header className="sticky top-0 z-10 flex shrink-0 items-center justify-between gap-2 border-b border-border-soft/60 bg-cream/95 px-4 py-3 backdrop-blur">
                 <div className="flex min-w-0 items-center gap-2">
                   <span className={`h-2 w-2 shrink-0 rounded-full ${col.accent}`} aria-hidden />
                   <h3
-                    className="truncate font-display text-sm font-medium text-gnd-bronze"
+                    className="truncate font-marcellus text-sm text-choco"
                     title={col.hint}
                   >
                     {col.label}
@@ -206,13 +207,13 @@ export default function ProspectKanban({
                 <div className="flex shrink-0 items-center gap-2">
                   {total > 0 && (
                     <span
-                      className="font-mono text-[10px] font-semibold text-gnd-amber-dim"
+                      className="font-inter text-[10px] font-semibold text-brand-dark"
                       title="CA estimé cumulé (borne basse)"
                     >
                       {eurFmt.format(total)}
                     </span>
                   )}
-                  <span className="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-gnd-bronze/8 px-1.5 font-mono text-[10px] font-semibold text-gnd-bronze-soft">
+                  <span className="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-surface-soft px-1.5 font-inter text-[10px] font-semibold text-muted-warm">
                     {cards.length}
                   </span>
                 </div>
@@ -224,7 +225,7 @@ export default function ProspectKanban({
                 className="flex flex-1 flex-col gap-2.5 overflow-y-auto p-2.5"
               >
                 {cards.length === 0 ? (
-                  <li className="rounded-xl border border-dashed border-gnd-bronze/10 px-3 py-6 text-center font-mono text-[10px] uppercase tracking-[0.15em] text-gnd-bronze-faded">
+                  <li className="rounded-xl border border-dashed border-border-soft/70 px-3 py-6 text-center font-inter text-[10px] uppercase tracking-[0.15em] text-muted-warm/70">
                     Vide
                   </li>
                 ) : (
@@ -252,7 +253,7 @@ export default function ProspectKanban({
                         <button
                           type="button"
                           onClick={() => showMore(col.id)}
-                          className="w-full rounded-xl border border-dashed border-gnd-bronze/12 px-3 py-2 text-center font-mono text-[10px] font-semibold uppercase tracking-[0.1em] text-gnd-bronze-soft transition-colors hover:bg-gnd-bronze/[0.04] hover:text-gnd-bronze"
+                          className="w-full rounded-xl border border-dashed border-border-soft/70 px-3 py-2 text-center font-inter text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-warm transition-colors hover:bg-cream-deep hover:text-ink-warm"
                         >
                           Afficher plus ({remaining} restant{remaining > 1 ? 's' : ''})
                         </button>
@@ -290,7 +291,7 @@ export default function ProspectKanban({
         className={`mt-4 rounded-2xl border transition-colors ${
           dragOverCol === deadColumn.id
             ? 'border-rose-300 bg-rose-50/60 ring-2 ring-rose-200'
-            : 'border-gnd-bronze/8 bg-gnd-paper/40'
+            : 'border-border-soft/60 bg-cream'
         }`}
       >
         <h3>
@@ -298,21 +299,21 @@ export default function ProspectKanban({
             type="button"
             onClick={() => setDeadOpen((o) => !o)}
             aria-expanded={deadOpen}
-            className="flex w-full items-center justify-between gap-2 rounded-2xl px-4 py-3 text-left transition-colors hover:bg-gnd-bronze/[0.03]"
+            className="flex w-full items-center justify-between gap-2 rounded-2xl px-4 py-3 text-left transition-colors hover:bg-cream-deep"
           >
             <span className="flex items-center gap-2">
               <span className={`h-2 w-2 shrink-0 rounded-full ${deadColumn.accent}`} aria-hidden />
-              <span className="font-display text-sm font-medium text-gnd-bronze">
+              <span className="font-marcellus text-sm text-choco">
                 {deadColumn.label}
               </span>
-              <span className="font-mono text-[10px] text-gnd-bronze-faded">{deadColumn.hint}</span>
+              <span className="font-inter text-[10px] text-muted-warm/80">{deadColumn.hint}</span>
             </span>
             <span className="flex items-center gap-2">
-              <span className="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-gnd-bronze/8 px-1.5 font-mono text-[10px] font-semibold text-gnd-bronze-soft">
+              <span className="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-surface-soft px-1.5 font-inter text-[10px] font-semibold text-muted-warm">
                 {deadCards.length}
               </span>
               <ChevronDown
-                className={`h-4 w-4 text-gnd-bronze-soft transition-transform ${deadOpen ? 'rotate-180' : ''}`}
+                className={`h-4 w-4 text-muted-warm transition-transform ${deadOpen ? 'rotate-180' : ''}`}
                 aria-hidden
               />
             </span>
@@ -373,7 +374,7 @@ function DeadColumnBody({
     <>
       <ul className="grid grid-cols-1 gap-2.5 p-2.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {cards.length === 0 ? (
-          <li className="col-span-full rounded-xl border border-dashed border-gnd-bronze/10 px-3 py-6 text-center font-mono text-[10px] uppercase tracking-[0.15em] text-gnd-bronze-faded">
+          <li className="col-span-full rounded-xl border border-dashed border-border-soft/70 px-3 py-6 text-center font-inter text-[10px] uppercase tracking-[0.15em] text-muted-warm/70">
             Aucune sortie
           </li>
         ) : (
@@ -395,7 +396,7 @@ function DeadColumnBody({
           <button
             type="button"
             onClick={onShowMore}
-            className="w-full rounded-xl border border-dashed border-gnd-bronze/12 px-3 py-2 text-center font-mono text-[10px] font-semibold uppercase tracking-[0.1em] text-gnd-bronze-soft transition-colors hover:bg-gnd-bronze/[0.04] hover:text-gnd-bronze"
+            className="w-full rounded-xl border border-dashed border-border-soft/70 px-3 py-2 text-center font-inter text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-warm transition-colors hover:bg-cream-deep hover:text-ink-warm"
           >
             Afficher plus ({remaining} restant{remaining > 1 ? 's' : ''})
           </button>
@@ -451,16 +452,14 @@ const KanbanCard = memo(function KanbanCard({
             onOpenNotes(p);
           }
         }}
-        className={`group relative w-full cursor-grab rounded-xl border bg-white p-3 shadow-warm outline-none transition-shadow focus-visible:ring-2 focus-visible:ring-gnd-amber active:cursor-grabbing ${
-          rot.rotten ? 'border-l-[3px]' : 'border-gnd-bronze/8'
+        className={`group relative w-full cursor-grab rounded-xl border bg-surface-soft p-3 shadow-soft outline-none transition-shadow hover:shadow-soft-md focus-visible:ring-2 focus-visible:ring-brand-ring active:cursor-grabbing ${
+          rot.rotten ? 'border-l-[3px] border-l-brand border-border-soft/60' : 'border-border-soft/60'
         }`}
-        style={rot.rotten ? { borderColor: '#F39253', borderLeftColor: '#F39253' } : undefined}
       >
         {/* Liseré rotting : point orange + tooltip */}
         {rot.rotten && (
           <span
-            className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full"
-            style={{ backgroundColor: '#F39253' }}
+            className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-brand"
             title={rot.reason ?? undefined}
             aria-hidden
           />
@@ -468,59 +467,61 @@ const KanbanCard = memo(function KanbanCard({
 
         <div className="flex items-start gap-2">
           <GripVertical
-            className="mt-0.5 h-4 w-4 shrink-0 cursor-grab text-gnd-bronze-faded opacity-0 transition-opacity group-hover:opacity-100"
+            className="mt-0.5 h-4 w-4 shrink-0 cursor-grab text-muted-warm/60 opacity-0 transition-opacity group-hover:opacity-100"
             aria-hidden
           />
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5">
               {isHot && (
-                <Flame className="h-3.5 w-3.5 shrink-0 text-gnd-amber" aria-label="Prospect prioritaire" />
+                <Flame className="h-3.5 w-3.5 shrink-0 text-brand" aria-label="Prospect prioritaire" />
               )}
-              <p className="truncate font-display text-sm font-medium text-gnd-bronze">
+              <p className="truncate font-marcellus text-sm text-choco">
                 {p.company_name}
               </p>
             </div>
-            {(p.contact_name || p.role_contact) && (
-              <p className="mt-0.5 truncate text-xs text-gnd-bronze-soft">
+            {(p.contact_name || p.role_contact || p.city) && (
+              <p className="mt-0.5 truncate text-xs text-muted-warm">
                 {p.contact_name}
-                {p.role_contact && <span className="text-gnd-bronze-faded"> · {p.role_contact}</span>}
+                {p.contact_name && p.city && ' · '}
+                {p.city}
+                {p.role_contact && (
+                  <span className="text-muted-warm/80"> · {p.role_contact}</span>
+                )}
               </p>
             )}
           </div>
         </div>
 
-        {/* Badge statut */}
+        {/* Badge statut + valeur */}
         <div className="mt-2 flex flex-wrap items-center gap-1.5">
-          <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${toneForStatus(p.status)}`}>
-            {labelForStatus(p.status)}
-          </span>
+          <StatusBadge status={p.status} size="sm" />
           {p.ca_estime && (
-            <span className="truncate font-mono text-[10px] text-gnd-amber-dim" title="CA estimé">
+            <span className="truncate font-inter text-[10px] font-semibold text-brand-dark" title="CA estimé">
               {p.ca_estime}
             </span>
           )}
         </div>
 
-        {/* Méta : téléphone, ville, relance */}
+        {/* Méta : téléphone, adresse, relance */}
         <div className="mt-2 flex flex-col gap-1">
           {p.phone && (
-            <span className="inline-flex items-center gap-1 truncate font-mono text-[10px] text-gnd-bronze-soft">
-              <Phone className="h-3 w-3 shrink-0 text-gnd-bronze-faded" aria-hidden />
+            <span className="inline-flex items-center gap-1 truncate text-[11px] text-muted-warm">
+              <Phone className="h-3 w-3 shrink-0 text-muted-warm/70" aria-hidden />
               <span className="truncate">{p.phone}</span>
             </span>
           )}
-          {p.city && (
-            <span className="inline-flex items-center gap-1 truncate text-[11px] text-gnd-bronze-soft">
-              <MapPin className="h-3 w-3 shrink-0 text-gnd-bronze-faded" aria-hidden />
-              <span className="truncate">{p.city}</span>
+          {(p.address || p.city) && (
+            <span className="inline-flex items-center gap-1 truncate text-[11px] text-muted-warm">
+              <MapPin className="h-3 w-3 shrink-0 text-muted-warm/70" aria-hidden />
+              <span className="truncate">{p.address ?? p.city}</span>
             </span>
           )}
           {p.next_action_at && (
             <span
-              className={`inline-flex w-fit items-center gap-1 rounded-full px-2 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-[0.1em] ${
+              className={`inline-flex w-fit items-center gap-1 rounded-full px-2 py-0.5 font-inter text-[9px] font-semibold uppercase tracking-[0.1em] ${
                 rot.overdue
-                  ? 'bg-[#F39253]/15 text-[#B85C24]'
-                  : 'bg-gnd-amber/10 text-gnd-amber-dim'
+                  ? 'bg-[#F7D7D7] text-[#A04A4A]'
+                  : 'bg-brand-soft text-brand-dark'
               }`}
             >
               ⏰ Relance {formatDate(p.next_action_at)}
@@ -529,7 +530,7 @@ const KanbanCard = memo(function KanbanCard({
         </div>
 
         {/* Actions : notes + ouvrir la fiche + déplacer (alternatif au drag) */}
-        <div className="mt-2.5 flex items-center justify-between border-t border-gnd-bronze/6 pt-2">
+        <div className="mt-2.5 flex items-center justify-between border-t border-border-soft/50 pt-2">
           <div className="flex items-center gap-1">
             <button
               type="button"
@@ -537,7 +538,7 @@ const KanbanCard = memo(function KanbanCard({
                 e.stopPropagation();
                 onOpenNotes(p);
               }}
-              className="inline-flex items-center gap-1 rounded-full px-1.5 py-1 text-[10px] font-semibold text-gnd-bronze-soft transition-colors hover:bg-gnd-bronze/8 hover:text-gnd-bronze"
+              className="inline-flex items-center gap-1 rounded-full px-1.5 py-1 text-[10px] font-semibold text-muted-warm transition-colors hover:bg-cream-deep hover:text-ink-warm"
             >
               <StickyNote className="h-3.5 w-3.5" aria-hidden />
               Notes
@@ -547,7 +548,7 @@ const KanbanCard = memo(function KanbanCard({
               onClick={(e) => e.stopPropagation()}
               aria-label={`Ouvrir la fiche de ${p.company_name}`}
               title="Ouvrir la fiche 360"
-              className="inline-flex items-center gap-1 rounded-full px-1.5 py-1 text-[10px] font-semibold text-gnd-amber-dim transition-colors hover:bg-gnd-amber/10"
+              className="inline-flex items-center gap-1 rounded-full px-1.5 py-1 text-[10px] font-semibold text-brand-dark transition-colors hover:bg-brand-soft"
             >
               <FolderOpen className="h-3.5 w-3.5" aria-hidden />
               Fiche
@@ -563,15 +564,16 @@ const KanbanCard = memo(function KanbanCard({
               }}
               aria-haspopup="menu"
               aria-expanded={menuOpen}
-              className="rounded-full px-2 py-1 text-[10px] font-semibold text-gnd-amber-dim transition-colors hover:bg-gnd-amber/10"
+              aria-label="Déplacer vers une autre colonne"
+              className="inline-flex items-center gap-0.5 rounded-full px-2 py-1 text-[10px] font-semibold text-brand-dark transition-colors hover:bg-brand-soft"
             >
-              Déplacer ▾
+              <MoreHorizontal className="h-3.5 w-3.5" aria-hidden />
             </button>
             {menuOpen && (
               <div
                 role="menu"
                 onClick={(e) => e.stopPropagation()}
-                className="absolute bottom-full right-0 z-20 mb-1 w-48 overflow-hidden rounded-xl border border-gnd-bronze/10 bg-white py-1 shadow-warm-lg"
+                className="absolute bottom-full right-0 z-20 mb-1 w-48 overflow-hidden rounded-xl border border-border-soft/70 bg-surface-soft py-1 shadow-soft-lg"
               >
                 {ALL_COLUMN_IDS.map((cid) => {
                   const c = columnById(cid);
@@ -588,8 +590,8 @@ const KanbanCard = memo(function KanbanCard({
                       }}
                       className={`flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs transition-colors ${
                         isCurrent
-                          ? 'cursor-default text-gnd-bronze-faded'
-                          : 'text-gnd-bronze hover:bg-gnd-amber/10'
+                          ? 'cursor-default text-muted-warm/70'
+                          : 'text-ink-warm hover:bg-brand-soft'
                       }`}
                     >
                       <span className={`h-1.5 w-1.5 rounded-full ${c.accent}`} aria-hidden />
