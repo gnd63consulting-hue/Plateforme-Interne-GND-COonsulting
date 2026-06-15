@@ -30,7 +30,7 @@ function Ring({ pct }: { pct: number }) {
         cy="22"
         r={r}
         fill="none"
-        stroke="#E8853D"
+        stroke="#F39253"
         strokeWidth="4"
         strokeLinecap="round"
         strokeDasharray={c}
@@ -43,7 +43,7 @@ function Ring({ pct }: { pct: number }) {
         y="22"
         textAnchor="middle"
         dominantBaseline="central"
-        className="fill-gnd-bronze font-marcellus"
+        className="fill-choco font-marcellus"
         style={{ fontSize: 11, fontWeight: 600 }}
       >
         {pct}%
@@ -109,16 +109,16 @@ export function OnboardingChecklist({ storageKey }: { storageKey: string }) {
                 className={
                   'flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left transition-all ' +
                   (checked
-                    ? 'border-gnd-amber/30 bg-gnd-amber/[0.06]'
-                    : 'border-border-soft bg-white/60 hover:border-gnd-bronze/25 hover:shadow-soft')
+                    ? 'border-brand/30 bg-brand-soft'
+                    : 'border-border-soft bg-white/60 hover:border-brand/25 hover:shadow-soft')
                 }
               >
                 <span
                   className={
                     'flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition-colors ' +
                     (checked
-                      ? 'border-gnd-amber bg-brand text-white'
-                      : 'border-gnd-bronze/25 bg-white')
+                      ? 'border-brand bg-brand text-choco'
+                      : 'border-border-soft bg-white')
                   }
                 >
                   <AnimatePresence>
@@ -157,7 +157,7 @@ export function OnboardingChecklist({ storageKey }: { storageKey: string }) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10 }}
             transition={{ type: 'spring', stiffness: 200, damping: 18 }}
-            className="mt-4 flex items-center gap-3 rounded-xl border border-gnd-amber/25 bg-gradient-to-r from-gnd-amber/10 to-gnd-cream/40 px-4 py-3"
+            className="mt-4 flex items-center gap-3 rounded-xl border border-brand/25 bg-brand-soft px-4 py-3"
           >
             <PartyPopper className="h-5 w-5 shrink-0 text-brand-dark" aria-hidden />
             <p className="text-sm font-medium text-ink-warm">
