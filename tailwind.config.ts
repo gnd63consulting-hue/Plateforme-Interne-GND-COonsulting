@@ -178,6 +178,10 @@ const config: Config = {
         'gradient-brand': 'linear-gradient(135deg, #F39253 0%, #E07E3C 100%)',
         'gradient-brand-soft': 'linear-gradient(160deg, #FBE6D5 0%, #FDF2E9 100%)',
         'gradient-cream': 'linear-gradient(180deg, #FFFFFF 0%, #FBF7F1 100%)',
+        /* Sprint 10 — fond crème chaud de l'app (réf Drive : panneau blanc
+           flottant sur teinte). Subtil dégradé crème → crème profond. */
+        'gradient-cream-app':
+          'radial-gradient(120% 120% at 50% 0%, #FDF6EE 0%, #FBF1E6 55%, #F7EFE4 100%)',
       },
       animation: {
         'fade-in': 'fadeIn 600ms ease-out forwards',
