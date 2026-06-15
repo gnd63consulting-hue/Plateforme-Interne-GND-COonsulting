@@ -340,12 +340,17 @@ const KanbanCard = memo(function KanbanCard({
     !!p.classification && /chaud|hot|🔥|prioritaire/i.test(p.classification);
 
   return (
-    <li className="list-none">
-      <motion.div
-        layout={!reduceMotion}
-        initial={reduceMotion ? false : { opacity: 0, y: 6 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.25, ease: 'easeOut' }}
+    <motion.li
+      className="list-none"
+      layout={!reduceMotion}
+      initial={reduceMotion ? false : { opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.25, ease: 'easeOut' }}
+    >
+      {/* Carte draggable : <div> HTML natif requis pour le DnD HTML5
+          (onDragStart/onDragEnd natifs). L'animation d'entrée + layout sont
+          portées par le <motion.li> parent, qui n'a AUCUN handler onDrag*. */}
+      <div
         draggable
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
@@ -499,7 +504,7 @@ const KanbanCard = memo(function KanbanCard({
             )}
           </div>
         </div>
-      </motion.div>
-    </li>
+      </div>
+    </motion.li>
   );
 });
