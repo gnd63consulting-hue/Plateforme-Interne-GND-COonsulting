@@ -4,18 +4,20 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { setCommissionRate, assignFreshProspects } from './actions';
 
-const CREAM = '#FDF6EE';
-const CREAM_SOFT = 'rgba(253,246,238,0.6)';
-const CREAM_FAINT = 'rgba(253,246,238,0.4)';
-const AMBER = '#E8853D';
-const GREEN = '#7FC9A3';
-const RED = '#F0A088';
-const CARD_BG = 'rgba(253,246,238,0.04)';
-const PANEL = 'rgba(0,0,0,0.18)';
-const BORDER = '1px solid rgba(232,133,61,0.14)';
-const MONO = 'var(--font-geist-mono), ui-monospace, monospace';
-const SANS = 'var(--font-geist-sans), system-ui, sans-serif';
-const SERIF = 'var(--font-fraunces), Georgia, serif';
+// Design System crème/orange — tokens locaux (suite admin claire).
+const INK = '#2A2320';           // texte corps (ex CREAM)
+const INK_SOFT = '#7B665C';      // texte secondaire (ex CREAM_SOFT)
+const INK_FAINT = '#9B8A7E';     // texte tertiaire (ex CREAM_FAINT)
+const CHOCO = '#532418';         // titres serif
+const AMBER = '#B5601C';         // accent lisible sur clair (ex AMBER)
+const GREEN = '#4F7A38';         // vert lisible sur clair (ex GREEN)
+const RED = '#B5421F';           // rouge lisible sur clair (ex RED)
+const CARD_BG = '#FFFFFF';       // cartes (ex CARD_BG)
+const PANEL = '#FBF7F2';         // panneau interne (ex PANEL)
+const BORDER = '1px solid #E2D5C3';
+const MONO = 'var(--font-inter), ui-sans-serif, system-ui, sans-serif';
+const SANS = 'var(--font-inter), system-ui, sans-serif';
+const SERIF = 'var(--font-marcellus), Georgia, serif';
 
 export type Member = {
   id: string;
@@ -41,7 +43,7 @@ const labelStyle: React.CSSProperties = {
   fontWeight: 600,
   textTransform: 'uppercase',
   letterSpacing: '0.14em',
-  color: CREAM_FAINT,
+  color: INK_FAINT,
   marginBottom: 8,
 };
 
@@ -93,7 +95,7 @@ export function MemberManager({ member }: { member: Member }) {
   }
 
   return (
-    <div style={{ background: CARD_BG, border: BORDER, borderRadius: 16, padding: 18 }}>
+    <div style={{ background: CARD_BG, border: BORDER, borderRadius: 16, padding: 18, boxShadow: '0 1px 3px rgba(83,36,24,0.06)' }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
         <div
@@ -102,8 +104,8 @@ export function MemberManager({ member }: { member: Member }) {
             height: 40,
             borderRadius: 999,
             flexShrink: 0,
-            background: 'linear-gradient(135deg, #E8853D, #D4732A)',
-            color: '#2A1410',
+            background: 'linear-gradient(135deg, #F39253, #D97A3D)',
+            color: '#FFFFFF',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -116,7 +118,7 @@ export function MemberManager({ member }: { member: Member }) {
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-            <span style={{ fontFamily: SANS, fontSize: 15, fontWeight: 600, color: CREAM }}>{member.name}</span>
+            <span style={{ fontFamily: SANS, fontSize: 15, fontWeight: 600, color: INK }}>{member.name}</span>
             <span
               style={{
                 fontFamily: MONO,
@@ -124,9 +126,9 @@ export function MemberManager({ member }: { member: Member }) {
                 fontWeight: 600,
                 textTransform: 'uppercase',
                 letterSpacing: '0.12em',
-                color: isFreelance ? AMBER : 'rgba(160,150,230,0.9)',
-                background: isFreelance ? 'rgba(232,133,61,0.12)' : 'rgba(123,112,196,0.15)',
-                border: `1px solid ${isFreelance ? 'rgba(232,133,61,0.3)' : 'rgba(123,112,196,0.35)'}`,
+                color: isFreelance ? AMBER : '#5D52A8',
+                background: isFreelance ? 'rgba(243,146,83,0.12)' : 'rgba(123,112,196,0.15)',
+                border: `1px solid ${isFreelance ? 'rgba(243,146,83,0.32)' : 'rgba(123,112,196,0.35)'}`,
                 borderRadius: 999,
                 padding: '2px 8px',
               }}
@@ -134,25 +136,25 @@ export function MemberManager({ member }: { member: Member }) {
               {ROLE_LABELS[member.role] ?? member.role}
             </span>
           </div>
-          <div style={{ fontFamily: MONO, fontSize: 11, color: CREAM_SOFT, marginTop: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          <div style={{ fontFamily: MONO, fontSize: 11, color: INK_SOFT, marginTop: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {member.email}
           </div>
         </div>
         <div style={{ textAlign: 'right', flexShrink: 0 }}>
-          <div style={{ fontFamily: SERIF, fontSize: 24, fontWeight: 500, color: AMBER, lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
+          <div style={{ fontFamily: SERIF, fontSize: 24, fontWeight: 500, color: CHOCO, lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
             {member.prospectCount}
           </div>
-          <div style={{ fontFamily: MONO, fontSize: 8, color: CREAM_FAINT, textTransform: 'uppercase', letterSpacing: '0.12em', marginTop: 3 }}>
+          <div style={{ fontFamily: MONO, fontSize: 8, color: INK_FAINT, textTransform: 'uppercase', letterSpacing: '0.12em', marginTop: 3 }}>
             prospects
           </div>
         </div>
       </div>
 
       {/* Commission */}
-      <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid rgba(253,246,238,0.06)' }}>
+      <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #F0E7DA' }}>
         <label style={labelStyle}>Taux de commission</label>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div style={{ display: 'flex', alignItems: 'center', background: PANEL, border: '1px solid rgba(232,133,61,0.22)', borderRadius: 10, paddingRight: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', background: PANEL, border: '1px solid #E2D5C3', borderRadius: 10, paddingRight: 12 }}>
             <input
               type="text"
               inputMode="numeric"
@@ -163,7 +165,7 @@ export function MemberManager({ member }: { member: Member }) {
                 padding: '9px 12px',
                 background: 'transparent',
                 border: 'none',
-                color: CREAM,
+                color: INK,
                 fontSize: 15,
                 fontFamily: MONO,
                 fontWeight: 600,
@@ -171,7 +173,7 @@ export function MemberManager({ member }: { member: Member }) {
                 textAlign: 'right',
               }}
             />
-            <span style={{ color: CREAM_SOFT, fontSize: 14, fontWeight: 600 }}>%</span>
+            <span style={{ color: INK_SOFT, fontSize: 14, fontWeight: 600 }}>%</span>
           </div>
           <button
             type="button"
@@ -180,8 +182,8 @@ export function MemberManager({ member }: { member: Member }) {
             style={{
               padding: '9px 18px',
               borderRadius: 999,
-              border: '1px solid rgba(232,133,61,0.3)',
-              background: 'rgba(232,133,61,0.12)',
+              border: '1px solid rgba(243,146,83,0.32)',
+              background: 'rgba(243,146,83,0.12)',
               color: AMBER,
               fontSize: 13,
               fontWeight: 600,
@@ -210,14 +212,15 @@ export function MemberManager({ member }: { member: Member }) {
                   padding: '10px 18px',
                   borderRadius: 999,
                   border: 'none',
-                  background: busy === n ? 'rgba(232,133,61,0.4)' : 'linear-gradient(135deg, #E8853D, #D4732A)',
-                  color: '#2A1410',
+                  background: busy === n ? 'rgba(243,146,83,0.45)' : 'linear-gradient(135deg, #F39253, #D97A3D)',
+                  color: '#FFFFFF',
                   fontSize: 14,
                   fontWeight: 700,
                   fontFamily: SANS,
                   cursor: busy !== false ? 'wait' : 'pointer',
                   opacity: busy !== false && busy !== n ? 0.5 : 1,
                   minWidth: 64,
+                  boxShadow: busy === n ? 'none' : '0 4px 12px rgba(243,146,83,0.25)',
                 }}
               >
                 {busy === n ? '…' : `+ ${n}`}
@@ -226,7 +229,7 @@ export function MemberManager({ member }: { member: Member }) {
           </div>
         </div>
       ) : (
-        <p style={{ marginTop: 14, marginBottom: 0, fontSize: 12, color: CREAM_FAINT, fontStyle: 'italic' }}>
+        <p style={{ marginTop: 14, marginBottom: 0, fontSize: 12, color: INK_FAINT, fontStyle: 'italic' }}>
           Admin — pas d&apos;assignation de prospects.
         </p>
       )}
