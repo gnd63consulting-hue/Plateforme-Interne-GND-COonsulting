@@ -21,7 +21,7 @@ import {
   iconForActivityKind,
   labelForActivityKind,
 } from '@/lib/activities';
-import { BONUS_TIERS, type MonTableauData } from './page';
+import { BONUS_TIERS, type MonTableauData } from './types';
 
 /* ---------- helpers ---------- */
 

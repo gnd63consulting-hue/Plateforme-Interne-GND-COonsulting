@@ -10,6 +10,11 @@ import {
   type Activity,
 } from '@/lib/activities';
 import { sumCaMidpointGndPriceEur } from '@/lib/ca-utils';
+import {
+  type MonTableauData,
+  type RecentActivityEntry,
+  type StatusBreakdownEntry,
+} from './types';
 import MonTableauClient from './MonTableauClient';
 
 export const dynamic = 'force-dynamic';
@@ -29,6 +34,12 @@ export const dynamic = 'force-dynamic';
  *
  * Le prisme est TOUJOURS « prix service GND » (sumCaMidpointGndPriceEur),
  * jamais le CA entreprise du prospect — cf. avertissements de ca-utils.ts.
+ *
+ * NB : les types partagés (MonTableauData, StatusBreakdownEntry,
+ * RecentActivityEntry) et la constante BONUS_TIERS vivent désormais dans
+ * ./types.ts (module pur), pour que MonTableauClient ("use client") puisse les
+ * réutiliser sans tirer ce server component — et donc supabase-server
+ * (next/headers) — dans le bundle client.
  */
 
 /** Statuts encore « en jeu » pour le CA potentiel (pipeline en cours).
@@ -50,53 +61,6 @@ const CLOSED_STATUSES = new Set([
   'ne_plus_demarcher',
   'processus_termine',
 ]);
-
-/** Paliers bonus officiels (identiques à l'onboarding commercial). */
-export const BONUS_TIERS = [
-  { contrats: 20, bonus: 250 },
-  { contrats: 25, bonus: 500 },
-  { contrats: 30, bonus: 750 },
-] as const;
-
-export type StatusBreakdownEntry = {
-  status: string;
-  label: string;
-  tone: string;
-  count: number;
-  /** Valeur GND (prix service) cumulée pour ce statut, en €. */
-  valeur: number;
-};
-
-export type RecentActivityEntry = {
-  id: string;
-  kind: string;
-  body: string | null;
-  occurred_at: string;
-  company: string | null;
-};
-
-export type MonTableauData = {
-  prenom: string;
-  commissionRate: number | null; // décimal (0.10 = 10%)
-  commissionPct: number | null; // entier %
-  // Pipeline
-  prospectsTotal: number; // tous prospects scopés
-  pipelineActifCount: number; // prospects encore en jeu
-  statusBreakdown: StatusBreakdownEntry[];
-  // CA
-  caPotentiel: number; // € — pipeline en cours (prix service GND)
-  caRealise: number; // € — signatures (prix service GND)
-  // Commission
-  commissionRealisee: number; // €
-  commissionPotentielle: number; // €
-  // Signatures / paliers
-  signatures: number; // nb prospects 'gagne'
-  // Relances
-  relancesEnRetard: number;
-  relancesAujourdhui: number;
-  // Activité
-  activites: RecentActivityEntry[];
-};
 
 export default async function MonTableauPage() {
   const supabase = await createClient();
