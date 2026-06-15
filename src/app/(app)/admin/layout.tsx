@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase-server';
 import AdminSidebar from '@/components/gnd/AdminSidebar';
-import { CONSOLE_ROLES, roleLabel } from '@/lib/permissions';
+import { effectivePerms, hasConsoleAccess, roleLabel } from '@/lib/permissions';
 
 export const dynamic = 'force-dynamic';
 
@@ -37,11 +37,15 @@ export default async function AdminLayout({
 
   const { data: profile } = await supabase
     .from('users')
-    .select('id, email, full_name, role')
+    .select('id, email, full_name, role, permissions')
     .eq('id', user.id)
     .maybeSingle();
 
-  if (!profile || !CONSOLE_ROLES.has(profile.role)) {
+  if (!profile) {
+    redirect('/dashboard');
+  }
+  const perms = effectivePerms(profile.role, profile.permissions);
+  if (!hasConsoleAccess(perms)) {
     redirect('/dashboard');
   }
 
@@ -65,6 +69,7 @@ export default async function AdminLayout({
         userEmail={profile.email}
         userRole={userRole}
         roleKey={profile.role}
+        perms={perms}
       />
       <main
         data-lenis-prevent

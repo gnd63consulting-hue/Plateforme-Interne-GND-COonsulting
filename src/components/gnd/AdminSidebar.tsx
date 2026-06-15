@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { can, type Capability } from '@/lib/permissions';
+import { allows, FULL_ADMIN_ROLES, type PermMap, type Section, type Level } from '@/lib/permissions';
 import {
   Gauge,
   Target,
@@ -22,7 +22,9 @@ type NavItem = {
   icon: typeof Gauge;
   label: string;
   href: string;
-  cap?: Capability;
+  section?: Section;
+  min?: Level;
+  adminOnly?: boolean;
 };
 
 type NavSection = {
@@ -43,13 +45,13 @@ const SECTIONS: NavSection[] = [
   {
     title: 'ADMIN',
     items: [
-      { id: 'vue-globale', icon: Shield, label: 'Vue globale', href: '/admin', cap: 'finance.view' },
-      { id: 'relances', icon: CalendarClock, label: 'Relances', href: '/admin/relances', cap: 'team.view' },
-      { id: 'suivi', icon: ClipboardList, label: 'Suivi équipe', href: '/admin/suivi-equipe', cap: 'team.view' },
-      { id: 'commissions', icon: BadgeEuro, label: 'Commissions', href: '/admin/commissions', cap: 'finance.view' },
-      { id: 'doublons', icon: CopyCheck, label: 'Doublons', href: '/admin/doublons', cap: 'members.manage' },
-      { id: 'equipe', icon: Users, label: 'Équipe', href: '/admin/invitations', cap: 'members.manage' },
-      { id: 'paliers', icon: Rocket, label: 'Paliers bonus', href: '/admin', cap: 'finance.view' },
+      { id: 'vue-globale', icon: Shield, label: 'Vue globale', href: '/admin', adminOnly: true },
+      { id: 'relances', icon: CalendarClock, label: 'Relances', href: '/admin/relances', section: 'relances', min: 'view' },
+      { id: 'suivi', icon: ClipboardList, label: 'Suivi équipe', href: '/admin/suivi-equipe', section: 'suivi', min: 'view' },
+      { id: 'commissions', icon: BadgeEuro, label: 'Commissions', href: '/admin/commissions', adminOnly: true },
+      { id: 'doublons', icon: CopyCheck, label: 'Doublons', href: '/admin/doublons', adminOnly: true },
+      { id: 'equipe', icon: Users, label: 'Équipe', href: '/admin/invitations', adminOnly: true },
+      { id: 'paliers', icon: Rocket, label: 'Paliers bonus', href: '/admin', adminOnly: true },
     ],
   },
 ];
@@ -71,11 +73,13 @@ export default function AdminSidebar({
   userEmail,
   userRole,
   roleKey,
+  perms,
 }: {
   userName: string;
   userEmail: string;
   userRole: string;
   roleKey: string;
+  perms: PermMap;
 }) {
   const pathname = usePathname();
 
@@ -182,7 +186,11 @@ export default function AdminSidebar({
               {section.title}
             </div>
             {section.items
-              .filter((item) => !item.cap || can(roleKey, item.cap))
+              .filter((item) => {
+                if (item.adminOnly) return FULL_ADMIN_ROLES.has(roleKey);
+                if (item.section) return allows(perms, item.section, item.min ?? 'view');
+                return true;
+              })
               .map((item) => {
               const Icon = item.icon;
               const isActive =
