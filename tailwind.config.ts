@@ -11,6 +11,15 @@ import typography from '@tailwindcss/typography';
  *   layer (login historique). À conserver comme palette neutre.
  * - **`gnd-warm-*` (NEW v2)** : palette chaude GND officielle (cream / bronze /
  *   amber) alignée sur les PDFs commerciaux et la nouvelle identité plateforme.
+ *
+ * --- Sprint 10 (juin 2026) : couche « Brand » officielle -------------------
+ * On ajoute une couche SÉMANTIQUE alignée sur la PALETTE OFFICIELLE VERROUILLÉE
+ * (9 juin 2026, ancrée sur le logo) : orange `#F39253`, chocolat `#532418`,
+ * crème, beige `#E2D5C3`, charbon chaud. Ces tokens (`brand`, `brand-dark`,
+ * `cream`, `surface-soft`, `border-soft`, `ink-warm`, `muted-warm`, `choco`)
+ * pilotent le NOUVEAU shell SaaS (sidebar + topbar) et la page « Mon tableau ».
+ * AUCUN token existant n'est retiré (les anciens `gnd-*` restent utilisés
+ * ailleurs).
  */
 const config: Config = {
   content: [
@@ -96,6 +105,31 @@ const config: Config = {
         'gnd-ink': '#1A0F0E',
         'gnd-clay': '#A0735C',
         'gnd-sand': '#EFE2D2',
+
+        /* === Sprint 10 — Brand layer (PALETTE OFFICIELLE VERROUILLÉE) ======
+           Source de vérité couleurs ancrée logo. Orange #F39253 = primaire
+           unique ; chocolat #532418 = touches/titres ; crème + beige neutres.
+           Tokens sémantiques pilotant le shell SaaS + « Mon tableau ». */
+        brand: {
+          DEFAULT: '#F39253', // orange officiel (point du logo)
+          dark: '#E07E3C', // hover / pressed
+          soft: '#FBE6D5', // surface teintée douce (états actifs sidebar)
+          pale: '#FDF2E9', // halo très clair
+          ring: 'rgba(243, 146, 83, 0.35)', // focus ring
+        },
+        'brand-dark': '#E07E3C',
+        choco: {
+          DEFAULT: '#532418', // chocolat monogramme (titres accentués)
+          soft: '#7D3E2C', // marron — détails
+        },
+        cream: {
+          DEFAULT: '#FBF7F1', // fond crème app
+          deep: '#F7EFE4', // crème plus marqué (rails)
+        },
+        'surface-soft': '#FFFFFF', // cartes blanches
+        'border-soft': '#E2D5C3', // beige bordure officielle
+        'ink-warm': '#2A2320', // texte charbon chaud (corps/titres)
+        'muted-warm': '#8A7E73', // texte secondaire gris chaud
       },
       fontFamily: {
         headline: ['Epilogue', 'sans-serif'],
@@ -104,6 +138,9 @@ const config: Config = {
         sans: ['var(--font-geist-sans)', 'Inter', 'system-ui', 'sans-serif'],
         mono: ['var(--font-geist-mono)', 'ui-monospace', 'monospace'],
         display: ['var(--font-fraunces)', 'Georgia', 'serif'],
+        /* Sprint 10 — typo de marque officielle */
+        marcellus: ['var(--font-marcellus)', 'Marcellus', 'Georgia', 'serif'],
+        inter: ['var(--font-inter)', 'Inter', 'system-ui', 'sans-serif'],
       },
       fontSize: {
         'display-xl': ['clamp(3rem, 6vw, 5rem)', { lineHeight: '1', letterSpacing: '-0.03em' }],
@@ -116,6 +153,8 @@ const config: Config = {
         xl: '0.75rem',
         '2xl': '1.5rem',
         '3xl': '2rem',
+        /* Sprint 10 — rail/pill radius for the SaaS shell */
+        '4xl': '2.5rem',
         full: '9999px',
       },
       boxShadow: {
@@ -125,11 +164,20 @@ const config: Config = {
         'warm-xl': '0 4px 8px rgba(61, 31, 30, 0.04), 0 40px 80px rgba(61, 31, 30, 0.14)',
         'glow-amber': '0 0 0 1px rgba(232, 133, 61, 0.10), 0 8px 32px rgba(232, 133, 61, 0.18)',
         'inset-warm': 'inset 0 1px 0 rgba(255, 255, 255, 0.6)',
+        /* Sprint 10 — soft brand shadows for cards/shell (douces, premium) */
+        soft: '0 1px 2px rgba(83, 36, 24, 0.04), 0 6px 20px rgba(83, 36, 24, 0.05)',
+        'soft-md': '0 2px 6px rgba(83, 36, 24, 0.05), 0 14px 36px rgba(83, 36, 24, 0.07)',
+        'soft-lg': '0 4px 10px rgba(83, 36, 24, 0.05), 0 28px 60px rgba(83, 36, 24, 0.10)',
+        'brand-glow': '0 8px 24px rgba(243, 146, 83, 0.28)',
       },
       backgroundImage: {
         'gradient-warm': 'linear-gradient(135deg, #FDF6EE 0%, #F5EBD9 100%)',
         'gradient-amber': 'linear-gradient(135deg, #E8853D 0%, #D4732A 100%)',
         'gradient-bronze': 'linear-gradient(135deg, #3D1F1E 0%, #1A0F0E 100%)',
+        /* Sprint 10 — on-brand gradients (orange + crème, jamais violet/vert) */
+        'gradient-brand': 'linear-gradient(135deg, #F39253 0%, #E07E3C 100%)',
+        'gradient-brand-soft': 'linear-gradient(160deg, #FBE6D5 0%, #FDF2E9 100%)',
+        'gradient-cream': 'linear-gradient(180deg, #FFFFFF 0%, #FBF7F1 100%)',
       },
       animation: {
         'fade-in': 'fadeIn 600ms ease-out forwards',
