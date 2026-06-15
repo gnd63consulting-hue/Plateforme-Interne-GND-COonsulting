@@ -304,12 +304,14 @@ export default function ProspectDetailClient({
       const updated = data as Prospect;
       setProspect(updated);
       setStatus(updated.status);
-      await insertActivity('status_change', {
+      const traced = await insertActivity('status_change', {
         metadata: { from: previous, to: next },
       });
       if (updated.notion_page_id) pushStatusToNotion(updated.id);
       announce(
-        `Statut mis à jour : ${labelForStatus(previous)} → ${labelForStatus(next)}.`
+        traced
+          ? `Statut mis à jour : ${labelForStatus(previous)} → ${labelForStatus(next)}.`
+          : `Statut mis à jour : ${labelForStatus(previous)} → ${labelForStatus(next)} — ⚠ historique non mis à jour.`
       );
       // Passage en « gagné » → capture du montant signé + commission réelle.
       if (next === 'gagne') setWinDealOpen(true);
@@ -321,21 +323,33 @@ export default function ProspectDetailClient({
   const handleConfirmDeal = useCallback(
     async (amountHt: number): Promise<boolean> => {
       setErrorMsg('');
-      // Optimistic local sur deal_amount.
+      // Optimistic local sur deal_amount — mémorise l'ancienne valeur pour
+      // pouvoir rollback si la commission n'est pas enregistrée côté serveur.
+      const previousDeal = prospect.deal_amount;
       setProspect((p) => ({ ...p, deal_amount: amountHt }));
       const res = await recordCommission(prospect.id, amountHt);
       if (res.error) {
+        // Rollback de l'optimistic : le montant n'a PAS été persisté.
+        setProspect((p) => ({ ...p, deal_amount: previousDeal }));
         setErrorMsg(res.error);
         return false;
       }
-      await insertActivity('note', {
+      // La trace timeline est attendue : si elle échoue, on avertit sans
+      // bloquer (le montant/commission, eux, sont bien enregistrés).
+      const ok = await insertActivity('note', {
         body: `Contrat signé : ${formatEurExact(amountHt)} HT.`,
       });
-      announce('Montant signé enregistré et commission générée.');
+      if (ok) {
+        announce('Montant signé enregistré et commission générée.');
+      } else {
+        announce(
+          'Montant signé et commission enregistrés — ⚠ historique non mis à jour.'
+        );
+      }
       setWinDealOpen(false);
       return true;
     },
-    [prospect.id, insertActivity]
+    [prospect.id, prospect.deal_amount, insertActivity]
   );
 
   /* ---- Édition rapide des notes (update + log note si modifié) -------- */
@@ -355,8 +369,17 @@ export default function ProspectDetailClient({
         return false;
       }
       setProspect(data as Prospect);
+      // Historise la note dans la timeline (datée, retrouvable même si
+      // prospects.notes est écrasé plus tard). Trace attendue → on avertit
+      // si elle échoue, sans bloquer l'enregistrement de la note.
       if ((nextNotes ?? '') !== previous && nextNotes) {
-        await insertActivity('note', { body: nextNotes });
+        const traced = await insertActivity('note', { body: nextNotes });
+        announce(
+          traced
+            ? 'Notes enregistrées.'
+            : 'Notes enregistrées — ⚠ historique non mis à jour.'
+        );
+        return true;
       }
       announce('Notes enregistrées.');
       return true;
