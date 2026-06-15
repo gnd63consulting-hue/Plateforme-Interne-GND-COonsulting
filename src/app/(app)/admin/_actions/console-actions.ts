@@ -3,15 +3,15 @@
 import { createClient } from '@/lib/supabase-server';
 import { createAdminClient } from '@/lib/supabase-admin';
 import { revalidatePath } from 'next/cache';
-import { CONSOLE_ROLES, can } from '@/lib/permissions';
+import { effectivePerms, allows } from '@/lib/permissions';
 
 /**
- * Actions "console" partagees admins + assistant (RBAC team.edit).
+ * Actions "console" partagees admins + assistant (RBAC section pipeline edit).
  *
  * consoleUpdateProspect : met a jour le statut et/ou la date de relance d'un
- * prospect de l'equipe, et loggue une activite. Garde CONSOLE_ROLES + capacite
- * team.edit. Service-role (l'assistant n'a pas la RLS owner ; la garde applicative
- * fait foi). Aucune donnee financiere touchee.
+ * prospect de l'equipe, et loggue une activite. Garde : permission de section
+ * `pipeline` = edit. Service-role (l'assistant n'a pas la RLS owner ; la garde
+ * applicative fait foi). Aucune donnee financiere touchee.
  */
 export async function consoleUpdateProspect(input: {
   prospectId: string;
@@ -27,10 +27,10 @@ export async function consoleUpdateProspect(input: {
 
   const { data: me } = await supabase
     .from('users')
-    .select('role')
+    .select('role, permissions')
     .eq('id', user.id)
     .maybeSingle();
-  if (!me || !CONSOLE_ROLES.has(me.role) || !can(me.role, 'team.edit')) {
+  if (!me || !allows(effectivePerms(me.role, me.permissions), 'pipeline', 'edit')) {
     return { error: 'Permissions insuffisantes' };
   }
 

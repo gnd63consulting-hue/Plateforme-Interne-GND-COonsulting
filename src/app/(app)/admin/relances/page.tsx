@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase-server';
+import { effectivePerms, allows } from '@/lib/permissions';
 import { labelForStatus } from '@/lib/prospects';
 import ProspectQuickEdit from './ProspectQuickEdit';
 
@@ -18,8 +19,6 @@ const SERIF = 'var(--font-marcellus), Georgia, serif';
 const MONO = 'var(--font-inter), ui-monospace, monospace';
 const SANS = 'var(--font-inter), system-ui, sans-serif';
 
-// Console : admins + assistant (team.view). Le financier reste hors de ces pages.
-const CONSOLE_ROLES = new Set(['admin', 'admin_limited', 'assistant']);
 
 type Row = {
   id: string;
@@ -42,10 +41,12 @@ export default async function RelancesPage() {
 
   const { data: me } = await supabase
     .from('users')
-    .select('role')
+    .select('role, permissions')
     .eq('id', user.id)
     .maybeSingle();
-  if (!me || !CONSOLE_ROLES.has(me.role)) redirect('/dashboard');
+  if (!me) redirect('/dashboard');
+  const perms = effectivePerms(me.role, me.permissions);
+  if (!allows(perms, 'relances', 'view')) redirect('/dashboard');
 
   const [{ data: prospectsRaw }, { data: usersRaw }] = await Promise.all([
     supabase
