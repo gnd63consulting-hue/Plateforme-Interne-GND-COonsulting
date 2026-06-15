@@ -1,6 +1,5 @@
 import { redirect } from 'next/navigation';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
+import AppShell from '@/components/app-shell/AppShell';
 import { createClient } from '@/lib/supabase-server';
 
 /**
@@ -10,6 +9,12 @@ import { createClient } from '@/lib/supabase-server';
  */
 export const dynamic = 'force-dynamic';
 
+/**
+ * Sprint 10 — nouveau shell SaaS (sidebar claire + topbar fin + panneau crème).
+ * Remplace l'ancienne Navbar top + Footer. Toutes les routes (app) continuent
+ * de s'afficher dans ce shell. La logique d'auth/rôle est conservée à
+ * l'identique (`isAdmin = role === 'admin'`).
+ */
 export default async function AppLayout({
   children,
 }: {
@@ -26,7 +31,7 @@ export default async function AppLayout({
 
   const { data: profile } = await supabase
     .from('users')
-    .select('role, email, full_name')
+    .select('role, email, full_name, commission_rate')
     .eq('id', user.id)
     .maybeSingle();
 
@@ -35,19 +40,26 @@ export default async function AppLayout({
     (user.user_metadata?.avatar_url as string | undefined) ??
     (user.user_metadata?.picture as string | undefined) ??
     null;
+  const commissionRate =
+    profile?.commission_rate != null ? Number(profile.commission_rate) : null;
+  const commissionPct =
+    commissionRate != null ? Math.round(commissionRate * 100) : null;
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <Navbar
-        userEmail={profile?.email ?? user.email ?? null}
-        userName={profile?.full_name ?? (user.user_metadata?.full_name as string | undefined) ?? null}
-        avatarUrl={avatarUrl}
-        isAdmin={isAdmin}
-      />
-      <main className="flex-1 pt-24 pb-20">
-        <div className="mx-auto max-w-screen-2xl px-6 md:px-8">{children}</div>
-      </main>
-      <Footer />
-    </div>
+    <AppShell
+      isAdmin={isAdmin}
+      user={{
+        name:
+          profile?.full_name ??
+          (user.user_metadata?.full_name as string | undefined) ??
+          null,
+        email: profile?.email ?? user.email ?? null,
+        role: profile?.role ?? null,
+        commissionPct,
+        avatarUrl,
+      }}
+    >
+      {children}
+    </AppShell>
   );
 }

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { GeistSans } from 'geist/font/sans';
 import { GeistMono } from 'geist/font/mono';
-import { Fraunces } from 'next/font/google';
+import { Fraunces, Marcellus, Inter } from 'next/font/google';
 import SmoothScroll from '@/components/SmoothScroll';
 import './globals.css';
 
@@ -10,6 +10,25 @@ const fraunces = Fraunces({
   variable: '--font-fraunces',
   display: 'swap',
   axes: ['SOFT', 'WONK', 'opsz'],
+});
+
+/**
+ * Sprint 10 — typographie de marque officielle (PALETTE OFFICIELLE VERROUILLÉE).
+ * Titres = Marcellus, corps = Inter. Chargés via next/font/google (aucune
+ * dépendance npm), exposés en variables CSS et appliqués au shell SaaS +
+ * headings. Le legacy (Fraunces/Geist) reste branché pour les pages existantes.
+ */
+const marcellus = Marcellus({
+  subsets: ['latin'],
+  weight: '400',
+  variable: '--font-marcellus',
+  display: 'swap',
+});
+
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
@@ -26,7 +45,7 @@ export default function RootLayout({
   return (
     <html
       lang="fr"
-      className={`${GeistSans.variable} ${GeistMono.variable} ${fraunces.variable}`}
+      className={`${GeistSans.variable} ${GeistMono.variable} ${fraunces.variable} ${marcellus.variable} ${inter.variable}`}
     >
       <head>
         <link
