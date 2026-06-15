@@ -3,10 +3,11 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, Bell, LogOut, ChevronDown } from 'lucide-react';
+import { Menu, LogOut, ChevronDown } from 'lucide-react';
 import { createClient } from '@/lib/supabase-client';
 import { cn } from '@/lib/utils';
 import GlobalSearch from './GlobalSearch';
+import NotificationsBell from './NotificationsBell';
 
 export type TopbarUser = {
   name: string | null;
@@ -20,7 +21,7 @@ export type TopbarUser = {
  *
  * Search PILL arrondie (fond creme) = composant GlobalSearch FONCTIONNEL
  * (Sprint 12). A droite cloche + menu profil (avatar/nom/role). Fin lisere
- * bas beige. Burger (mobile) pour le drawer. La cloche reste decorative.
+ * bas beige. Burger (mobile) pour le drawer. La cloche est fonctionnelle (NotificationsBell).
  */
 export default function AppTopbar({
   user,
@@ -68,18 +69,8 @@ export default function AppTopbar({
 
       <div className="flex-1 sm:hidden" />
 
-      {/* Notifications (decorative) */}
-      <button
-        type="button"
-        aria-label="Notifications"
-        className="relative flex h-10 w-10 items-center justify-center rounded-full text-muted-warm transition-colors hover:bg-cream-deep hover:text-ink-warm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring"
-      >
-        <Bell className="h-[18px] w-[18px]" aria-hidden />
-        <span
-          aria-hidden
-          className="absolute right-2.5 top-2.5 h-1.5 w-1.5 rounded-full bg-brand ring-2 ring-surface-soft"
-        />
-      </button>
+      {/* Notifications (fonctionnelle) */}
+      <NotificationsBell />
 
       {/* Profil */}
       <div className="relative">
