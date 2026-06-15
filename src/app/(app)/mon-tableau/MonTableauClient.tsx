@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import {
   motion,
   useReducedMotion,
@@ -15,12 +14,20 @@ import {
   AlarmClock,
   Trophy,
   Activity as ActivityIcon,
+  CheckCircle2,
 } from 'lucide-react';
 import { formatEur } from '@/lib/ca-utils';
 import {
   iconForActivityKind,
   labelForActivityKind,
 } from '@/lib/activities';
+import {
+  Card,
+  StatCard,
+  GaugeSVG,
+  SectionHeader,
+  Button,
+} from '@/components/ui';
 import { BONUS_TIERS, type MonTableauData } from './types';
 
 /* ---------- helpers ---------- */
@@ -58,6 +65,24 @@ function bonusProgress(signatures: number) {
   return { next, lastReached, target, progressInSpan, allReached: next == null };
 }
 
+/**
+ * Mini-série illustrative DÉTERMINISTE dérivée d'une valeur réelle (aucune
+ * donnée supplémentaire n'est fetchée). Sert uniquement de micro-tendance
+ * décorative dans les StatCards — montée douce vers la valeur courante.
+ */
+function trendFrom(value: number, points = 7): number[] {
+  if (value <= 0) return Array(points).fill(0);
+  const out: number[] = [];
+  for (let i = 0; i < points; i++) {
+    const t = i / (points - 1);
+    // courbe lissée 0.45→1.0 + ondulation déterministe légère
+    const ease = 0.45 + 0.55 * t;
+    const wave = 1 + 0.08 * Math.sin(i * 1.3);
+    out.push(Math.max(0, value * ease * wave));
+  }
+  return out;
+}
+
 /* ---------- variants ---------- */
 const container: Variants = {
   hidden: {},
@@ -71,61 +96,6 @@ const item: Variants = {
     transition: { type: 'spring', stiffness: 130, damping: 18 },
   },
 };
-
-/* ============================================================ */
-/*  KPI card                                                     */
-/* ============================================================ */
-function KpiCard({
-  icon,
-  label,
-  value,
-  sub,
-  accent = false,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-  sub?: React.ReactNode;
-  accent?: boolean;
-}) {
-  return (
-    <motion.div
-      variants={item}
-      className={
-        'rounded-3xl border p-5 shadow-warm ' +
-        (accent
-          ? 'border-gnd-amber/30 bg-gnd-amber/[0.07]'
-          : 'border-gnd-bronze/8 bg-gnd-paper')
-      }
-    >
-      <div className="mb-3 flex items-center gap-2">
-        <span
-          aria-hidden
-          className={
-            'flex h-8 w-8 items-center justify-center rounded-xl ' +
-            (accent
-              ? 'bg-gnd-amber/15 text-gnd-amber'
-              : 'bg-gnd-bronze/8 text-gnd-bronze')
-          }
-        >
-          {icon}
-        </span>
-        <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-gnd-bronze-faded">
-          {label}
-        </p>
-      </div>
-      <p
-        className={
-          'font-display text-3xl font-medium tabular-nums leading-none ' +
-          (accent ? 'text-gnd-amber' : 'text-gnd-bronze')
-        }
-      >
-        {value}
-      </p>
-      {sub && <div className="mt-2 text-xs text-gnd-bronze-soft">{sub}</div>}
-    </motion.div>
-  );
-}
 
 /* ============================================================ */
 /*  Main                                                         */
@@ -158,367 +128,404 @@ export default function MonTableauClient({ data }: { data: MonTableauData }) {
 
   return (
     <motion.div
-      className="mx-auto max-w-5xl"
       variants={container}
       initial={reduce ? false : 'hidden'}
       animate="show"
+      className="space-y-7"
     >
       {/* ---- En-tête ---- */}
-      <motion.header variants={item} className="mb-8">
-        <div className="mb-2 flex items-center gap-2">
-          <span className="h-px w-8 bg-gnd-amber" />
-          <span className="font-mono text-[10px] font-medium uppercase tracking-[0.2em] text-gnd-amber">
-            Mon tableau de bord
-          </span>
-        </div>
-        <h1 className="font-display text-display-md font-medium leading-[0.95] tracking-tight text-gnd-bronze sm:text-4xl">
-          Bonjour <span className="italic text-gnd-amber">{prenom}</span>.
-        </h1>
-        <div className="mt-4 flex flex-wrap items-center gap-3">
-          {commissionPct != null ? (
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-gnd-amber/25 bg-gnd-amber/10 px-3.5 py-1.5 text-sm font-semibold text-gnd-amber tabular-nums">
-              Ta commission&nbsp;: {commissionPct}%
-            </span>
-          ) : (
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-gnd-bronze/15 bg-white px-3.5 py-1.5 text-sm font-medium text-gnd-bronze-soft">
-              Taux de commission non défini
-            </span>
-          )}
-          <Link
-            href="/prospects"
-            className="group inline-flex items-center gap-1.5 rounded-full border border-gnd-bronze/15 bg-white px-3.5 py-1.5 text-sm font-medium text-gnd-bronze transition-all hover:border-gnd-bronze/30 hover:shadow-warm"
-          >
-            {prospectsTotal} prospect{prospectsTotal > 1 ? 's' : ''}
-            <ArrowRight
-              className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5"
-              aria-hidden
-            />
-          </Link>
-        </div>
-      </motion.header>
+      <motion.div variants={item}>
+        <SectionHeader
+          as="h1"
+          eyebrow="Mon tableau de bord"
+          title={
+            <>
+              Bonjour <span className="italic text-brand-dark">{prenom}</span>.
+            </>
+          }
+          action={
+            <div className="flex flex-wrap items-center gap-2">
+              {commissionPct != null ? (
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-brand/25 bg-brand-soft px-3.5 py-1.5 text-sm font-semibold text-choco tabular-nums">
+                  Ta commission&nbsp;: {commissionPct}%
+                </span>
+              ) : (
+                <span className="inline-flex items-center rounded-full border border-border-soft bg-surface-soft px-3.5 py-1.5 text-sm font-medium text-muted-warm">
+                  Taux non défini
+                </span>
+              )}
+              <Button href="/prospects" variant="outline" size="sm">
+                {prospectsTotal} prospect{prospectsTotal > 1 ? 's' : ''}
+                <ArrowRight className="h-3.5 w-3.5" aria-hidden />
+              </Button>
+            </div>
+          }
+        />
+      </motion.div>
 
-      {/* ---- Cartes KPI ---- */}
-      <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <KpiCard
-          icon={<Users className="h-4 w-4" aria-hidden />}
-          label="Mes prospects"
-          value={String(prospectsTotal)}
-          sub={
-            <span>
-              {pipelineActifCount} actif{pipelineActifCount > 1 ? 's' : ''} en
-              pipeline
-            </span>
-          }
-        />
-        <KpiCard
-          icon={<TrendingUp className="h-4 w-4" aria-hidden />}
-          label="Mon pipeline"
-          value={formatEur(caPotentiel)}
-          sub={<span>CA potentiel (prix service GND)</span>}
-        />
-        <KpiCard
-          icon={<BadgeEuro className="h-4 w-4" aria-hidden />}
-          label="CA réalisé"
-          value={formatEur(caRealise)}
-          sub={
-            <span>
-              {signatures} contrat{signatures > 1 ? 's' : ''} signé
-              {signatures > 1 ? 's' : ''}
-            </span>
-          }
-        />
-        {/* Commission RÉELLE (source de vérité = montants signés × taux figé). */}
-        <KpiCard
-          icon={<Wallet className="h-4 w-4" aria-hidden />}
-          label="Ma commission réelle"
-          value={formatEur(commissionReelleTotale)}
-          accent
-          sub={
-            <span>
-              dont <strong>{formatEur(commissionReelleAPayer)}</strong> à payer ·{' '}
-              {formatEur(commissionReellePayee)} payée
-            </span>
-          }
-        />
+      {/* ---- Rangée de StatCards ---- */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <motion.div variants={item}>
+          <StatCard
+            icon={<Users className="h-5 w-5" aria-hidden />}
+            label="Mes prospects"
+            value={String(prospectsTotal)}
+            delta={`${pipelineActifCount} actif${pipelineActifCount > 1 ? 's' : ''}`}
+            deltaDirection={pipelineActifCount > 0 ? 'up' : 'flat'}
+            sparkline={trendFrom(prospectsTotal)}
+            sparklineVariant="bars"
+            sub={
+              <span>
+                {pipelineActifCount} en pipeline en cours
+              </span>
+            }
+          />
+        </motion.div>
+        <motion.div variants={item}>
+          <StatCard
+            icon={<TrendingUp className="h-5 w-5" aria-hidden />}
+            label="Pipeline CA potentiel"
+            value={formatEur(caPotentiel)}
+            delta={commissionPotentielle > 0 ? `≈ ${formatEur(commissionPotentielle)}` : undefined}
+            deltaDirection="up"
+            sparkline={trendFrom(caPotentiel)}
+            sub={<span>Prix service GND (estimé)</span>}
+          />
+        </motion.div>
+        <motion.div variants={item}>
+          <StatCard
+            icon={<BadgeEuro className="h-5 w-5" aria-hidden />}
+            label="CA réalisé"
+            value={formatEur(caRealise)}
+            delta={`${signatures} signé${signatures > 1 ? 's' : ''}`}
+            deltaDirection={signatures > 0 ? 'up' : 'flat'}
+            sparkline={trendFrom(caRealise)}
+            sub={
+              <span>
+                {signatures} contrat{signatures > 1 ? 's' : ''} gagné
+                {signatures > 1 ? 's' : ''}
+              </span>
+            }
+          />
+        </motion.div>
+        <motion.div variants={item}>
+          <StatCard
+            accent
+            icon={<Wallet className="h-5 w-5" aria-hidden />}
+            label="Ma commission réelle"
+            value={formatEur(commissionReelleTotale)}
+            delta={commissionReelleAPayer > 0 ? `${formatEur(commissionReelleAPayer)} à payer` : undefined}
+            deltaDirection={commissionReelleAPayer > 0 ? 'up' : 'flat'}
+            sparkline={trendFrom(commissionReelleTotale)}
+            sub={
+              <span>
+                {formatEur(commissionReellePayee)} déjà payée
+              </span>
+            }
+          />
+        </motion.div>
       </div>
 
-      {/* ---- Détail commission (réelle vs estimée) ---- */}
-      <motion.section
-        variants={item}
-        aria-label="Détail de ma commission"
-        className="mb-6 rounded-3xl border border-gnd-bronze/8 bg-gnd-paper p-6 shadow-warm"
-      >
-        <h2 className="mb-4 flex items-center gap-2 font-display text-lg font-medium text-gnd-bronze">
-          <Wallet className="h-4 w-4 text-gnd-amber" aria-hidden />
-          Ma commission
-        </h2>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <div className="rounded-2xl border border-gnd-amber/25 bg-gnd-amber/[0.06] p-4">
-            <p className="font-mono text-[9px] font-semibold uppercase tracking-[0.16em] text-gnd-amber-dim">
-              Réelle à payer
-            </p>
-            <p className="mt-1.5 font-display text-2xl font-medium tabular-nums text-gnd-amber">
-              {formatEur(commissionReelleAPayer)}
-            </p>
-            <p className="mt-1 text-[11px] text-gnd-bronze-soft">
-              {commissionsCount} commission{commissionsCount > 1 ? 's' : ''}{' '}
-              générée{commissionsCount > 1 ? 's' : ''} à la signature
-            </p>
-          </div>
-          <div className="rounded-2xl border border-gnd-bronze/8 bg-white p-4">
-            <p className="font-mono text-[9px] font-semibold uppercase tracking-[0.16em] text-gnd-bronze-faded">
-              Réelle déjà payée
-            </p>
-            <p className="mt-1.5 font-display text-2xl font-medium tabular-nums text-emerald-600">
-              {formatEur(commissionReellePayee)}
-            </p>
-            <p className="mt-1 text-[11px] text-gnd-bronze-soft">
-              Réglée par l&apos;administration
-            </p>
-          </div>
-          <div className="rounded-2xl border border-gnd-bronze/8 bg-white p-4">
-            <p className="font-mono text-[9px] font-semibold uppercase tracking-[0.16em] text-gnd-bronze-faded">
-              Estimée (pipeline)
-            </p>
-            <p className="mt-1.5 font-display text-2xl font-medium tabular-nums text-gnd-bronze">
-              {formatEur(commissionPotentielle)}
-            </p>
-            <p className="mt-1 text-[11px] text-gnd-bronze-soft">
-              Projection sur tes prospects en cours (indicative)
-            </p>
-          </div>
-        </div>
-        <p className="mt-3 text-xs text-gnd-bronze-soft">
-          La commission <strong>réelle</strong> est calculée sur le montant HT
-          réellement signé (figé au moment du gain). L&apos;estimée n&apos;est
-          qu&apos;une projection du pipeline encore ouvert.
-        </p>
-      </motion.section>
-
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {/* ---- Mon pipeline par statut ---- */}
-        <motion.section
-          variants={item}
-          aria-label="Mon pipeline par statut"
-          className="rounded-3xl border border-gnd-bronze/8 bg-gnd-paper p-6 shadow-warm"
-        >
-          <h2 className="mb-4 flex items-center gap-2 font-display text-lg font-medium text-gnd-bronze">
-            <TrendingUp className="h-4 w-4 text-gnd-amber" aria-hidden />
-            Mon pipeline
-          </h2>
-          {statusBreakdown.every((s) => s.count === 0) ? (
-            <p className="text-sm text-gnd-bronze-soft">
-              Aucun prospect dans le pipeline pour l&apos;instant. Dès que tu
-              avances une fiche, elle apparaît ici.
-            </p>
-          ) : (
-            <ul className="space-y-3">
-              {statusBreakdown.map((s) => (
-                <li key={s.status}>
-                  <div className="mb-1 flex items-center justify-between gap-3">
-                    <span
-                      className={
-                        'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ' +
-                        s.tone
-                      }
-                    >
-                      {s.label}
-                    </span>
-                    <span className="font-mono text-xs tabular-nums text-gnd-bronze-soft">
-                      {s.count} · {formatEur(s.valeur)}
-                    </span>
-                  </div>
-                  <div
-                    className="h-2 w-full overflow-hidden rounded-full bg-gnd-bronze/8"
-                    role="progressbar"
-                    aria-valuenow={s.valeur}
-                    aria-valuemin={0}
-                    aria-valuemax={maxFunnelValeur}
-                    aria-label={`${s.label} : ${formatEur(s.valeur)}`}
-                  >
-                    <motion.div
-                      className="h-full rounded-full bg-gnd-amber"
-                      initial={reduce ? false : { width: 0 }}
-                      animate={{
-                        width: `${pct(s.valeur, maxFunnelValeur)}%`,
-                      }}
-                      transition={{ type: 'spring', stiffness: 120, damping: 20 }}
-                    />
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </motion.section>
-
-        {/* ---- Mes relances ---- */}
-        <motion.section
-          variants={item}
-          aria-label="Mes relances"
-          className="rounded-3xl border border-gnd-bronze/8 bg-gnd-paper p-6 shadow-warm"
-        >
-          <h2 className="mb-4 flex items-center gap-2 font-display text-lg font-medium text-gnd-bronze">
-            <AlarmClock className="h-4 w-4 text-gnd-amber" aria-hidden />
-            Mes relances
-          </h2>
-          <div className="grid grid-cols-2 gap-3" aria-live="polite">
-            <div className="rounded-2xl border border-gnd-bronze/8 bg-white p-4">
-              <p className="font-mono text-[9px] font-semibold uppercase tracking-[0.16em] text-gnd-bronze-faded">
-                En retard
-              </p>
-              <p className="mt-1.5 font-display text-3xl font-medium tabular-nums text-rose-600">
-                {relancesEnRetard}
-              </p>
-            </div>
-            <div className="rounded-2xl border border-gnd-bronze/8 bg-white p-4">
-              <p className="font-mono text-[9px] font-semibold uppercase tracking-[0.16em] text-gnd-bronze-faded">
-                Aujourd&apos;hui
-              </p>
-              <p className="mt-1.5 font-display text-3xl font-medium tabular-nums text-gnd-amber">
-                {relancesAujourdhui}
-              </p>
-            </div>
-          </div>
-          {relancesTotal === 0 && (
-            <p className="mt-3 text-xs text-gnd-bronze-soft">
-              Rien à relancer dans l&apos;immédiat. 👌
-            </p>
-          )}
-          <div className="mt-4 flex flex-wrap gap-3">
-            <Link
-              href="/prospects/relances"
-              className="group inline-flex items-center gap-1.5 rounded-full bg-gnd-bronze px-4 py-2 text-sm font-semibold text-gnd-cream transition-all hover:bg-gnd-ink"
-            >
-              Voir mes relances
-              <ArrowRight
-                className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5"
-                aria-hidden
-              />
-            </Link>
-            <Link
-              href="/prospects/taches"
-              className="inline-flex items-center rounded-full border border-gnd-bronze/15 bg-white px-4 py-2 text-sm font-semibold text-gnd-bronze transition-all hover:border-gnd-bronze/30 hover:shadow-warm"
-            >
-              Mes tâches
-            </Link>
-          </div>
-        </motion.section>
-
-        {/* ---- Paliers bonus ---- */}
-        <motion.section
-          variants={item}
-          aria-label="Paliers bonus"
-          className="rounded-3xl border border-gnd-bronze/8 bg-gnd-paper p-6 shadow-warm"
-        >
-          <h2 className="mb-4 flex items-center gap-2 font-display text-lg font-medium text-gnd-bronze">
-            <Trophy className="h-4 w-4 text-gnd-amber" aria-hidden />
-            Paliers bonus
-          </h2>
-          <p className="mb-3 text-sm text-gnd-bronze">
-            <strong className="tabular-nums">{signatures}</strong> contrat
-            {signatures > 1 ? 's' : ''} signé{signatures > 1 ? 's' : ''}
-            {bonus.allReached ? (
-              <span className="text-emerald-600">
-                {' '}— tous les paliers atteints 🎉
-              </span>
-            ) : (
-              <span className="text-gnd-bronze-soft">
-                {' '}— prochain palier à{' '}
-                <strong>{bonus.target.contrats}</strong> ({bonus.target.bonus}€)
-              </span>
-            )}
-          </p>
-
-          <div
-            className="h-2.5 w-full overflow-hidden rounded-full bg-gnd-bronze/8"
-            role="progressbar"
-            aria-valuenow={signatures}
-            aria-valuemin={0}
-            aria-valuemax={bonus.target.contrats}
-            aria-label={`Progression vers le palier ${bonus.target.contrats} contrats`}
-          >
-            <motion.div
-              className="h-full rounded-full bg-gnd-amber"
-              initial={reduce ? false : { width: 0 }}
-              animate={{ width: `${bonus.progressInSpan}%` }}
-              transition={{ type: 'spring', stiffness: 120, damping: 20 }}
+      {/* ---- Jauge palier + détail commission ---- */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        {/* Jauge circulaire — progression palier bonus */}
+        <motion.div variants={item}>
+          <Card className="flex h-full flex-col items-center p-6 text-center">
+            <SectionHeader
+              icon={<Trophy className="h-4 w-4" aria-hidden />}
+              title="Prochain palier"
+              className="w-full"
             />
-          </div>
-
-          <div className="mt-4 flex flex-wrap gap-2">
-            {BONUS_TIERS.map((t) => {
-              const reached = signatures >= t.contrats;
-              const isNext = bonus.next?.contrats === t.contrats;
-              return (
-                <span
-                  key={t.contrats}
-                  className={
-                    'rounded-full px-3 py-1 text-xs font-medium transition-colors ' +
-                    (reached
-                      ? 'border border-emerald-300 bg-emerald-50 text-emerald-700'
-                      : isNext
-                        ? 'border border-gnd-amber/40 bg-gnd-amber/10 text-gnd-amber'
-                        : 'border border-gnd-bronze/12 bg-white text-gnd-bronze-soft')
-                  }
-                >
-                  {t.contrats} contrats → <strong>{t.bonus}€</strong>
-                  {reached && <span aria-hidden> ✓</span>}
+            <div className="my-5 flex flex-1 items-center justify-center">
+              <GaugeSVG
+                value={bonus.progressInSpan}
+                label={`Progression vers le palier ${bonus.target.contrats} contrats`}
+              >
+                <span className="font-marcellus text-3xl text-choco tabular-nums">
+                  {bonus.progressInSpan}%
                 </span>
-              );
-            })}
-          </div>
-        </motion.section>
-
-        {/* ---- Activité récente ---- */}
-        <motion.section
-          variants={item}
-          aria-label="Activité récente"
-          className="rounded-3xl border border-gnd-bronze/8 bg-gnd-paper p-6 shadow-warm"
-        >
-          <h2 className="mb-4 flex items-center gap-2 font-display text-lg font-medium text-gnd-bronze">
-            <ActivityIcon className="h-4 w-4 text-gnd-amber" aria-hidden />
-            Activité récente
-          </h2>
-          {activites.length === 0 ? (
-            <p className="text-sm text-gnd-bronze-soft">
-              Aucune activité enregistrée pour l&apos;instant. Tes appels,
-              emails et notes apparaîtront ici.
+                <span className="mt-1 text-[11px] font-medium text-muted-warm">
+                  {signatures}/{bonus.target.contrats} contrats
+                </span>
+              </GaugeSVG>
+            </div>
+            <p className="text-sm text-muted-warm">
+              {bonus.allReached ? (
+                <span className="font-medium text-emerald-700">
+                  Tous les paliers atteints 🎉
+                </span>
+              ) : (
+                <>
+                  Plus que{' '}
+                  <strong className="text-choco tabular-nums">
+                    {bonus.target.contrats - signatures}
+                  </strong>{' '}
+                  pour débloquer{' '}
+                  <strong className="text-brand-dark tabular-nums">
+                    {bonus.target.bonus}€
+                  </strong>
+                </>
+              )}
             </p>
-          ) : (
-            <ul className="space-y-3">
-              {activites.map((a) => (
-                <li key={a.id} className="flex items-start gap-3">
-                  <span
-                    aria-hidden
-                    className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gnd-bronze/8 text-sm"
-                  >
-                    {iconForActivityKind(a.kind)}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm text-gnd-bronze">
-                      <span className="font-medium">
-                        {labelForActivityKind(a.kind)}
+          </Card>
+        </motion.div>
+
+        {/* Détail commission (réelle vs estimée) */}
+        <motion.div variants={item} className="lg:col-span-2">
+          <Card className="h-full p-6">
+            <SectionHeader
+              icon={<Wallet className="h-4 w-4" aria-hidden />}
+              title="Ma commission"
+              subtitle="La commission réelle est figée au montant HT signé. L'estimée projette le pipeline encore ouvert."
+            />
+            <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
+              <div className="rounded-2xl border border-brand/25 bg-brand-soft p-4">
+                <p className="font-inter text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-dark">
+                  Réelle à payer
+                </p>
+                <p className="mt-1.5 font-marcellus text-2xl text-brand-dark tabular-nums">
+                  {formatEur(commissionReelleAPayer)}
+                </p>
+                <p className="mt-1 text-[11px] text-muted-warm">
+                  {commissionsCount} commission{commissionsCount > 1 ? 's' : ''}{' '}
+                  à la signature
+                </p>
+              </div>
+              <div className="rounded-2xl border border-border-soft/70 bg-cream p-4">
+                <p className="font-inter text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-warm">
+                  Déjà payée
+                </p>
+                <p className="mt-1.5 font-marcellus text-2xl text-emerald-700 tabular-nums">
+                  {formatEur(commissionReellePayee)}
+                </p>
+                <p className="mt-1 text-[11px] text-muted-warm">
+                  Réglée par l&apos;administration
+                </p>
+              </div>
+              <div className="rounded-2xl border border-border-soft/70 bg-cream p-4">
+                <p className="font-inter text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-warm">
+                  Estimée (pipeline)
+                </p>
+                <p className="mt-1.5 font-marcellus text-2xl text-choco tabular-nums">
+                  {formatEur(commissionPotentielle)}
+                </p>
+                <p className="mt-1 text-[11px] text-muted-warm">
+                  Projection indicative
+                </p>
+              </div>
+            </div>
+          </Card>
+        </motion.div>
+      </div>
+
+      {/* ---- Pipeline + relances ---- */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        {/* Mon pipeline par statut */}
+        <motion.div variants={item}>
+          <Card className="h-full p-6">
+            <SectionHeader
+              icon={<TrendingUp className="h-4 w-4" aria-hidden />}
+              title="Mon pipeline"
+            />
+            {statusBreakdown.every((s) => s.count === 0) ? (
+              <p className="mt-5 text-sm text-muted-warm">
+                Aucun prospect dans le pipeline pour l&apos;instant. Dès que tu
+                avances une fiche, elle apparaît ici.
+              </p>
+            ) : (
+              <ul className="mt-5 space-y-3.5">
+                {statusBreakdown.map((s) => (
+                  <li key={s.status}>
+                    <div className="mb-1.5 flex items-center justify-between gap-3">
+                      <span
+                        className={
+                          'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ' +
+                          s.tone
+                        }
+                      >
+                        {s.label}
                       </span>
-                      {a.company && (
-                        <span className="text-gnd-bronze-soft">
-                          {' '}· {a.company}
-                        </span>
-                      )}
-                    </p>
-                    {a.body && (
-                      <p className="truncate text-xs text-gnd-bronze-soft">
-                        {a.body}
-                      </p>
-                    )}
-                  </div>
-                  <span className="shrink-0 font-mono text-[10px] tabular-nums text-gnd-bronze-faded">
-                    {relativeDate(a.occurred_at)}
+                      <span className="font-inter text-xs tabular-nums text-muted-warm">
+                        {s.count} · {formatEur(s.valeur)}
+                      </span>
+                    </div>
+                    <div
+                      className="h-2 w-full overflow-hidden rounded-full bg-cream-deep"
+                      role="progressbar"
+                      aria-valuenow={s.valeur}
+                      aria-valuemin={0}
+                      aria-valuemax={maxFunnelValeur}
+                      aria-label={`${s.label} : ${formatEur(s.valeur)}`}
+                    >
+                      <motion.div
+                        className="h-full rounded-full bg-gradient-brand"
+                        initial={reduce ? false : { width: 0 }}
+                        animate={{ width: `${pct(s.valeur, maxFunnelValeur)}%` }}
+                        transition={{ type: 'spring', stiffness: 120, damping: 20 }}
+                      />
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Card>
+        </motion.div>
+
+        {/* Mes relances */}
+        <motion.div variants={item}>
+          <Card className="flex h-full flex-col p-6">
+            <SectionHeader
+              icon={<AlarmClock className="h-4 w-4" aria-hidden />}
+              title="Mes relances"
+            />
+            <div className="mt-5 grid grid-cols-2 gap-3" aria-live="polite">
+              <div className="rounded-2xl border border-border-soft/70 bg-cream p-4">
+                <p className="font-inter text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-warm">
+                  En retard
+                </p>
+                <p className="mt-1.5 font-marcellus text-3xl text-rose-700 tabular-nums">
+                  {relancesEnRetard}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-brand/25 bg-brand-soft p-4">
+                <p className="font-inter text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-dark">
+                  Aujourd&apos;hui
+                </p>
+                <p className="mt-1.5 font-marcellus text-3xl text-brand-dark tabular-nums">
+                  {relancesAujourdhui}
+                </p>
+              </div>
+            </div>
+            {relancesTotal === 0 && (
+              <p className="mt-3 inline-flex items-center gap-1.5 text-xs text-muted-warm">
+                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" aria-hidden />
+                Rien à relancer dans l&apos;immédiat.
+              </p>
+            )}
+            <div className="mt-auto flex flex-wrap gap-3 pt-5">
+              <Button href="/prospects/relances" variant="primary" size="sm">
+                Voir mes relances
+                <ArrowRight className="h-3.5 w-3.5" aria-hidden />
+              </Button>
+              <Button href="/prospects/taches" variant="outline" size="sm">
+                Mes tâches
+              </Button>
+            </div>
+          </Card>
+        </motion.div>
+      </div>
+
+      {/* ---- Paliers bonus (barre détaillée) + activité ---- */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        {/* Paliers bonus */}
+        <motion.div variants={item}>
+          <Card className="h-full p-6">
+            <SectionHeader
+              icon={<Trophy className="h-4 w-4" aria-hidden />}
+              title="Paliers bonus"
+            />
+            <p className="mt-5 mb-3 text-sm text-ink-warm">
+              <strong className="tabular-nums">{signatures}</strong> contrat
+              {signatures > 1 ? 's' : ''} signé{signatures > 1 ? 's' : ''}
+              {bonus.allReached ? (
+                <span className="text-emerald-700">
+                  {' '}— tous les paliers atteints 🎉
+                </span>
+              ) : (
+                <span className="text-muted-warm">
+                  {' '}— prochain à <strong>{bonus.target.contrats}</strong> (
+                  {bonus.target.bonus}€)
+                </span>
+              )}
+            </p>
+
+            <div
+              className="h-2.5 w-full overflow-hidden rounded-full bg-cream-deep"
+              role="progressbar"
+              aria-valuenow={signatures}
+              aria-valuemin={0}
+              aria-valuemax={bonus.target.contrats}
+              aria-label={`Progression vers le palier ${bonus.target.contrats} contrats`}
+            >
+              <motion.div
+                className="h-full rounded-full bg-gradient-brand"
+                initial={reduce ? false : { width: 0 }}
+                animate={{ width: `${bonus.progressInSpan}%` }}
+                transition={{ type: 'spring', stiffness: 120, damping: 20 }}
+              />
+            </div>
+
+            <div className="mt-4 flex flex-wrap gap-2">
+              {BONUS_TIERS.map((t) => {
+                const reached = signatures >= t.contrats;
+                const isNext = bonus.next?.contrats === t.contrats;
+                return (
+                  <span
+                    key={t.contrats}
+                    className={
+                      'rounded-full px-3 py-1 text-xs font-medium transition-colors ' +
+                      (reached
+                        ? 'border border-emerald-300 bg-emerald-50 text-emerald-700'
+                        : isNext
+                          ? 'border border-brand/40 bg-brand-soft text-choco'
+                          : 'border border-border-soft/70 bg-surface-soft text-muted-warm')
+                    }
+                  >
+                    {t.contrats} contrats → <strong>{t.bonus}€</strong>
+                    {reached && <span aria-hidden> ✓</span>}
                   </span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </motion.section>
+                );
+              })}
+            </div>
+          </Card>
+        </motion.div>
+
+        {/* Activité récente */}
+        <motion.div variants={item}>
+          <Card className="h-full p-6">
+            <SectionHeader
+              icon={<ActivityIcon className="h-4 w-4" aria-hidden />}
+              title="Activité récente"
+            />
+            {activites.length === 0 ? (
+              <p className="mt-5 text-sm text-muted-warm">
+                Aucune activité enregistrée pour l&apos;instant. Tes appels,
+                emails et notes apparaîtront ici.
+              </p>
+            ) : (
+              <ul className="mt-5 space-y-3">
+                {activites.map((a) => (
+                  <li key={a.id} className="flex items-start gap-3">
+                    <span
+                      aria-hidden
+                      className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-soft text-sm"
+                    >
+                      {iconForActivityKind(a.kind)}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm text-ink-warm">
+                        <span className="font-medium">
+                          {labelForActivityKind(a.kind)}
+                        </span>
+                        {a.company && (
+                          <span className="text-muted-warm"> · {a.company}</span>
+                        )}
+                      </p>
+                      {a.body && (
+                        <p className="truncate text-xs text-muted-warm">
+                          {a.body}
+                        </p>
+                      )}
+                    </div>
+                    <span className="shrink-0 font-inter text-[10px] tabular-nums text-muted-warm/80">
+                      {relativeDate(a.occurred_at)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Card>
+        </motion.div>
       </div>
     </motion.div>
   );
