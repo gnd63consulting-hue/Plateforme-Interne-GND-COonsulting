@@ -1,17 +1,18 @@
 'use client';
 
 /**
- * Section « Devis » de la fiche 360° (Sprint 8).
+ * Section « Devis » de la fiche 360° (Sprint 8, étendu Sprint 11 Stripe).
  *
  * - Liste des devis du prospect (numéro, statut, TTC, date).
  * - Éditeur de devis : lignes (désignation, qté, PU HT → total auto),
  *   taux TVA, totaux HT/TVA/TTC auto-recalculés, validité, notes, statut.
+ * - Stripe (Sprint 11) : par devis, génération d'une facture payable hostee
+ *   ou d'un lien de paiement (server actions), liens mémorisés + état « payé ».
  * - Persistance via le client Supabase ANON (RLS owner : owner_id=auth.uid()).
- *   upsert quote + remplacement des quote_lines.
- * - Lien vers le devis imprimable (/prospects/[id]/devis/[quoteId]).
  *
- * "use client" : n'importe QUE depuis `@/lib/finance` (module pur) et
- * `@/lib/supabase-client` — jamais supabase-server.
+ * "use client" : n'importe QUE depuis `@/lib/finance` (module pur),
+ * `@/lib/supabase-client` et les server actions `./stripe-actions` (refs
+ * serveur, pas de code serveur bundlé côté client) — jamais supabase-server.
  */
 
 import { useCallback, useMemo, useState } from 'react';
@@ -24,6 +25,9 @@ import {
   Loader2,
   Check,
   X,
+  CreditCard,
+  Link2,
+  ExternalLink,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase-client';
 import {
@@ -40,6 +44,7 @@ import {
   type QuoteLine,
   type QuoteWithLines,
 } from '@/lib/finance';
+import { createStripeInvoice, createStripePaymentLink } from './stripe-actions';
 
 /* ---------- helpers locaux ---------- */
 
@@ -75,6 +80,97 @@ function fmtDate(iso: string | null): string {
   } catch {
     return iso;
   }
+}
+
+/* ====================================================================== */
+/* Actions Stripe par devis (sous-rangee)                                  */
+/* ====================================================================== */
+
+function StripeRowActions({ quote }: { quote: Quote }) {
+  const [busy, setBusy] = useState<'invoice' | 'link' | null>(null);
+  const [err, setErr] = useState('');
+  const paid = quote.stripe_status === 'paid';
+
+  async function run(kind: 'invoice' | 'link') {
+    setErr('');
+    setBusy(kind);
+    try {
+      const res =
+        kind === 'invoice'
+          ? await createStripeInvoice(quote.id)
+          : await createStripePaymentLink(quote.id);
+      if (res.error) setErr(res.error);
+      else if (res.url) window.open(res.url, '_blank', 'noopener,noreferrer');
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : 'Erreur Stripe.');
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  return (
+    <div className="mt-1 flex w-full flex-wrap items-center gap-2 border-t border-gnd-bronze/8 pt-2">
+      <span className="font-mono text-[10px] font-semibold uppercase tracking-wide text-gnd-bronze-faded">
+        Stripe (test)
+      </span>
+      <button
+        type="button"
+        onClick={() => run('invoice')}
+        disabled={busy !== null}
+        className="inline-flex items-center gap-1.5 rounded-lg border border-gnd-bronze/10 bg-white px-3 py-1.5 text-xs font-semibold text-gnd-bronze transition-colors hover:bg-gnd-cream disabled:opacity-50"
+      >
+        {busy === 'invoice' ? (
+          <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
+        ) : (
+          <CreditCard className="h-3.5 w-3.5" aria-hidden />
+        )}
+        Facture payable
+      </button>
+      <button
+        type="button"
+        onClick={() => run('link')}
+        disabled={busy !== null}
+        className="inline-flex items-center gap-1.5 rounded-lg border border-gnd-bronze/10 bg-white px-3 py-1.5 text-xs font-semibold text-gnd-bronze transition-colors hover:bg-gnd-cream disabled:opacity-50"
+      >
+        {busy === 'link' ? (
+          <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
+        ) : (
+          <Link2 className="h-3.5 w-3.5" aria-hidden />
+        )}
+        Lien de paiement
+      </button>
+      {quote.stripe_invoice_url && (
+        <a
+          href={quote.stripe_invoice_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1 text-xs font-semibold text-gnd-amber-dim hover:underline"
+        >
+          <ExternalLink className="h-3.5 w-3.5" aria-hidden /> Facture
+        </a>
+      )}
+      {quote.stripe_payment_link_url && (
+        <a
+          href={quote.stripe_payment_link_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1 text-xs font-semibold text-gnd-amber-dim hover:underline"
+        >
+          <ExternalLink className="h-3.5 w-3.5" aria-hidden /> Lien
+        </a>
+      )}
+      {paid && (
+        <span className="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-700">
+          Payé via Stripe
+        </span>
+      )}
+      {err && (
+        <span role="alert" className="text-xs text-rose-600">
+          {err}
+        </span>
+      )}
+    </div>
+  );
 }
 
 /* ====================================================================== */
@@ -242,6 +338,7 @@ export default function QuotesPanel({
                   <Trash2 className="h-3.5 w-3.5" aria-hidden />
                 </button>
               </div>
+              <StripeRowActions quote={q} />
             </li>
           ))}
         </ul>

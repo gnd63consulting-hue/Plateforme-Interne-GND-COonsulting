@@ -11,6 +11,9 @@
  *   - quote_lines   : lignes (désignation, qté, PU HT → total ligne)
  *   - commissions   : commission RÉELLE par commercial (base × taux figé)
  *
+ * Sprint 11 : le devis porte en plus des références Stripe (facture hostee /
+ * lien de paiement) — cf. migration 0017_stripe.sql.
+ *
  * Le formatage € réexporte `formatEur` de ca-utils (lui aussi pur).
  */
 
@@ -51,6 +54,13 @@ export type Quote = {
   notes: string | null;
   owner_id: string;
   created_at: string;
+  // --- Stripe (Sprint 11, migration 0017) ---
+  stripe_invoice_id: string | null;
+  stripe_invoice_url: string | null;
+  stripe_payment_link_id: string | null;
+  stripe_payment_link_url: string | null;
+  stripe_status: string | null;
+  paid_at: string | null;
 };
 
 /** Devis + ses lignes (jointure applicative pour l'éditeur / l'impression). */
@@ -85,6 +95,12 @@ export const QUOTE_SELECT_COLUMNS = [
   'notes',
   'owner_id',
   'created_at',
+  'stripe_invoice_id',
+  'stripe_invoice_url',
+  'stripe_payment_link_id',
+  'stripe_payment_link_url',
+  'stripe_status',
+  'paid_at',
 ].join(', ');
 
 export const QUOTE_LINE_SELECT_COLUMNS = [
