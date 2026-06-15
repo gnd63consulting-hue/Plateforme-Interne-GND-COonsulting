@@ -1,6 +1,7 @@
 'use client';
 
 import { motion, useScroll, useTransform } from 'framer-motion';
+import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Activity,
@@ -9,6 +10,7 @@ import {
   Edit3,
   ExternalLink,
   Filter,
+  FolderOpen,
   LayoutGrid,
   List,
   MapPin,
@@ -920,6 +922,17 @@ export default function ProspectsClient({
                 </p>
               </div>
 
+              {/* Lien vers la fiche 360 complète */}
+              <div className="mt-5">
+                <Link
+                  href={`/prospects/${notesFor.id}`}
+                  className="inline-flex items-center gap-2 rounded-full border border-gnd-amber/30 bg-gnd-amber/10 px-4 py-2 text-sm font-semibold text-gnd-amber-dim transition-colors hover:bg-gnd-amber/20"
+                >
+                  <FolderOpen className="h-4 w-4" aria-hidden />
+                  Ouvrir la fiche complète
+                </Link>
+              </div>
+
               {/* Timeline d'activité */}
               <div className="mt-6 border-t border-gnd-bronze/8 pt-5">
                 <p className="mb-3 font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-gnd-amber-dim">
@@ -966,7 +979,13 @@ function ProspectRow({ prospect: p, index, onView, onEdit, onDelete, onNotes, on
         <Avatar text={p.company_name} />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <p className="truncate font-display text-base font-medium text-gnd-bronze">{p.company_name}</p>
+            <Link
+              href={`/prospects/${p.id}`}
+              className="truncate font-display text-base font-medium text-gnd-bronze underline-offset-4 transition-colors hover:text-gnd-amber-dim hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gnd-amber"
+              title="Ouvrir la fiche 360"
+            >
+              {p.company_name}
+            </Link>
             {p.notion_page_id && (
               <span className="inline-flex items-center gap-1 rounded-full bg-gnd-amber/15 px-2 py-0.5 font-mono text-[8px] font-semibold uppercase tracking-[0.18em] text-gnd-amber-dim">
                 <Sparkles className="h-2.5 w-2.5" aria-hidden />
@@ -1017,6 +1036,14 @@ function ProspectRow({ prospect: p, index, onView, onEdit, onDelete, onNotes, on
         )}
       </div>
       <div className="flex shrink-0 items-center gap-1">
+        <Link
+          href={`/prospects/${p.id}`}
+          className="inline-flex h-9 w-9 items-center justify-center rounded-full text-gnd-bronze-soft transition-colors hover:bg-gnd-amber/10 hover:text-gnd-amber-dim"
+          aria-label={`Ouvrir la fiche de ${p.company_name}`}
+          title="Ouvrir la fiche 360"
+        >
+          <FolderOpen className="h-4 w-4" aria-hidden />
+        </Link>
         {hasEnrichment && (
           <button onClick={onView} className="inline-flex h-9 w-9 items-center justify-center rounded-full text-gnd-amber-dim transition-colors hover:bg-gnd-amber/10 hover:text-gnd-amber" aria-label="Voir l'analyse complète" title="Voir l'analyse complète">
             <Sparkles className="h-4 w-4" aria-hidden />
