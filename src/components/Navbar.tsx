@@ -42,13 +42,22 @@ const LINKS: NavLink[] = [
   {
     href: '/prospects',
     label: 'Prospects',
-    // Actif sur la liste, jamais sur /prospects/relances (lien dédié).
-    match: (p) => p.startsWith('/prospects') && !p.startsWith('/prospects/relances'),
+    // Actif sur la liste, jamais sur /prospects/relances ni /prospects/taches
+    // (liens dédiés).
+    match: (p) =>
+      p.startsWith('/prospects') &&
+      !p.startsWith('/prospects/relances') &&
+      !p.startsWith('/prospects/taches'),
   },
   {
     href: '/prospects/relances',
     label: 'Relances',
     match: (p) => p.startsWith('/prospects/relances'),
+  },
+  {
+    href: '/prospects/taches',
+    label: 'Tâches',
+    match: (p) => p.startsWith('/prospects/taches'),
   },
 ];
 
