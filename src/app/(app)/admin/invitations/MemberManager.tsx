@@ -3,6 +3,8 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { setCommissionRate, assignFreshProspects, archiveMember, setMemberRole } from './actions';
+import PermissionsPanel from './PermissionsPanel';
+import type { PermMap } from '@/lib/permissions';
 
 // Design System crème/orange — texte FONCÉ sur fond clair (AA).
 const CREAM = '#2A2320';
@@ -26,6 +28,7 @@ export type Member = {
   role: string;
   commissionPct: number | null;
   prospectCount: number;
+  permissions: PermMap | null;
 };
 
 const ROLE_LABELS: Record<string, string> = {
@@ -138,7 +141,7 @@ export function MemberManager({ member }: { member: Member }) {
     setBusy(false);
     if (res.error) setMsg({ ok: false, text: res.error });
     else {
-      setMsg({ ok: true, text: `Rôle mis à jour : ${label}.` });
+      setMsg({ ok: true, text: `Rôle mis à jour : ${label}. Autorisations réinitialisées au preset.` });
       startTransition(() => router.refresh());
     }
   }
@@ -201,7 +204,7 @@ export function MemberManager({ member }: { member: Member }) {
 
       {/* Role / autorisations */}
       <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid rgba(83,36,24,0.06)' }}>
-        <label style={labelStyle}>Rôle / autorisations</label>
+        <label style={labelStyle}>Rôle (préréglage)</label>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
           <select
             value={role}
@@ -247,6 +250,9 @@ export function MemberManager({ member }: { member: Member }) {
           {ROLE_OPTIONS.find((o) => o.value === role)?.hint}
         </p>
       </div>
+
+      {/* Permissions granulaires par section */}
+      <PermissionsPanel userId={member.id} role={member.role} permissions={member.permissions} />
 
       {/* Commission */}
       <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid rgba(83,36,24,0.06)' }}>

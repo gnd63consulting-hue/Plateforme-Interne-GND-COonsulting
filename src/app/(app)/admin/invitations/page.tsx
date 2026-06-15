@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { InviteForm } from './InviteForm';
 import { revokeInvitation, reactivateMemberAction } from './actions';
 import { MemberManager, type Member } from './MemberManager';
+import { sanitizePerms } from '@/lib/permissions';
 
 // Design System crème/orange — texte FONCÉ sur fond clair (AA).
 const CREAM = '#2A2320';
@@ -40,7 +41,7 @@ export default async function InvitationsPage() {
   // Membres actifs + nb de prospects assignes
   const { data: membersRaw } = await supabase
     .from('users')
-    .select('id, full_name, email, role, commission_rate, active')
+    .select('id, full_name, email, role, commission_rate, active, permissions')
     .in('role', ['admin', 'admin_limited', 'freelance', 'commercial'])
     .order('created_at', { ascending: true });
 
@@ -51,6 +52,7 @@ export default async function InvitationsPage() {
     role: string;
     commission_rate: number | null;
     active: boolean | null;
+    permissions: unknown;
   }[];
   const activeMembers = allMembers.filter((u) => u.active !== false);
   const archivedMembers = allMembers.filter((u) => u.active === false);
@@ -73,6 +75,7 @@ export default async function InvitationsPage() {
     role: u.role,
     commissionPct: u.commission_rate != null ? Math.round(Number(u.commission_rate) * 100) : null,
     prospectCount: countByUser.get(u.id) ?? 0,
+    permissions: sanitizePerms(u.permissions),
   }));
 
   return (
@@ -106,7 +109,7 @@ export default async function InvitationsPage() {
           Équipe &amp; invitations
         </h1>
         <p style={{ fontSize: 14, lineHeight: 1.55, color: CREAM_SOFT, marginTop: 12, maxWidth: 560 }}>
-          Gère tes membres (commission, prospects) et invite de nouvelles personnes.
+          Gère tes membres (rôle, autorisations, commission, prospects) et invite de nouvelles personnes.
           Login Google uniquement — tu ajoutes un email, la personne se connecte.
         </p>
       </header>
@@ -122,8 +125,8 @@ export default async function InvitationsPage() {
           ))}
         </div>
         <p style={{ fontSize: 12, color: CREAM_SOFT, marginTop: 12 }}>
-          Règle le taux de commission (15/20%) et assigne des prospects frais à chaque commercial — sans SQL.
-          L&apos;assignation pioche uniquement dans le pool « à contacter » (jamais chez un autre commercial).
+          Rôle = préréglage ; affine ensuite section par section (Voir / Éditer / Aucun).
+          L&apos;assignation de prospects pioche uniquement dans le pool « à contacter ».
         </p>
       </section>
 
