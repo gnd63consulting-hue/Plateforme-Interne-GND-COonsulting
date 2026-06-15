@@ -67,6 +67,7 @@ type UserRow = {
   full_name: string | null;
   email: string | null;
   role: string | null;
+  active: boolean | null;
 };
 
 function pushItem(map: Map<string, DigestItem[]>, key: string, item: DigestItem) {
@@ -98,7 +99,7 @@ async function runDigest() {
 
   const [{ data: usersRaw }, { data: prosRaw }, { data: tasksRaw }] =
     await Promise.all([
-      admin.from('users').select('id, full_name, email, role'),
+      admin.from('users').select('id, full_name, email, role, active'),
       admin
         .from('prospects')
         .select(PROSPECT_COLS)
@@ -133,7 +134,7 @@ async function runDigest() {
   for (const [userId, items] of byUser) {
     if (items.length === 0) continue;
     const u = userById.get(userId);
-    if (!u || !u.email) {
+    if (!u || !u.email || u.active === false) {
       skippedNoEmail++;
       continue;
     }
@@ -157,7 +158,9 @@ async function runDigest() {
 
   // --- Digest MANAGER : les admins sont prevenus des retards de l'equipe. ---
   const summaries = buildRepSummaries(
-    users.map((u) => ({ id: u.id, full_name: u.full_name, email: u.email })),
+    users
+      .filter((u) => u.active !== false)
+      .map((u) => ({ id: u.id, full_name: u.full_name, email: u.email })),
     (prosRaw ?? []) as unknown as DigestProspectRow[],
     (tasksRaw ?? []) as unknown as Task[],
     now
@@ -166,7 +169,7 @@ async function runDigest() {
   let managerSent = 0;
   if (summaries.some((s) => s.overdueTotal > 0)) {
     for (const u of users) {
-      if (!u.role || !adminRoles.has(u.role) || !u.email) continue;
+      if (!u.role || !adminRoles.has(u.role) || !u.email || u.active === false) continue;
       const firstName = (u.full_name ?? u.email).split(/[\s.@]+/)[0] || 'a toi';
       const { subject, html, text } = renderManagerEmail({
         adminFirstName: firstName,

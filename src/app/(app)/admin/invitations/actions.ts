@@ -189,3 +189,67 @@ export async function assignFreshProspects(
   revalidatePath('/admin/invitations');
   return { error: null, assigned: ids.length };
 }
+
+
+/**
+ * Archive un membre (ex-commercial) : le marque inactif (active=false) -> il
+ * disparait partout (Suivi equipe, digest, listes, cockpit) sans rien supprimer
+ * (commissions/audit preserves). Reassigne ses prospects + ses taches ouvertes a
+ * l'admin qui declenche. Reversible via reactivateMemberAction.
+ */
+export async function archiveMember(
+  userId: string
+): Promise<{ error: string | null; reassigned: number }> {
+  const admin = await requireAdmin();
+  if (!admin) return { error: 'Permissions insuffisantes', reassigned: 0 };
+  if (userId === admin.id) {
+    return { error: "Tu ne peux pas t'archiver toi-meme.", reassigned: 0 };
+  }
+  const adminClient = createAdminClient();
+
+  // Reassigne ses prospects a l'admin.
+  const { data: owned } = await adminClient
+    .from('prospects')
+    .select('id')
+    .eq('assigned_to', userId);
+  const ids = (owned ?? []).map((p) => p.id);
+  if (ids.length > 0) {
+    const { error: rErr } = await adminClient
+      .from('prospects')
+      .update({ assigned_to: admin.id, updated_at: new Date().toISOString() })
+      .in('id', ids);
+    if (rErr) return { error: `Reassignation echouee : ${rErr.message}`, reassigned: 0 };
+  }
+
+  // Reassigne ses taches ouvertes a l'admin (sinon elles restent orphelines).
+  await adminClient
+    .from('tasks')
+    .update({ owner_id: admin.id })
+    .eq('owner_id', userId)
+    .eq('done', false);
+
+  const { error } = await adminClient
+    .from('users')
+    .update({ active: false, updated_at: new Date().toISOString() })
+    .eq('id', userId);
+  if (error) return { error: error.message, reassigned: ids.length };
+
+  revalidatePath('/admin/invitations');
+  revalidatePath('/admin/suivi-equipe');
+  revalidatePath('/admin');
+  return { error: null, reassigned: ids.length };
+}
+
+/** Reactive un membre archive (active=true). Form action. */
+export async function reactivateMemberAction(formData: FormData): Promise<void> {
+  const id = formData.get('id');
+  if (typeof id !== 'string') return;
+  const admin = await requireAdmin();
+  if (!admin) return;
+  const adminClient = createAdminClient();
+  await adminClient
+    .from('users')
+    .update({ active: true, updated_at: new Date().toISOString() })
+    .eq('id', id);
+  revalidatePath('/admin/invitations');
+}

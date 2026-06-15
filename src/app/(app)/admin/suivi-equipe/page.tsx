@@ -57,7 +57,7 @@ export default async function SuiviEquipePage() {
 
   const [{ data: usersRaw }, { data: prosRaw }, { data: tasksRaw }] =
     await Promise.all([
-      admin.from('users').select('id, full_name, email, role'),
+      admin.from('users').select('id, full_name, email, role, active'),
       admin
         .from('prospects')
         .select(
@@ -73,9 +73,11 @@ export default async function SuiviEquipePage() {
     full_name: string | null;
     email: string | null;
     role: string | null;
+    active: boolean | null;
   }[];
-  // On suit les commerciaux (et co-admins) : on exclut juste les comptes sans rôle.
-  const tracked = allUsers.filter((u) => u.role);
+  // On suit les commerciaux (et co-admins) ACTIFS : on exclut comptes sans rôle
+  // et comptes archivés (active === false).
+  const tracked = allUsers.filter((u) => u.role && u.active !== false);
 
   const summaries = buildRepSummaries(
     tracked,
