@@ -13,6 +13,7 @@ import {
   CalendarClock,
   CopyCheck,
   BadgeEuro,
+  ClipboardList,
 } from 'lucide-react';
 
 type NavItem = {
@@ -42,6 +43,7 @@ const SECTIONS: NavSection[] = [
     items: [
       { id: 'vue-globale', icon: Shield, label: 'Vue globale', href: '/admin' },
       { id: 'relances', icon: CalendarClock, label: 'Relances', href: '/admin/relances' },
+      { id: 'suivi', icon: ClipboardList, label: 'Suivi équipe', href: '/admin/suivi-equipe' },
       { id: 'commissions', icon: BadgeEuro, label: 'Commissions', href: '/admin/commissions' },
       { id: 'doublons', icon: CopyCheck, label: 'Doublons', href: '/admin/doublons' },
       { id: 'equipe', icon: Users, label: 'Équipe', href: '/admin/invitations' },
@@ -50,7 +52,7 @@ const SECTIONS: NavSection[] = [
   },
 ];
 
-/* Design System crème/orange (valeurs verrouillées). */
+/* Design System crème/orange (valeurs verrouillees). */
 const SERIF = 'var(--font-marcellus), Georgia, serif';
 const SANS = 'var(--font-inter), system-ui, sans-serif';
 const CHOCO = '#532418';

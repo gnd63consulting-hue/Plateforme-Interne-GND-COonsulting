@@ -10,23 +10,21 @@ import {
   type DigestItem,
   type DigestProspectRow,
 } from '@/lib/digest';
+import { buildRepSummaries, renderManagerEmail } from '@/lib/manager-digest';
 
 export const dynamic = 'force-dynamic';
 
 /**
- * Digest email du matin (Sprint 19).
+ * Digest email du matin (Sprint 19) + couche manager (Sprint 20).
  *
  * GET /api/notifications/digest — declenche par Vercel Cron (quotidien, cf.
  * vercel.json). Service-role UNIQUEMENT (bypass RLS) : on balaie relances +
- * taches dues de TOUS les commerciaux et on envoie a chacun SON recap.
+ * taches dues de TOUS les commerciaux et on envoie a chacun SON recap, puis aux
+ * admins un recap des retards de l'equipe.
  *
  * DORMANT par defaut : si RESEND_API_KEY n'est pas defini, la route ne fait
- * RIEN (skipped) et ne plante jamais. L'activation = poser 1 env var server-only
- * (jamais exposee au client, comme la cle Stripe) + un domaine expediteur verifie
- * dans Resend. Aucune boite mail n'est lue/ouverte : envoi sortant uniquement.
- *
- * Auth : identique a /api/sequences/tick (CRON_SECRET Vercel, ou ADMIN_SYNC_SECRET
- * pour un curl manuel).
+ * RIEN (skipped) et ne plante jamais. Envoi sortant uniquement (aucune boite lue).
+ * Auth : identique a /api/sequences/tick (CRON_SECRET / ADMIN_SYNC_SECRET).
  */
 
 const PROSPECT_COLS =
@@ -157,9 +155,41 @@ async function runDigest() {
     }
   }
 
+  // --- Digest MANAGER : les admins sont prevenus des retards de l'equipe. ---
+  const summaries = buildRepSummaries(
+    users.map((u) => ({ id: u.id, full_name: u.full_name, email: u.email })),
+    (prosRaw ?? []) as unknown as DigestProspectRow[],
+    (tasksRaw ?? []) as unknown as Task[],
+    now
+  );
+  const adminRoles = new Set(['admin', 'admin_limited']);
+  let managerSent = 0;
+  if (summaries.some((s) => s.overdueTotal > 0)) {
+    for (const u of users) {
+      if (!u.role || !adminRoles.has(u.role) || !u.email) continue;
+      const firstName = (u.full_name ?? u.email).split(/[\s.@]+/)[0] || 'a toi';
+      const { subject, html, text } = renderManagerEmail({
+        adminFirstName: firstName,
+        summaries,
+        appUrl,
+        now,
+      });
+      try {
+        await sendViaResend(apiKey, from, u.email, subject, html, text);
+        managerSent++;
+      } catch (e) {
+        errors.push({
+          userId: u.id,
+          error: `manager: ${e instanceof Error ? e.message : 'unknown'}`,
+        });
+      }
+    }
+  }
+
   return {
     recipientsWithActions: byUser.size,
     sent,
+    managerSent,
     skippedNoEmail,
     errors,
   };
