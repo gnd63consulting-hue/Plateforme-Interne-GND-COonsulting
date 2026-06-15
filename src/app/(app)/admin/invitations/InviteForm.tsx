@@ -12,10 +12,10 @@ const ROLE_LABELS: Record<Role, string> = {
   admin: 'Admin (accès complet)',
 };
 
-const CREAM = '#FDF6EE';
-const CREAM_SOFT = 'rgba(253,246,238,0.55)';
-const AMBER = '#E8853D';
-const MONO = 'var(--font-geist-mono), ui-monospace, monospace';
+// Design System crème/orange — tokens locaux (suite admin claire).
+const INK = '#2A2320';           // texte corps (ex CREAM)
+const INK_SOFT = '#7B665C';      // texte secondaire (ex CREAM_SOFT)
+const MONO = 'var(--font-inter), ui-sans-serif, system-ui, sans-serif';
 
 const labelStyle: React.CSSProperties = {
   display: 'block',
@@ -24,7 +24,7 @@ const labelStyle: React.CSSProperties = {
   fontWeight: 600,
   textTransform: 'uppercase',
   letterSpacing: '0.14em',
-  color: 'rgba(253,246,238,0.6)',
+  color: INK_SOFT,
   marginBottom: 8,
 };
 
@@ -32,11 +32,11 @@ const fieldStyle: React.CSSProperties = {
   width: '100%',
   padding: '11px 14px',
   borderRadius: 11,
-  background: 'rgba(0,0,0,0.22)',
-  border: '1px solid rgba(232,133,61,0.22)',
-  color: CREAM,
+  background: '#FFFFFF',
+  border: '1px solid #E2D5C3',
+  color: INK,
   fontSize: 14,
-  fontFamily: 'var(--font-geist-sans), system-ui, sans-serif',
+  fontFamily: 'var(--font-inter), system-ui, sans-serif',
   outline: 'none',
   boxSizing: 'border-box',
 };
@@ -115,12 +115,12 @@ export function InviteForm() {
           style={{ ...fieldStyle, cursor: 'pointer' }}
         >
           {(Object.keys(ROLE_LABELS) as Role[]).map((r) => (
-            <option key={r} value={r} style={{ background: '#25140F', color: CREAM }}>
+            <option key={r} value={r} style={{ background: '#FFFFFF', color: INK }}>
               {ROLE_LABELS[r]}
             </option>
           ))}
         </select>
-        <p style={{ fontSize: 12, lineHeight: 1.5, color: CREAM_SOFT, marginTop: 8 }}>
+        <p style={{ fontSize: 12, lineHeight: 1.5, color: INK_SOFT, marginTop: 8 }}>
           Ajoute l&apos;email à la liste autorisée. La personne se connecte ensuite avec
           Google &mdash; aucun email n&apos;est envoyé automatiquement.
         </p>
@@ -135,39 +135,40 @@ export function InviteForm() {
           borderRadius: 999,
           border: 'none',
           background: isPending
-            ? 'rgba(232,133,61,0.4)'
-            : 'linear-gradient(135deg, #E8853D, #D4732A)',
-          color: '#2A1410',
+            ? 'rgba(243,146,83,0.45)'
+            : 'linear-gradient(135deg, #F39253, #D97A3D)',
+          color: '#FFFFFF',
           fontSize: 13,
           fontWeight: 700,
-          fontFamily: 'var(--font-geist-sans), system-ui, sans-serif',
+          fontFamily: 'var(--font-inter), system-ui, sans-serif',
           cursor: isPending ? 'not-allowed' : 'pointer',
           letterSpacing: '0.01em',
+          boxShadow: isPending ? 'none' : '0 4px 16px rgba(243,146,83,0.30)',
         }}
       >
         {isPending ? 'Ajout…' : "Créer l'invitation"}
       </button>
 
       {error && (
-        <p style={{ fontSize: 13, color: '#F0A088', margin: 0 }}>{error}</p>
+        <p style={{ fontSize: 13, color: '#B5421F', margin: 0 }}>{error}</p>
       )}
 
       {invited && (
         <div
           style={{
             borderRadius: 14,
-            border: '1px solid rgba(120,200,140,0.3)',
-            background: 'rgba(90,180,120,0.08)',
+            border: '1px solid rgba(79,122,56,0.30)',
+            background: 'rgba(79,122,56,0.08)',
             padding: 18,
             display: 'flex',
             flexDirection: 'column',
             gap: 12,
           }}
         >
-          <p style={{ fontSize: 14, fontWeight: 600, color: '#9FE0B4', margin: 0 }}>
+          <p style={{ fontSize: 14, fontWeight: 600, color: '#3F6B2D', margin: 0 }}>
             ✅ {invited.email} est maintenant autorisé(e).
           </p>
-          <p style={{ fontSize: 12, color: CREAM_SOFT, margin: 0 }}>
+          <p style={{ fontSize: 12, color: INK_SOFT, margin: 0 }}>
             Copie ce message et envoie-le à la personne (WhatsApp, SMS, mail) :
           </p>
           <pre
@@ -175,13 +176,13 @@ export function InviteForm() {
               whiteSpace: 'pre-wrap',
               margin: 0,
               borderRadius: 10,
-              background: 'rgba(0,0,0,0.3)',
-              border: '1px solid rgba(253,246,238,0.1)',
+              background: '#FBF7F2',
+              border: '1px solid #E2D5C3',
               padding: 14,
               fontSize: 12.5,
               lineHeight: 1.55,
-              color: CREAM,
-              fontFamily: 'var(--font-geist-sans), system-ui, sans-serif',
+              color: INK,
+              fontFamily: 'var(--font-inter), system-ui, sans-serif',
             }}
           >
             {invited.message}
@@ -193,9 +194,9 @@ export function InviteForm() {
               alignSelf: 'flex-start',
               padding: '8px 16px',
               borderRadius: 999,
-              border: '1px solid rgba(253,246,238,0.2)',
-              background: copied ? 'rgba(120,200,140,0.18)' : 'rgba(253,246,238,0.06)',
-              color: CREAM,
+              border: '1px solid #E2D5C3',
+              background: copied ? 'rgba(79,122,56,0.16)' : '#FFFFFF',
+              color: INK,
               fontSize: 12,
               fontWeight: 600,
               cursor: 'pointer',
