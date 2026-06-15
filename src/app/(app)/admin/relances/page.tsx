@@ -4,17 +4,19 @@ import { labelForStatus } from '@/lib/prospects';
 
 export const dynamic = 'force-dynamic';
 
-const CREAM = '#FDF6EE';
-const CREAM_SOFT = 'rgba(253,246,238,0.6)';
-const CREAM_FAINT = 'rgba(253,246,238,0.4)';
-const AMBER = '#E8853D';
-const RED = '#E8896B';
-const GREEN = '#7FC9A3';
-const CARD_BG = 'rgba(253,246,238,0.04)';
-const BORDER = '1px solid rgba(232,133,61,0.14)';
-const SERIF = 'var(--font-fraunces), Georgia, serif';
-const MONO = 'var(--font-geist-mono), ui-monospace, monospace';
-const SANS = 'var(--font-geist-sans), system-ui, sans-serif';
+// Design System crème/orange — tokens locaux (suite admin claire).
+const INK = '#2A2320';           // texte corps (ex CREAM)
+const INK_SOFT = '#7B665C';      // texte secondaire (ex CREAM_SOFT)
+const INK_FAINT = '#9B8A7E';     // texte tertiaire (ex CREAM_FAINT)
+const CHOCO = '#532418';         // titres serif
+const AMBER = '#B5601C';         // accent lisible sur clair (ex AMBER)
+const RED = '#B5421F';           // rouge lisible sur clair (ex RED)
+const GREEN = '#4F7A38';         // vert lisible sur clair (ex GREEN)
+const CARD_BG = '#FFFFFF';       // cartes (ex CARD_BG)
+const BORDER = '1px solid #E2D5C3';
+const SERIF = 'var(--font-marcellus), Georgia, serif';
+const MONO = 'var(--font-inter), ui-sans-serif, system-ui, sans-serif';
+const SANS = 'var(--font-inter), system-ui, sans-serif';
 
 const ADMIN_ROLES = new Set(['admin', 'admin_limited']);
 
@@ -82,15 +84,15 @@ export default async function RelancesPage() {
   const recap = [...perCommercial.entries()].sort((a, b) => b[1] - a[1]);
 
   return (
-    <div style={{ maxWidth: 1040, margin: '0 auto', padding: '40px 28px 64px', color: CREAM }}>
+    <div style={{ maxWidth: 1040, margin: '0 auto', padding: '40px 28px 64px', color: INK }}>
       <header style={{ marginBottom: 28 }}>
         <div style={{ fontFamily: MONO, fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.22em', color: AMBER, marginBottom: 10 }}>
           ADMIN · PILOTAGE
         </div>
-        <h1 style={{ fontFamily: SERIF, fontSize: 32, fontWeight: 500, letterSpacing: '-0.01em', color: CREAM, margin: 0, lineHeight: 1.1 }}>
+        <h1 style={{ fontFamily: SERIF, fontSize: 32, fontWeight: 500, letterSpacing: '-0.01em', color: CHOCO, margin: 0, lineHeight: 1.1 }}>
           Relances à venir
         </h1>
-        <p style={{ fontSize: 14, lineHeight: 1.55, color: CREAM_SOFT, marginTop: 12, maxWidth: 620 }}>
+        <p style={{ fontSize: 14, lineHeight: 1.55, color: INK_SOFT, marginTop: 12, maxWidth: 620 }}>
           Qui doit rappeler quel prospect et quand — posé par les commerciaux sur leurs fiches.
           Les retards sont en rouge. Lecture seule, en temps réel à chaque ouverture.
         </p>
@@ -100,7 +102,7 @@ export default async function RelancesPage() {
         <Stat label="En retard" value={overdue.length} color={RED} />
         <Stat label="Aujourd'hui" value={today.length} color={AMBER} />
         <Stat label="À venir" value={upcoming.length} color={GREEN} />
-        <Stat label="Total relances" value={rows.length} color={CREAM} />
+        <Stat label="Total relances" value={rows.length} color={CHOCO} />
       </div>
 
       {recap.length > 0 && (
@@ -108,7 +110,7 @@ export default async function RelancesPage() {
           <SectionLabel>Par commercial</SectionLabel>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
             {recap.map(([name, n]) => (
-              <span key={name} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: CARD_BG, border: BORDER, borderRadius: 999, padding: '6px 14px', fontSize: 13, color: CREAM }}>
+              <span key={name} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: CARD_BG, border: BORDER, borderRadius: 999, padding: '6px 14px', fontSize: 13, color: INK }}>
                 {name}
                 <span style={{ fontFamily: MONO, fontSize: 11, fontWeight: 700, color: AMBER }}>{n}</span>
               </span>
@@ -118,7 +120,7 @@ export default async function RelancesPage() {
       )}
 
       {rows.length === 0 ? (
-        <p style={{ fontSize: 14, color: CREAM_SOFT }}>
+        <p style={{ fontSize: 14, color: INK_SOFT }}>
           Aucune relance planifiée pour l&apos;instant. Les dates posées par les commerciaux apparaîtront ici.
         </p>
       ) : (
@@ -134,8 +136,8 @@ export default async function RelancesPage() {
 
 function Stat({ label, value, color }: { label: string; value: number; color: string }) {
   return (
-    <div style={{ flex: 1, minWidth: 150, background: CARD_BG, border: BORDER, borderRadius: 16, padding: '16px 18px' }}>
-      <div style={{ fontFamily: MONO, fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.16em', color: CREAM_FAINT, marginBottom: 8 }}>{label}</div>
+    <div style={{ flex: 1, minWidth: 150, background: CARD_BG, border: BORDER, borderRadius: 16, padding: '16px 18px', boxShadow: '0 1px 3px rgba(83,36,24,0.06)' }}>
+      <div style={{ fontFamily: MONO, fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.16em', color: INK_FAINT, marginBottom: 8 }}>{label}</div>
       <div style={{ fontFamily: SERIF, fontSize: 30, fontWeight: 500, color, lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>{value}</div>
     </div>
   );
@@ -157,14 +159,14 @@ function Group({ title, rows, color, userName, emptyText }: { title: string; row
         {title} ({rows.length})
       </SectionLabel>
       {rows.length === 0 ? (
-        <p style={{ fontSize: 13, color: CREAM_FAINT }}>{emptyText}</p>
+        <p style={{ fontSize: 13, color: INK_FAINT }}>{emptyText}</p>
       ) : (
-        <div style={{ background: CARD_BG, border: BORDER, borderRadius: 16, overflow: 'hidden' }}>
+        <div style={{ background: CARD_BG, border: BORDER, borderRadius: 16, overflow: 'hidden', boxShadow: '0 1px 3px rgba(83,36,24,0.06)' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
-              <tr>
+              <tr style={{ background: '#FBF7F2' }}>
                 {['Date', 'Commercial', 'Prospect', 'Contact', 'Statut'].map((h) => (
-                  <th key={h} style={{ textAlign: 'left', padding: '11px 16px', fontFamily: MONO, fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.14em', color: CREAM_FAINT, borderBottom: '1px solid rgba(232,133,61,0.12)' }}>{h}</th>
+                  <th key={h} style={{ textAlign: 'left', padding: '11px 16px', fontFamily: MONO, fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.14em', color: INK_FAINT, borderBottom: '1px solid #E2D5C3' }}>{h}</th>
                 ))}
               </tr>
             </thead>
@@ -172,18 +174,18 @@ function Group({ title, rows, color, userName, emptyText }: { title: string; row
               {rows.map((r) => {
                 const name = r.assigned_to ? userName.get(r.assigned_to) ?? '—' : 'Non assigné';
                 return (
-                  <tr key={r.id} style={{ borderBottom: '1px solid rgba(253,246,238,0.06)' }}>
+                  <tr key={r.id} style={{ borderBottom: '1px solid #F0E7DA' }}>
                     <td style={{ padding: '12px 16px', fontFamily: MONO, fontSize: 12, color, fontWeight: 600, whiteSpace: 'nowrap' }}>
                       {fmt(new Date(r.next_action_at))}
                     </td>
-                    <td style={{ padding: '12px 16px', color: CREAM }}>{name}</td>
-                    <td style={{ padding: '12px 16px', color: CREAM, fontFamily: SANS }}>{r.company_name}</td>
-                    <td style={{ padding: '12px 16px', color: CREAM_SOFT }}>
+                    <td style={{ padding: '12px 16px', color: INK }}>{name}</td>
+                    <td style={{ padding: '12px 16px', color: INK, fontFamily: SANS }}>{r.company_name}</td>
+                    <td style={{ padding: '12px 16px', color: INK_SOFT }}>
                       {r.contact_name ?? '—'}
                       {r.phone && <span style={{ display: 'block', fontFamily: MONO, fontSize: 11, color: AMBER }}>{r.phone}</span>}
                     </td>
                     <td style={{ padding: '12px 16px' }}>
-                      <span style={{ fontFamily: MONO, fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', color: CREAM_SOFT }}>
+                      <span style={{ fontFamily: MONO, fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', color: INK_SOFT }}>
                         {labelForStatus(r.status)}
                       </span>
                     </td>
