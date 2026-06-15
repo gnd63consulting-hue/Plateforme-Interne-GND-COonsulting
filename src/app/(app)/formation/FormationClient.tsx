@@ -60,7 +60,7 @@ export default function FormationClient({
         <motion.span
           aria-hidden
           style={{ y: watermarkY, opacity: watermarkOpacity }}
-          className="pointer-events-none absolute -bottom-10 -left-4 select-none whitespace-nowrap font-marcellus text-[20vw] font-medium leading-none tracking-tighter text-gnd-bronze/[0.04] sm:-bottom-20 sm:text-[16rem]"
+          className="pointer-events-none absolute -bottom-10 -left-4 select-none whitespace-nowrap font-marcellus text-[20vw] font-medium leading-none tracking-tighter text-choco/[0.04] sm:-bottom-20 sm:text-[16rem]"
         >
           Formation.
         </motion.span>
@@ -137,7 +137,7 @@ export default function FormationClient({
       <section className="relative">
         <div className="mb-8 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="h-px w-6 bg-gnd-bronze/30" />
+            <span className="h-px w-6 bg-border-soft" />
             <span className="font-inter text-[10px] font-medium uppercase tracking-[0.18em] text-muted-warm">
               {totalCount} modules
             </span>
@@ -191,50 +191,50 @@ export default function FormationClient({
       </section>
 
       {/* ====================================================== */}
-      {/* Certification CTA                                         */}
+      {/* Certification CTA — orange plein, texte CHOCOLAT (lisible) */}
       {/* ====================================================== */}
       <motion.section
         initial={{ opacity: 0, y: 32 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-100px' }}
         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        className="relative mt-20 overflow-hidden rounded-3xl border border-border-soft bg-brand p-10 text-choco md:p-16"
+        className="relative mt-20 overflow-hidden rounded-3xl border border-brand bg-brand p-10 text-choco md:p-16"
       >
         <div
           aria-hidden
-          className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full bg-gnd-amber/20 blur-3xl"
+          className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full bg-white/15 blur-3xl"
         />
         <div
           aria-hidden
-          className="pointer-events-none absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-brand-soft blur-3xl"
+          className="pointer-events-none absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-white/10 blur-3xl"
         />
         <span
           aria-hidden
-          className="pointer-events-none absolute -bottom-20 right-10 select-none font-marcellus text-[14rem] font-medium italic leading-none text-gnd-cream/[0.04] sm:text-[18rem]"
+          className="pointer-events-none absolute -bottom-20 right-10 select-none font-marcellus text-[14rem] font-medium italic leading-none text-choco/[0.06] sm:text-[18rem]"
         >
           {totalCount}
         </span>
 
         <div className="relative max-w-2xl">
-          <p className="mb-3 font-inter text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-dark">
+          <p className="mb-3 font-inter text-[10px] font-semibold uppercase tracking-[0.2em] text-choco">
             {isComplete ? 'Formation complète' : 'Certification'}
           </p>
           <h2 className="font-marcellus text-display-md font-medium leading-tight text-choco">
             {isComplete ? (
               <>
                 Tu es{' '}
-                <span className="italic text-brand-dark">certifié</span>
+                <span className="italic text-[#2A1810]">certifié</span>
                 {' '}GND Consulting.
               </>
             ) : (
               <>
                 {totalCount} modules pour devenir{' '}
-                <span className="italic text-brand-dark">certifié</span>
+                <span className="italic text-[#2A1810]">certifié</span>
                 .
               </>
             )}
           </h2>
-          <p className="mt-5 max-w-xl text-pretty text-base leading-relaxed text-gnd-cream/70">
+          <p className="mt-5 max-w-xl text-pretty text-base leading-relaxed text-choco/80">
             {isComplete
               ? "Tu peux revenir à tout moment sur les modules pour réviser. Le savoir reste accessible."
               : "Chaque module se valide avec un quiz à 70 % minimum. Tu peux retenter autant de fois que nécessaire."}
