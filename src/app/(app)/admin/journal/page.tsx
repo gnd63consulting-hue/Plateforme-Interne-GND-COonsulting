@@ -17,17 +17,19 @@ export const dynamic = 'force-dynamic';
  * Suppression. Aucune migration : audit_log + RLS existent deja (0012 / 0016).
  */
 
-const CREAM = '#FDF6EE';
-const CREAM_SOFT = 'rgba(253,246,238,0.6)';
-const CREAM_FAINT = 'rgba(253,246,238,0.4)';
-const AMBER = '#E8853D';
-const GREEN = '#7FC9A3';
-const RED = '#E08A8A';
-const BLUE = '#8FB3E0';
-const CARD_BG = 'rgba(253,246,238,0.04)';
-const BORDER = '1px solid rgba(232,133,61,0.14)';
-const SERIF = 'var(--font-fraunces), Georgia, serif';
-const MONO = 'var(--font-geist-mono), ui-monospace, monospace';
+// Design System crème/orange — tokens locaux (suite admin claire).
+const INK = '#2A2320';           // texte corps (ex CREAM)
+const INK_SOFT = '#7B665C';      // texte secondaire (ex CREAM_SOFT)
+const INK_FAINT = '#9B8A7E';     // texte tertiaire (ex CREAM_FAINT)
+const CHOCO = '#532418';         // titres serif
+const AMBER = '#B5601C';         // accent lisible sur clair (ex AMBER)
+const GREEN = '#4F7A38';         // vert lisible sur clair (ex GREEN)
+const RED = '#B5421F';           // rouge lisible sur clair (ex RED)
+const BLUE = '#3C6E9C';          // bleu lisible sur clair (ex BLUE)
+const CARD_BG = '#FFFFFF';       // cartes (ex CARD_BG)
+const BORDER = '1px solid #E2D5C3';
+const SERIF = 'var(--font-marcellus), Georgia, serif';
+const MONO = 'var(--font-inter), ui-sans-serif, system-ui, sans-serif';
 
 const ADMIN_ROLES = new Set(['admin', 'admin_limited']);
 
@@ -201,15 +203,15 @@ export default async function JournalPage({
   }
 
   return (
-    <div style={{ maxWidth: 1040, margin: '0 auto', padding: '40px 28px 64px', color: CREAM }}>
+    <div style={{ maxWidth: 1040, margin: '0 auto', padding: '40px 28px 64px', color: INK }}>
       <header style={{ marginBottom: 24 }}>
         <div style={{ fontFamily: MONO, fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.22em', color: AMBER, marginBottom: 10 }}>
           ADMIN · TRACABILITE
         </div>
-        <h1 style={{ fontFamily: SERIF, fontSize: 32, fontWeight: 500, letterSpacing: '-0.01em', color: CREAM, margin: 0, lineHeight: 1.1 }}>
+        <h1 style={{ fontFamily: SERIF, fontSize: 32, fontWeight: 500, letterSpacing: '-0.01em', color: CHOCO, margin: 0, lineHeight: 1.1 }}>
           Journal d&apos;activite
         </h1>
-        <p style={{ fontSize: 14, lineHeight: 1.55, color: CREAM_SOFT, marginTop: 12, maxWidth: 660 }}>
+        <p style={{ fontSize: 14, lineHeight: 1.55, color: INK_SOFT, marginTop: 12, maxWidth: 660 }}>
           Qui a fait quoi, quand. Chaque creation, modification et suppression sur
           les prospects, devis, taches, activites, commissions et sequences est
           tracee automatiquement (200 dernieres entrees).
@@ -230,16 +232,16 @@ export default async function JournalPage({
       </div>
 
       {rows.length === 0 ? (
-        <p style={{ fontSize: 14, color: CREAM_SOFT }}>
+        <p style={{ fontSize: 14, color: INK_SOFT }}>
           Aucune entree pour ce filtre.
         </p>
       ) : (
-        <div style={{ background: CARD_BG, border: BORDER, borderRadius: 16, overflow: 'hidden' }}>
+        <div style={{ background: CARD_BG, border: BORDER, borderRadius: 16, overflow: 'hidden', boxShadow: '0 1px 3px rgba(83,36,24,0.06)' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
-              <tr>
+              <tr style={{ background: '#FBF7F2' }}>
                 {['Quand', 'Qui', 'Action', 'Objet', 'Details'].map((h) => (
-                  <th key={h} style={{ textAlign: 'left', padding: '11px 16px', fontFamily: MONO, fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.14em', color: CREAM_FAINT, borderBottom: '1px solid rgba(232,133,61,0.12)' }}>{h}</th>
+                  <th key={h} style={{ textAlign: 'left', padding: '11px 16px', fontFamily: MONO, fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.14em', color: INK_FAINT, borderBottom: '1px solid #E2D5C3' }}>{h}</th>
                 ))}
               </tr>
             </thead>
@@ -251,46 +253,46 @@ export default async function JournalPage({
                 const diffs =
                   r.action === 'UPDATE' ? diffFields(r.old_data, r.new_data) : [];
                 return (
-                  <tr key={r.id} style={{ borderBottom: '1px solid rgba(232,133,61,0.07)', verticalAlign: 'top' }}>
-                    <td style={{ padding: '12px 16px', fontFamily: MONO, fontSize: 11, color: CREAM_SOFT, whiteSpace: 'nowrap' }}>
+                  <tr key={r.id} style={{ borderBottom: '1px solid #F0E7DA', verticalAlign: 'top' }}>
+                    <td style={{ padding: '12px 16px', fontFamily: MONO, fontSize: 11, color: INK_SOFT, whiteSpace: 'nowrap' }}>
                       {fmtWhen(r.changed_at)}
                     </td>
-                    <td style={{ padding: '12px 16px', color: CREAM }}>
+                    <td style={{ padding: '12px 16px', color: INK }}>
                       {r.actor_id ? actorName.get(r.actor_id) ?? 'Inconnu' : '— systeme'}
                     </td>
                     <td style={{ padding: '12px 16px', whiteSpace: 'nowrap' }}>
-                      <span style={{ display: 'inline-block', padding: '3px 9px', borderRadius: 999, fontFamily: MONO, fontSize: 10, fontWeight: 600, color: meta.color, background: 'rgba(253,246,238,0.06)', border: `1px solid ${meta.color}33` }}>
+                      <span style={{ display: 'inline-block', padding: '3px 9px', borderRadius: 999, fontFamily: MONO, fontSize: 10, fontWeight: 600, color: meta.color, background: `${meta.color}14`, border: `1px solid ${meta.color}44` }}>
                         {meta.label}
                       </span>
                     </td>
-                    <td style={{ padding: '12px 16px', color: CREAM }}>
-                      <span style={{ color: CREAM_FAINT, fontFamily: MONO, fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                    <td style={{ padding: '12px 16px', color: INK }}>
+                      <span style={{ color: INK_FAINT, fontFamily: MONO, fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
                         {TABLE_LABELS[r.table_name ?? ''] ?? r.table_name}
                       </span>
                       {objLabel && (
-                        <span style={{ display: 'block', fontFamily: SERIF, fontSize: 14, color: CREAM, marginTop: 2 }}>
+                        <span style={{ display: 'block', fontFamily: SERIF, fontSize: 14, color: CHOCO, marginTop: 2 }}>
                           {objLabel}
                         </span>
                       )}
                     </td>
-                    <td style={{ padding: '12px 16px', color: CREAM_SOFT, fontSize: 12.5 }}>
+                    <td style={{ padding: '12px 16px', color: INK_SOFT, fontSize: 12.5 }}>
                       {r.action === 'INSERT' && 'Creation de l’element.'}
                       {r.action === 'DELETE' && 'Suppression de l’element.'}
                       {r.action === 'UPDATE' &&
                         (diffs.length === 0 ? (
-                          <span style={{ color: CREAM_FAINT }}>Mise a jour (champs techniques).</span>
+                          <span style={{ color: INK_FAINT }}>Mise a jour (champs techniques).</span>
                         ) : (
                           <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                             {diffs.slice(0, 6).map((d) => (
                               <div key={d.key} style={{ display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'baseline' }}>
                                 <span style={{ fontFamily: MONO, fontSize: 10, color: AMBER }}>{d.key}</span>
-                                <span style={{ color: CREAM_FAINT, textDecoration: 'line-through' }}>{d.from}</span>
-                                <span style={{ color: CREAM_FAINT }}>→</span>
+                                <span style={{ color: INK_FAINT, textDecoration: 'line-through' }}>{d.from}</span>
+                                <span style={{ color: INK_FAINT }}>→</span>
                                 <span style={{ color: GREEN }}>{d.to}</span>
                               </div>
                             ))}
                             {diffs.length > 6 && (
-                              <span style={{ color: CREAM_FAINT, fontSize: 11 }}>
+                              <span style={{ color: INK_FAINT, fontSize: 11 }}>
                                 +{diffs.length - 6} autre(s) champ(s)
                               </span>
                             )}
@@ -328,9 +330,9 @@ function FilterChip({
         fontSize: 11,
         fontWeight: 600,
         textDecoration: 'none',
-        color: active ? '#2A1810' : CREAM_SOFT,
-        background: active ? AMBER : 'rgba(253,246,238,0.05)',
-        border: active ? `1px solid ${AMBER}` : '1px solid rgba(232,133,61,0.18)',
+        color: active ? '#FFFFFF' : INK_SOFT,
+        background: active ? '#F39253' : '#FBF7F2',
+        border: active ? '1px solid #F39253' : '1px solid #E2D5C3',
       }}
     >
       {label}
