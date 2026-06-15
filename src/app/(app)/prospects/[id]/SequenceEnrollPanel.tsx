@@ -110,10 +110,10 @@ export default function SequenceEnrollPanel({
   const seq = enrollment ? seqById.get(enrollment.sequence_id) : null;
 
   return (
-    <section className="rounded-3xl border border-gnd-bronze/8 bg-gnd-paper p-5 shadow-warm">
+    <section className="rounded-3xl border border-border-soft bg-white p-5 shadow-soft">
       <div className="mb-4 flex items-center gap-2">
-        <Route className="h-4 w-4 text-gnd-amber" aria-hidden />
-        <h2 className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-gnd-amber">
+        <Route className="h-4 w-4 text-brand-dark" aria-hidden />
+        <h2 className="font-inter text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-dark">
           Séquence de relance
         </h2>
       </div>
@@ -130,7 +130,7 @@ export default function SequenceEnrollPanel({
       {enrollment ? (
         <div className="space-y-3">
           <div className="rounded-2xl bg-white p-3 ring-1 ring-gnd-bronze/8">
-            <p className="font-display text-base font-medium text-gnd-bronze">
+            <p className="font-marcellus text-base font-medium text-choco">
               {seq?.name ?? 'Séquence'}
             </p>
             <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
@@ -143,13 +143,13 @@ export default function SequenceEnrollPanel({
               >
                 {enrollment.status === 'paused' ? 'En pause' : 'Active'}
               </span>
-              <span className="text-gnd-bronze-soft">
+              <span className="text-muted-warm">
                 Étape {enrollment.current_step + 1}
               </span>
             </div>
             {enrollment.next_due_at && (
-              <p className="mt-2 flex items-center gap-1.5 text-xs text-gnd-bronze-soft">
-                <CalendarClock className="h-3.5 w-3.5 text-gnd-amber-dim" aria-hidden />
+              <p className="mt-2 flex items-center gap-1.5 text-xs text-muted-warm">
+                <CalendarClock className="h-3.5 w-3.5 text-brand-dark" aria-hidden />
                 Prochaine étape le {formatSeqDate(enrollment.next_due_at)}
               </p>
             )}
@@ -161,7 +161,7 @@ export default function SequenceEnrollPanel({
                 type="button"
                 disabled={busy}
                 onClick={() => patchStatus('paused')}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-gnd-bronze/10 bg-white px-3 py-1.5 text-xs font-semibold text-gnd-bronze transition-colors hover:bg-gnd-cream disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-border-soft bg-white px-3 py-1.5 text-xs font-semibold text-ink-warm transition-colors hover:bg-cream-deep disabled:opacity-50"
               >
                 <Pause className="h-3.5 w-3.5" aria-hidden />
                 Mettre en pause
@@ -171,7 +171,7 @@ export default function SequenceEnrollPanel({
                 type="button"
                 disabled={busy}
                 onClick={() => patchStatus('active')}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-gnd-bronze/10 bg-white px-3 py-1.5 text-xs font-semibold text-gnd-bronze transition-colors hover:bg-gnd-cream disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-border-soft bg-white px-3 py-1.5 text-xs font-semibold text-ink-warm transition-colors hover:bg-cream-deep disabled:opacity-50"
               >
                 <Play className="h-3.5 w-3.5" aria-hidden />
                 Reprendre
@@ -191,16 +191,16 @@ export default function SequenceEnrollPanel({
               Arrêter
             </button>
             {busy && (
-              <Loader2 className="h-4 w-4 animate-spin text-gnd-bronze-faded" aria-hidden />
+              <Loader2 className="h-4 w-4 animate-spin text-muted-warm/70" aria-hidden />
             )}
           </div>
         </div>
       ) : sequences.length === 0 ? (
-        <p className="text-xs text-gnd-bronze-soft">
+        <p className="text-xs text-muted-warm">
           Aucune séquence active disponible.{' '}
           <Link
             href="/sequences"
-            className="font-semibold text-gnd-amber-dim underline underline-offset-2"
+            className="font-semibold text-brand-dark underline underline-offset-2"
           >
             Voir les séquences
           </Link>
@@ -208,13 +208,13 @@ export default function SequenceEnrollPanel({
       ) : (
         <div className="space-y-3">
           <label className="block">
-            <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-gnd-bronze-faded">
+            <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-muted-warm/70">
               Inscrire à une séquence
             </span>
             <select
               value={selectedId}
               onChange={(e) => setSelectedId(e.target.value)}
-              className="w-full rounded-xl border border-gnd-bronze/10 bg-white px-3 py-2 text-sm font-semibold text-gnd-bronze focus:border-gnd-amber focus:outline-none focus:ring-1 focus:ring-gnd-amber"
+              className="w-full rounded-xl border border-border-soft bg-white px-3 py-2 text-sm font-semibold text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
             >
               {sequences.map((s) => (
                 <option key={s.id} value={s.id}>
@@ -227,7 +227,7 @@ export default function SequenceEnrollPanel({
             type="button"
             disabled={busy || !selectedId}
             onClick={enroll}
-            className="inline-flex w-full items-center justify-center gap-1.5 rounded-xl bg-gnd-bronze px-4 py-2 text-sm font-semibold text-gnd-cream transition-colors hover:bg-gnd-ink disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex w-full items-center justify-center gap-1.5 rounded-xl bg-brand px-4 py-2 text-sm font-semibold text-choco transition-colors hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-50"
           >
             {busy ? (
               <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
