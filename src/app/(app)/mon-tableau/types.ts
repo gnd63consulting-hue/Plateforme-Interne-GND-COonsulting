@@ -37,6 +37,34 @@ export type RecentActivityEntry = {
   company: string | null;
 };
 
+/**
+ * Carte légère d'un prospect pour le SNAPSHOT pipeline du tableau de bord
+ * (réf mockup : « Mon pipeline » à gauche, quelques cartes par colonne).
+ * On ne transporte QUE le strict nécessaire au rendu — pas le prospect entier.
+ */
+export type SnapshotCard = {
+  id: string;
+  company: string;
+  contact: string | null;
+  city: string | null;
+  phone: string | null;
+  address: string | null;
+  status: string;
+  caEstime: string | null;
+  hot: boolean;
+};
+
+/** Colonne de snapshot pipeline (réf mockup : « À contacter [25 · 544 k€] »…). */
+export type PipelineSnapshotColumn = {
+  id: string;
+  label: string;
+  count: number;
+  /** Valeur GND cumulée de la colonne (€, prix service). */
+  valeur: number;
+  /** Quelques cartes représentatives (les plus récentes) pour l'aperçu. */
+  cards: SnapshotCard[];
+};
+
 export type MonTableauData = {
   prenom: string;
   commissionRate: number | null; // décimal (0.10 = 10%)
@@ -45,6 +73,8 @@ export type MonTableauData = {
   prospectsTotal: number; // tous prospects scopés
   pipelineActifCount: number; // prospects encore en jeu
   statusBreakdown: StatusBreakdownEntry[];
+  /** Snapshot kanban (réf mockup) — colonnes vivantes avec cartes d'aperçu. */
+  pipelineSnapshot: PipelineSnapshotColumn[];
   // CA
   caPotentiel: number; // € — pipeline en cours (prix service GND, estimé)
   caRealise: number; // € — signatures (prix service GND, estimé via ca_estime)
@@ -61,6 +91,7 @@ export type MonTableauData = {
   // Relances
   relancesEnRetard: number;
   relancesAujourdhui: number;
+  relancesAVenir: number; // 7 prochains jours (hors aujourd'hui / retard)
   // Activité
   activites: RecentActivityEntry[];
 };

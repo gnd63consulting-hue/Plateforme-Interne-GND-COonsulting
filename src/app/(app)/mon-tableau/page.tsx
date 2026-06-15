@@ -12,9 +12,16 @@ import {
 import { sumCaMidpointGndPriceEur } from '@/lib/ca-utils';
 import { COMMISSION_SELECT_COLUMNS, type Commission } from '@/lib/finance';
 import {
+  PIPELINE_COLUMNS,
+  getColumnForStatus,
+  type PipelineColumnId,
+} from '@/lib/pipeline';
+import {
   type MonTableauData,
   type RecentActivityEntry,
   type StatusBreakdownEntry,
+  type PipelineSnapshotColumn,
+  type SnapshotCard,
 } from './types';
 import MonTableauClient from './MonTableauClient';
 
@@ -37,6 +44,11 @@ export const dynamic = 'force-dynamic';
  *
  * Le CA potentiel/réalisé reste calculé comme avant (cohérent cockpit admin
  * v2). Le prisme est TOUJOURS « prix service GND » — cf. ca-utils.ts.
+ *
+ * Sprint 10 (redesign mockup) : on calcule en plus un SNAPSHOT pipeline
+ * (colonnes kanban vivantes + quelques cartes d'aperçu par colonne) réutilisant
+ * la logique de groupement existante (`getColumnForStatus`/`PIPELINE_COLUMNS`),
+ * sans fetch supplémentaire — les prospects sont déjà chargés.
  */
 
 /** Statuts encore « en jeu » pour le CA potentiel (pipeline en cours). */
@@ -57,6 +69,16 @@ const CLOSED_STATUSES = new Set([
   'ne_plus_demarcher',
   'processus_termine',
 ]);
+
+/** Nombre de cartes d'aperçu rendues par colonne dans le snapshot. */
+const SNAPSHOT_CARDS_PER_COLUMN = 4;
+
+function isHot(p: Prospect): boolean {
+  return (
+    !!p.classification &&
+    /chaud|hot|🔥|prioritaire/i.test(p.classification)
+  );
+}
 
 export default async function MonTableauPage() {
   const supabase = await createClient();
@@ -161,20 +183,59 @@ export default async function MonTableauPage() {
     (p) => !CLOSED_STATUSES.has(p.status)
   ).length;
 
-  // ---- Relances (next_action_at) — en retard / aujourd'hui ------------------
+  // ---- Snapshot pipeline (réf mockup) ---------------------------------------
+  // Regroupement par colonne kanban via la MÊME logique que /prospects
+  // (getColumnForStatus). Colonnes vivantes uniquement (on n'affiche pas
+  // « Sorties » sur le dashboard). Aucune requête supplémentaire.
+  const byColumn = new Map<PipelineColumnId, Prospect[]>();
+  for (const col of PIPELINE_COLUMNS) byColumn.set(col.id, []);
+  for (const p of prospects) {
+    byColumn.get(getColumnForStatus(p.status))?.push(p);
+  }
+  const pipelineSnapshot: PipelineSnapshotColumn[] = PIPELINE_COLUMNS.filter(
+    (c) => !c.dead
+  ).map((col) => {
+    const list = byColumn.get(col.id) ?? [];
+    const cards: SnapshotCard[] = list
+      .slice(0, SNAPSHOT_CARDS_PER_COLUMN)
+      .map((p) => ({
+        id: p.id,
+        company: p.company_name,
+        contact: p.contact_name,
+        city: p.city,
+        phone: p.phone,
+        address: p.address,
+        status: p.status,
+        caEstime: p.ca_estime,
+        hot: isHot(p),
+      }));
+    return {
+      id: col.id,
+      label: col.label,
+      count: list.length,
+      valeur: sumCaMidpointGndPriceEur(list),
+      cards,
+    };
+  });
+
+  // ---- Relances (next_action_at) — en retard / aujourd'hui / 7j -------------
   const now = new Date();
   const startToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const endToday = new Date(startToday);
   endToday.setDate(endToday.getDate() + 1);
+  const endWeek = new Date(startToday);
+  endWeek.setDate(endWeek.getDate() + 7);
 
   let relancesEnRetard = 0;
   let relancesAujourdhui = 0;
+  let relancesAVenir = 0;
   for (const p of prospects) {
     if (!p.next_action_at) continue;
     if (CLOSED_STATUSES.has(p.status)) continue;
     const d = new Date(p.next_action_at);
     if (d < startToday) relancesEnRetard += 1;
     else if (d < endToday) relancesAujourdhui += 1;
+    else if (d < endWeek) relancesAVenir += 1;
   }
 
   // ---- Activités récentes (résolution du nom de société) --------------------
@@ -198,6 +259,7 @@ export default async function MonTableauPage() {
     prospectsTotal: prospects.length,
     pipelineActifCount,
     statusBreakdown,
+    pipelineSnapshot,
     caPotentiel,
     caRealise,
     commissionEstimeeRealisee,
@@ -209,6 +271,7 @@ export default async function MonTableauPage() {
     signatures: signedProspects.length,
     relancesEnRetard,
     relancesAujourdhui,
+    relancesAVenir,
     activites,
   };
 
