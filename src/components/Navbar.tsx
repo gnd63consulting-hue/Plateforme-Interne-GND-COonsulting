@@ -64,6 +64,11 @@ const LINKS: NavLink[] = [
     label: 'Tâches',
     match: (p) => p.startsWith('/prospects/taches'),
   },
+  {
+    href: '/sequences',
+    label: 'Séquences',
+    match: (p) => p.startsWith('/sequences'),
+  },
 ];
 
 export default function Navbar({
