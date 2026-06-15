@@ -50,6 +50,18 @@ const SECTIONS: NavSection[] = [
   },
 ];
 
+/* Design System crème/orange (valeurs verrouillées). */
+const SERIF = 'var(--font-marcellus), Georgia, serif';
+const SANS = 'var(--font-inter), system-ui, sans-serif';
+const CHOCO = '#532418';
+const INK = '#2A2320';
+const MUTED = '#7B665C';
+const BRAND = '#F39253';
+const BRAND_DARK = '#B5601C';
+const CREAM = '#FBF7F2';
+const CREAM_CARD = '#F6EFE7';
+const BORDER = '#E2D5C3';
+
 export default function AdminSidebar({
   userName,
   userEmail,
@@ -75,8 +87,8 @@ export default function AdminSidebar({
         width: 260,
         height: '100vh',
         padding: 22,
-        background: 'linear-gradient(180deg, #1A0F0E 0%, #25140F 100%)',
-        borderRight: '1px solid rgba(232,133,61,0.10)',
+        background: CREAM,
+        borderRight: `1px solid ${BORDER}`,
         display: 'flex',
         flexDirection: 'column',
         gap: 26,
@@ -91,15 +103,15 @@ export default function AdminSidebar({
             width: 38,
             height: 38,
             borderRadius: 12,
-            background: '#3D1F1E',
-            border: '1px solid rgba(232,133,61,0.20)',
+            background: BRAND,
+            border: '1px solid rgba(83,36,24,0.10)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontFamily: 'var(--font-fraunces), Georgia, serif',
-            fontSize: 14,
+            fontFamily: SERIF,
+            fontSize: 13,
             fontWeight: 600,
-            color: '#E8853D',
+            color: '#2A1810',
             letterSpacing: '0.02em',
           }}
         >
@@ -108,10 +120,10 @@ export default function AdminSidebar({
         <div>
           <div
             style={{
-              fontFamily: 'var(--font-fraunces), Georgia, serif',
+              fontFamily: SERIF,
               fontSize: 17,
               fontWeight: 500,
-              color: '#FDF6EE',
+              color: CHOCO,
               letterSpacing: '-0.01em',
               lineHeight: 1,
             }}
@@ -120,7 +132,7 @@ export default function AdminSidebar({
             <em
               style={{
                 fontStyle: 'italic',
-                color: '#E8853D',
+                color: BRAND_DARK,
                 fontWeight: 500,
               }}
             >
@@ -129,11 +141,12 @@ export default function AdminSidebar({
           </div>
           <div
             style={{
-              fontFamily: 'var(--font-geist-mono), ui-monospace, monospace',
+              fontFamily: SANS,
               fontSize: 9,
+              fontWeight: 600,
               textTransform: 'uppercase',
               letterSpacing: '0.22em',
-              color: 'rgba(232,133,61,0.7)',
+              color: MUTED,
               marginTop: 4,
             }}
           >
@@ -151,12 +164,12 @@ export default function AdminSidebar({
           >
             <div
               style={{
-                fontFamily: 'var(--font-geist-mono), ui-monospace, monospace',
+                fontFamily: SANS,
                 fontSize: 9,
                 fontWeight: 600,
                 textTransform: 'uppercase',
                 letterSpacing: '0.25em',
-                color: 'rgba(232,133,61,0.6)',
+                color: MUTED,
                 padding: '0 12px 8px',
               }}
             >
@@ -179,14 +192,14 @@ export default function AdminSidebar({
                     padding: '10px 12px',
                     borderRadius: 12,
                     background: isActive
-                      ? 'rgba(232,133,61,0.10)'
+                      ? 'rgba(243,146,83,0.14)'
                       : 'transparent',
                     border: isActive
-                      ? '1px solid rgba(232,133,61,0.20)'
+                      ? '1px solid rgba(243,146,83,0.30)'
                       : '1px solid transparent',
-                    color: isActive ? '#E8853D' : 'rgba(253,246,238,0.7)',
+                    color: isActive ? CHOCO : MUTED,
                     textDecoration: 'none',
-                    fontFamily: 'var(--font-geist-sans), system-ui, sans-serif',
+                    fontFamily: SANS,
                     fontSize: 13,
                     fontWeight: isActive ? 600 : 500,
                     transition: 'all 0.2s',
@@ -209,8 +222,8 @@ export default function AdminSidebar({
           gap: 10,
           padding: 10,
           borderRadius: 14,
-          background: 'rgba(253,246,238,0.04)',
-          border: '1px solid rgba(232,133,61,0.10)',
+          background: CREAM_CARD,
+          border: `1px solid ${BORDER}`,
         }}
       >
         <div
@@ -218,12 +231,12 @@ export default function AdminSidebar({
             width: 32,
             height: 32,
             borderRadius: 999,
-            background: 'linear-gradient(135deg, #E8853D, #D4732A)',
-            color: '#3D1F1E',
+            background: 'linear-gradient(135deg, #F39253, #E07E3C)',
+            color: '#2A1810',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontFamily: 'var(--font-fraunces), Georgia, serif',
+            fontFamily: SERIF,
             fontSize: 13,
             fontWeight: 600,
             flexShrink: 0,
@@ -234,10 +247,10 @@ export default function AdminSidebar({
         <div style={{ flex: 1, minWidth: 0 }}>
           <div
             style={{
-              fontFamily: 'var(--font-geist-sans), system-ui, sans-serif',
+              fontFamily: SANS,
               fontSize: 12,
               fontWeight: 600,
-              color: '#FDF6EE',
+              color: INK,
               whiteSpace: 'nowrap',
               overflow: 'hidden',
               textOverflow: 'ellipsis',
@@ -247,12 +260,12 @@ export default function AdminSidebar({
           </div>
           <div
             style={{
-              fontFamily: 'var(--font-geist-mono), ui-monospace, monospace',
+              fontFamily: SANS,
               fontSize: 9,
               fontWeight: 600,
               textTransform: 'uppercase',
               letterSpacing: '0.22em',
-              color: '#E8853D',
+              color: BRAND_DARK,
             }}
           >
             {userRole}
