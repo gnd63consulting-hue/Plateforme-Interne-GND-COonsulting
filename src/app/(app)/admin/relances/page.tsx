@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase-server';
 import { labelForStatus } from '@/lib/prospects';
+import ProspectQuickEdit from './ProspectQuickEdit';
 
 export const dynamic = 'force-dynamic';
 
@@ -94,7 +95,7 @@ export default async function RelancesPage() {
         </h1>
         <p style={{ fontSize: 14, lineHeight: 1.55, color: CREAM_SOFT, marginTop: 12, maxWidth: 620 }}>
           Qui doit rappeler quel prospect et quand — posé par les commerciaux sur leurs fiches.
-          Les retards sont en rouge. Lecture seule, en temps réel à chaque ouverture.
+          Les retards sont en rouge. Mets à jour le statut ou reporte une relance via le bouton « Mettre à jour ».
         </p>
       </header>
 
@@ -165,7 +166,7 @@ function Group({ title, rows, color, userName, emptyText }: { title: string; row
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
               <tr>
-                {['Date', 'Commercial', 'Prospect', 'Contact', 'Statut'].map((h) => (
+                {['Date', 'Commercial', 'Prospect', 'Contact', 'Statut', 'Action'].map((h) => (
                   <th key={h} style={{ textAlign: 'left', padding: '11px 16px', fontFamily: MONO, fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.14em', color: CREAM_FAINT, borderBottom: '1px solid #E2D5C3' }}>{h}</th>
                 ))}
               </tr>
@@ -188,6 +189,9 @@ function Group({ title, rows, color, userName, emptyText }: { title: string; row
                       <span style={{ fontFamily: MONO, fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', color: CREAM_SOFT }}>
                         {labelForStatus(r.status)}
                       </span>
+                    </td>
+                    <td style={{ padding: '12px 16px' }}>
+                      <ProspectQuickEdit prospectId={r.id} currentStatus={r.status} />
                     </td>
                   </tr>
                 );
