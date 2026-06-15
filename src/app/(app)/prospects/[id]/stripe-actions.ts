@@ -133,7 +133,7 @@ export async function createStripeInvoice(
   } catch (e) {
     return { url: null, error: stripeErr(e) };
   }
-  if ('error' in ctx) return { url: null, error: ctx.error };
+  if ('error' in ctx) return { url: null, error: ctx.error ?? 'Acces refuse.' };
   const { supabase, quote, lines, prospect } = ctx;
 
   try {
@@ -225,7 +225,7 @@ export async function createStripePaymentLink(
   } catch (e) {
     return { url: null, error: stripeErr(e) };
   }
-  if ('error' in ctx) return { url: null, error: ctx.error };
+  if ('error' in ctx) return { url: null, error: ctx.error ?? 'Acces refuse.' };
   const { supabase, quote } = ctx;
 
   try {
