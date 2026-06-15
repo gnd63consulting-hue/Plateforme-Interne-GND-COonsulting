@@ -12,6 +12,10 @@
  *   - Qualif         : ca_estime, classification, branche, note_google, nombre_avis,
  *                      taille_entreprise, nombre_employes
  *   - Adresse        : address (rue précise) en complément de city
+ *
+ * Déduplication (migration 0013) :
+ *   - email_norm / phone_norm : colonnes GÉNÉRÉES STORED (lecture seule côté app)
+ *   - merged_into             : id de la fiche maître si cette fiche a été fusionnée
  */
 
 /** Statuts affichables. Le legacy 'prospecte' n'est plus dans la liste
@@ -92,6 +96,10 @@ export type Prospect = {
   // Sync Notion
   notion_page_id: string | null;
   synced_at: string | null;
+  // Déduplication (migration 0013) — colonnes générées + traçabilité fusion
+  email_norm: string | null;
+  phone_norm: string | null;
+  merged_into: string | null;
   // Timestamps
   created_at: string;
   updated_at: string;
@@ -137,6 +145,9 @@ export const PROSPECT_SELECT_COLUMNS = [
   'nombre_employes',
   'notion_page_id',
   'synced_at',
+  'email_norm',
+  'phone_norm',
+  'merged_into',
   'created_at',
   'updated_at',
 ].join(', ');

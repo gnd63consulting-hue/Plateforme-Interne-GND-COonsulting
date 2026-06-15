@@ -11,6 +11,7 @@ import {
   Users,
   Rocket,
   CalendarClock,
+  CopyCheck,
 } from 'lucide-react';
 
 type NavItem = {
@@ -40,6 +41,7 @@ const SECTIONS: NavSection[] = [
     items: [
       { id: 'vue-globale', icon: Shield, label: 'Vue globale', href: '/admin' },
       { id: 'relances', icon: CalendarClock, label: 'Relances', href: '/admin/relances' },
+      { id: 'doublons', icon: CopyCheck, label: 'Doublons', href: '/admin/doublons' },
       { id: 'equipe', icon: Users, label: 'Équipe', href: '/admin/invitations' },
       { id: 'paliers', icon: Rocket, label: 'Paliers bonus', href: '/admin' },
     ],
