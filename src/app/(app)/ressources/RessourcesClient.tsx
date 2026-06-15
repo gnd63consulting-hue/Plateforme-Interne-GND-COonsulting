@@ -44,7 +44,7 @@ export default function RessourcesClient() {
         <motion.span
           aria-hidden
           style={{ y: watermarkY, opacity: watermarkOpacity }}
-          className="pointer-events-none absolute -bottom-10 -left-4 select-none whitespace-nowrap font-marcellus text-[20vw] font-medium leading-none tracking-tighter text-gnd-bronze/[0.04] sm:-bottom-20 sm:text-[16rem]"
+          className="pointer-events-none absolute -bottom-10 -left-4 select-none whitespace-nowrap font-marcellus text-[20vw] font-medium leading-none tracking-tighter text-choco/[0.04] sm:-bottom-20 sm:text-[16rem]"
         >
           Ressources.
         </motion.span>
@@ -167,7 +167,7 @@ export default function RessourcesClient() {
             subtitle="Trois appels, trois objectifs distincts. Chacun a un rôle précis dans le processus de vente — ne pas les confondre."
           >
             {/* Internal banner */}
-            <div className="mb-6 flex items-start gap-3 rounded-2xl border border-gnd-amber/30 bg-gnd-amber-pale/30 px-4 py-3">
+            <div className="mb-6 flex items-start gap-3 rounded-2xl border border-brand/20 bg-brand-soft/50 px-4 py-3">
               <Lock className="mt-0.5 h-4 w-4 shrink-0 text-brand-dark" aria-hidden />
               <p className="text-xs leading-relaxed text-muted-warm">
                 <span className="font-semibold text-ink-warm">
@@ -217,9 +217,9 @@ export default function RessourcesClient() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-50px' }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-            className="overflow-hidden rounded-3xl border border-border-soft bg-gradient-to-br from-gnd-paper via-gnd-cream to-gnd-cream-dim shadow-soft"
+            className="overflow-hidden rounded-3xl border border-border-soft bg-gradient-to-br from-white to-cream shadow-soft"
           >
-            <div className="h-px w-full bg-gradient-to-r from-transparent via-gnd-amber to-transparent" />
+            <div className="h-px w-full bg-gradient-to-r from-transparent via-brand to-transparent" />
             <div className="p-7">
               <div className="mb-2 flex items-center gap-2">
                 <span className="h-px w-6 bg-brand" />
@@ -232,7 +232,7 @@ export default function RessourcesClient() {
               </h2>
               <div className="space-y-5">
                 {CONTACTS.map((c) => (
-                  <div key={c.name} className="border-l-2 border-gnd-amber/30 pl-4">
+                  <div key={c.name} className="border-l-2 border-brand/30 pl-4">
                     <p className="font-marcellus text-base font-medium text-choco">
                       {c.name}
                     </p>
@@ -240,7 +240,7 @@ export default function RessourcesClient() {
                     {c.email && (
                       <a
                         href={`mailto:${c.email}`}
-                        className="mt-1 inline-flex items-center gap-1 font-inter text-xs text-brand-dark transition-colors hover:text-gnd-amber"
+                        className="mt-1 inline-flex items-center gap-1 font-inter text-xs text-brand-dark transition-colors hover:text-brand"
                       >
                         {c.email}
                         <ArrowUpRight className="h-3 w-3" aria-hidden />
@@ -259,43 +259,36 @@ export default function RessourcesClient() {
             </div>
           </motion.div>
 
+          {/* Carte Module 03 — version CREME lisible (etait sombre/illisible) */}
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-50px' }}
             transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-            className="relative overflow-hidden rounded-3xl border border-border-soft bg-gradient-to-br from-gnd-bronze via-gnd-bronze to-gnd-ink p-7 text-choco shadow-soft-md"
+            className="relative overflow-hidden rounded-3xl border border-border-soft bg-cream-deep p-7 shadow-soft"
           >
-            <div
-              aria-hidden
-              className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-gnd-amber/30 blur-3xl"
-            />
-            <div
-              aria-hidden
-              className="pointer-events-none absolute -bottom-12 -left-12 h-32 w-32 rounded-full bg-gnd-amber/15 blur-2xl"
-            />
             <div className="relative">
-              <div className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-gnd-amber/15 px-2.5 py-1 font-inter text-[9px] font-semibold uppercase tracking-[0.18em] text-brand-dark">
+              <div className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-brand-soft px-2.5 py-1 font-inter text-[9px] font-semibold uppercase tracking-[0.18em] text-brand-dark">
                 <Sparkles className="h-3 w-3" aria-hidden />
                 Module 03
               </div>
-              <h3 className="font-marcellus text-xl font-medium leading-tight">
+              <h3 className="font-marcellus text-xl font-medium leading-tight text-choco">
                 Process de vente <span className="italic text-brand-dark">complet</span>
               </h3>
-              <p className="mt-2 text-sm leading-relaxed text-gnd-cream/70">
+              <p className="mt-2 text-sm leading-relaxed text-muted-warm">
                 Le module 03 déroule l'intégralité du process commercial.
                 Scénario A, scénario B, et les 6 étapes.
               </p>
               <Link
                 href="/formation/module-03-process-vente"
-                className="group mt-5 inline-flex items-center gap-2 rounded-full bg-cream px-4 py-2.5 text-xs font-semibold text-ink-warm transition-all hover:bg-white hover:gap-3"
+                className="group mt-5 inline-flex items-center gap-2 rounded-full bg-brand px-4 py-2.5 text-xs font-semibold text-choco transition-all hover:bg-brand-dark hover:gap-3"
               >
                 <BookOpen className="h-3.5 w-3.5" aria-hidden />
                 Ouvrir le module
               </Link>
               <span
                 aria-hidden
-                className="pointer-events-none absolute -bottom-3 right-3 select-none font-marcellus text-7xl font-medium italic leading-none text-gnd-amber/15"
+                className="pointer-events-none absolute -bottom-3 right-3 select-none font-marcellus text-7xl font-medium italic leading-none text-brand/10"
               >
                 03
               </span>
@@ -386,45 +379,46 @@ export default function RessourcesClient() {
           />
         </div>
 
+        {/* Footer contact — CHOCOLAT PLEIN + texte CREME (etait fonce-sur-fonce illisible) */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-50px' }}
           transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-          className="relative mt-8 overflow-hidden rounded-3xl border border-border-soft bg-gradient-to-br from-gnd-bronze via-gnd-bronze to-gnd-ink p-10 text-choco shadow-warm-xl md:p-14"
+          className="relative mt-8 overflow-hidden rounded-3xl border border-choco bg-choco p-10 text-cream shadow-soft-lg md:p-14"
         >
           <div
             aria-hidden
-            className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full bg-gnd-amber/20 blur-3xl"
+            className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full bg-brand/20 blur-3xl"
           />
           <div
             aria-hidden
-            className="pointer-events-none absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-brand-soft blur-3xl"
+            className="pointer-events-none absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-brand/10 blur-3xl"
           />
           <div className="relative flex flex-col items-start gap-6 md:flex-row md:items-center md:justify-between">
             <div className="max-w-xl">
-              <p className="mb-3 font-inter text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-dark">
+              <p className="mb-3 font-inter text-[10px] font-semibold uppercase tracking-[0.2em] text-brand">
                 Une question, un projet ?
               </p>
               <h3 className="font-marcellus text-3xl font-medium leading-tight md:text-4xl">
                 On en discute{' '}
-                <span className="italic text-brand-dark">directement</span>.
+                <span className="italic text-brand">directement</span>.
               </h3>
-              <p className="mt-4 text-sm leading-relaxed text-gnd-cream/70">
+              <p className="mt-4 text-sm leading-relaxed text-cream/70">
                 GND Consulting — agence créative et tech.
               </p>
             </div>
             <div className="flex flex-col gap-3">
               <a
                 href="tel:+33759506322"
-                className="group inline-flex items-center gap-3 rounded-full bg-brand px-6 py-3.5 text-sm font-semibold text-ink-warm transition-all hover:bg-gnd-amber-glow hover:shadow-glow-amber"
+                className="group inline-flex items-center gap-3 rounded-full bg-brand px-6 py-3.5 text-sm font-semibold text-choco transition-all hover:bg-brand-dark hover:shadow-soft-md"
               >
                 <Phone className="h-4 w-4" aria-hidden />
                 07 59 50 63 22
               </a>
               <a
                 href="mailto:contact@gndconsulting.fr"
-                className="group inline-flex items-center gap-3 rounded-full border border-gnd-cream/20 bg-gnd-cream/5 px-6 py-3.5 text-sm font-semibold text-choco transition-all hover:bg-gnd-cream/10"
+                className="group inline-flex items-center gap-3 rounded-full border border-cream/25 bg-cream/5 px-6 py-3.5 text-sm font-semibold text-cream transition-all hover:bg-cream/10"
               >
                 <Mail className="h-4 w-4" aria-hidden />
                 contact@gndconsulting.fr
@@ -460,7 +454,7 @@ function SectionCard({
     >
       <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex items-start gap-4">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gnd-amber/15 text-brand-dark">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-brand-soft text-brand-dark">
             {icon}
           </span>
           <div>
@@ -493,7 +487,7 @@ function ArgGrid({ items }: { items: { bold: string; body: string }[] }) {
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: i * 0.07, ease: 'easeOut' }}
-          className="flex gap-4 rounded-2xl border border-transparent px-4 py-3 transition-colors hover:border-gnd-bronze/8 hover:bg-gnd-cream/50"
+          className="flex gap-4 rounded-2xl border border-transparent px-4 py-3 transition-colors hover:border-border-soft hover:bg-cream"
         >
           <span className="shrink-0 font-marcellus text-xl font-medium italic leading-none text-brand-dark">
             {String(i + 1).padStart(2, '0')}
@@ -518,7 +512,7 @@ function DosDontsCard({
 }) {
   const styles = {
     do: { border: 'border-emerald-700/15', bg: 'bg-emerald-50/40', label: 'text-emerald-800', dot: 'bg-emerald-700/60', icon: <CheckCircle2 className="h-4 w-4" aria-hidden /> },
-    dont: { border: 'border-border-soft', bg: 'bg-gnd-bronze/[0.025]', label: 'text-ink-warm', dot: 'bg-gnd-bronze/40', icon: <XCircle className="h-4 w-4" aria-hidden /> },
+    dont: { border: 'border-border-soft', bg: 'bg-cream', label: 'text-ink-warm', dot: 'bg-muted-warm/50', icon: <XCircle className="h-4 w-4" aria-hidden /> },
     never: { border: 'border-rose-700/20', bg: 'bg-rose-50/40', label: 'text-rose-800', dot: 'bg-rose-700/60', icon: <AlertTriangle className="h-4 w-4" aria-hidden /> },
   } as const;
   const s = styles[tone];
@@ -607,7 +601,7 @@ function DemoLink({ href, children }: { href: string; children: React.ReactNode 
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-flex items-center gap-0.5 font-medium text-brand-dark underline decoration-gnd-amber/40 underline-offset-2 transition-colors hover:text-gnd-amber hover:decoration-gnd-amber"
+      className="inline-flex items-center gap-0.5 font-medium text-brand-dark underline decoration-brand/40 underline-offset-2 transition-colors hover:text-brand hover:decoration-brand"
     >
       {children}
       <ExternalLink className="h-3 w-3" aria-hidden />
@@ -646,43 +640,44 @@ const PACKS: Pack[] = [
 function PricingCard({ pack, index }: { pack: Pack; index: number }) {
   const { num, name, priceLabel, highlight, forWho, why, features } = pack;
   if (highlight) {
+    // Pack premium : carte CHOCOLAT PLEIN + texte CREME (lisible, intentionnel).
     return (
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-50px' }}
         transition={{ duration: 0.7, delay: index * 0.1, ease: [0.22, 1, 0.36, 1] }}
-        className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-gnd-amber/30 bg-gradient-to-br from-gnd-bronze via-gnd-bronze to-gnd-ink p-8 text-choco shadow-warm-xl lg:scale-[1.03] lg:z-10"
+        className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-choco bg-choco p-8 text-cream shadow-soft-lg lg:scale-[1.03] lg:z-10"
       >
-        <div aria-hidden className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-gnd-amber/25 blur-3xl" />
+        <div aria-hidden className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-brand/25 blur-3xl" />
         <div className="absolute right-6 top-0 -translate-y-1/2">
-          <span className="inline-flex items-center gap-1 rounded-full bg-brand px-3 py-1 font-inter text-[9px] font-semibold uppercase tracking-[0.18em] text-ink-warm shadow-soft-md">
+          <span className="inline-flex items-center gap-1 rounded-full bg-brand px-3 py-1 font-inter text-[9px] font-semibold uppercase tracking-[0.18em] text-choco shadow-soft-md">
             <Sparkles className="h-2.5 w-2.5" aria-hidden />
             Recommandé
           </span>
         </div>
         <div className="relative">
-          <p className="mb-1 font-inter text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-dark">Pack {num}</p>
+          <p className="mb-1 font-inter text-[10px] font-semibold uppercase tracking-[0.2em] text-brand">Pack {num}</p>
           <h3 className="font-marcellus text-2xl font-medium leading-tight tracking-tight">{name}</h3>
-          <p className="mt-5 font-inter text-[10px] uppercase tracking-[0.18em] text-gnd-cream/50">À partir de</p>
+          <p className="mt-5 font-inter text-[10px] uppercase tracking-[0.18em] text-cream/50">À partir de</p>
           <div className="mt-1 flex items-baseline gap-1.5">
-            <span className="font-marcellus text-4xl font-medium leading-none text-choco md:text-5xl">{priceLabel}</span>
-            <span className="font-marcellus text-2xl text-brand-dark">€</span>
-            <span className="ml-1 font-inter text-[10px] uppercase tracking-[0.15em] text-gnd-cream/50">TTC</span>
+            <span className="font-marcellus text-4xl font-medium leading-none text-cream md:text-5xl">{priceLabel}</span>
+            <span className="font-marcellus text-2xl text-brand">€</span>
+            <span className="ml-1 font-inter text-[10px] uppercase tracking-[0.15em] text-cream/50">TTC</span>
           </div>
         </div>
-        <p className="relative mt-6 border-l-2 border-gnd-amber/40 pl-3 text-xs italic leading-relaxed text-gnd-cream/70">{forWho}</p>
+        <p className="relative mt-6 border-l-2 border-brand/40 pl-3 text-xs italic leading-relaxed text-cream/70">{forWho}</p>
         <ul className="relative mt-6 flex-grow space-y-2.5">
           {features.map((f, i) => (
-            <motion.li key={f} initial={{ opacity: 0, x: -4 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.4, delay: 0.3 + i * 0.04 }} className="flex items-start gap-2.5 text-sm leading-relaxed text-gnd-cream/85">
-              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-brand-dark" aria-hidden />
+            <motion.li key={f} initial={{ opacity: 0, x: -4 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.4, delay: 0.3 + i * 0.04 }} className="flex items-start gap-2.5 text-sm leading-relaxed text-cream/85">
+              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-brand" aria-hidden />
               <span>{f}</span>
             </motion.li>
           ))}
         </ul>
-        <div className="relative mt-6 rounded-2xl bg-brand-soft p-4">
-          <p className="font-inter text-[9px] font-semibold uppercase tracking-[0.2em] text-brand-dark">Pourquoi le choisir</p>
-          <p className="mt-1.5 text-xs italic leading-relaxed text-gnd-cream/80">{why}</p>
+        <div className="relative mt-6 rounded-2xl bg-white/10 p-4">
+          <p className="font-inter text-[9px] font-semibold uppercase tracking-[0.2em] text-brand">Pourquoi le choisir</p>
+          <p className="mt-1.5 text-xs italic leading-relaxed text-cream/80">{why}</p>
         </div>
       </motion.div>
     );
@@ -705,7 +700,7 @@ function PricingCard({ pack, index }: { pack: Pack; index: number }) {
           <span className="ml-1 font-inter text-[10px] uppercase tracking-[0.15em] text-muted-warm">TTC</span>
         </div>
       </div>
-      <p className="mt-6 border-l-2 border-gnd-amber/40 pl-3 text-xs italic leading-relaxed text-muted-warm">{forWho}</p>
+      <p className="mt-6 border-l-2 border-brand/40 pl-3 text-xs italic leading-relaxed text-muted-warm">{forWho}</p>
       <ul className="mt-6 flex-grow space-y-2.5">
         {features.map((f, i) => (
           <motion.li key={f} initial={{ opacity: 0, x: -4 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.4, delay: 0.3 + i * 0.04 }} className="flex items-start gap-2.5 text-sm leading-relaxed text-muted-warm">
@@ -732,7 +727,7 @@ function ModalityCard({ icon, title, lines, footnote }: { icon: React.ReactNode;
       className="flex flex-col gap-4 rounded-3xl border border-border-soft bg-white p-7 shadow-soft"
     >
       <div className="flex items-center gap-3">
-        <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gnd-amber/15 text-brand-dark">{icon}</span>
+        <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-brand-soft text-brand-dark">{icon}</span>
         <h3 className="font-marcellus text-xl font-medium text-choco">{title}</h3>
       </div>
       <div className="space-y-1.5">
