@@ -5,16 +5,18 @@ import { labelForStatus } from '@/lib/prospects';
 import type { DedupGroup } from '@/lib/dedup';
 import { mergeProspects, dismissGroup } from './actions';
 
-const CREAM = '#FDF6EE';
-const CREAM_SOFT = 'rgba(253,246,238,0.6)';
-const CREAM_FAINT = 'rgba(253,246,238,0.4)';
-const AMBER = '#E8853D';
-const GREEN = '#7FC9A3';
-const CARD_BG = 'rgba(253,246,238,0.04)';
-const BORDER = '1px solid rgba(232,133,61,0.14)';
-const SERIF = 'var(--font-fraunces), Georgia, serif';
-const MONO = 'var(--font-geist-mono), ui-monospace, monospace';
-const SANS = 'var(--font-geist-sans), system-ui, sans-serif';
+// Design System crème/orange — texte FONCÉ sur fond clair (AA).
+const CREAM = '#2A2320';
+const CREAM_SOFT = '#7B665C';
+const CREAM_FAINT = '#9A8A80';
+const AMBER = '#B5601C';        // accent orange foncé (texte, AA)
+const BTN = '#F39253';          // orange vif (fond bouton)
+const GREEN = '#4F7A38';
+const CARD_BG = '#FFFFFF';
+const BORDER = '1px solid #E2D5C3';
+const SERIF = 'var(--font-marcellus), Georgia, serif';
+const MONO = 'var(--font-inter), ui-monospace, monospace';
+const SANS = 'var(--font-inter), system-ui, sans-serif';
 
 function fmt(iso: string): string {
   try {
@@ -116,7 +118,7 @@ export default function DoublonsClient({ groups, assignedNames, totalActive }: P
             fontSize: 32,
             fontWeight: 500,
             letterSpacing: '-0.01em',
-            color: CREAM,
+            color: '#532418',
             margin: 0,
             lineHeight: 1.1,
           }}
@@ -151,7 +153,7 @@ export default function DoublonsClient({ groups, assignedNames, totalActive }: P
             marginBottom: 20,
             borderRadius: 14,
             border: BORDER,
-            background: 'rgba(232,133,61,0.08)',
+            background: '#FBF3EA',
             padding: '12px 16px',
             fontSize: 13,
             color: CREAM,
@@ -171,7 +173,7 @@ export default function DoublonsClient({ groups, assignedNames, totalActive }: P
             textAlign: 'center',
           }}
         >
-          <p style={{ fontFamily: SERIF, fontSize: 20, color: CREAM, margin: 0 }}>
+          <p style={{ fontFamily: SERIF, fontSize: 20, color: '#532418', margin: 0 }}>
             Aucun doublon à traiter.
           </p>
           <p style={{ fontSize: 13, color: CREAM_SOFT, marginTop: 8 }}>
@@ -201,7 +203,7 @@ export default function DoublonsClient({ groups, assignedNames, totalActive }: P
                     alignItems: 'center',
                     gap: 10,
                     padding: '14px 18px',
-                    borderBottom: '1px solid rgba(232,133,61,0.12)',
+                    borderBottom: '1px solid #E2D5C3',
                   }}
                 >
                   <span
@@ -212,7 +214,7 @@ export default function DoublonsClient({ groups, assignedNames, totalActive }: P
                       textTransform: 'uppercase',
                       letterSpacing: '0.16em',
                       color: g.criterion === 'email' ? AMBER : GREEN,
-                      background: 'rgba(253,246,238,0.04)',
+                      background: '#FBF7F2',
                       border: BORDER,
                       borderRadius: 999,
                       padding: '4px 10px',
@@ -246,8 +248,8 @@ export default function DoublonsClient({ groups, assignedNames, totalActive }: P
                           alignItems: 'flex-start',
                           gap: 12,
                           padding: '14px 18px',
-                          borderBottom: '1px solid rgba(253,246,238,0.06)',
-                          background: isMaster ? 'rgba(232,133,61,0.06)' : 'transparent',
+                          borderBottom: '1px solid rgba(83,36,24,0.06)',
+                          background: isMaster ? 'rgba(243,146,83,0.10)' : 'transparent',
                           cursor: 'pointer',
                         }}
                       >
@@ -259,7 +261,7 @@ export default function DoublonsClient({ groups, assignedNames, totalActive }: P
                             setMasters((prev) => ({ ...prev, [g.signature]: p.id }))
                           }
                           aria-label={`Définir ${p.company_name} comme fiche maître`}
-                          style={{ marginTop: 4, accentColor: AMBER }}
+                          style={{ marginTop: 4, accentColor: BTN }}
                         />
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div
@@ -357,7 +359,7 @@ export default function DoublonsClient({ groups, assignedNames, totalActive }: P
                     flexWrap: 'wrap',
                     gap: 10,
                     padding: '14px 18px',
-                    borderTop: '1px solid rgba(232,133,61,0.12)',
+                    borderTop: '1px solid #E2D5C3',
                   }}
                 >
                   <button
@@ -368,8 +370,8 @@ export default function DoublonsClient({ groups, assignedNames, totalActive }: P
                       fontFamily: SANS,
                       fontSize: 13,
                       fontWeight: 600,
-                      color: '#3D1F1E',
-                      background: AMBER,
+                      color: '#2A1810',
+                      background: BTN,
                       border: 'none',
                       borderRadius: 999,
                       padding: '9px 18px',
