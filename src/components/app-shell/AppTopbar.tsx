@@ -63,18 +63,25 @@ export default function AppTopbar({
         <Menu className="h-5 w-5" aria-hidden />
       </button>
 
-      {/* Search pill (décorative) — fond crème #F7EEE3 (cream-deep). */}
-      <div className="relative hidden max-w-md flex-1 sm:block">
+      {/* Search pill (décorative) — large capsule crème + raccourci ⌘K
+          (réf mockup). Aucune logique métier côté client n'est ajoutée. */}
+      <div className="relative hidden max-w-xl flex-1 sm:block">
         <Search
           className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-warm"
           aria-hidden
         />
         <input
           type="search"
-          placeholder="Rechercher un prospect, une ressource…"
+          placeholder="Rechercher un prospect, une entreprise, un contact…"
           aria-label="Rechercher"
-          className="h-10 w-full rounded-full bg-cream-deep pl-10 pr-4 text-sm text-ink-warm placeholder:text-muted-warm/70 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-ring"
+          className="h-10 w-full rounded-full bg-cream-deep pl-10 pr-16 text-sm text-ink-warm placeholder:text-muted-warm/70 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-ring"
         />
+        <kbd
+          aria-hidden
+          className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 rounded-md border border-border-soft bg-surface-soft px-1.5 py-0.5 font-inter text-[10px] font-semibold text-muted-warm"
+        >
+          ⌘K
+        </kbd>
       </div>
 
       <div className="flex-1 sm:hidden" />
