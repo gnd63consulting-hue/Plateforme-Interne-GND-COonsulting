@@ -945,7 +945,7 @@ function renderInline(text: string, theme: AnalysisTheme): React.ReactNode[] {
         <a
           key={`p${key++}`}
           href={`tel:${cleanPhone}`}
-          className={`whitespace-nowrap rounded px-1 py-0.5 font-mono text-[13px] font-semibold underline-offset-2 hover:underline ${theme.phoneBg} ${theme.phoneText}`}
+          className={`whitespace-nowrap rounded px-1 py-0.5 font-inter text-[13px] font-semibold underline-offset-2 hover:underline ${theme.phoneBg} ${theme.phoneText}`}
         >
           {match[5]}
         </a>
@@ -966,7 +966,7 @@ function renderInline(text: string, theme: AnalysisTheme): React.ReactNode[] {
       out.push(
         <span
           key={`s${key++}`}
-          className="rounded bg-slate-100 px-1 py-0.5 font-mono text-[12px] text-slate-700"
+          className="rounded bg-slate-100 px-1 py-0.5 font-inter text-[12px] text-slate-700"
         >
           {match[7]}
         </span>
