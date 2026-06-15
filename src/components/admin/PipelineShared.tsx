@@ -56,20 +56,20 @@ export type ProspectFull = Prospect & {
 // Configurations partagées
 // ───────────────────────────────────────────────────────────────
 export const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; border: string }> = {
-  a_contacter:  { label: 'À contacter',  color: '#8A6D6B', bg: 'rgba(138,109,107,0.12)', border: 'rgba(138,109,107,0.25)' },
-  contacte:     { label: 'Contacté',     color: '#5B8AB8', bg: 'rgba(91,138,184,0.12)',  border: 'rgba(91,138,184,0.25)' },
-  rdv_pris:     { label: 'RDV pris',     color: '#7B70C4', bg: 'rgba(123,112,196,0.12)', border: 'rgba(123,112,196,0.25)' },
-  devis_envoye: { label: 'Devis envoyé', color: '#C49A3C', bg: 'rgba(196,154,60,0.12)',  border: 'rgba(196,154,60,0.25)' },
-  gagne:        { label: 'Devis signé',  color: '#5A8A3F', bg: 'rgba(90,138,63,0.12)',   border: 'rgba(90,138,63,0.25)' },
-  perdu:        { label: 'Perdu',        color: '#B5421F', bg: 'rgba(181,66,31,0.12)',   border: 'rgba(181,66,31,0.25)' },
-  archived:     { label: 'Archivé',      color: '#8A6D6B', bg: 'rgba(138,109,107,0.10)', border: 'rgba(138,109,107,0.20)' },
-  prospecte:    { label: 'Prospecté',    color: '#8A6D6B', bg: 'rgba(138,109,107,0.12)', border: 'rgba(138,109,107,0.25)' },
+  a_contacter:  { label: 'À contacter',  color: '#7B5E5C', bg: 'rgba(138,109,107,0.14)', border: 'rgba(138,109,107,0.30)' },
+  contacte:     { label: 'Contacté',     color: '#3C6E9C', bg: 'rgba(91,138,184,0.14)',  border: 'rgba(91,138,184,0.30)' },
+  rdv_pris:     { label: 'RDV pris',     color: '#5D52A8', bg: 'rgba(123,112,196,0.14)', border: 'rgba(123,112,196,0.30)' },
+  devis_envoye: { label: 'Devis envoyé', color: '#9A7420', bg: 'rgba(196,154,60,0.16)',  border: 'rgba(196,154,60,0.32)' },
+  gagne:        { label: 'Devis signé',  color: '#4F7A38', bg: 'rgba(90,138,63,0.14)',   border: 'rgba(90,138,63,0.30)' },
+  perdu:        { label: 'Perdu',        color: '#B5421F', bg: 'rgba(181,66,31,0.12)',   border: 'rgba(181,66,31,0.28)' },
+  archived:     { label: 'Archivé',      color: '#7B5E5C', bg: 'rgba(138,109,107,0.10)', border: 'rgba(138,109,107,0.24)' },
+  prospecte:    { label: 'Prospecté',    color: '#7B5E5C', bg: 'rgba(138,109,107,0.14)', border: 'rgba(138,109,107,0.30)' },
 };
 
 export const CLASSIF_CONFIG: Record<string, { color: string; bg: string; border: string }> = {
-  '🔥 Chaud': { color: '#E8853D', bg: 'rgba(232,133,61,0.12)', border: 'rgba(232,133,61,0.30)' },
-  '🌡️ Tiède': { color: '#C49A3C', bg: 'rgba(196,154,60,0.12)', border: 'rgba(196,154,60,0.30)' },
-  '❄️ Froid': { color: '#5B8AB8', bg: 'rgba(91,138,184,0.12)', border: 'rgba(91,138,184,0.25)' },
+  '🔥 Chaud': { color: '#C2691F', bg: 'rgba(243,146,83,0.14)', border: 'rgba(243,146,83,0.36)' },
+  '🌡️ Tiède': { color: '#9A7420', bg: 'rgba(196,154,60,0.16)', border: 'rgba(196,154,60,0.36)' },
+  '❄️ Froid': { color: '#3C6E9C', bg: 'rgba(91,138,184,0.14)', border: 'rgba(91,138,184,0.30)' },
 };
 
 const STATUS_OPTIONS: Array<{ value: string; label: string }> = [
@@ -92,12 +92,12 @@ const CLASSIF_OPTIONS: Array<{ value: string; label: string }> = [
 // ───────────────────────────────────────────────────────────────
 // Helpers visuels (Mono, Hairline, RichText)
 // ───────────────────────────────────────────────────────────────
-function Mono({ children, size = 9, color = 'rgba(253,246,238,0.4)', spacing = '0.2em', weight = 600, style = {} }: { children: React.ReactNode; size?: number; color?: string; spacing?: string; weight?: number; style?: React.CSSProperties }) {
-  return <span style={{ fontFamily: 'var(--font-geist-mono), ui-monospace, monospace', fontSize: size, fontWeight: weight, textTransform: 'uppercase', letterSpacing: spacing, color, ...style }}>{children}</span>;
+function Mono({ children, size = 9, color = '#7B665C', spacing = '0.2em', weight = 600, style = {} }: { children: React.ReactNode; size?: number; color?: string; spacing?: string; weight?: number; style?: React.CSSProperties }) {
+  return <span style={{ fontFamily: 'var(--font-inter), ui-sans-serif, system-ui, sans-serif', fontSize: size, fontWeight: weight, textTransform: 'uppercase', letterSpacing: spacing, color, ...style }}>{children}</span>;
 }
 
-function Hairline({ label, color = '#E8853D' }: { label: string; color?: string }) {
-  return <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}><span style={{ display: 'inline-block', width: 24, height: 1, background: color }} /><Mono color={color}>{label}</Mono></div>;
+function Hairline({ label, color = '#B5601C' }: { label: string; color?: string }) {
+  return <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}><span style={{ display: 'inline-block', width: 24, height: 1, background: '#F39253' }} /><Mono color={color}>{label}</Mono></div>;
 }
 
 /**
@@ -108,9 +108,9 @@ export function RichText({ text, font = 'sans' }: { text: string | null | undefi
   if (!text) return null;
   const blocks = text.split(/\n\s*\n/).map((b) => b.trim()).filter(Boolean);
   const bulletRx = /^[-•*▪◦·]\s+|^\d+\.\s+/;
-  const baseFont = font === 'serif' ? 'var(--font-fraunces)' : 'var(--font-geist-sans)';
+  const baseFont = font === 'serif' ? 'var(--font-marcellus)' : 'var(--font-inter)';
   const baseSize = font === 'serif' ? 14 : 12;
-  const baseColor = font === 'serif' ? 'rgba(253,246,238,0.85)' : 'rgba(253,246,238,0.78)';
+  const baseColor = font === 'serif' ? '#3D2A22' : '#2A2320';
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
       {blocks.map((block, idx) => {
@@ -121,7 +121,7 @@ export function RichText({ text, font = 'sans' }: { text: string | null | undefi
             <ul key={idx} style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
               {lines.map((line, i) => (
                 <li key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', fontFamily: baseFont, fontSize: baseSize, lineHeight: 1.5, color: baseColor }}>
-                  <span style={{ color: '#E8853D', flexShrink: 0, marginTop: 6, fontSize: 6, lineHeight: 1 }}>●</span>
+                  <span style={{ color: '#F39253', flexShrink: 0, marginTop: 6, fontSize: 6, lineHeight: 1 }}>●</span>
                   <span style={{ flex: 1 }}>{line.replace(bulletRx, '')}</span>
                 </li>
               ))}
@@ -147,7 +147,7 @@ function DrawerSection({ label, children }: { label: string; children: React.Rea
   return (
     <div style={{ marginBottom: 22 }}>
       <div style={{ marginBottom: 10 }}><Hairline label={label} /></div>
-      <div style={{ background: 'rgba(0,0,0,0.18)', border: '1px solid rgba(232,133,61,0.08)', borderRadius: 12, padding: '12px 14px' }}>{children}</div>
+      <div style={{ background: '#FBF7F2', border: '1px solid #E2D5C3', borderRadius: 12, padding: '12px 14px' }}>{children}</div>
     </div>
   );
 }
@@ -155,8 +155,8 @@ function DrawerSection({ label, children }: { label: string; children: React.Rea
 function DrawerField({ k, v }: { k: string; v: React.ReactNode }) {
   return (
     <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, padding: '4px 0' }}>
-      <Mono size={8} color="rgba(253,246,238,0.4)" style={{ minWidth: 100, textTransform: 'uppercase' }}>{k}</Mono>
-      <div style={{ flex: 1, fontFamily: 'var(--font-geist-sans)', fontSize: 12, color: 'rgba(253,246,238,0.8)', wordBreak: 'break-word' }}>{v ?? <span style={{ color: 'rgba(253,246,238,0.25)' }}>—</span>}</div>
+      <Mono size={8} color="#7B665C" style={{ minWidth: 100, textTransform: 'uppercase' }}>{k}</Mono>
+      <div style={{ flex: 1, fontFamily: 'var(--font-inter)', fontSize: 12, color: '#2A2320', wordBreak: 'break-word' }}>{v ?? <span style={{ color: '#B8A89C' }}>—</span>}</div>
     </div>
   );
 }
@@ -165,8 +165,8 @@ function DrawerField({ k, v }: { k: string; v: React.ReactNode }) {
  * EditableField — bascule lecture / édition selon `isEditing`.
  * En mode lecture : rendu identique à DrawerField. En mode édition :
  * input / select / textarea contrôlé. Style des inputs : bg
- * rgba(253,246,238,0.04), border 1px amber 0.18, padding 8/12, focus
- * border amber 0.4. Identique pour les 3 variantes (A/C/G).
+ * blanc, border 1px border-soft, padding 8/12, focus
+ * border brand. Identique pour les 3 variantes (A/C/G).
  */
 type EditableFieldType = 'text' | 'email' | 'tel' | 'select' | 'textarea';
 
@@ -193,30 +193,30 @@ function EditableField({
   }
   const inputBase: React.CSSProperties = {
     width: '100%',
-    background: 'rgba(253,246,238,0.04)',
-    border: '1px solid rgba(232,133,61,0.18)',
+    background: '#FFFFFF',
+    border: '1px solid #E2D5C3',
     borderRadius: 8,
     padding: '8px 12px',
-    fontFamily: mono ? 'var(--font-geist-mono)' : 'var(--font-geist-sans)',
+    fontFamily: mono ? 'var(--font-inter)' : 'var(--font-inter)',
     fontSize: mono ? 10 : 12,
-    color: '#FDF6EE',
+    color: '#2A2320',
     outline: 'none',
     transition: 'border-color 0.15s',
     letterSpacing: mono ? '0.1em' : 'normal',
     textTransform: mono ? 'uppercase' : 'none',
   };
   const focusHandlers = {
-    onFocus: (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => { e.currentTarget.style.borderColor = 'rgba(232,133,61,0.4)'; },
-    onBlur: (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => { e.currentTarget.style.borderColor = 'rgba(232,133,61,0.18)'; },
+    onFocus: (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => { e.currentTarget.style.borderColor = 'rgba(243,146,83,0.6)'; },
+    onBlur: (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => { e.currentTarget.style.borderColor = '#E2D5C3'; },
   };
   return (
     <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '6px 0' }}>
-      <Mono size={8} color="rgba(253,246,238,0.4)" style={{ minWidth: 100, textTransform: 'uppercase', paddingTop: 10 }}>{label}</Mono>
+      <Mono size={8} color="#7B665C" style={{ minWidth: 100, textTransform: 'uppercase', paddingTop: 10 }}>{label}</Mono>
       <div style={{ flex: 1 }}>
         {type === 'select' && options ? (
           <select value={value ?? ''} onChange={(e) => onChange(e.target.value)} style={inputBase} {...focusHandlers}>
             {options.map((opt) => (
-              <option key={opt.value} value={opt.value} style={{ background: '#1A0F0E', color: '#FDF6EE' }}>{opt.label}</option>
+              <option key={opt.value} value={opt.value} style={{ background: '#FFFFFF', color: '#2A2320' }}>{opt.label}</option>
             ))}
           </select>
         ) : type === 'textarea' ? (
@@ -224,7 +224,7 @@ function EditableField({
             value={value ?? ''}
             onChange={(e) => onChange(e.target.value)}
             rows={4}
-            style={{ ...inputBase, fontFamily: 'var(--font-geist-sans)', fontSize: 12, lineHeight: 1.5, resize: 'vertical', minHeight: 80 }}
+            style={{ ...inputBase, fontFamily: 'var(--font-inter)', fontSize: 12, lineHeight: 1.5, resize: 'vertical', minHeight: 80 }}
             {...focusHandlers}
           />
         ) : (
@@ -368,22 +368,22 @@ function ProspectDetailDrawer({ prospect, commercial, onClose }: { prospect: Pro
   };
 
   return (
-    <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 100, backdropFilter: 'blur(4px)' }} data-lenis-prevent>
-      <div onClick={(e) => e.stopPropagation()} style={{ position: 'fixed', right: 0, top: 0, bottom: 0, width: '100%', maxWidth: 520, background: 'linear-gradient(135deg,#1A0F0E,#0E0807)', borderLeft: '1px solid rgba(232,133,61,0.20)', overflowY: 'auto', padding: 28, boxShadow: '-20px 0 60px rgba(0,0,0,0.5)' }} data-lenis-prevent>
+    <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(83,36,24,0.35)', zIndex: 100, backdropFilter: 'blur(4px)' }} data-lenis-prevent>
+      <div onClick={(e) => e.stopPropagation()} style={{ position: 'fixed', right: 0, top: 0, bottom: 0, width: '100%', maxWidth: 520, background: 'linear-gradient(135deg,#FFFFFF,#FBF7F2)', borderLeft: '1px solid #E2D5C3', overflowY: 'auto', padding: 28, boxShadow: '-20px 0 60px rgba(83,36,24,0.18)' }} data-lenis-prevent>
         <div style={{ position: 'sticky', top: 0, float: 'right', display: 'inline-flex', alignItems: 'center', gap: 6, zIndex: 1 }}>
           {isEditing ? (
             <>
               <button
                 onClick={handleSave}
                 disabled={saving}
-                style={{ background: saving ? 'rgba(232,133,61,0.20)' : 'linear-gradient(90deg,#D4732A,#E8853D,#FFA060)', border: 'none', borderRadius: 8, padding: '5px 11px', color: saving ? '#E8853D' : '#3D1F1E', cursor: saving ? 'wait' : 'pointer', fontFamily: 'var(--font-geist-mono)', fontSize: 10, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase' }}
+                style={{ background: saving ? 'rgba(243,146,83,0.18)' : 'linear-gradient(90deg,#D97A3D,#F39253,#FFA060)', border: 'none', borderRadius: 8, padding: '5px 11px', color: saving ? '#B5601C' : '#FFFFFF', cursor: saving ? 'wait' : 'pointer', fontFamily: 'var(--font-inter)', fontSize: 10, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase' }}
               >
                 {saving ? 'SAUVEGARDE…' : 'ENREGISTRER'}
               </button>
               <button
                 onClick={handleCancel}
                 disabled={saving}
-                style={{ background: 'rgba(253,246,238,0.06)', border: '1px solid rgba(253,246,238,0.15)', borderRadius: 8, padding: '5px 11px', color: 'rgba(253,246,238,0.7)', cursor: saving ? 'not-allowed' : 'pointer', fontFamily: 'var(--font-geist-mono)', fontSize: 9, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase' }}
+                style={{ background: '#FFFFFF', border: '1px solid #E2D5C3', borderRadius: 8, padding: '5px 11px', color: '#7B665C', cursor: saving ? 'not-allowed' : 'pointer', fontFamily: 'var(--font-inter)', fontSize: 9, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase' }}
               >
                 ANNULER
               </button>
@@ -391,29 +391,29 @@ function ProspectDetailDrawer({ prospect, commercial, onClose }: { prospect: Pro
           ) : (
             <button
               onClick={handleEdit}
-              style={{ background: 'rgba(232,133,61,0.10)', border: '1px solid rgba(232,133,61,0.25)', borderRadius: 8, padding: '5px 11px', color: '#E8853D', cursor: 'pointer', fontFamily: 'var(--font-geist-mono)', fontSize: 9, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase' }}
+              style={{ background: 'rgba(243,146,83,0.12)', border: '1px solid rgba(243,146,83,0.35)', borderRadius: 8, padding: '5px 11px', color: '#B5601C', cursor: 'pointer', fontFamily: 'var(--font-inter)', fontSize: 9, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase' }}
             >
               MODIFIER
             </button>
           )}
-          <button onClick={onClose} style={{ background: 'rgba(232,133,61,0.10)', border: '1px solid rgba(232,133,61,0.25)', borderRadius: 8, padding: '5px 11px', color: '#E8853D', cursor: 'pointer', fontFamily: 'var(--font-geist-mono)', fontSize: 9, fontWeight: 600, letterSpacing: '0.15em' }}>FERMER · ESC</button>
+          <button onClick={onClose} style={{ background: 'rgba(243,146,83,0.12)', border: '1px solid rgba(243,146,83,0.35)', borderRadius: 8, padding: '5px 11px', color: '#B5601C', cursor: 'pointer', fontFamily: 'var(--font-inter)', fontSize: 9, fontWeight: 600, letterSpacing: '0.15em' }}>FERMER · ESC</button>
         </div>
         {errMsg && (
-          <div style={{ clear: 'both', marginTop: 8, marginBottom: 12, padding: '8px 12px', borderRadius: 8, background: 'rgba(181,66,31,0.08)', border: '1px solid rgba(181,66,31,0.30)', color: '#E8853D', fontFamily: 'var(--font-geist-mono)', fontSize: 10, letterSpacing: '0.1em' }}>
+          <div style={{ clear: 'both', marginTop: 8, marginBottom: 12, padding: '8px 12px', borderRadius: 8, background: 'rgba(181,66,31,0.08)', border: '1px solid rgba(181,66,31,0.30)', color: '#B5421F', fontFamily: 'var(--font-inter)', fontSize: 10, letterSpacing: '0.1em' }}>
             {errMsg}
           </div>
         )}
         <div style={{ marginBottom: 24, clear: 'both' }}>
-          <Mono color="#E8853D" spacing="0.22em" style={{ display: 'block', marginBottom: 8 }}>FICHE PROSPECT{isEditing ? ' · ÉDITION' : ''}</Mono>
-          <h2 style={{ fontFamily: 'var(--font-fraunces)', fontSize: 30, fontWeight: 500, lineHeight: 1.05, letterSpacing: '-0.02em', color: '#FDF6EE', margin: '0 0 6px' }}>{p.company_name}</h2>
-          <Mono size={9} color="rgba(253,246,238,0.4)" spacing="0.15em" style={{ display: 'block', marginBottom: 10 }}>{p.city ?? '—'}{p.postal_code ? ` · ${p.postal_code}` : ''}{p.secteur_activite ? ` · ${p.secteur_activite}` : ''}</Mono>
+          <Mono color="#B5601C" spacing="0.22em" style={{ display: 'block', marginBottom: 8 }}>FICHE PROSPECT{isEditing ? ' · ÉDITION' : ''}</Mono>
+          <h2 style={{ fontFamily: 'var(--font-marcellus)', fontSize: 30, fontWeight: 500, lineHeight: 1.05, letterSpacing: '-0.02em', color: '#532418', margin: '0 0 6px' }}>{p.company_name}</h2>
+          <Mono size={9} color="#7B665C" spacing="0.15em" style={{ display: 'block', marginBottom: 10 }}>{p.city ?? '—'}{p.postal_code ? ` · ${p.postal_code}` : ''}{p.secteur_activite ? ` · ${p.secteur_activite}` : ''}</Mono>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 10 }}>
-            {classifCfg && classifValue && <span style={{ padding: '3px 8px', borderRadius: 999, background: classifCfg.bg, color: classifCfg.color, border: `1px solid ${classifCfg.border}`, fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em' }}>{classifValue}</span>}
-            <span style={{ padding: '3px 8px', borderRadius: 999, background: statusCfg.bg, color: statusCfg.color, border: `1px solid ${statusCfg.border}`, fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em' }}>{statusCfg.label}</span>
-            {p.branche && <span style={{ padding: '3px 8px', borderRadius: 999, background: 'rgba(232,133,61,0.08)', color: '#E8853D', border: '1px solid rgba(232,133,61,0.20)', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em' }}>{p.branche}</span>}
+            {classifCfg && classifValue && <span style={{ padding: '3px 8px', borderRadius: 999, background: classifCfg.bg, color: classifCfg.color, border: `1px solid ${classifCfg.border}`, fontFamily: 'var(--font-inter)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em' }}>{classifValue}</span>}
+            <span style={{ padding: '3px 8px', borderRadius: 999, background: statusCfg.bg, color: statusCfg.color, border: `1px solid ${statusCfg.border}`, fontFamily: 'var(--font-inter)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em' }}>{statusCfg.label}</span>
+            {p.branche && <span style={{ padding: '3px 8px', borderRadius: 999, background: 'rgba(243,146,83,0.10)', color: '#B5601C', border: '1px solid rgba(243,146,83,0.28)', fontFamily: 'var(--font-inter)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em' }}>{p.branche}</span>}
           </div>
           {p.notion_page_id && (
-            <a href={`https://www.notion.so/${p.notion_page_id.replace(/-/g, '')}`} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', fontFamily: 'var(--font-geist-mono)', fontSize: 9, color: '#E8853D', textDecoration: 'none', borderBottom: '1px solid rgba(232,133,61,0.30)', paddingBottom: 1, letterSpacing: '0.12em', textTransform: 'uppercase' }}>↗ OUVRIR SUR NOTION</a>
+            <a href={`https://www.notion.so/${p.notion_page_id.replace(/-/g, '')}`} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', fontFamily: 'var(--font-inter)', fontSize: 9, color: '#B5601C', textDecoration: 'none', borderBottom: '1px solid rgba(243,146,83,0.40)', paddingBottom: 1, letterSpacing: '0.12em', textTransform: 'uppercase' }}>↗ OUVRIR SUR NOTION</a>
           )}
         </div>
 
@@ -435,16 +435,16 @@ function ProspectDetailDrawer({ prospect, commercial, onClose }: { prospect: Pro
             <>
               <DrawerField k="NOM" v={fullName} />
               <DrawerField k="RÔLE" v={p.role_contact} />
-              <DrawerField k="EMAIL" v={p.email ? <a href={`mailto:${p.email}`} style={{ color: '#FFA060', textDecoration: 'none' }}>{p.email}</a> : null} />
-              <DrawerField k="TÉLÉPHONE" v={p.phone ? <a href={`tel:${p.phone}`} style={{ color: '#FFA060', textDecoration: 'none' }}>{p.phone}</a> : null} />
-              <DrawerField k="LINKEDIN" v={p.linkedin_contact ? <a href={p.linkedin_contact} target="_blank" rel="noopener noreferrer" style={{ color: '#FFA060', textDecoration: 'none' }}>Profil →</a> : null} />
+              <DrawerField k="EMAIL" v={p.email ? <a href={`mailto:${p.email}`} style={{ color: '#C2691F', textDecoration: 'none' }}>{p.email}</a> : null} />
+              <DrawerField k="TÉLÉPHONE" v={p.phone ? <a href={`tel:${p.phone}`} style={{ color: '#C2691F', textDecoration: 'none' }}>{p.phone}</a> : null} />
+              <DrawerField k="LINKEDIN" v={p.linkedin_contact ? <a href={p.linkedin_contact} target="_blank" rel="noopener noreferrer" style={{ color: '#C2691F', textDecoration: 'none' }}>Profil →</a> : null} />
             </>
           )}
         </DrawerSection>
 
         <DrawerSection label="ENTREPRISE">
           <DrawerField k="ADRESSE" v={p.address ?? p.city} />
-          <DrawerField k="SITE WEB" v={p.website ? <a href={p.website} target="_blank" rel="noopener noreferrer" style={{ color: '#FFA060', textDecoration: 'none' }}>{p.website}</a> : null} />
+          <DrawerField k="SITE WEB" v={p.website ? <a href={p.website} target="_blank" rel="noopener noreferrer" style={{ color: '#C2691F', textDecoration: 'none' }}>{p.website}</a> : null} />
           <DrawerField k="TAILLE" v={p.taille_entreprise} />
           <DrawerField k="EMPLOYÉS" v={p.nombre_employes} />
           <DrawerField k="CA ESTIMÉ" v={p.ca_estime} />
@@ -452,10 +452,10 @@ function ProspectDetailDrawer({ prospect, commercial, onClose }: { prospect: Pro
         </DrawerSection>
 
         <DrawerSection label="RÉSEAUX SOCIAUX">
-          <DrawerField k="INSTAGRAM" v={p.instagram ? <a href={p.instagram} target="_blank" rel="noopener noreferrer" style={{ color: '#FFA060', textDecoration: 'none' }}>Voir →</a> : null} />
-          <DrawerField k="FACEBOOK" v={p.facebook ? <a href={p.facebook} target="_blank" rel="noopener noreferrer" style={{ color: '#FFA060', textDecoration: 'none' }}>Voir →</a> : null} />
-          <DrawerField k="LINKEDIN" v={p.linkedin_entreprise ? <a href={p.linkedin_entreprise} target="_blank" rel="noopener noreferrer" style={{ color: '#FFA060', textDecoration: 'none' }}>Voir →</a> : null} />
-          <DrawerField k="TIKTOK" v={p.tiktok ? <a href={p.tiktok} target="_blank" rel="noopener noreferrer" style={{ color: '#FFA060', textDecoration: 'none' }}>Voir →</a> : null} />
+          <DrawerField k="INSTAGRAM" v={p.instagram ? <a href={p.instagram} target="_blank" rel="noopener noreferrer" style={{ color: '#C2691F', textDecoration: 'none' }}>Voir →</a> : null} />
+          <DrawerField k="FACEBOOK" v={p.facebook ? <a href={p.facebook} target="_blank" rel="noopener noreferrer" style={{ color: '#C2691F', textDecoration: 'none' }}>Voir →</a> : null} />
+          <DrawerField k="LINKEDIN" v={p.linkedin_entreprise ? <a href={p.linkedin_entreprise} target="_blank" rel="noopener noreferrer" style={{ color: '#C2691F', textDecoration: 'none' }}>Voir →</a> : null} />
+          <DrawerField k="TIKTOK" v={p.tiktok ? <a href={p.tiktok} target="_blank" rel="noopener noreferrer" style={{ color: '#C2691F', textDecoration: 'none' }}>Voir →</a> : null} />
         </DrawerSection>
 
         {p.recommandation_approche && (
@@ -466,22 +466,22 @@ function ProspectDetailDrawer({ prospect, commercial, onClose }: { prospect: Pro
 
         {(p.analyse_besoin || p.analyse_budget || p.analyse_timing) && (
           <DrawerSection label="ANALYSES">
-            {p.analyse_besoin && <div style={{ marginBottom: 10 }}><Mono size={8} color="#E8853D" spacing="0.18em" style={{ display: 'block', marginBottom: 4 }}>BESOIN</Mono><RichText text={p.analyse_besoin} /></div>}
-            {p.analyse_budget && <div style={{ marginBottom: 10 }}><Mono size={8} color="#E8853D" spacing="0.18em" style={{ display: 'block', marginBottom: 4 }}>BUDGET</Mono><RichText text={p.analyse_budget} /></div>}
-            {p.analyse_timing && <div><Mono size={8} color="#E8853D" spacing="0.18em" style={{ display: 'block', marginBottom: 4 }}>TIMING</Mono><RichText text={p.analyse_timing} /></div>}
+            {p.analyse_besoin && <div style={{ marginBottom: 10 }}><Mono size={8} color="#B5601C" spacing="0.18em" style={{ display: 'block', marginBottom: 4 }}>BESOIN</Mono><RichText text={p.analyse_besoin} /></div>}
+            {p.analyse_budget && <div style={{ marginBottom: 10 }}><Mono size={8} color="#B5601C" spacing="0.18em" style={{ display: 'block', marginBottom: 4 }}>BUDGET</Mono><RichText text={p.analyse_budget} /></div>}
+            {p.analyse_timing && <div><Mono size={8} color="#B5601C" spacing="0.18em" style={{ display: 'block', marginBottom: 4 }}>TIMING</Mono><RichText text={p.analyse_timing} /></div>}
           </DrawerSection>
         )}
 
         {(args && args.length > 0) || (besoins && besoins.length > 0) ? (
           <DrawerSection label="QUALIFICATION">
-            {args && args.length > 0 && <div style={{ marginBottom: 10 }}><Mono size={8} color="rgba(253,246,238,0.4)" style={{ display: 'block', marginBottom: 6 }}>ARGUMENTS CLÉS</Mono><div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>{args.map((a) => <span key={a} style={{ padding: '3px 8px', borderRadius: 999, background: 'rgba(232,133,61,0.10)', color: '#E8853D', border: '1px solid rgba(232,133,61,0.22)', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em' }}>{a}</span>)}</div></div>}
-            {besoins && besoins.length > 0 && <div><Mono size={8} color="rgba(253,246,238,0.4)" style={{ display: 'block', marginBottom: 6 }}>BESOINS DÉTECTÉS</Mono><div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>{besoins.map((b) => <span key={b} style={{ padding: '3px 8px', borderRadius: 999, background: 'rgba(160,115,92,0.10)', color: '#A0735C', border: '1px solid rgba(160,115,92,0.22)', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em' }}>{b}</span>)}</div></div>}
+            {args && args.length > 0 && <div style={{ marginBottom: 10 }}><Mono size={8} color="#7B665C" style={{ display: 'block', marginBottom: 6 }}>ARGUMENTS CLÉS</Mono><div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>{args.map((a) => <span key={a} style={{ padding: '3px 8px', borderRadius: 999, background: 'rgba(243,146,83,0.10)', color: '#B5601C', border: '1px solid rgba(243,146,83,0.30)', fontFamily: 'var(--font-inter)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em' }}>{a}</span>)}</div></div>}
+            {besoins && besoins.length > 0 && <div><Mono size={8} color="#7B665C" style={{ display: 'block', marginBottom: 6 }}>BESOINS DÉTECTÉS</Mono><div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>{besoins.map((b) => <span key={b} style={{ padding: '3px 8px', borderRadius: 999, background: 'rgba(160,115,92,0.12)', color: '#7D4A35', border: '1px solid rgba(160,115,92,0.30)', fontFamily: 'var(--font-inter)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em' }}>{b}</span>)}</div></div>}
           </DrawerSection>
         ) : null}
 
         {commercial && (
           <DrawerSection label="ASSIGNATION">
-            <DrawerField k="COMMERCIAL" v={<span style={{ display: 'inline-flex', alignItems: 'center', gap: 7 }}><span style={{ width: 22, height: 22, borderRadius: 999, background: 'linear-gradient(135deg,rgba(232,133,61,0.25),rgba(196,154,60,0.15))', border: '1px solid rgba(232,133,61,0.22)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-fraunces)', fontSize: 9, fontWeight: 600, color: '#E8853D' }}>{commercial.initials}</span>{commercial.name}</span>} />
+            <DrawerField k="COMMERCIAL" v={<span style={{ display: 'inline-flex', alignItems: 'center', gap: 7 }}><span style={{ width: 22, height: 22, borderRadius: 999, background: 'linear-gradient(135deg,rgba(243,146,83,0.25),rgba(196,154,60,0.15))', border: '1px solid rgba(243,146,83,0.30)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-marcellus)', fontSize: 9, fontWeight: 600, color: '#B5601C' }}>{commercial.initials}</span>{commercial.name}</span>} />
             <DrawerField k="EMAIL COM" v={commercial.email} />
           </DrawerSection>
         )}
@@ -490,7 +490,7 @@ function ProspectDetailDrawer({ prospect, commercial, onClose }: { prospect: Pro
           {isEditing ? (
             <EditableField label="NOTES" value={draft.notes} onChange={setField('notes')} type="textarea" isEditing />
           ) : (
-            p.notes ? <RichText text={p.notes} /> : <Mono size={9} color="rgba(253,246,238,0.3)">—</Mono>
+            p.notes ? <RichText text={p.notes} /> : <Mono size={9} color="#B8A89C">—</Mono>
           )}
         </DrawerSection>
       </div>
@@ -632,18 +632,18 @@ export function PipelineSection({
 
   return (
     <>
-      <div id="pipeline-section" style={{ background: 'rgba(253,246,238,0.03)', border: '1px solid rgba(232,133,61,0.10)', borderRadius: 18, overflow: 'visible', scrollMarginTop: 20 }}>
-        <div style={{ padding: '14px 20px', borderBottom: '1px solid rgba(232,133,61,0.10)' }}>
+      <div id="pipeline-section" style={{ background: '#FFFFFF', border: '1px solid #E2D5C3', borderRadius: 18, overflow: 'visible', scrollMarginTop: 20, boxShadow: '0 1px 3px rgba(83,36,24,0.06)' }}>
+        <div style={{ padding: '14px 20px', borderBottom: '1px solid #E2D5C3' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
             <Hairline label="PIPELINE PROSPECTS" />
-            <Mono size={9} color="rgba(253,246,238,0.4)">{filtered.filter((p) => p.status !== 'archived').length} ACTIFS / {prospects.length} TOTAL</Mono>
+            <Mono size={9} color="#7B665C">{filtered.filter((p) => p.status !== 'archived').length} ACTIFS / {prospects.length} TOTAL</Mono>
           </div>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
-            <Mono size={8} color="rgba(253,246,238,0.4)" style={{ marginRight: 4 }}>COMMERCIAL :</Mono>
+            <Mono size={8} color="#7B665C" style={{ marginRight: 4 }}>COMMERCIAL :</Mono>
             <button
               key="all"
               onClick={clearCommercials}
-              style={{ padding: '3px 9px', borderRadius: 8, cursor: 'pointer', background: filterCommercials.length === 0 ? 'rgba(232,133,61,0.15)' : 'transparent', border: `1px solid ${filterCommercials.length === 0 ? 'rgba(232,133,61,0.30)' : 'rgba(232,133,61,0.10)'}`, color: filterCommercials.length === 0 ? '#E8853D' : 'rgba(253,246,238,0.4)', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.14em' }}
+              style={{ padding: '3px 9px', borderRadius: 8, cursor: 'pointer', background: filterCommercials.length === 0 ? 'rgba(243,146,83,0.15)' : '#FBF7F2', border: `1px solid ${filterCommercials.length === 0 ? 'rgba(243,146,83,0.40)' : '#E2D5C3'}`, color: filterCommercials.length === 0 ? '#B5601C' : '#7B665C', fontFamily: 'var(--font-inter)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.14em' }}
             >Tous</button>
             {commerciaux.map((c) => {
               const isActive = filterCommercials.includes(c.id);
@@ -651,26 +651,26 @@ export function PipelineSection({
                 <button
                   key={c.id}
                   onClick={() => toggleCommercial(c.id)}
-                  style={{ padding: '3px 9px', borderRadius: 8, cursor: 'pointer', background: isActive ? 'rgba(232,133,61,0.18)' : 'transparent', border: `1px solid ${isActive ? 'rgba(232,133,61,0.35)' : 'rgba(232,133,61,0.10)'}`, color: isActive ? '#E8853D' : 'rgba(253,246,238,0.4)', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.14em' }}
+                  style={{ padding: '3px 9px', borderRadius: 8, cursor: 'pointer', background: isActive ? 'rgba(243,146,83,0.18)' : '#FBF7F2', border: `1px solid ${isActive ? 'rgba(243,146,83,0.40)' : '#E2D5C3'}`, color: isActive ? '#B5601C' : '#7B665C', fontFamily: 'var(--font-inter)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.14em' }}
                 >{c.name.split(' ')[0]}{isActive ? ' ✓' : ''}</button>
               );
             })}
-            <span style={{ width: 1, height: 14, background: 'rgba(232,133,61,0.10)', margin: '0 4px' }} />
-            <Mono size={8} color="rgba(253,246,238,0.4)" style={{ marginRight: 4 }}>STATUT :</Mono>
+            <span style={{ width: 1, height: 14, background: '#E2D5C3', margin: '0 4px' }} />
+            <Mono size={8} color="#7B665C" style={{ marginRight: 4 }}>STATUT :</Mono>
             {[{ id: 'all', label: 'Tous' }, { id: 'a_contacter', label: 'À contacter' }, { id: 'contacte', label: 'Contacté' }, { id: 'rdv_pris', label: 'RDV' }, { id: 'devis_envoye', label: 'Devis' }, { id: 'gagne', label: 'Signé' }].map((opt) => (
-              <button key={opt.id} onClick={() => setFilterStatus(opt.id)} style={{ padding: '3px 9px', borderRadius: 8, cursor: 'pointer', background: filterStatus === opt.id ? 'rgba(232,133,61,0.15)' : 'transparent', border: `1px solid ${filterStatus === opt.id ? 'rgba(232,133,61,0.30)' : 'rgba(232,133,61,0.10)'}`, color: filterStatus === opt.id ? '#E8853D' : 'rgba(253,246,238,0.4)', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.14em' }}>{opt.label}</button>
+              <button key={opt.id} onClick={() => setFilterStatus(opt.id)} style={{ padding: '3px 9px', borderRadius: 8, cursor: 'pointer', background: filterStatus === opt.id ? 'rgba(243,146,83,0.15)' : '#FBF7F2', border: `1px solid ${filterStatus === opt.id ? 'rgba(243,146,83,0.40)' : '#E2D5C3'}`, color: filterStatus === opt.id ? '#B5601C' : '#7B665C', fontFamily: 'var(--font-inter)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.14em' }}>{opt.label}</button>
             ))}
-            <button onClick={() => setShowArchived((v) => !v)} style={{ padding: '3px 9px', borderRadius: 8, cursor: 'pointer', marginLeft: 'auto', background: showArchived ? 'rgba(107,107,107,0.15)' : 'transparent', border: `1px solid ${showArchived ? 'rgba(107,107,107,0.30)' : 'rgba(232,133,61,0.10)'}`, color: showArchived ? '#8A8A8A' : 'rgba(253,246,238,0.4)', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.14em' }}>{showArchived ? '⊙' : '○'} Archivés</button>
+            <button onClick={() => setShowArchived((v) => !v)} style={{ padding: '3px 9px', borderRadius: 8, cursor: 'pointer', marginLeft: 'auto', background: showArchived ? 'rgba(123,102,92,0.15)' : '#FBF7F2', border: `1px solid ${showArchived ? 'rgba(123,102,92,0.35)' : '#E2D5C3'}`, color: showArchived ? '#5E4F47' : '#7B665C', fontFamily: 'var(--font-inter)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.14em' }}>{showArchived ? '⊙' : '○'} Archivés</button>
           </div>
         </div>
         <div style={{ overflowX: 'auto', overflowY: 'visible' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 940 }}>
             <thead>
-              <tr style={{ background: 'rgba(26,15,14,0.95)' }}>
+              <tr style={{ background: '#FBF7F2' }}>
                 {cols.map((c) => (
-                  <th key={c.key} onClick={() => c.sortable && handleSort(c.key as SortKey)} style={{ padding: '11px 14px', textAlign: 'left', cursor: c.sortable ? 'pointer' : 'default', userSelect: 'none', fontFamily: 'var(--font-geist-mono)', fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.18em', whiteSpace: 'nowrap', color: sortCol === c.key ? '#E8853D' : 'rgba(253,246,238,0.4)', borderBottom: `1px solid ${sortCol === c.key ? 'rgba(232,133,61,0.25)' : 'rgba(232,133,61,0.10)'}` }}>{c.label} {c.sortable && sortCol === c.key ? (sortDir === 'asc' ? '↑' : '↓') : ''}</th>
+                  <th key={c.key} onClick={() => c.sortable && handleSort(c.key as SortKey)} style={{ padding: '11px 14px', textAlign: 'left', cursor: c.sortable ? 'pointer' : 'default', userSelect: 'none', fontFamily: 'var(--font-inter)', fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.18em', whiteSpace: 'nowrap', color: sortCol === c.key ? '#B5601C' : '#7B665C', borderBottom: `1px solid ${sortCol === c.key ? 'rgba(243,146,83,0.40)' : '#E2D5C3'}` }}>{c.label} {c.sortable && sortCol === c.key ? (sortDir === 'asc' ? '↑' : '↓') : ''}</th>
                 ))}
-                <th style={{ padding: '11px 14px', textAlign: 'right', fontFamily: 'var(--font-geist-mono)', fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.18em', color: 'rgba(253,246,238,0.4)', borderBottom: '1px solid rgba(232,133,61,0.10)' }}>ACTIONS</th>
+                <th style={{ padding: '11px 14px', textAlign: 'right', fontFamily: 'var(--font-inter)', fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.18em', color: '#7B665C', borderBottom: '1px solid #E2D5C3' }}>ACTIONS</th>
               </tr>
             </thead>
             <tbody>
@@ -683,45 +683,45 @@ export function PipelineSection({
                 const score = scoreOf(p);
                 const isReassigning = reassigning === p.id;
                 return (
-                  <tr key={p.id} style={{ borderBottom: '1px solid rgba(232,133,61,0.05)', opacity: isArchived ? 0.45 : 1, background: i % 2 === 0 ? 'transparent' : 'rgba(253,246,238,0.008)' }}>
+                  <tr key={p.id} style={{ borderBottom: '1px solid #F0E7DA', opacity: isArchived ? 0.5 : 1, background: i % 2 === 0 ? '#FFFFFF' : '#FCFAF6' }}>
                     <td style={{ padding: '10px 14px' }}>
-                      <div style={{ fontFamily: 'var(--font-fraunces)', fontSize: 13, fontWeight: 500, color: '#FDF6EE', letterSpacing: '-0.01em' }}>{p.company_name}</div>
-                      <Mono size={8} color="rgba(253,246,238,0.38)" spacing="0.13em" style={{ display: 'block', marginTop: 2 }}>{p.city ?? '—'}{p.postal_code ? ` · ${p.postal_code}` : ''}</Mono>
+                      <div style={{ fontFamily: 'var(--font-marcellus)', fontSize: 13, fontWeight: 500, color: '#532418', letterSpacing: '-0.01em' }}>{p.company_name}</div>
+                      <Mono size={8} color="#9B8A7E" spacing="0.13em" style={{ display: 'block', marginTop: 2 }}>{p.city ?? '—'}{p.postal_code ? ` · ${p.postal_code}` : ''}</Mono>
                     </td>
                     <td style={{ padding: '10px 14px' }}>
-                      <div style={{ display: 'inline-flex', alignItems: 'baseline', gap: 1, background: score >= 8 ? 'rgba(232,133,61,0.12)' : score >= 6 ? 'rgba(196,154,60,0.10)' : 'rgba(138,109,107,0.10)', borderRadius: 7, padding: '3px 7px' }}>
-                        <span style={{ fontFamily: 'var(--font-fraunces)', fontSize: 15, fontWeight: 500, color: score >= 8 ? '#E8853D' : score >= 6 ? '#C49A3C' : '#8A6D6B', fontVariantNumeric: 'tabular-nums' }}>{score}</span>
-                        <Mono size={8} color="rgba(253,246,238,0.4)">/10</Mono>
+                      <div style={{ display: 'inline-flex', alignItems: 'baseline', gap: 1, background: score >= 8 ? 'rgba(243,146,83,0.14)' : score >= 6 ? 'rgba(196,154,60,0.14)' : 'rgba(138,109,107,0.12)', borderRadius: 7, padding: '3px 7px' }}>
+                        <span style={{ fontFamily: 'var(--font-marcellus)', fontSize: 15, fontWeight: 500, color: score >= 8 ? '#C2691F' : score >= 6 ? '#9A7420' : '#7B5E5C', fontVariantNumeric: 'tabular-nums' }}>{score}</span>
+                        <Mono size={8} color="#9B8A7E">/10</Mono>
                       </div>
                     </td>
-                    <td style={{ padding: '10px 14px' }}>{classifCfg && <span style={{ padding: '3px 8px', borderRadius: 999, background: classifCfg.bg, color: classifCfg.color, border: `1px solid ${classifCfg.border}`, fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em', whiteSpace: 'nowrap' }}>{p.classification}</span>}</td>
-                    <td style={{ padding: '10px 14px' }}><span style={{ padding: '3px 8px', borderRadius: 999, background: statusCfg.bg, color: statusCfg.color, border: `1px solid ${statusCfg.border}`, fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em', whiteSpace: 'nowrap' }}>{statusCfg.label}</span></td>
+                    <td style={{ padding: '10px 14px' }}>{classifCfg && <span style={{ padding: '3px 8px', borderRadius: 999, background: classifCfg.bg, color: classifCfg.color, border: `1px solid ${classifCfg.border}`, fontFamily: 'var(--font-inter)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em', whiteSpace: 'nowrap' }}>{p.classification}</span>}</td>
+                    <td style={{ padding: '10px 14px' }}><span style={{ padding: '3px 8px', borderRadius: 999, background: statusCfg.bg, color: statusCfg.color, border: `1px solid ${statusCfg.border}`, fontFamily: 'var(--font-inter)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em', whiteSpace: 'nowrap' }}>{statusCfg.label}</span></td>
                     <td style={{ padding: '10px 14px' }}>
-                      <div style={{ fontFamily: 'var(--font-geist-sans)', fontSize: 12, color: '#FDF6EE' }}>{pf.prenom_contact || p.contact_name || '—'}</div>
-                      {pf.role_contact && <Mono size={8} color="rgba(253,246,238,0.38)" spacing="0.12em" style={{ display: 'block', marginTop: 2 }}>{pf.role_contact}</Mono>}
+                      <div style={{ fontFamily: 'var(--font-inter)', fontSize: 12, color: '#2A2320' }}>{pf.prenom_contact || p.contact_name || '—'}</div>
+                      {pf.role_contact && <Mono size={8} color="#9B8A7E" spacing="0.12em" style={{ display: 'block', marginTop: 2 }}>{pf.role_contact}</Mono>}
                     </td>
                     <td style={{ padding: '10px 14px' }}>
                       {commercial ? (
                         <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                          <div style={{ width: 22, height: 22, borderRadius: 999, background: 'linear-gradient(135deg,rgba(232,133,61,0.25),rgba(196,154,60,0.15))', border: '1px solid rgba(232,133,61,0.22)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-fraunces)', fontSize: 9, fontWeight: 600, color: '#E8853D' }}>{commercial.initials}</div>
-                          <span style={{ fontFamily: 'var(--font-geist-sans)', fontSize: 11, color: 'rgba(253,246,238,0.4)' }}>{commercial.name.split(' ')[0]}</span>
+                          <div style={{ width: 22, height: 22, borderRadius: 999, background: 'linear-gradient(135deg,rgba(243,146,83,0.25),rgba(196,154,60,0.15))', border: '1px solid rgba(243,146,83,0.30)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-marcellus)', fontSize: 9, fontWeight: 600, color: '#B5601C' }}>{commercial.initials}</div>
+                          <span style={{ fontFamily: 'var(--font-inter)', fontSize: 11, color: '#7B665C' }}>{commercial.name.split(' ')[0]}</span>
                         </div>
-                      ) : <Mono size={8} color="rgba(253,246,238,0.25)">— non assigné</Mono>}
+                      ) : <Mono size={8} color="#B8A89C">— non assigné</Mono>}
                     </td>
-                    <td style={{ padding: '10px 14px' }}><Mono size={9} color="rgba(253,246,238,0.4)" spacing="0.11em">{formatRel(p.updated_at ?? null)}</Mono></td>
+                    <td style={{ padding: '10px 14px' }}><Mono size={9} color="#7B665C" spacing="0.11em">{formatRel(p.updated_at ?? null)}</Mono></td>
                     <td style={{ padding: '10px 14px', textAlign: 'right' }}>
                       <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                        <button onClick={() => setDetailsProspect(p)} title="Voir la fiche prospect" aria-label="Voir la fiche prospect" style={{ padding: '4px 7px', borderRadius: 8, cursor: 'pointer', background: 'rgba(232,133,61,0.10)', border: '1px solid rgba(232,133,61,0.22)', color: '#E8853D', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <button onClick={() => setDetailsProspect(p)} title="Voir la fiche prospect" aria-label="Voir la fiche prospect" style={{ padding: '4px 7px', borderRadius: 8, cursor: 'pointer', background: 'rgba(243,146,83,0.10)', border: '1px solid rgba(243,146,83,0.30)', color: '#B5601C', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
                           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
                         </button>
                         <div style={{ position: 'relative', display: 'inline-block' }}>
-                          <button onClick={() => setReassignOpen(reassignOpen === p.id ? null : p.id)} disabled={isReassigning} style={{ padding: '4px 9px', borderRadius: 8, cursor: isReassigning ? 'wait' : 'pointer', background: 'rgba(91,138,184,0.10)', border: '1px solid rgba(91,138,184,0.22)', color: '#5B8AB8', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em' }}>{isReassigning ? '…' : 'Réassigner ↓'}</button>
+                          <button onClick={() => setReassignOpen(reassignOpen === p.id ? null : p.id)} disabled={isReassigning} style={{ padding: '4px 9px', borderRadius: 8, cursor: isReassigning ? 'wait' : 'pointer', background: 'rgba(91,138,184,0.12)', border: '1px solid rgba(91,138,184,0.30)', color: '#3C6E9C', fontFamily: 'var(--font-inter)', fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em' }}>{isReassigning ? '…' : 'Réassigner ↓'}</button>
                           {reassignOpen === p.id && !isReassigning && (
-                            <div style={{ position: 'absolute', right: 0, top: 'calc(100% + 4px)', zIndex: 30, background: '#1A0F0E', border: '1px solid rgba(232,133,61,0.22)', borderRadius: 10, overflow: 'hidden', minWidth: 130, boxShadow: '0 12px 32px rgba(0,0,0,0.4)' }}>
+                            <div style={{ position: 'absolute', right: 0, top: 'calc(100% + 4px)', zIndex: 30, background: '#FFFFFF', border: '1px solid #E2D5C3', borderRadius: 10, overflow: 'hidden', minWidth: 130, boxShadow: '0 12px 32px rgba(83,36,24,0.18)' }}>
                               {commerciaux.map((c) => (
-                                <button key={c.id} onClick={() => handleReassign(p.id, c.id)} style={{ display: 'block', width: '100%', padding: '8px 12px', textAlign: 'left', background: p.assigned_to === c.id ? 'rgba(232,133,61,0.08)' : 'transparent', border: 'none', cursor: 'pointer', color: p.assigned_to === c.id ? '#E8853D' : '#FDF6EE', fontFamily: 'var(--font-geist-mono)', fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.13em' }}>{c.name.split(' ')[0]} {p.assigned_to === c.id ? '✓' : ''}</button>
+                                <button key={c.id} onClick={() => handleReassign(p.id, c.id)} style={{ display: 'block', width: '100%', padding: '8px 12px', textAlign: 'left', background: p.assigned_to === c.id ? 'rgba(243,146,83,0.10)' : '#FFFFFF', border: 'none', cursor: 'pointer', color: p.assigned_to === c.id ? '#B5601C' : '#2A2320', fontFamily: 'var(--font-inter)', fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.13em' }}>{c.name.split(' ')[0]} {p.assigned_to === c.id ? '✓' : ''}</button>
                               ))}
-                              {p.assigned_to && <button onClick={() => handleReassign(p.id, null)} style={{ display: 'block', width: '100%', padding: '8px 12px', textAlign: 'left', background: 'transparent', border: 'none', borderTop: '1px solid rgba(232,133,61,0.10)', cursor: 'pointer', color: 'rgba(253,246,238,0.5)', fontFamily: 'var(--font-geist-mono)', fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.13em' }}>— Désassigner</button>}
+                              {p.assigned_to && <button onClick={() => handleReassign(p.id, null)} style={{ display: 'block', width: '100%', padding: '8px 12px', textAlign: 'left', background: '#FFFFFF', border: 'none', borderTop: '1px solid #E2D5C3', cursor: 'pointer', color: '#7B665C', fontFamily: 'var(--font-inter)', fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.13em' }}>— Désassigner</button>}
                             </div>
                           )}
                         </div>
@@ -732,21 +732,21 @@ export function PipelineSection({
               })}
             </tbody>
           </table>
-          <div style={{ padding: '10px 14px', borderTop: '1px solid rgba(232,133,61,0.10)', background: 'rgba(26,15,14,0.5)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
-            <Mono size={8} color="rgba(253,246,238,0.4)">{sorted.filter((p) => p.status !== 'archived').length} ACTIFS / {sorted.length} AFFICHÉS / {prospects.length} TOTAL</Mono>
+          <div style={{ padding: '10px 14px', borderTop: '1px solid #E2D5C3', background: '#FBF7F2', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
+            <Mono size={8} color="#7B665C">{sorted.filter((p) => p.status !== 'archived').length} ACTIFS / {sorted.length} AFFICHÉS / {prospects.length} TOTAL</Mono>
             {showPagination ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
-                <Mono size={8} color="rgba(253,246,238,0.4)" style={{ marginRight: 4 }}>PAR PAGE :</Mono>
-                {[20, 50, 100].map((sz) => <button key={sz} onClick={() => setPageSize(sz)} style={{ padding: '3px 8px', borderRadius: 6, cursor: 'pointer', background: pageSize === sz ? 'rgba(232,133,61,0.15)' : 'transparent', border: `1px solid ${pageSize === sz ? 'rgba(232,133,61,0.30)' : 'rgba(232,133,61,0.10)'}`, color: pageSize === sz ? '#E8853D' : 'rgba(253,246,238,0.4)', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, letterSpacing: '0.12em' }}>{sz}</button>)}
-                <span style={{ width: 1, height: 12, background: 'rgba(232,133,61,0.15)', margin: '0 6px' }} />
-                <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={safePage <= 1} style={{ padding: '3px 8px', borderRadius: 6, cursor: safePage <= 1 ? 'not-allowed' : 'pointer', background: 'transparent', border: '1px solid rgba(232,133,61,0.10)', color: safePage <= 1 ? 'rgba(253,246,238,0.2)' : 'rgba(253,246,238,0.6)', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600 }}>← PRÉC.</button>
-                {buildPageList().map((p, idx) => p === 'dots' ? <span key={`d-${idx}`} style={{ padding: '0 4px', color: 'rgba(253,246,238,0.3)', fontFamily: 'var(--font-geist-mono)', fontSize: 8 }}>…</span> : <button key={p} onClick={() => setCurrentPage(p)} style={{ padding: '3px 8px', borderRadius: 6, cursor: 'pointer', background: safePage === p ? 'rgba(232,133,61,0.15)' : 'transparent', border: `1px solid ${safePage === p ? 'rgba(232,133,61,0.30)' : 'rgba(232,133,61,0.10)'}`, color: safePage === p ? '#E8853D' : 'rgba(253,246,238,0.4)', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600, minWidth: 22 }}>{p}</button>)}
-                <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={safePage >= totalPages} style={{ padding: '3px 8px', borderRadius: 6, cursor: safePage >= totalPages ? 'not-allowed' : 'pointer', background: 'transparent', border: '1px solid rgba(232,133,61,0.10)', color: safePage >= totalPages ? 'rgba(253,246,238,0.2)' : 'rgba(253,246,238,0.6)', fontFamily: 'var(--font-geist-mono)', fontSize: 8, fontWeight: 600 }}>SUIV. →</button>
-                <span style={{ width: 1, height: 12, background: 'rgba(232,133,61,0.15)', margin: '0 6px' }} />
-                <Mono size={8} color="rgba(232,133,61,0.5)">PAGE {safePage} / {totalPages}</Mono>
+                <Mono size={8} color="#7B665C" style={{ marginRight: 4 }}>PAR PAGE :</Mono>
+                {[20, 50, 100].map((sz) => <button key={sz} onClick={() => setPageSize(sz)} style={{ padding: '3px 8px', borderRadius: 6, cursor: 'pointer', background: pageSize === sz ? 'rgba(243,146,83,0.15)' : '#FFFFFF', border: `1px solid ${pageSize === sz ? 'rgba(243,146,83,0.40)' : '#E2D5C3'}`, color: pageSize === sz ? '#B5601C' : '#7B665C', fontFamily: 'var(--font-inter)', fontSize: 8, fontWeight: 600, letterSpacing: '0.12em' }}>{sz}</button>)}
+                <span style={{ width: 1, height: 12, background: '#E2D5C3', margin: '0 6px' }} />
+                <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={safePage <= 1} style={{ padding: '3px 8px', borderRadius: 6, cursor: safePage <= 1 ? 'not-allowed' : 'pointer', background: '#FFFFFF', border: '1px solid #E2D5C3', color: safePage <= 1 ? '#C9BBAE' : '#5E4F47', fontFamily: 'var(--font-inter)', fontSize: 8, fontWeight: 600 }}>← PRÉC.</button>
+                {buildPageList().map((p, idx) => p === 'dots' ? <span key={`d-${idx}`} style={{ padding: '0 4px', color: '#B8A89C', fontFamily: 'var(--font-inter)', fontSize: 8 }}>…</span> : <button key={p} onClick={() => setCurrentPage(p)} style={{ padding: '3px 8px', borderRadius: 6, cursor: 'pointer', background: safePage === p ? 'rgba(243,146,83,0.15)' : '#FFFFFF', border: `1px solid ${safePage === p ? 'rgba(243,146,83,0.40)' : '#E2D5C3'}`, color: safePage === p ? '#B5601C' : '#7B665C', fontFamily: 'var(--font-inter)', fontSize: 8, fontWeight: 600, minWidth: 22 }}>{p}</button>)}
+                <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={safePage >= totalPages} style={{ padding: '3px 8px', borderRadius: 6, cursor: safePage >= totalPages ? 'not-allowed' : 'pointer', background: '#FFFFFF', border: '1px solid #E2D5C3', color: safePage >= totalPages ? '#C9BBAE' : '#5E4F47', fontFamily: 'var(--font-inter)', fontSize: 8, fontWeight: 600 }}>SUIV. →</button>
+                <span style={{ width: 1, height: 12, background: '#E2D5C3', margin: '0 6px' }} />
+                <Mono size={8} color="#B5601C">PAGE {safePage} / {totalPages}</Mono>
               </div>
             ) : (
-              <Mono size={8} color="rgba(232,133,61,0.35)">{variantFooterLabel(variant)}</Mono>
+              <Mono size={8} color="#B5601C">{variantFooterLabel(variant)}</Mono>
             )}
           </div>
         </div>
