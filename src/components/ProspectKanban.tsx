@@ -150,7 +150,10 @@ export default function ProspectKanban({
 
       {/* Board borné : hauteur fixe (ne pousse pas la page), scroll horizontal
           fluide pour les colonnes. Chaque colonne scrolle verticalement seule. */}
-      <div className="flex h-[calc(100vh-220px)] min-h-[24rem] gap-4 overflow-x-auto overflow-y-hidden px-1 pb-2">
+      <div
+        data-lenis-prevent
+        className="flex h-[calc(100vh-220px)] min-h-[24rem] gap-4 overflow-x-auto overflow-y-hidden px-1 pb-2"
+      >
         {liveColumns.map((col) => {
           const cards = byColumn[col.id];
           const total = cards.reduce((s, p) => s + parseCaEstime(p.ca_estime), 0);
@@ -214,7 +217,10 @@ export default function ProspectKanban({
               </header>
 
               {/* Corps scrollable vertical — chaque colonne défile seule */}
-              <ul className="flex flex-1 flex-col gap-2.5 overflow-y-auto p-2.5">
+              <ul
+                data-lenis-prevent
+                className="flex flex-1 flex-col gap-2.5 overflow-y-auto p-2.5"
+              >
                 {cards.length === 0 ? (
                   <li className="rounded-xl border border-dashed border-gnd-bronze/10 px-3 py-6 text-center font-mono text-[10px] uppercase tracking-[0.15em] text-gnd-bronze-faded">
                     Vide
