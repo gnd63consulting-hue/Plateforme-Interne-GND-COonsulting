@@ -31,6 +31,7 @@ import {
   type Prospect,
 } from '@/lib/prospects';
 import { phoneKey9 } from '@/lib/dedup';
+import { insertActivityRow } from '@/lib/activities';
 import { resolveDropStatus, type PipelineColumnId } from '@/lib/pipeline';
 import ProspectModal, { type ProspectFormValues } from '@/components/ProspectModal';
 import ProspectDetailsModal from '@/components/ProspectDetailsModal';
@@ -98,6 +99,9 @@ export default function ProspectsClient({
   const [notesDraft, setNotesDraft] = useState('');
   const [relanceDraft, setRelanceDraft] = useState('');
   const [error, setError] = useState<string | null>(null);
+  // Avertissement non bloquant : l'écriture prospect a réussi mais la trace
+  // d'historique (activité) a échoué. Affiché via aria-live, sans bloquer.
+  const [traceWarn, setTraceWarn] = useState<string | null>(null);
   // Alerte anti-doublon non bloquante : payload en attente + libellé du match.
   const [dupWarn, setDupWarn] = useState<{
     payload: Record<string, unknown>;
@@ -133,28 +137,24 @@ export default function ProspectsClient({
     }
   }
 
-  /** Insère une activité dans la timeline du prospect (fire-and-forget).
-   *  owner_id et occurred_at sont posés par défaut côté Postgres (auth.uid() /
-   *  now()). RLS owner-based : un commercial n'écrit que ses propres activités. */
-  function logActivity(
+  /** Insère une activité dans la timeline du prospect et ATTEND le résultat.
+   *  Plus de fire-and-forget : on renvoie { ok } pour que l'appelant puisse
+   *  avertir le commercial si la trace d'historique a échoué (traçabilité
+   *  fiable, Sprint 9). owner_id et occurred_at sont posés par défaut côté
+   *  Postgres (auth.uid() / now()). RLS owner-based : un commercial n'écrit
+   *  que ses propres activités. */
+  async function logActivity(
     prospectId: string,
     kind: 'note' | 'status_change',
     opts: { body?: string | null; metadata?: Record<string, unknown> } = {}
-  ) {
-    supabase
-      .from('activities')
-      .insert({
-        prospect_id: prospectId,
-        kind,
-        body: opts.body ?? null,
-        metadata: opts.metadata ?? null,
-      })
-      .then(({ error }) => {
-        if (error) {
-          // eslint-disable-next-line no-console
-          console.error(`[activities] insert ${kind} failed:`, error.message);
-        }
-      });
+  ): Promise<{ ok: boolean }> {
+    return insertActivityRow(supabase, prospectId, kind, opts);
+  }
+
+  /** Avertissement de trace : l'enregistrement principal a réussi mais
+   *  l'historique n'a pas pu être mis à jour. Non bloquant. */
+  function warnTraceFailed() {
+    setTraceWarn('✓ Enregistré — ⚠ historique non mis à jour, réessayez.');
   }
 
   // Stats personnelles
@@ -315,9 +315,11 @@ export default function ProspectsClient({
       const updated = data as Prospect;
       setProspects((prev) => prev.map((p) => (p.id === editing.id ? updated : p)));
       if (values.status !== editing.status) {
-        logActivity(updated.id, 'status_change', {
+        setTraceWarn(null);
+        const { ok } = await logActivity(updated.id, 'status_change', {
           metadata: { from: editing.status, to: values.status },
         });
+        if (!ok) warnTraceFailed();
         if (updated.notion_page_id) pushStatusToNotion(updated.id);
       }
     }
@@ -331,10 +333,12 @@ export default function ProspectsClient({
     if (data) {
       const updated = data as Prospect;
       setProspects((prev) => prev.map((p) => (p.id === prospect.id ? updated : p)));
+      setTraceWarn(null);
       if (status !== previousStatus) {
-        logActivity(updated.id, 'status_change', {
+        const { ok } = await logActivity(updated.id, 'status_change', {
           metadata: { from: previousStatus, to: status },
         });
+        if (!ok) warnTraceFailed();
       }
       if (updated.notion_page_id) pushStatusToNotion(updated.id);
       // Statut de relance sans date posee → on propose d'en planifier une.
@@ -382,9 +386,11 @@ export default function ProspectsClient({
     if (data) {
       const updated = data as Prospect;
       setProspects((prev) => prev.map((p) => (p.id === prospect.id ? updated : p)));
-      logActivity(updated.id, 'status_change', {
+      setTraceWarn(null);
+      const { ok } = await logActivity(updated.id, 'status_change', {
         metadata: { from: previousStatus, to: nextStatus },
       });
+      if (!ok) warnTraceFailed();
       if (updated.notion_page_id) pushStatusToNotion(updated.id);
       // Statut de relance sans date posée → propose d'en planifier une.
       if (FOLLOWUP_STATUSES.has(nextStatus) && !updated.next_action_at) {
@@ -425,9 +431,13 @@ export default function ProspectsClient({
     if (data) {
       const updated = data as Prospect;
       setProspects((prev) => prev.map((p) => (p.id === notesFor.id ? updated : p)));
-      // Trace la note dans la timeline si son contenu a changé.
+      setTraceWarn(null);
+      // Trace la note dans la timeline si son contenu a changé. La note est
+      // historisée (datée, retrouvable) même si prospects.notes est écrasé
+      // plus tard. On attend le résultat : si la trace échoue, on avertit.
       if ((nextNotes ?? '') !== previousNotes && nextNotes) {
-        logActivity(updated.id, 'note', { body: nextNotes });
+        const { ok } = await logActivity(updated.id, 'note', { body: nextNotes });
+        if (!ok) warnTraceFailed();
       }
     }
     setNotesFor(null);
@@ -734,6 +744,25 @@ export default function ProspectsClient({
           className="mb-4 rounded-2xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800"
         >
           {error}
+        </div>
+      )}
+
+      {/* Avertissement de trace non bloquant : enregistrement OK mais
+          historique non mis à jour. L'action principale a réussi. */}
+      {traceWarn && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="mb-4 flex items-center justify-between gap-3 rounded-2xl border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900"
+        >
+          <span>{traceWarn}</span>
+          <button
+            type="button"
+            onClick={() => setTraceWarn(null)}
+            className="rounded-full border border-amber-300 bg-white px-3 py-1 text-xs font-semibold text-amber-900 transition-colors hover:bg-amber-100"
+          >
+            OK
+          </button>
         </div>
       )}
 

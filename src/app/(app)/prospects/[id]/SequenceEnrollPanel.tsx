@@ -6,13 +6,9 @@ import { CalendarClock, Loader2, Pause, Play, Route, Square } from 'lucide-react
 import { createClient } from '@/lib/supabase-client';
 import {
   ENROLLMENT_SELECT_COLUMNS,
-  SEQUENCE_STEP_SELECT_COLUMNS,
   formatSeqDate,
-  kindLabel,
-  nextDueFrom,
   type Sequence,
   type SequenceEnrollment,
-  type SequenceStep,
 } from '@/lib/sequences';
 
 /**
@@ -23,22 +19,28 @@ import {
  *   boutons Pause / Reprendre / Arrêter.
  *
  * Tout passe par le client anon Supabase (RLS owner sur sequence_enrollments,
- * SELECT authenticated sur sequences/sequence_steps). owner_id est posé en
- * default = auth.uid() côté Postgres — jamais forcé à la main.
+ * SELECT authenticated sur sequences/sequence_steps).
  *
- * À l'inscription, on crée l'enrollment puis on pose IMMÉDIATEMENT la 1ère
- * tâche + prospects.next_action_at, pour que la relance soit visible tout de
- * suite sans attendre le cron quotidien.
+ * INSCRIPTION (Sprint 9) : un seul appel RPC transactionnel
+ * `fn_enroll_sequence(prospect, sequence)` (migration 0016, SECURITY DEFINER +
+ * contrôle d'autorisation interne + idempotence). La RPC crée l'enrollment et,
+ * si l'étape 1 est due immédiatement, la 1ère tâche + l'activité + pose
+ * prospects.next_action_at — le tout dans UNE transaction atomique côté
+ * Postgres. Plus aucune cascade d'écritures non atomiques côté client (fini le
+ * risque d'enrollment orphelin ou de tâche sans trace en cas d'échec partiel).
  */
 export default function SequenceEnrollPanel({
   prospectId,
-  prospectOwnerId,
   sequences,
   initialEnrollment,
 }: {
   prospectId: string;
-  /** assigned_to ?? created_by — propriétaire pour la tâche initiale. */
-  prospectOwnerId: string;
+  /**
+   * @deprecated Plus utilisé côté client depuis le Sprint 9 : la RPC
+   * `fn_enroll_sequence` (migration 0016) calcule le owner (assigned_to ??
+   * created_by) côté serveur. Conservé optionnel pour compat appelant.
+   */
+  prospectOwnerId?: string;
   sequences: Sequence[];
   initialEnrollment: SequenceEnrollment | null;
 }) {
@@ -58,134 +60,27 @@ export default function SequenceEnrollPanel({
     return m;
   }, [sequences]);
 
-  /* ---- Inscription ----------------------------------------------------- */
+  /* ---- Inscription (RPC transactionnelle, migration 0016) -------------- */
+  // Un seul appel atomique côté Postgres : crée l'enrollment + (si l'étape 1
+  // est due immédiatement) la tâche + l'activité + pose next_action_at, sous
+  // contrôle d'autorisation interne (owner du prospect OU admin) et idempotent
+  // (renvoie l'enrollment 'active' existant sans doublon). On vérifie
+  // { data, error } et on rafraîchit l'état depuis le retour de la RPC.
   async function enroll() {
     if (!selectedId) return;
     setError('');
     setBusy(true);
-    try {
-      // 1. Récupère l'étape 1 (position 0) pour calculer la 1ère échéance.
-      const { data: firstStepRow, error: stepErr } = await supabase
-        .from('sequence_steps')
-        .select(SEQUENCE_STEP_SELECT_COLUMNS)
-        .eq('sequence_id', selectedId)
-        .eq('position', 0)
-        .maybeSingle();
-
-      if (stepErr) throw new Error(stepErr.message);
-      if (!firstStepRow) {
-        throw new Error("Cette séquence n'a pas encore d'étape.");
-      }
-      const firstStep = firstStepRow as unknown as SequenceStep;
-
-      const nowIso = new Date().toISOString();
-      const firstDue = nextDueFrom(firstStep.delay_days, new Date());
-
-      // 2. Crée l'inscription (owner_id default = auth.uid()).
-      const { data: enrRow, error: enrErr } = await supabase
-        .from('sequence_enrollments')
-        .insert({
-          sequence_id: selectedId,
-          prospect_id: prospectId,
-          current_step: 0,
-          status: 'active',
-          next_due_at: firstDue,
-        })
-        .select(ENROLLMENT_SELECT_COLUMNS)
-        .single();
-
-      if (enrErr || !enrRow) {
-        throw new Error(enrErr?.message ?? "Inscription impossible.");
-      }
-      const created = enrRow as unknown as SequenceEnrollment;
-
-      // 3. Si l'étape 1 est due maintenant (delay 0), pose tout de suite la
-      //    tâche + next_action_at + avance l'inscription. Sinon, on laisse le
-      //    cron déclencher à l'échéance.
-      if (firstStep.delay_days <= 0) {
-        await materializeFirstStep(created, firstStep, nowIso);
-      }
-
-      // Recharge l'inscription (peut avoir avancé).
-      const { data: refreshed } = await supabase
-        .from('sequence_enrollments')
-        .select(ENROLLMENT_SELECT_COLUMNS)
-        .eq('id', created.id)
-        .maybeSingle();
-      setEnrollment(
-        (refreshed as unknown as SequenceEnrollment) ?? created
-      );
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Erreur inconnue.');
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  /**
-   * Pose la tâche de l'étape 1 + next_action_at, puis avance l'inscription
-   * (vers l'étape 2 ou clôture). Réplique côté client la logique du moteur
-   * cron pour l'inscription immédiate.
-   */
-  async function materializeFirstStep(
-    enr: SequenceEnrollment,
-    step: SequenceStep,
-    nowIso: string
-  ) {
-    const title = `${kindLabel(step.kind)} — ${step.title}`;
-
-    await supabase.from('tasks').insert({
-      prospect_id: prospectId,
-      title,
-      due_at: nowIso,
-      remind_at: nowIso,
-      owner_id: prospectOwnerId,
+    const { data, error: rpcErr } = await supabase.rpc('fn_enroll_sequence', {
+      p_prospect_id: prospectId,
+      p_sequence_id: selectedId,
     });
+    setBusy(false);
 
-    await supabase
-      .from('prospects')
-      .update({ next_action_at: nowIso })
-      .eq('id', prospectId);
-
-    await supabase.from('activities').insert({
-      prospect_id: prospectId,
-      kind: 'task',
-      body: step.template_body
-        ? `Étape séquence déclenchée : ${title}\n\n${step.template_body}`
-        : `Étape séquence déclenchée : ${title}`,
-      metadata: {
-        sequence_id: enr.sequence_id,
-        enrollment_id: enr.id,
-        step_position: 0,
-        step_kind: step.kind,
-      },
-    });
-
-    // Avance vers l'étape suivante (ou clôture).
-    const { data: nextStep } = await supabase
-      .from('sequence_steps')
-      .select('delay_days')
-      .eq('sequence_id', enr.sequence_id)
-      .eq('position', 1)
-      .maybeSingle();
-
-    if (nextStep) {
-      await supabase
-        .from('sequence_enrollments')
-        .update({
-          current_step: 1,
-          next_due_at: nextDueFrom(
-            (nextStep as { delay_days: number }).delay_days,
-            new Date()
-          ),
-        })
-        .eq('id', enr.id);
-    } else {
-      await supabase
-        .from('sequence_enrollments')
-        .update({ current_step: 1, status: 'done', next_due_at: null })
-        .eq('id', enr.id);
+    if (rpcErr || !data) {
+      setError(rpcErr?.message ?? 'Inscription impossible.');
+      return;
     }
+    setEnrollment(data as unknown as SequenceEnrollment);
   }
 
   /* ---- Pause / reprise / arrêt ---------------------------------------- */
