@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { setCommissionRate, assignFreshProspects } from './actions';
+import { setCommissionRate, assignFreshProspects, archiveMember } from './actions';
 
 // Design System crème/orange — texte FONCÉ sur fond clair (AA).
 const CREAM = '#2A2320';
@@ -64,7 +64,7 @@ export function MemberManager({ member }: { member: Member }) {
   const [commission, setCommission] = useState(
     member.commissionPct != null ? String(member.commissionPct) : '20'
   );
-  const [busy, setBusy] = useState<false | 'commission' | number>(false);
+  const [busy, setBusy] = useState<false | 'commission' | 'archive' | number>(false);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
   const isFreelance = member.role === 'freelance' || member.role === 'commercial';
@@ -90,6 +90,26 @@ export function MemberManager({ member }: { member: Member }) {
     if (res.error) setMsg({ ok: false, text: res.error });
     else {
       setMsg({ ok: true, text: `✅ ${res.assigned} prospect(s) frais assigné(s) à ${member.name}.` });
+      startTransition(() => router.refresh());
+    }
+  }
+
+  async function doArchive() {
+    const ok = window.confirm(
+      `Archiver ${member.name} ?\n\nLe compte sera masqué partout (suivi, digest, listes)` +
+        (member.prospectCount > 0
+          ? ` et ses ${member.prospectCount} prospect(s) réassignés à toi`
+          : '') +
+        `. Réversible depuis « Membres archivés ».`
+    );
+    if (!ok) return;
+    setBusy('archive');
+    setMsg(null);
+    const res = await archiveMember(member.id);
+    setBusy(false);
+    if (res.error) setMsg({ ok: false, text: res.error });
+    else {
+      setMsg({ ok: true, text: `Archivé. ${res.reassigned} prospect(s) réassigné(s) à toi.` });
       startTransition(() => router.refresh());
     }
   }
@@ -232,6 +252,29 @@ export function MemberManager({ member }: { member: Member }) {
           Admin — pas d&apos;assignation de prospects.
         </p>
       )}
+
+      {/* Archiver le membre (reversible) */}
+      <div style={{ marginTop: 16, paddingTop: 14, borderTop: '1px solid rgba(83,36,24,0.06)', display: 'flex', justifyContent: 'flex-end' }}>
+        <button
+          type="button"
+          onClick={doArchive}
+          disabled={busy !== false}
+          style={{
+            padding: '7px 14px',
+            borderRadius: 999,
+            border: '1px solid rgba(160,74,74,0.35)',
+            background: 'transparent',
+            color: RED,
+            fontSize: 12,
+            fontWeight: 600,
+            fontFamily: SANS,
+            cursor: busy !== false ? 'wait' : 'pointer',
+            opacity: busy !== false ? 0.5 : 1,
+          }}
+        >
+          {busy === 'archive' ? 'Archivage…' : 'Archiver ce membre'}
+        </button>
+      </div>
 
       {msg && (
         <p style={{ marginTop: 14, marginBottom: 0, fontSize: 13, fontWeight: 500, color: msg.ok ? GREEN : RED }}>

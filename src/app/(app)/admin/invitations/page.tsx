@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase-server';
 import { redirect } from 'next/navigation';
 import { InviteForm } from './InviteForm';
-import { revokeInvitation } from './actions';
+import { revokeInvitation, reactivateMemberAction } from './actions';
 import { MemberManager, type Member } from './MemberManager';
 
 // Design System crème/orange — texte FONCÉ sur fond clair (AA).
@@ -44,14 +44,16 @@ export default async function InvitationsPage() {
     .in('role', ['admin', 'admin_limited', 'freelance', 'commercial'])
     .order('created_at', { ascending: true });
 
-  const activeMembers = ((membersRaw ?? []) as {
+  const allMembers = (membersRaw ?? []) as {
     id: string;
     full_name: string | null;
     email: string;
     role: string;
     commission_rate: number | null;
     active: boolean | null;
-  }[]).filter((u) => u.active !== false);
+  }[];
+  const activeMembers = allMembers.filter((u) => u.active !== false);
+  const archivedMembers = allMembers.filter((u) => u.active === false);
 
   const memberIds = activeMembers.map((u) => u.id);
   const { data: assignedRows } = await supabase
@@ -124,6 +126,36 @@ export default async function InvitationsPage() {
           L&apos;assignation pioche uniquement dans le pool « à contacter » (jamais chez un autre commercial).
         </p>
       </section>
+
+      {/* Membres archivés (réversible) */}
+      {archivedMembers.length > 0 && (
+        <section style={{ marginBottom: 36 }}>
+          <h2 style={{ fontFamily: MONO, fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.18em', color: '#9A8A80', margin: '0 0 16px' }}>
+            Membres archivés ({archivedMembers.length})
+          </h2>
+          <div style={{ background: CARD_BG, border: CARD_BORDER, borderRadius: 16, overflow: 'hidden' }}>
+            {archivedMembers.map((u) => (
+              <div key={u.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(83,36,24,0.06)' }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontFamily: 'var(--font-inter), system-ui, sans-serif', fontSize: 14, fontWeight: 600, color: CREAM }}>
+                    {u.full_name ?? u.email.split('@')[0]}
+                  </div>
+                  <div style={{ fontFamily: MONO, fontSize: 11, color: CREAM_SOFT }}>{u.email}</div>
+                </div>
+                <form action={reactivateMemberAction}>
+                  <input type="hidden" name="id" value={u.id} />
+                  <button type="submit" style={{ padding: '6px 14px', borderRadius: 999, border: '1px solid rgba(79,122,56,0.40)', background: 'transparent', color: '#4F7A38', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+                    Réactiver
+                  </button>
+                </form>
+              </div>
+            ))}
+          </div>
+          <p style={{ fontSize: 12, color: CREAM_SOFT, marginTop: 12 }}>
+            Comptes masqués partout (suivi, digest, listes). Historique (commissions, audit) préservé. Réactivables à tout moment.
+          </p>
+        </section>
+      )}
 
       {/* Invite form card */}
       <section
