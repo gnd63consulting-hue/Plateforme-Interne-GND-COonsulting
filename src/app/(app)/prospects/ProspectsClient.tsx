@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import {
   Award,
+  Bookmark,
   ChevronLeft,
   ChevronRight,
   Edit3,
@@ -16,6 +17,7 @@ import {
   MapPin,
   Plus,
   Search,
+  SlidersHorizontal,
   Sparkles,
   StickyNote,
   Target,
@@ -23,6 +25,7 @@ import {
   TrendingUp,
   Trophy,
   Users,
+  X,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase-client';
 import {
@@ -49,6 +52,21 @@ type ProspectsClientProps = {
 
 type ViewMode = 'table' | 'kanban';
 const VIEW_STORAGE_KEY = 'gnd:prospects:view';
+const SAVED_VIEWS_KEY = 'gnd:prospects:savedViews';
+
+/** Filtre de relance basé sur next_action_at. */
+type RelanceFilter = 'all' | 'overdue' | 'week' | 'has' | 'none';
+
+/** Vue sauvegardée = une combinaison de filtres nommée (localStorage). */
+type SavedView = {
+  name: string;
+  filter: string;
+  sector: string;
+  city: string;
+  classif: string;
+  relance: RelanceFilter;
+  search: string;
+};
 
 /** Statuts qui appellent une date de relance (on propose d'en poser une). */
 const FOLLOWUP_STATUSES = new Set([
@@ -90,6 +108,13 @@ export default function ProspectsClient({
   const [view, setView] = useState<ViewMode>('table');
   const [filter, setFilter] = useState<string>('all');
   const [search, setSearch] = useState('');
+  // Filtres avancés (Sprint 12) — tous en mémoire, aucune requête.
+  const [sector, setSector] = useState('all');
+  const [city, setCity] = useState('all');
+  const [classif, setClassif] = useState('all');
+  const [relance, setRelance] = useState<RelanceFilter>('all');
+  const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [savedViews, setSavedViews] = useState<SavedView[]>([]);
   const [pageSize, setPageSize] = useState(20);
   const [page, setPage] = useState(1);
   const [createOpen, setCreateOpen] = useState(false);
@@ -120,6 +145,28 @@ export default function ProspectsClient({
       /* localStorage indisponible (SSR/privé) — on garde le défaut. */
     }
   }, []);
+
+  // Restaure les vues sauvegardées au montage.
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(SAVED_VIEWS_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) setSavedViews(parsed as SavedView[]);
+      }
+    } catch {
+      /* no-op */
+    }
+  }, []);
+
+  function persistViews(next: SavedView[]) {
+    setSavedViews(next);
+    try {
+      window.localStorage.setItem(SAVED_VIEWS_KEY, JSON.stringify(next));
+    } catch {
+      /* no-op */
+    }
+  }
 
   function changeView(next: ViewMode) {
     setView(next);
@@ -166,10 +213,63 @@ export default function ProspectsClient({
     return { total, byStatus, contacted, rdv, signed, conversionRate, contactRate, rdvRate };
   }, [prospects]);
 
-  // Filter + search + pagination
+  // Options distinctes pour les filtres avancés (dérivées des prospects).
+  const sectorOptions = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          prospects
+            .map((p) => p.sector)
+            .filter((s): s is string => !!s && s.trim() !== '')
+        )
+      ).sort((a, b) => a.localeCompare(b, 'fr')),
+    [prospects]
+  );
+  const cityOptions = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          prospects
+            .map((p) => p.city)
+            .filter((c): c is string => !!c && c.trim() !== '')
+        )
+      ).sort((a, b) => a.localeCompare(b, 'fr')),
+    [prospects]
+  );
+  const classifOptions = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          prospects
+            .map((p) => p.classification)
+            .filter((c): c is string => !!c && c.trim() !== '')
+        )
+      ).sort((a, b) => a.localeCompare(b, 'fr')),
+    [prospects]
+  );
+
+  // Filter + search + filtres avancés + pagination
   const filtered = useMemo(() => {
     let list = prospects;
     if (filter !== 'all') list = list.filter((p) => p.status === filter);
+    if (sector !== 'all') list = list.filter((p) => p.sector === sector);
+    if (city !== 'all') list = list.filter((p) => p.city === city);
+    if (classif !== 'all') list = list.filter((p) => p.classification === classif);
+    if (relance !== 'all') {
+      const now = new Date();
+      const startToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const endWeek = new Date(startToday);
+      endWeek.setDate(endWeek.getDate() + 7);
+      list = list.filter((p) => {
+        if (relance === 'none') return !p.next_action_at;
+        if (!p.next_action_at) return false;
+        if (relance === 'has') return true;
+        const d = new Date(p.next_action_at);
+        if (relance === 'overdue') return d < startToday;
+        if (relance === 'week') return d >= startToday && d < endWeek;
+        return true;
+      });
+    }
     if (search.trim()) {
       const q = search.trim().toLowerCase();
       list = list.filter(
@@ -181,7 +281,52 @@ export default function ProspectsClient({
       );
     }
     return list;
-  }, [prospects, filter, search]);
+  }, [prospects, filter, search, sector, city, classif, relance]);
+
+  const activeAdvancedCount = [
+    sector !== 'all',
+    city !== 'all',
+    classif !== 'all',
+    relance !== 'all',
+  ].filter(Boolean).length;
+
+  function resetAdvanced() {
+    setSector('all');
+    setCity('all');
+    setClassif('all');
+    setRelance('all');
+    setPage(1);
+  }
+
+  function applyView(v: SavedView) {
+    setFilter(v.filter);
+    setSector(v.sector);
+    setCity(v.city);
+    setClassif(v.classif);
+    setRelance(v.relance);
+    setSearch(v.search);
+    setPage(1);
+    setAdvancedOpen(true);
+  }
+
+  function saveCurrentView() {
+    const name = window.prompt('Nom de la vue ?');
+    if (!name || !name.trim()) return;
+    const v: SavedView = {
+      name: name.trim(),
+      filter,
+      sector,
+      city,
+      classif,
+      relance,
+      search,
+    };
+    persistViews([...savedViews.filter((x) => x.name !== v.name), v]);
+  }
+
+  function deleteView(name: string) {
+    persistViews(savedViews.filter((x) => x.name !== name));
+  }
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const safePage = Math.min(page, totalPages);
@@ -539,7 +684,7 @@ export default function ProspectsClient({
       {/* Filters + actions                                                      */}
       {/* ==================================================================== */}
       <div className="mb-6 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
           {/* Toggle Table / Kanban */}
           <div
             role="group"
@@ -597,6 +742,27 @@ export default function ProspectsClient({
               ))}
             </select>
           </div>
+
+          {/* Toggle filtres avancés */}
+          <button
+            type="button"
+            onClick={() => setAdvancedOpen((v) => !v)}
+            aria-expanded={advancedOpen}
+            className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-2.5 text-xs font-semibold transition-colors ${
+              advancedOpen || activeAdvancedCount > 0
+                ? 'border-brand bg-brand-soft text-choco'
+                : 'border-border-soft bg-white text-muted-warm hover:bg-cream-deep'
+            }`}
+          >
+            <SlidersHorizontal className="h-3.5 w-3.5" aria-hidden />
+            Filtres
+            {activeAdvancedCount > 0 && (
+              <span className="inline-flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-brand px-1 text-[10px] font-bold text-choco">
+                {activeAdvancedCount}
+              </span>
+            )}
+          </button>
+
           {view === 'table' && (
             <select
               value={pageSize}
@@ -612,7 +778,7 @@ export default function ProspectsClient({
         <div className="flex items-center gap-3">
           <span className="font-inter text-[11px] uppercase tracking-[0.15em] text-muted-warm">
             {filtered.length} prospect{filtered.length > 1 ? 's' : ''}
-            {(filter !== 'all' || search) ? ` / ${prospects.length}` : ''}
+            {(filter !== 'all' || search || activeAdvancedCount > 0) ? ` / ${prospects.length}` : ''}
           </span>
           <Button variant="primary" size="sm" onClick={() => setCreateOpen(true)}>
             <Plus className="h-4 w-4" aria-hidden />
@@ -620,6 +786,157 @@ export default function ProspectsClient({
           </Button>
         </div>
       </div>
+
+      {/* ==================================================================== */}
+      {/* Panneau filtres avancés (repliable) + vues sauvegardées               */}
+      {/* ==================================================================== */}
+      {advancedOpen && (
+        <div className="mb-6 rounded-2xl border border-border-soft bg-cream p-4 shadow-soft">
+          <div className="flex flex-wrap items-end gap-3">
+            {/* Secteur */}
+            <label className="flex flex-col gap-1">
+              <span className="font-inter text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-warm">
+                Secteur
+              </span>
+              <select
+                value={sector}
+                onChange={(e) => { setSector(e.target.value); setPage(1); }}
+                className="min-w-[10rem] rounded-full border border-border-soft bg-white px-3 py-2 text-sm text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+              >
+                <option value="all">Tous</option>
+                {sectorOptions.map((s) => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+            </label>
+
+            {/* Ville */}
+            <label className="flex flex-col gap-1">
+              <span className="font-inter text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-warm">
+                Ville
+              </span>
+              <select
+                value={city}
+                onChange={(e) => { setCity(e.target.value); setPage(1); }}
+                className="min-w-[10rem] rounded-full border border-border-soft bg-white px-3 py-2 text-sm text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+              >
+                <option value="all">Toutes</option>
+                {cityOptions.map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+            </label>
+
+            {/* Classification */}
+            {classifOptions.length > 0 && (
+              <label className="flex flex-col gap-1">
+                <span className="font-inter text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-warm">
+                  Classification
+                </span>
+                <select
+                  value={classif}
+                  onChange={(e) => { setClassif(e.target.value); setPage(1); }}
+                  className="min-w-[10rem] rounded-full border border-border-soft bg-white px-3 py-2 text-sm text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+                >
+                  <option value="all">Toutes</option>
+                  {classifOptions.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+              </label>
+            )}
+
+            {/* Relance */}
+            <div className="flex flex-col gap-1">
+              <span className="font-inter text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-warm">
+                Relance
+              </span>
+              <div
+                role="group"
+                aria-label="Filtre de relance"
+                className="inline-flex flex-wrap items-center gap-1 rounded-full border border-border-soft bg-white p-1"
+              >
+                {(
+                  [
+                    ['all', 'Toutes'],
+                    ['overdue', 'En retard'],
+                    ['week', 'Cette semaine'],
+                    ['has', 'Planifiée'],
+                    ['none', 'Aucune'],
+                  ] as [RelanceFilter, string][]
+                ).map(([val, lbl]) => (
+                  <button
+                    key={val}
+                    type="button"
+                    onClick={() => { setRelance(val); setPage(1); }}
+                    aria-pressed={relance === val}
+                    className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
+                      relance === val
+                        ? 'bg-brand text-choco'
+                        : 'text-muted-warm hover:bg-cream-deep'
+                    }`}
+                  >
+                    {lbl}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {activeAdvancedCount > 0 && (
+              <button
+                type="button"
+                onClick={resetAdvanced}
+                className="inline-flex items-center gap-1.5 rounded-full border border-border-soft bg-white px-3 py-2 text-xs font-semibold text-muted-warm transition-colors hover:bg-cream-deep"
+              >
+                <X className="h-3.5 w-3.5" aria-hidden />
+                Réinitialiser
+              </button>
+            )}
+          </div>
+
+          {/* Vues sauvegardées */}
+          <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-border-soft pt-4">
+            <span className="font-inter text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-warm">
+              Vues
+            </span>
+            {savedViews.length === 0 && (
+              <span className="text-xs text-muted-warm/70">
+                Aucune vue. Configure des filtres puis sauvegarde-les.
+              </span>
+            )}
+            {savedViews.map((v) => (
+              <span
+                key={v.name}
+                className="inline-flex items-center gap-1 rounded-full border border-brand/25 bg-brand-soft px-2.5 py-1 text-xs font-semibold text-choco"
+              >
+                <button
+                  type="button"
+                  onClick={() => applyView(v)}
+                  className="hover:underline"
+                >
+                  {v.name}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => deleteView(v.name)}
+                  aria-label={`Supprimer la vue ${v.name}`}
+                  className="text-brand-dark/60 transition-colors hover:text-rose-600"
+                >
+                  <X className="h-3 w-3" aria-hidden />
+                </button>
+              </span>
+            ))}
+            <button
+              type="button"
+              onClick={saveCurrentView}
+              className="inline-flex items-center gap-1.5 rounded-full border border-border-soft bg-white px-3 py-1 text-xs font-semibold text-brand-dark transition-colors hover:bg-brand-soft"
+            >
+              <Bookmark className="h-3.5 w-3.5" aria-hidden />
+              Sauvegarder la vue
+            </button>
+          </div>
+        </div>
+      )}
 
       {error && (
         <div
