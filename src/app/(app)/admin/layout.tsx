@@ -12,7 +12,7 @@ const ADMIN_ROLES = new Set(['admin', 'admin_limited']);
  *
  * Couvre la fenêtre entière (position fixed inset:0 z-index:50) afin de
  * masquer la Navbar horizontale du layout (app)/ parent — c'est cette
- * sidebar dark qui est la signature visuelle de la console GND, on ne
+ * sidebar qui est la signature visuelle de la console GND, on ne
  * veut pas avoir un menu en haut + une sidebar à gauche.
  *
  * Toutes les autres routes ((app)/dashboard, (app)/prospects, etc.) gardent
@@ -62,7 +62,7 @@ export default async function AdminLayout({
         inset: 0,
         zIndex: 50,
         display: 'flex',
-        background: '#1A0F0E',
+        background: '#F6EFE7',
         overflow: 'hidden',
       }}
     >
@@ -78,7 +78,7 @@ export default async function AdminLayout({
           height: '100vh',
           overflow: 'auto',
           position: 'relative',
-          background: '#1A0F0E',
+          background: '#F6EFE7',
           overscrollBehavior: 'contain',
         }}
       >
