@@ -15,6 +15,9 @@ import {
   Trophy,
   Activity as ActivityIcon,
   CheckCircle2,
+  Flame,
+  CheckSquare,
+  Award,
 } from 'lucide-react';
 import { formatEur } from '@/lib/ca-utils';
 import {
@@ -27,6 +30,7 @@ import {
   GaugeSVG,
   SectionHeader,
   Button,
+  QuickAccessCard,
 } from '@/components/ui';
 import { BONUS_TIERS, type MonTableauData } from './types';
 
@@ -126,6 +130,12 @@ export default function MonTableauClient({ data }: { data: MonTableauData }) {
   const bonus = bonusProgress(signatures);
   const relancesTotal = relancesEnRetard + relancesAujourdhui;
 
+  // « Prospects chauds » = fiches en fin de pipeline (rdv / négo / proposition).
+  // Dérivé des données déjà présentes (aucun fetch supplémentaire).
+  const hotCount = statusBreakdown
+    .filter((s) => /rdv|nego|negoci|proposition|devis|relanc/i.test(s.status))
+    .reduce((sum, s) => sum + s.count, 0);
+
   return (
     <motion.div
       variants={container}
@@ -161,6 +171,40 @@ export default function MonTableauClient({ data }: { data: MonTableauData }) {
             </div>
           }
         />
+      </motion.div>
+
+      {/* ---- Accès rapide (réf Drive) ---- */}
+      <motion.div variants={item}>
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+          <QuickAccessCard
+            featured
+            href="/prospects/relances"
+            context="À relancer"
+            title="Relances du jour"
+            icon={<AlarmClock className="h-[18px] w-[18px]" aria-hidden />}
+            count={relancesAujourdhui}
+          />
+          <QuickAccessCard
+            href="/prospects"
+            context="Pipeline"
+            title="Prospects chauds"
+            icon={<Flame className="h-[18px] w-[18px]" aria-hidden />}
+            count={hotCount}
+          />
+          <QuickAccessCard
+            href="/prospects/taches"
+            context="À faire"
+            title="Mes tâches"
+            icon={<CheckSquare className="h-[18px] w-[18px]" aria-hidden />}
+          />
+          <QuickAccessCard
+            href="/prospects"
+            context="Gagnés"
+            title="Derniers signés"
+            icon={<Award className="h-[18px] w-[18px]" aria-hidden />}
+            count={signatures}
+          />
+        </div>
       </motion.div>
 
       {/* ---- Rangée de StatCards ---- */}
