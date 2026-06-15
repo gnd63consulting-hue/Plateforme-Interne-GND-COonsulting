@@ -3,9 +3,10 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, Search, Bell, LogOut, ChevronDown } from 'lucide-react';
+import { Menu, Bell, LogOut, ChevronDown } from 'lucide-react';
 import { createClient } from '@/lib/supabase-client';
 import { cn } from '@/lib/utils';
+import GlobalSearch from './GlobalSearch';
 
 export type TopbarUser = {
   name: string | null;
@@ -15,12 +16,11 @@ export type TopbarUser = {
 };
 
 /**
- * AppTopbar — barre fine en haut du panneau blanc (Sprint 10, réf Drive).
+ * AppTopbar — barre fine en haut du panneau blanc (Sprint 10, ref Drive).
  *
- * Search PILL arrondie (fond crème #F7EEE3), à droite cloche + menu profil
- * (avatar/nom/rôle). Fin liseré bas beige. Burger (mobile) pour le drawer.
- * La recherche et la cloche sont décoratives : aucune logique métier côté
- * client n'est ajoutée.
+ * Search PILL arrondie (fond creme) = composant GlobalSearch FONCTIONNEL
+ * (Sprint 12). A droite cloche + menu profil (avatar/nom/role). Fin lisere
+ * bas beige. Burger (mobile) pour le drawer. La cloche reste decorative.
  */
 export default function AppTopbar({
   user,
@@ -63,30 +63,12 @@ export default function AppTopbar({
         <Menu className="h-5 w-5" aria-hidden />
       </button>
 
-      {/* Search pill (décorative) — large capsule crème + raccourci ⌘K
-          (réf mockup). Aucune logique métier côté client n'est ajoutée. */}
-      <div className="relative hidden max-w-xl flex-1 sm:block">
-        <Search
-          className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-warm"
-          aria-hidden
-        />
-        <input
-          type="search"
-          placeholder="Rechercher un prospect, une entreprise, un contact…"
-          aria-label="Rechercher"
-          className="h-10 w-full rounded-full bg-cream-deep pl-10 pr-16 text-sm text-ink-warm placeholder:text-muted-warm/70 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-ring"
-        />
-        <kbd
-          aria-hidden
-          className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 rounded-md border border-border-soft bg-surface-soft px-1.5 py-0.5 font-inter text-[10px] font-semibold text-muted-warm"
-        >
-          ⌘K
-        </kbd>
-      </div>
+      {/* Recherche globale fonctionnelle (Sprint 12) */}
+      <GlobalSearch />
 
       <div className="flex-1 sm:hidden" />
 
-      {/* Notifications (décorative) */}
+      {/* Notifications (decorative) */}
       <button
         type="button"
         aria-label="Notifications"
@@ -177,7 +159,7 @@ export default function AppTopbar({
                   className="flex w-full items-center gap-2.5 px-4 py-3 text-sm text-muted-warm transition-colors hover:bg-cream hover:text-ink-warm focus-visible:outline-none focus-visible:bg-cream"
                 >
                   <LogOut className="h-3.5 w-3.5" aria-hidden />
-                  Se déconnecter
+                  Se deconnecter
                 </button>
               </motion.div>
             </>
