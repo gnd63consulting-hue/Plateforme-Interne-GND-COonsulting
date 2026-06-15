@@ -4,18 +4,20 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { setCommissionRate, assignFreshProspects } from './actions';
 
-const CREAM = '#FDF6EE';
-const CREAM_SOFT = 'rgba(253,246,238,0.6)';
-const CREAM_FAINT = 'rgba(253,246,238,0.4)';
-const AMBER = '#E8853D';
-const GREEN = '#7FC9A3';
-const RED = '#F0A088';
-const CARD_BG = 'rgba(253,246,238,0.04)';
-const PANEL = 'rgba(0,0,0,0.18)';
-const BORDER = '1px solid rgba(232,133,61,0.14)';
-const MONO = 'var(--font-geist-mono), ui-monospace, monospace';
-const SANS = 'var(--font-geist-sans), system-ui, sans-serif';
-const SERIF = 'var(--font-fraunces), Georgia, serif';
+// Design System crème/orange — texte FONCÉ sur fond clair (AA).
+const CREAM = '#2A2320';
+const CREAM_SOFT = '#7B665C';
+const CREAM_FAINT = '#9A8A80';
+const AMBER = '#B5601C';        // accent orange foncé (texte)
+const BTN_GRAD = 'linear-gradient(135deg, #F39253, #E07E3C)'; // bouton orange vif
+const GREEN = '#4F7A38';
+const RED = '#A04A4A';
+const CARD_BG = '#FFFFFF';
+const PANEL = '#FBF7F2';        // panneau input clair (etait sombre)
+const BORDER = '1px solid #E2D5C3';
+const MONO = 'var(--font-inter), ui-monospace, monospace';
+const SANS = 'var(--font-inter), system-ui, sans-serif';
+const SERIF = 'var(--font-marcellus), Georgia, serif';
 
 export type Member = {
   id: string;
@@ -102,8 +104,8 @@ export function MemberManager({ member }: { member: Member }) {
             height: 40,
             borderRadius: 999,
             flexShrink: 0,
-            background: 'linear-gradient(135deg, #E8853D, #D4732A)',
-            color: '#2A1410',
+            background: BTN_GRAD,
+            color: '#2A1810',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -124,9 +126,9 @@ export function MemberManager({ member }: { member: Member }) {
                 fontWeight: 600,
                 textTransform: 'uppercase',
                 letterSpacing: '0.12em',
-                color: isFreelance ? AMBER : 'rgba(160,150,230,0.9)',
-                background: isFreelance ? 'rgba(232,133,61,0.12)' : 'rgba(123,112,196,0.15)',
-                border: `1px solid ${isFreelance ? 'rgba(232,133,61,0.3)' : 'rgba(123,112,196,0.35)'}`,
+                color: isFreelance ? AMBER : '#5B4FA0',
+                background: isFreelance ? 'rgba(243,146,83,0.14)' : 'rgba(123,112,196,0.14)',
+                border: `1px solid ${isFreelance ? 'rgba(243,146,83,0.35)' : 'rgba(91,79,160,0.30)'}`,
                 borderRadius: 999,
                 padding: '2px 8px',
               }}
@@ -149,10 +151,10 @@ export function MemberManager({ member }: { member: Member }) {
       </div>
 
       {/* Commission */}
-      <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid rgba(253,246,238,0.06)' }}>
+      <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid rgba(83,36,24,0.06)' }}>
         <label style={labelStyle}>Taux de commission</label>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div style={{ display: 'flex', alignItems: 'center', background: PANEL, border: '1px solid rgba(232,133,61,0.22)', borderRadius: 10, paddingRight: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', background: PANEL, border: '1px solid #E2D5C3', borderRadius: 10, paddingRight: 12 }}>
             <input
               type="text"
               inputMode="numeric"
@@ -180,8 +182,8 @@ export function MemberManager({ member }: { member: Member }) {
             style={{
               padding: '9px 18px',
               borderRadius: 999,
-              border: '1px solid rgba(232,133,61,0.3)',
-              background: 'rgba(232,133,61,0.12)',
+              border: '1px solid rgba(243,146,83,0.35)',
+              background: 'rgba(243,146,83,0.14)',
               color: AMBER,
               fontSize: 13,
               fontWeight: 600,
@@ -210,8 +212,8 @@ export function MemberManager({ member }: { member: Member }) {
                   padding: '10px 18px',
                   borderRadius: 999,
                   border: 'none',
-                  background: busy === n ? 'rgba(232,133,61,0.4)' : 'linear-gradient(135deg, #E8853D, #D4732A)',
-                  color: '#2A1410',
+                  background: busy === n ? 'rgba(243,146,83,0.5)' : BTN_GRAD,
+                  color: '#2A1810',
                   fontSize: 14,
                   fontWeight: 700,
                   fontFamily: SANS,

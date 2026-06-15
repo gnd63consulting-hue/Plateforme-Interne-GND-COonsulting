@@ -4,13 +4,14 @@ import { InviteForm } from './InviteForm';
 import { revokeInvitation } from './actions';
 import { MemberManager, type Member } from './MemberManager';
 
-const CREAM = '#FDF6EE';
-const CREAM_SOFT = 'rgba(253,246,238,0.62)';
-const AMBER = '#E8853D';
-const CARD_BG = 'rgba(253,246,238,0.04)';
-const CARD_BORDER = '1px solid rgba(232,133,61,0.14)';
-const SERIF = 'var(--font-fraunces), Georgia, serif';
-const MONO = 'var(--font-geist-mono), ui-monospace, monospace';
+// Design System crème/orange — texte FONCÉ sur fond clair (AA).
+const CREAM = '#2A2320';
+const CREAM_SOFT = '#7B665C';
+const AMBER = '#B5601C';
+const CARD_BG = '#FFFFFF';
+const CARD_BORDER = '1px solid #E2D5C3';
+const SERIF = 'var(--font-marcellus), Georgia, serif';
+const MONO = 'var(--font-inter), ui-monospace, monospace';
 
 export default async function InvitationsPage() {
   const supabase = await createClient();
@@ -95,7 +96,7 @@ export default async function InvitationsPage() {
             fontSize: 32,
             fontWeight: 500,
             letterSpacing: '-0.01em',
-            color: CREAM,
+            color: '#532418',
             margin: 0,
             lineHeight: 1.1,
           }}
@@ -134,7 +135,7 @@ export default async function InvitationsPage() {
           marginBottom: 36,
         }}
       >
-        <h2 style={{ fontFamily: SERIF, fontSize: 19, fontWeight: 500, color: CREAM, margin: '0 0 18px' }}>
+        <h2 style={{ fontFamily: SERIF, fontSize: 19, fontWeight: 500, color: '#532418', margin: '0 0 18px' }}>
           Inviter quelqu&apos;un
         </h2>
         <InviteForm />
@@ -180,8 +181,8 @@ export default async function InvitationsPage() {
                         fontWeight: 600,
                         textTransform: 'uppercase',
                         letterSpacing: '0.16em',
-                        color: 'rgba(253,246,238,0.45)',
-                        borderBottom: '1px solid rgba(232,133,61,0.12)',
+                        color: '#9A8A80',
+                        borderBottom: '1px solid #E2D5C3',
                       }}
                     >
                       {h}
@@ -191,7 +192,7 @@ export default async function InvitationsPage() {
               </thead>
               <tbody>
                 {pending.map((inv) => (
-                  <tr key={inv.id} style={{ borderBottom: '1px solid rgba(253,246,238,0.06)' }}>
+                  <tr key={inv.id} style={{ borderBottom: '1px solid rgba(83,36,24,0.06)' }}>
                     <td style={{ padding: '13px 16px', color: CREAM, fontFamily: MONO, fontSize: 12 }}>
                       {inv.email}
                     </td>
@@ -201,8 +202,8 @@ export default async function InvitationsPage() {
                           display: 'inline-block',
                           padding: '3px 9px',
                           borderRadius: 999,
-                          background: 'rgba(232,133,61,0.14)',
-                          border: '1px solid rgba(232,133,61,0.28)',
+                          background: 'rgba(243,146,83,0.14)',
+                          border: '1px solid rgba(243,146,83,0.30)',
                           color: AMBER,
                           fontSize: 11,
                           fontWeight: 600,
@@ -225,7 +226,7 @@ export default async function InvitationsPage() {
                           style={{
                             background: 'transparent',
                             border: 'none',
-                            color: '#E8896B',
+                            color: '#A04A4A',
                             fontSize: 12,
                             fontWeight: 600,
                             cursor: 'pointer',
@@ -254,7 +255,7 @@ export default async function InvitationsPage() {
             fontWeight: 600,
             textTransform: 'uppercase',
             letterSpacing: '0.18em',
-            color: 'rgba(253,246,238,0.45)',
+            color: '#9A8A80',
             margin: '0 0 16px',
           }}
         >
@@ -277,9 +278,9 @@ export default async function InvitationsPage() {
                 }}
               >
                 <span style={{ fontFamily: MONO, fontSize: 12, color: CREAM }}>{inv.email}</span>
-                <span style={{ color: 'rgba(253,246,238,0.35)' }}>·</span>
+                <span style={{ color: '#B8A99C' }}>·</span>
                 <span>{inv.role}</span>
-                <span style={{ color: 'rgba(253,246,238,0.35)' }}>·</span>
+                <span style={{ color: '#B8A99C' }}>·</span>
                 <span>
                   entré le{' '}
                   {inv.consumed_at ? new Date(inv.consumed_at).toLocaleDateString('fr-FR') : '—'}
