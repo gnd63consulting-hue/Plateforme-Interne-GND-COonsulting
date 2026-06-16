@@ -2,24 +2,35 @@ import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase-admin';
 import {
   getGoogleClients,
-  findOrCreateSpreadsheet,
+  findMirrorWorkbook,
+  ensureTab,
+  sanitizeTabTitle,
   writeSnapshot,
 } from '@/lib/google-sheets';
 
 export const dynamic = 'force-dynamic';
 
 /**
- * /api/cron/sheets-mirror — Miroir Google Sheets (1 classeur par commercial).
+ * /api/cron/sheets-mirror — Miroir Google Sheets (UN classeur, 1 onglet/commercial).
  *
  * Objectif : sauvegarde lisible (humain + agent) côté Drive de TOUT le pipeline
  * de chaque commercial. Rien n'est perdu côté Drive même si la plateforme
- * tombe : le Sheet est un export complet, par commercial.
+ * tombe : le Sheet est un export complet, un onglet par commercial.
+ *
+ * ⚠️ DRIVE PERSO — le compte de service N'A PAS de quota de stockage. Sur un
+ *    Drive personnel (Gmail), `drive.files.create` échoue (« The user's Drive
+ *    storage quota has been exceeded »). Le cron ne crée donc JAMAIS de fichier
+ *    Drive : il écrit dans UN classeur UNIQUE, pré-créé À LA MAIN par
+ *    l'utilisateur dans le dossier `GND_CRM_SHEETS_FOLDER_ID` (partagé Éditeur
+ *    au compte de service), et y maintient UN ONGLET par commercial.
  *
  * ⚠️ MIROIR UNIDIRECTIONNEL — la plateforme Supabase est MASTER.
- *    Chaque run réécrit INTÉGRALEMENT l'onglet de chaque classeur (snapshot
+ *    Chaque run réécrit INTÉGRALEMENT l'onglet de chaque commercial (snapshot
  *    idempotent : clear + update). Toute édition manuelle faite dans le Google
  *    Sheet est donc ÉCRASÉE au run suivant. Le Sheet n'est jamais relu vers la
- *    plateforme — c'est une copie en lecture seule, pas une source.
+ *    plateforme — c'est une copie en lecture seule, pas une source. On ne
+ *    supprime aucun onglet (ni l'onglet par défaut « Feuille 1 », ni les onglets
+ *    qu'on n'a pas créés) : pas de pruning destructif.
  *
  * Cloisonnement financier : AUCUN montant n'est exporté (pas de deal_amount /
  * commissions). De toute façon `deal_amount` ne vit plus sur `prospects` (il a
@@ -39,7 +50,7 @@ export const dynamic = 'force-dynamic';
  * RESEND_API_KEY. Tant que la clé n'est pas posée en env, le cron est un no-op.
  */
 
-/** Rôles considérés comme « commercial » (un classeur miroir par user actif). */
+/** Rôles considérés comme « commercial » (un onglet miroir par user actif). */
 const COMMERCIAL_ROLES = new Set(['freelance', 'commercial']);
 
 /**
@@ -110,13 +121,13 @@ function authenticate(req: Request): boolean {
   return false;
 }
 
-/** Nom de classeur déterministe pour un commercial. */
-function spreadsheetName(user: UserRow): string {
-  const label =
+/** Libellé d'onglet déterministe pour un commercial (sanitizé avant écriture). */
+function commercialLabel(user: UserRow): string {
+  return (
     (user.full_name && user.full_name.trim()) ||
     (user.email && user.email.trim()) ||
-    user.id;
-  return `CRM — ${label}`;
+    user.id
+  );
 }
 
 /** Convertit une ligne prospect DB en ligne de cellules pour le Sheet. */
@@ -192,7 +203,7 @@ async function runMirror() {
     else byOwner.set(p.assigned_to, [p]);
   }
 
-  // -------- 3. Un classeur par commercial, snapshot complet --------
+  // -------- 3. Init clients Google + résolution du classeur miroir UNIQUE -----
   let clients;
   try {
     clients = getGoogleClients();
@@ -203,20 +214,47 @@ async function runMirror() {
     };
   }
 
-  let mirrored = 0;
+  // Le compte de service ne peut PAS créer de fichier sur un Drive perso. Le
+  // classeur doit déjà exister dans le dossier (créé à la main par l'utilisateur).
+  let spreadsheetId: string | null;
+  try {
+    spreadsheetId = await findMirrorWorkbook(clients);
+  } catch (e) {
+    return {
+      error:
+        e instanceof Error
+          ? `Recherche du classeur miroir échouée : ${e.message}`
+          : 'Recherche du classeur miroir échouée',
+      status: 500 as const,
+    };
+  }
+
+  if (!spreadsheetId) {
+    const result = {
+      skipped: true as const,
+      reason:
+        "Aucun classeur dans le dossier GND CRM Sheets — crée d'abord un Google Sheet dedans (le compte de service ne peut pas en créer sur un Drive perso).",
+    };
+    console.log('[sheets-mirror] ' + JSON.stringify(result));
+    return result;
+  }
+
+  // -------- 4. Un onglet par commercial, snapshot complet --------
+  let tabsWritten = 0;
   let rowsTotal = 0;
   const errors: { user: string; error: string }[] = [];
 
   for (const u of commercials) {
     const prospects = byOwner.get(u.id) ?? [];
-    const name = spreadsheetName(u);
+    const tabTitle = sanitizeTabTitle(commercialLabel(u));
     try {
-      const spreadsheetId = await findOrCreateSpreadsheet(clients, name);
+      await ensureTab(clients.sheets, spreadsheetId, tabTitle);
       const rows = prospects.map(prospectToCells);
-      await writeSnapshot(clients, spreadsheetId, HEADER, rows);
-      mirrored++;
+      await writeSnapshot(clients, spreadsheetId, tabTitle, HEADER, rows);
+      tabsWritten++;
       rowsTotal += rows.length;
     } catch (e) {
+      // Une erreur sur un commercial ne doit PAS interrompre la boucle.
       errors.push({
         user: u.email ?? u.id,
         error: e instanceof Error ? e.message : 'unknown',
@@ -224,12 +262,15 @@ async function runMirror() {
     }
   }
 
-  return {
+  const result = {
+    workbook: spreadsheetId,
     commercials: commercials.length,
-    mirrored,
+    tabsWritten,
     rowsTotal,
     errors,
   };
+  console.log('[sheets-mirror] ' + JSON.stringify(result));
+  return result;
 }
 
 export async function GET(req: Request) {
