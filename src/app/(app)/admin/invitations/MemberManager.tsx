@@ -104,7 +104,10 @@ export function MemberManager({ member }: { member: Member }) {
       if (res.error) {
         setMsg({ ok: false, text: res.error });
       } else if (res.assigned === 0) {
-        setMsg({ ok: false, text: 'Aucun prospect assigné (pool vide ?).' });
+        setMsg({
+          ok: false,
+          text: `Aucun prospect assigné (vivier assignable : ${res.candidatePool}).`,
+        });
       } else {
         setMsg({ ok: true, text: `✅ ${res.assigned} prospect(s) assigné(s) à ${member.name}.` });
         startTransition(() => router.refresh());

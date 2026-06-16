@@ -132,16 +132,33 @@ export async function setCommissionRate(
 }
 
 /**
- * Assigne `count` prospects FRAIS (status='a_contacter') du pool admin
- * vers le commercial `userId`. Ne touche jamais a un prospect deja assigne
- * a un autre commercial. Retourne le nombre reellement assigne.
+ * Assigne `count` prospects FRAIS (status='a_contacter') ASSIGNABLES vers le
+ * commercial `userId`.
+ *
+ * Definition de la source ASSIGNABLE (corrige le bug "0 assigne") :
+ *   Le sync Notion (api/admin/sync-prospects) pose `assigned_to = <commercial
+ *   mappe>` des l'INSERT. Donc les prospects frais ne sont PAS forcement dans
+ *   le pool admin/non-assigne — l'ancien filtre (`assigned_to` null OU admin)
+ *   les ratait → "0 assigne" alors que des prospects frais existent.
+ *
+ *   Nouvelle regle : un prospect `a_contacter` est assignable s'il n'est PAS
+ *   actuellement detenu par un commercial ACTIF. Concretement :
+ *     - non assigne (assigned_to NULL)                                    → OUI
+ *     - detenu par un admin / admin_limited (pool admin)                  → OUI
+ *     - detenu par un user inactif / archive (active=false)              → OUI
+ *     - detenu par un user inconnu (id orphelin)                          → OUI
+ *     - detenu par un commercial ACTIF                                    → NON
+ *
+ * On ne touche jamais un prospect detenu par un commercial actif. On expose
+ * `candidatePool` (taille reelle du vivier assignable) pour que l'UI explique
+ * pourquoi 0 ont ete assignes le cas echeant. Scoring hot-first conserve.
  */
 export async function assignFreshProspects(
   userId: string,
   count: number
-): Promise<{ error: string | null; assigned: number }> {
+): Promise<{ error: string | null; assigned: number; candidatePool: number }> {
   const admin = await requireAdmin();
-  if (!admin) return { error: 'Permissions insuffisantes', assigned: 0 };
+  if (!admin) return { error: 'Permissions insuffisantes', assigned: 0, candidatePool: 0 };
   const n = Math.max(1, Math.min(500, Math.floor(count)));
 
   const adminClient = createAdminClient();
@@ -155,42 +172,74 @@ export async function assignFreshProspects(
     return {
       error: "Ce membre n'existe pas encore (il doit s'etre connecte au moins une fois).",
       assigned: 0,
+      candidatePool: 0,
     };
   }
 
-  const { data: adminUsers } = await adminClient
+  // Tous les users avec role + statut actif. On en derive l'ensemble des
+  // PROPRIETAIRES ACTIFS NON-ADMIN : ce sont les seuls dont les prospects sont
+  // "verrouilles" (ne reviennent pas au pool). Tout le reste (non assigne,
+  // admin, inactif, inconnu) est assignable.
+  const { data: allUsers, error: usersErr } = await adminClient
     .from('users')
-    .select('id')
-    .in('role', MGMT_ADMIN_ROLES);
-  const adminIds = new Set((adminUsers ?? []).map((u) => u.id));
-  if (adminIds.size === 0) {
-    return { error: 'Aucun compte admin trouve (pool source vide).', assigned: 0 };
+    .select('id, role, active');
+  if (usersErr) {
+    return { error: `Lecture des users echouee : ${usersErr.message}`, assigned: 0, candidatePool: 0 };
   }
 
-  // On lit le pool FRAIS (status a_contacter) puis on filtre cote JS : prospects
-  // du pool admin OU non assignes. Plus robuste que .in('assigned_to', ...) qui
-  // peut piocher a cote selon les valeurs. On prend ensuite les MEILLEURS
+  const adminIds = new Set(
+    (allUsers ?? [])
+      .filter((u) => MGMT_ADMIN_ROLES.includes(u.role as string))
+      .map((u) => u.id as string)
+  );
+  if (adminIds.size === 0) {
+    return { error: 'Aucun compte admin trouve (pool source vide).', assigned: 0, candidatePool: 0 };
+  }
+
+  // Proprietaires ACTIFS NON-ADMIN : prospects a EXCLURE du vivier.
+  const activeCommercialOwners = new Set(
+    (allUsers ?? [])
+      .filter(
+        (u) =>
+          !MGMT_ADMIN_ROLES.includes(u.role as string) &&
+          (u as { active?: boolean | null }).active !== false
+      )
+      .map((u) => u.id as string)
+  );
+
+  // On lit le pool FRAIS (status a_contacter) puis on filtre cote JS. Plus
+  // robuste que `.in('assigned_to', ...)`. On prend ensuite les MEILLEURS
   // (chauds + contactables prioritaires, plus anciens en tie-break).
   const { data: poolRaw, error: poolErr } = await adminClient
     .from('prospects')
     .select('id, classification, phone, email, created_at, assigned_to')
     .eq('status', 'a_contacter')
     .limit(5000);
-  if (poolErr) return { error: `Lecture du pool echouee : ${poolErr.message}`, assigned: 0 };
+  if (poolErr) return { error: `Lecture du pool echouee : ${poolErr.message}`, assigned: 0, candidatePool: 0 };
 
-  const candidates = (poolRaw ?? []).filter(
-    (p) => !p.assigned_to || adminIds.has(p.assigned_to as string)
-  ) as {
+  // Assignable ssi : non assigne, OU pas detenu par un commercial actif
+  // (admin / inactif / inconnu inclus). On exclut aussi explicitement le
+  // membre cible lui-meme (ne pas se "reassigner" ses propres prospects).
+  const candidates = (poolRaw ?? []).filter((p) => {
+    const owner = p.assigned_to as string | null;
+    if (!owner) return true;
+    if (owner === userId) return false;
+    return !activeCommercialOwners.has(owner);
+  }) as {
     id: string;
     classification: string | null;
     phone: string | null;
     email: string | null;
     created_at: string;
   }[];
-  if (candidates.length === 0) {
+
+  const candidatePool = candidates.length;
+  if (candidatePool === 0) {
     return {
-      error: "Aucun prospect 'a_contacter' disponible dans le pool admin.",
+      error:
+        "Aucun prospect 'a_contacter' assignable : tous les prospects frais sont deja detenus par des commerciaux actifs. Synchronise Notion ou archive un membre pour liberer son pool.",
       assigned: 0,
+      candidatePool: 0,
     };
   }
 
@@ -210,11 +259,11 @@ export async function assignFreshProspects(
     .from('prospects')
     .update({ assigned_to: userId, updated_at: new Date().toISOString() }, { count: 'exact' })
     .in('id', ids);
-  if (updErr) return { error: `Mise a jour echouee : ${updErr.message}`, assigned: 0 };
+  if (updErr) return { error: `Mise a jour echouee : ${updErr.message}`, assigned: 0, candidatePool };
 
   revalidatePath('/admin/invitations');
   revalidatePath('/admin');
-  return { error: null, assigned: updatedCount ?? ids.length };
+  return { error: null, assigned: updatedCount ?? ids.length, candidatePool };
 }
 
 
