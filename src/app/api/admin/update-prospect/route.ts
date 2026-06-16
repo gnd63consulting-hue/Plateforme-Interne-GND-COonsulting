@@ -47,11 +47,16 @@ const ADMIN_ROLES = new Set(['admin', 'admin_limited']);
  * Met à jour les champs whitelist d'un prospect depuis le drawer admin.
  * Réservé aux admins (admin / admin_limited).
  *
- * Note : ce endpoint ne pousse PAS le changement vers Notion. Le prochain
- * run du sync Notion → Supabase risque donc d'écraser ces modifications si
- * la fiche Notion n'a pas été mise à jour aussi. À traiter dans une
- * évolution future (push bidirectionnel ou source-of-truth Supabase pour
- * ces 8 champs).
+ * Note (persistance des éditions admin) : ces modifications ne sont PLUS
+ * écrasées par le sync Notion → Supabase. Depuis le passage du sync en mode
+ * « comblement non destructif » (fill-null-only, cf.
+ * /api/admin/sync-prospects/route.ts), l'UPDATE de sync ne remplit QUE les
+ * colonnes encore vides en DB et ne touche jamais `status` / `notes` /
+ * `assigned_to`. Une valeur éditée ici (email, téléphone, classification,
+ * secteur, etc.) est donc préservée : le sync 6h suivant ne la réécrit pas.
+ * Le push retour vers Notion (pour aligner aussi la fiche Notion) reste une
+ * évolution future facultative — il n'est plus nécessaire pour empêcher la
+ * perte des éditions côté plateforme.
  */
 export async function POST(req: Request) {
   const supabase = await createClient();

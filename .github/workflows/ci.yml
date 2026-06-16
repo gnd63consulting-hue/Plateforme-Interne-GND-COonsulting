@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-test:
+    name: Typecheck · Lint · Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # --- BLOQUANT : la typecheck stricte passe déjà aujourd'hui, on la garde verte. ---
+      - name: Typecheck (tsc --noEmit)
+        run: npx tsc --noEmit
+
+      # --- BLOQUANT : lint vérifié clean (0/0). ---
+      - name: Lint (next lint)
+        run: npx next lint
+
+      # --- BLOQUANT : les tests unitaires des helpers purs doivent passer. ---
+      - name: Test (vitest run)
+        run: npm test

@@ -58,6 +58,22 @@ export const dynamic = 'force-dynamic';
  * RESEND_API_KEY. Tant que la clé n'est pas posée en env, le cron est un no-op.
  */
 
+const ROUTE = '/api/cron/sheets-mirror';
+
+/**
+ * Alerte de MISCONFIG : si NI CRON_SECRET NI ADMIN_SYNC_SECRET ne sont posés en
+ * env, ce cron renverra 401 à CHAQUE déclenchement Vercel (échec silencieux et
+ * permanent). On le rend bruyant dans les logs (distinct d'un 401 d'appel non
+ * autorisé légitime) pour qu'un secret oublié soit détectable.
+ */
+function warnIfNoCronSecretConfigured(): void {
+  if (!process.env.CRON_SECRET && !process.env.ADMIN_SYNC_SECRET) {
+    console.error(
+      `[cron][MISCONFIG] ${ROUTE}: no CRON_SECRET/ADMIN_SYNC_SECRET set — cron will 401 forever`
+    );
+  }
+}
+
 /** Rôles considérés comme « commercial » (un onglet miroir par user actif). */
 const COMMERCIAL_ROLES = new Set(['freelance', 'commercial']);
 
@@ -455,14 +471,22 @@ async function runMirror() {
 }
 
 export async function GET(req: Request) {
+  warnIfNoCronSecretConfigured();
   if (!authenticate(req)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
-  const result = await runMirror();
-  if ('error' in result) {
-    return NextResponse.json({ error: result.error }, { status: result.status });
+  try {
+    const result = await runMirror();
+    if ('error' in result) {
+      console.error(`[cron][ERROR] ${ROUTE}: ${result.error}`);
+      return NextResponse.json({ error: result.error }, { status: result.status });
+    }
+    return NextResponse.json(result);
+  } catch (e) {
+    const message = e instanceof Error ? e.message : 'unknown error';
+    console.error(`[cron][ERROR] ${ROUTE}: ${message}`);
+    return NextResponse.json({ error: 'Sheets mirror failed' }, { status: 500 });
   }
-  return NextResponse.json(result);
 }
 
 /** POST identique — déclenchement manuel (curl) hors verbe imposé par Vercel Cron. */
