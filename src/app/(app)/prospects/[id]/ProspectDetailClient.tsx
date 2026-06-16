@@ -154,6 +154,12 @@ type ProspectDetailClientProps = {
   activeSequences: Sequence[];
   initialEnrollment: SequenceEnrollment | null;
   initialQuotes: Quote[];
+  // Montant HT signé — chargé en SSR depuis prospect_finance UNIQUEMENT pour un
+  // admin (migration 0021). null = absent OU rôle non autorisé à le voir.
+  initialDealAmount: number | null;
+  // L'utilisateur courant peut-il voir/saisir les montants financiers ?
+  // (admin / admin_limited). Pour les autres rôles, on n'affiche rien.
+  canViewFinance: boolean;
 };
 
 export default function ProspectDetailClient({
@@ -162,11 +168,16 @@ export default function ProspectDetailClient({
   activeSequences,
   initialEnrollment,
   initialQuotes,
+  initialDealAmount,
+  canViewFinance,
 }: ProspectDetailClientProps) {
   const supabase = useMemo(() => createClient(), []);
   const reduceMotion = useReducedMotion();
 
   const [prospect, setProspect] = useState<Prospect>(initialProspect);
+  // Montant signé géré en état local séparé : il ne vit plus sur l'objet
+  // prospect (déplacé dans prospect_finance, RLS admin-only — migration 0021).
+  const [dealAmount, setDealAmount] = useState<number | null>(initialDealAmount);
   const [activities, setActivities] = useState<Activity[]>(initialActivities);
   const [visibleCount, setVisibleCount] = useState(30);
   const [status, setStatus] = useState<string>(initialProspect.status);
@@ -323,14 +334,15 @@ export default function ProspectDetailClient({
   const handleConfirmDeal = useCallback(
     async (amountHt: number): Promise<boolean> => {
       setErrorMsg('');
-      // Optimistic local sur deal_amount — mémorise l'ancienne valeur pour
+      // Optimistic local sur dealAmount (état séparé, le montant ne vit plus
+      // sur l'objet prospect — migration 0021). Mémorise l'ancienne valeur pour
       // pouvoir rollback si la commission n'est pas enregistrée côté serveur.
-      const previousDeal = prospect.deal_amount;
-      setProspect((p) => ({ ...p, deal_amount: amountHt }));
+      const previousDeal = dealAmount;
+      setDealAmount(amountHt);
       const res = await recordCommission(prospect.id, amountHt);
       if (res.error) {
         // Rollback de l'optimistic : le montant n'a PAS été persisté.
-        setProspect((p) => ({ ...p, deal_amount: previousDeal }));
+        setDealAmount(previousDeal);
         setErrorMsg(res.error);
         return false;
       }
@@ -349,7 +361,7 @@ export default function ProspectDetailClient({
       setWinDealOpen(false);
       return true;
     },
-    [prospect.id, prospect.deal_amount, insertActivity]
+    [prospect.id, dealAmount, insertActivity]
   );
 
   /* ---- Édition rapide des notes (update + log note si modifié) -------- */
@@ -517,10 +529,10 @@ export default function ProspectDetailClient({
                     {prospect.city}
                   </span>
                 )}
-                {prospect.deal_amount != null && (
+                {canViewFinance && dealAmount != null && (
                   <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700">
                     <Banknote className="h-3 w-3" aria-hidden />
-                    Signé {formatEurExact(Number(prospect.deal_amount))} HT
+                    Signé {formatEurExact(Number(dealAmount))} HT
                   </span>
                 )}
                 {prospect.notion_page_id && (
@@ -655,7 +667,7 @@ export default function ProspectDetailClient({
       {winDealOpen && (
         <WinDealModal
           companyName={prospect.company_name}
-          initialAmount={prospect.deal_amount != null ? Number(prospect.deal_amount) : null}
+          initialAmount={dealAmount != null ? Number(dealAmount) : null}
           onConfirm={handleConfirmDeal}
           onClose={() => setWinDealOpen(false)}
         />
