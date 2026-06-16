@@ -26,12 +26,9 @@ jobs:
       - name: Typecheck (tsc --noEmit)
         run: npx tsc --noEmit
 
-      # --- NON BLOQUANT (premier passage) : un éventuel backlog de lint ne doit
-      #     pas casser le pipeline. À resserrer (retirer continue-on-error) une
-      #     fois le lint au vert — cf. TODO dans next.config.mjs. ---
+      # --- BLOQUANT : lint vérifié clean (0/0). ---
       - name: Lint (next lint)
         run: npx next lint
-        continue-on-error: true
 
       # --- BLOQUANT : les tests unitaires des helpers purs doivent passer. ---
       - name: Test (vitest run)
