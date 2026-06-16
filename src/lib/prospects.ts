@@ -24,6 +24,13 @@
  *     commercial) via une requête PostgREST sur prospects. Lire/écrire le
  *     montant passe désormais par `prospect_finance` (cf. finance-actions.ts,
  *     stripe/webhook, et la fiche 360 côté admin).
+ *
+ * Multi-pipeline (migration 0024, Phase 1) :
+ *   - pipeline_id : ligne de métier (board) du prospect (FK public.pipelines).
+ *     Nullable — une fiche `pipeline_id = NULL` est traitée comme appartenant
+ *     au pipeline PAR DÉFAUT côté app (cf. src/lib/pipelines.ts). Les STAGES du
+ *     Kanban restent statiques (src/lib/pipeline.ts) : ce champ ne change QUE le
+ *     board d'appartenance, jamais les étapes.
  */
 
 /** Statuts affichables. Le legacy 'prospecte' n'est plus dans la liste
@@ -104,6 +111,10 @@ export type Prospect = {
   // Finance (migration 0021) — le montant HT signé vit désormais dans
   // `prospect_finance` (RLS admin-only), PLUS sur cette table. Voir
   // l'en-tête de fichier. `deal_amount` est volontairement absent ici.
+  // Multi-pipeline (migration 0024) — ligne de métier (board). Nullable :
+  // NULL ⇒ traité comme le pipeline par défaut côté app. N'altere JAMAIS les
+  // stages (statiques).
+  pipeline_id: string | null;
   // Sync Notion
   notion_page_id: string | null;
   synced_at: string | null;
@@ -157,6 +168,7 @@ export const PROSPECT_SELECT_COLUMNS = [
   // 'deal_amount' RETIRÉ (migration 0021) : la colonne n'existe plus sur
   // prospects. La sélectionner ici provoquerait une erreur PostgREST et,
   // surtout, ré-ouvrirait la fuite que 0021 corrige.
+  'pipeline_id', // multi-pipeline (migration 0024) — board d'appartenance
   'notion_page_id',
   'synced_at',
   'email_norm',

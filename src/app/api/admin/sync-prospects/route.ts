@@ -232,6 +232,13 @@ async function authenticate(req: Request): Promise<
  *     notion_page_id ci-dessus s'ils sont l'homonyme retenu (on rattache la
  *     fiche manuelle au lead Notion plutôt que d'en créer un doublon).
  *
+ * Multi-pipeline (Phase 1, migration 0024) : les NOUVEAUX prospects insérés
+ *   reçoivent `pipeline_id = <pipeline par défaut>` (lu une seule fois par run).
+ *   Les prospects EXISTANTS ne sont jamais touchés (pipeline_id absent du
+ *   payload d'UPDATE), comme assigned_to/status/notes. Si aucun pipeline
+ *   n'existe encore (migration non passée), pipeline_id reste NULL → traité
+ *   comme le défaut côté app : aucun impact.
+ *
  * Suivi (follow-up, hors scope de ce sprint) : si un token d'écriture Notion
  * devient disponible, on pourra réécrire l'UUID Supabase canonique dans la
  * propriété `prospect_id` de la ligne Notion. Ce n'est PAS requis pour la
@@ -339,6 +346,26 @@ async function runSync(targetUserId?: string) {
 
   const admin = createAdminClient();
   const syncedAt = new Date().toISOString();
+
+  // -------- Multi-pipeline (Phase 1) : pipeline par défaut --------
+  // Lu UNE seule fois par run. Les nouveaux prospects insérés y sont rattachés
+  // (les existants ne sont jamais touchés). On prend le pipeline is_default ;
+  // s'il n'y en a pas (migration 0024 pas encore passée), on laisse NULL →
+  // traité comme le défaut côté app, aucun impact. Best-effort : une erreur de
+  // lecture ne doit pas casser le sync (pipeline_id NULL = comportement actuel).
+  let defaultPipelineId: string | null = null;
+  try {
+    const { data: defPipe } = await admin
+      .from('pipelines')
+      .select('id')
+      .eq('is_default', true)
+      .order('position', { ascending: true })
+      .limit(1)
+      .maybeSingle();
+    defaultPipelineId = (defPipe?.id as string | undefined) ?? null;
+  } catch {
+    defaultPipelineId = null;
+  }
 
   // -------- Lookup dynamique des commerciaux Supabase --------
   // Trois index complémentaires pour matcher le commercial Notion vers
@@ -616,6 +643,8 @@ async function runSync(targetUserId?: string) {
       // d'enrichissement, on ne réécrit QUE ceux qui sont encore vides en DB —
       // Notion comble les trous, la plateforme gagne sur toute valeur non nulle.
       // C'est le correctif du bug « les éditions admin repartent au sync 6h ».
+      // NOTE multi-pipeline : `pipeline_id` n'est PAS dans le payload d'UPDATE
+      // → le board d'un prospect existant est toujours préservé.
       const fillUpdate: Record<string, unknown> = {};
       for (const col of FILLABLE_COLUMNS) {
         if (
@@ -788,6 +817,9 @@ async function runSync(targetUserId?: string) {
           synced_at: syncedAt,
           notes: notionDerivedNotes,
           status: initialStatus,
+          // Multi-pipeline (Phase 1) : rattache le nouveau lead au pipeline
+          // par défaut. NULL toléré si aucun pipeline (migration non passée).
+          pipeline_id: defaultPipelineId,
           created_by: targetUserId ?? assignedTo,
           assigned_to: assignedTo,
         })
