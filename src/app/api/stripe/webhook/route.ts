@@ -72,17 +72,29 @@ async function fulfillQuotePaid(admin: Admin, quoteId: string): Promise<void> {
 
   const { data: prospect } = await admin
     .from('prospects')
-    .select('id, assigned_to, created_by, deal_amount')
+    .select('id, assigned_to, created_by')
     .eq('id', prospectId)
     .maybeSingle();
   if (!prospect) return;
 
+  // deal_amount est isole dans prospect_finance (RLS admin-only, migration
+  // 0021). On lit l'eventuel montant deja saisi pour ne pas l'ecraser.
+  const { data: finance } = await admin
+    .from('prospect_finance')
+    .select('deal_amount')
+    .eq('prospect_id', prospectId)
+    .maybeSingle();
+
   // Pose deal_amount seulement s'il est absent (ne pas ecraser un montant saisi).
-  if (prospect.deal_amount == null) {
-    await admin
-      .from('prospects')
-      .update({ deal_amount: baseAmount, updated_at: nowIso })
-      .eq('id', prospectId);
+  if (finance?.deal_amount == null) {
+    await admin.from('prospect_finance').upsert(
+      {
+        prospect_id: prospectId,
+        deal_amount: baseAmount,
+        updated_at: nowIso,
+      },
+      { onConflict: 'prospect_id' }
+    );
   }
 
   const commercialId =

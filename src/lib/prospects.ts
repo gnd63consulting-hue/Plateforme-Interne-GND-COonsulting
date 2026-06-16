@@ -17,8 +17,13 @@
  *   - email_norm / phone_norm : colonnes GÉNÉRÉES STORED (lecture seule côté app)
  *   - merged_into             : id de la fiche maître si cette fiche a été fusionnée
  *
- * Finance (migration 0015) :
- *   - deal_amount : montant HT du contrat signé (rempli au passage en status='gagne').
+ * Finance (migration 0015, isolée en 0021) :
+ *   - deal_amount NE vit PLUS sur prospects. Il a été déplacé dans la table
+ *     dédiée `public.prospect_finance` (RLS admin-only) par la migration 0021
+ *     pour empêcher toute lecture du montant par un rôle non-admin (assistant,
+ *     commercial) via une requête PostgREST sur prospects. Lire/écrire le
+ *     montant passe désormais par `prospect_finance` (cf. finance-actions.ts,
+ *     stripe/webhook, et la fiche 360 côté admin).
  */
 
 /** Statuts affichables. Le legacy 'prospecte' n'est plus dans la liste
@@ -96,8 +101,9 @@ export type Prospect = {
   nombre_avis: number | null;
   taille_entreprise: string | null;
   nombre_employes: number | null;
-  // Finance (migration 0015) — montant HT du contrat signé
-  deal_amount: number | null;
+  // Finance (migration 0021) — le montant HT signé vit désormais dans
+  // `prospect_finance` (RLS admin-only), PLUS sur cette table. Voir
+  // l'en-tête de fichier. `deal_amount` est volontairement absent ici.
   // Sync Notion
   notion_page_id: string | null;
   synced_at: string | null;
@@ -148,7 +154,9 @@ export const PROSPECT_SELECT_COLUMNS = [
   'nombre_avis',
   'taille_entreprise',
   'nombre_employes',
-  'deal_amount',
+  // 'deal_amount' RETIRÉ (migration 0021) : la colonne n'existe plus sur
+  // prospects. La sélectionner ici provoquerait une erreur PostgREST et,
+  // surtout, ré-ouvrirait la fuite que 0021 corrige.
   'notion_page_id',
   'synced_at',
   'email_norm',

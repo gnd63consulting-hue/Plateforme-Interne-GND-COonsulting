@@ -61,6 +61,30 @@ export default async function ProspectDetailPage({
 
   const prospect = prospectRow as unknown as Prospect;
 
+  // Montant signé (deal_amount) — isolé dans prospect_finance (RLS admin-only,
+  // migration 0021). On ne le charge QUE pour un admin/admin_limited : la RLS
+  // renverrait de toute façon 0 ligne aux autres rôles, mais on évite une
+  // requête garantie vide et on rend l'intention explicite côté serveur. C'est
+  // la défense applicative qui DOUBLE la défense RLS — le montant ne transite
+  // jamais vers un client non-admin.
+  const { data: me } = await supabase
+    .from('users')
+    .select('role')
+    .eq('id', user.id)
+    .maybeSingle();
+  const isAdmin = me?.role === 'admin' || me?.role === 'admin_limited';
+
+  let initialDealAmount: number | null = null;
+  if (isAdmin) {
+    const { data: finance } = await supabase
+      .from('prospect_finance')
+      .select('deal_amount')
+      .eq('prospect_id', id)
+      .maybeSingle();
+    initialDealAmount =
+      finance?.deal_amount != null ? Number(finance.deal_amount) : null;
+  }
+
   // Timeline + séquences actives + inscription en cours + devis, en parallèle.
   // La RLS filtre les activités (owner), les enrollments (owner) et les
   // devis (owner). Les séquences sont lisibles par tout authenticated.
@@ -104,6 +128,8 @@ export default async function ProspectDetailPage({
       activeSequences={activeSequences}
       initialEnrollment={activeEnrollment}
       initialQuotes={initialQuotes}
+      initialDealAmount={initialDealAmount}
+      canViewFinance={isAdmin}
     />
   );
 }
