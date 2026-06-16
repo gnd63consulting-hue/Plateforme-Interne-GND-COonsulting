@@ -183,6 +183,21 @@ async function authenticate(req: Request): Promise<
  *         le `prospect_id` canonique. Le match futur se fait par
  *         `notion_page_id` (colonne UNIQUE, déjà présente) — aucune réécriture
  *         dans Notion n'est nécessaire pour stabiliser le match.
+ *
+ *         GARDE ANTI-DOUBLON (sprint dédup 2026-06-16) : avant l'INSERT, on
+ *         vérifie qu'aucun prospect au MÊME nom d'entreprise normalisé
+ *         n'existe déjà (en DB OU inséré plus tôt dans CE run). Si un homonyme
+ *         existe, on NE crée PAS de seconde fiche :
+ *           - si l'homonyme n'a pas encore de `notion_page_id`, on le BACKFILL
+ *             avec cette page (les syncs futures matcheront l'existant par
+ *             `notion_page_id` → plus jamais de doublon créé) ;
+ *           - sinon (homonyme déjà rattaché à une AUTRE page Notion), on skip
+ *             simplement l'INSERT (`skippedDuplicate`).
+ *         Dans les deux cas on NE TOUCHE PAS `assigned_to` / `status` /
+ *         `notes` de l'existant (la plateforme reste master de la propriété).
+ *         C'est la version permanente du correctif : la cause racine du
+ *         doublon (2 lignes Notion homonymes → 2 fiches, 2 commerciaux) ne
+ *         peut plus se reproduire.
  *       - EXISTANTES en DB → UPDATE NON DESTRUCTIF. On ne RÉÉCRIT JAMAIS une
  *         valeur saisie/éditée côté plateforme : on se contente de COMBLER les
  *         champs encore NULL/vides en DB avec la valeur Notion (Notion comble
@@ -194,7 +209,9 @@ async function authenticate(req: Request): Promise<
  *         tous les `baseFields` avec les valeurs Notion.
  *   - Lignes Notion mortes ou pages absentes de la query → DELETE physique.
  *   - Prospects créés à la main dans /prospects (notion_page_id IS NULL)
- *     ne sont jamais touchés (ni update, ni delete).
+ *     ne sont jamais touchés (ni update, ni delete) — SAUF backfill du
+ *     notion_page_id ci-dessus s'ils sont l'homonyme retenu (on rattache la
+ *     fiche manuelle au lead Notion plutôt que d'en créer un doublon).
  *
  * Suivi (follow-up, hors scope de ce sprint) : si un token d'écriture Notion
  * devient disponible, on pourra réécrire l'UUID Supabase canonique dans la
@@ -388,6 +405,50 @@ async function runSync(targetUserId?: string) {
     dbByNotionId.set(row.notion_page_id, row);
   }
 
+  // -------- Index anti-doublon par nom d'entreprise normalisé --------
+  // Garde permanente contre la cause racine du bug doublon : deux lignes Notion
+  // homonymes (même société) qui, importées 1:1 par notion_page_id, créaient
+  // DEUX fiches prospects pour la même entreprise (souvent 2 commerciaux).
+  //
+  // On lit TOUTE la table prospects (pas seulement les lignes Notion) car un
+  // homonyme peut être une fiche créée manuellement (notion_page_id NULL) :
+  // dans ce cas on préfère RATTACHER le lead Notion à la fiche manuelle
+  // (backfill du notion_page_id) plutôt qu'en créer un doublon.
+  //
+  // `companyNameIndex` : Map<nom_normalisé, { id, notion_page_id }>. On garde
+  // le PREMIER rencontré par nom (stable, suffisant pour décider backfill vs
+  // skip). Les fiches sans nom (company_name vide) sont ignorées : elles ne
+  // doivent jamais provoquer de faux positif de doublon.
+  const { data: allNameRows, error: nameQueryErr } = await admin
+    .from('prospects')
+    .select('id, company_name, notion_page_id');
+
+  if (nameQueryErr) {
+    return {
+      error: `Failed to read prospects for dedup index: ${nameQueryErr.message}`,
+      status: 500 as const,
+    };
+  }
+
+  const companyNameIndex = new Map<
+    string,
+    { id: string; notion_page_id: string | null }
+  >();
+  for (const row of (allNameRows ?? []) as {
+    id: string;
+    company_name: string | null;
+    notion_page_id: string | null;
+  }[]) {
+    const key = normalizeName(row.company_name ?? '');
+    if (!key) continue;
+    if (!companyNameIndex.has(key)) {
+      companyNameIndex.set(key, {
+        id: row.id,
+        notion_page_id: row.notion_page_id,
+      });
+    }
+  }
+
   // Page IDs vus côté Notion à ce run
   const seenNotionIds = new Set<string>();
   const deadFromNotion = new Set<string>(); // à supprimer
@@ -395,6 +456,7 @@ async function runSync(targetUserId?: string) {
   let inserted = 0;
   let updated = 0;
   let skippedNoFill = 0; // existants déjà complets → aucun trou à combler
+  let skippedDuplicate = 0; // homonyme déjà présent → pas de seconde fiche
   let deleted = 0;
   let skipped = 0;
   const errors: { page_id: string; error: string }[] = [];
@@ -566,6 +628,52 @@ async function runSync(targetUserId?: string) {
         updated++;
       }
     } else {
+      // ====================================================================
+      // GARDE ANTI-DOUBLON (avant tout INSERT d'un nouveau lead Notion).
+      // ====================================================================
+      // Cause racine du bug : 2 lignes Notion homonymes (même société, parfois
+      // 2 commerciaux) → 2 fiches prospects. On l'élimine ICI, de façon
+      // permanente : si une fiche au MÊME nom d'entreprise normalisé existe
+      // déjà (en DB OU insérée plus tôt dans CE run via `companyNameIndex`),
+      // on NE crée PAS de seconde fiche.
+      //   - Si l'existant n'a pas encore de notion_page_id → on le BACKFILL
+      //     avec cette page (fill-null-only). Les syncs suivantes matcheront
+      //     alors l'existant par notion_page_id (branche `existing` ci-dessus)
+      //     → plus jamais de doublon. On ne touche ni assigned_to, ni status,
+      //     ni notes.
+      //   - Si l'existant a DÉJÀ un autre notion_page_id → on skip l'INSERT
+      //     (skippedDuplicate) sans rien modifier (pas de changement de
+      //     propriété).
+      const nameKey = normalizeName(companyName);
+      const dupExisting = nameKey ? companyNameIndex.get(nameKey) : undefined;
+
+      if (dupExisting) {
+        if (dupExisting.notion_page_id === null) {
+          // Backfill fill-null-only du notion_page_id sur l'homonyme existant.
+          // Le filtre `.is('notion_page_id', null)` garantit qu'on n'écrase
+          // jamais un rattachement déjà posé (course concurrente / idempotence).
+          const { error: backfillErr } = await admin
+            .from('prospects')
+            .update({ notion_page_id: page.id })
+            .eq('id', dupExisting.id)
+            .is('notion_page_id', null);
+          if (backfillErr) {
+            errors.push({ page_id: page.id, error: backfillErr.message });
+          } else {
+            // L'index pointe désormais sur cette page (le lead est rattaché).
+            companyNameIndex.set(nameKey, {
+              id: dupExisting.id,
+              notion_page_id: page.id,
+            });
+            skippedDuplicate++;
+          }
+        } else {
+          // Homonyme déjà rattaché à une autre page Notion → pas de 2e fiche.
+          skippedDuplicate++;
+        }
+        continue;
+      }
+
       // ---- Lecture du commercial assigné côté Notion ----
       // Ordre de priorité (le premier match gagne) :
       //   1. People field `commercial_assigne` → match par notion_user_id
@@ -653,19 +761,34 @@ async function runSync(targetUserId?: string) {
         continue;
       }
 
-      const { error: insertErr } = await admin.from('prospects').insert({
-        ...enrichmentFields,
-        notion_page_id: page.id,
-        synced_at: syncedAt,
-        notes: notionDerivedNotes,
-        status: initialStatus,
-        created_by: targetUserId ?? assignedTo,
-        assigned_to: assignedTo,
-      });
+      const { data: insertedRow, error: insertErr } = await admin
+        .from('prospects')
+        .insert({
+          ...enrichmentFields,
+          notion_page_id: page.id,
+          synced_at: syncedAt,
+          notes: notionDerivedNotes,
+          status: initialStatus,
+          created_by: targetUserId ?? assignedTo,
+          assigned_to: assignedTo,
+        })
+        .select('id')
+        .maybeSingle();
       if (insertErr) {
         errors.push({ page_id: page.id, error: insertErr.message });
       } else {
         inserted++;
+        // Indexe le nouveau prospect par nom : les pages SUIVANTES de CE run
+        // portant le même nom d'entreprise ne créeront pas de doublon (elles
+        // seront rattachées/skippées par la garde ci-dessus). Couvre le cas
+        // « deux leads Notion homonymes dans le même sync ».
+        const newId = (insertedRow as { id?: string } | null)?.id;
+        if (nameKey && newId) {
+          companyNameIndex.set(nameKey, {
+            id: newId,
+            notion_page_id: page.id,
+          });
+        }
       }
     }
   }
@@ -707,6 +830,7 @@ async function runSync(targetUserId?: string) {
     inserted,
     updated,
     skipped_no_fill: skippedNoFill,
+    skipped_duplicate: skippedDuplicate,
     deleted,
     skipped,
     errors,
