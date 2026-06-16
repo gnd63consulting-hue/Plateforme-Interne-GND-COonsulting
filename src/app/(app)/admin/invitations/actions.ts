@@ -162,34 +162,39 @@ export async function assignFreshProspects(
     .from('users')
     .select('id')
     .in('role', MGMT_ADMIN_ROLES);
-  const adminIds = (adminUsers ?? []).map((u) => u.id);
-  if (adminIds.length === 0) {
-    return { error: 'Aucun pool admin trouve.', assigned: 0 };
+  const adminIds = new Set((adminUsers ?? []).map((u) => u.id));
+  if (adminIds.size === 0) {
+    return { error: 'Aucun compte admin trouve (pool source vide).', assigned: 0 };
   }
 
-  // On pioche un large echantillon du pool frais puis on prend les MEILLEURS :
-  // prospects chauds + contactables (tel/email) en priorite, plus anciens en
-  // depart de tie-break. Objectif : assigner des prospects surs, pas du tout-venant.
+  // On lit le pool FRAIS (status a_contacter) puis on filtre cote JS : prospects
+  // du pool admin OU non assignes. Plus robuste que .in('assigned_to', ...) qui
+  // peut piocher a cote selon les valeurs. On prend ensuite les MEILLEURS
+  // (chauds + contactables prioritaires, plus anciens en tie-break).
   const { data: poolRaw, error: poolErr } = await adminClient
     .from('prospects')
-    .select('id, classification, phone, email, created_at')
+    .select('id, classification, phone, email, created_at, assigned_to')
     .eq('status', 'a_contacter')
-    .in('assigned_to', adminIds)
-    .limit(3000);
-  if (poolErr) return { error: poolErr.message, assigned: 0 };
+    .limit(5000);
+  if (poolErr) return { error: `Lecture du pool echouee : ${poolErr.message}`, assigned: 0 };
 
-  const pool = (poolRaw ?? []) as {
+  const candidates = (poolRaw ?? []).filter(
+    (p) => !p.assigned_to || adminIds.has(p.assigned_to as string)
+  ) as {
     id: string;
     classification: string | null;
     phone: string | null;
     email: string | null;
     created_at: string;
   }[];
-  if (pool.length === 0) {
-    return { error: 'Aucun prospect frais disponible dans le pool.', assigned: 0 };
+  if (candidates.length === 0) {
+    return {
+      error: "Aucun prospect 'a_contacter' disponible dans le pool admin.",
+      assigned: 0,
+    };
   }
 
-  const scored = pool.map((p) => {
+  const scored = candidates.map((p) => {
     const hot = !!p.classification && /chaud|hot|prioritaire|\u{1F525}/iu.test(p.classification);
     const contactable = !!(p.phone || p.email);
     return { id: p.id, score: (hot ? 2 : 0) + (contactable ? 1 : 0), created_at: p.created_at };
@@ -201,14 +206,15 @@ export async function assignFreshProspects(
   );
   const ids = scored.slice(0, n).map((p) => p.id);
 
-  const { error: updErr } = await adminClient
+  const { error: updErr, count: updatedCount } = await adminClient
     .from('prospects')
-    .update({ assigned_to: userId, updated_at: new Date().toISOString() })
+    .update({ assigned_to: userId, updated_at: new Date().toISOString() }, { count: 'exact' })
     .in('id', ids);
-  if (updErr) return { error: updErr.message, assigned: 0 };
+  if (updErr) return { error: `Mise a jour echouee : ${updErr.message}`, assigned: 0 };
 
   revalidatePath('/admin/invitations');
-  return { error: null, assigned: ids.length };
+  revalidatePath('/admin');
+  return { error: null, assigned: updatedCount ?? ids.length };
 }
 
 
