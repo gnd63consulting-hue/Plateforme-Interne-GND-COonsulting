@@ -167,19 +167,39 @@ export async function assignFreshProspects(
     return { error: 'Aucun pool admin trouve.', assigned: 0 };
   }
 
-  const { data: pool, error: poolErr } = await adminClient
+  // On pioche un large echantillon du pool frais puis on prend les MEILLEURS :
+  // prospects chauds + contactables (tel/email) en priorite, plus anciens en
+  // depart de tie-break. Objectif : assigner des prospects surs, pas du tout-venant.
+  const { data: poolRaw, error: poolErr } = await adminClient
     .from('prospects')
-    .select('id')
+    .select('id, classification, phone, email, created_at')
     .eq('status', 'a_contacter')
     .in('assigned_to', adminIds)
-    .order('created_at', { ascending: true })
-    .limit(n);
+    .limit(3000);
   if (poolErr) return { error: poolErr.message, assigned: 0 };
 
-  const ids = (pool ?? []).map((p) => p.id);
-  if (ids.length === 0) {
+  const pool = (poolRaw ?? []) as {
+    id: string;
+    classification: string | null;
+    phone: string | null;
+    email: string | null;
+    created_at: string;
+  }[];
+  if (pool.length === 0) {
     return { error: 'Aucun prospect frais disponible dans le pool.', assigned: 0 };
   }
+
+  const scored = pool.map((p) => {
+    const hot = !!p.classification && /chaud|hot|prioritaire|\u{1F525}/iu.test(p.classification);
+    const contactable = !!(p.phone || p.email);
+    return { id: p.id, score: (hot ? 2 : 0) + (contactable ? 1 : 0), created_at: p.created_at };
+  });
+  scored.sort(
+    (a, b) =>
+      b.score - a.score ||
+      new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+  );
+  const ids = scored.slice(0, n).map((p) => p.id);
 
   const { error: updErr } = await adminClient
     .from('prospects')
