@@ -3,6 +3,7 @@ import { createAdminClient } from '@/lib/supabase-admin';
 import {
   getGoogleClients,
   findMirrorWorkbook,
+  findWorkbookByName,
   ensureTab,
   sanitizeTabTitle,
   writeSnapshot,
@@ -32,10 +33,17 @@ export const dynamic = 'force-dynamic';
  *    supprime aucun onglet (ni l'onglet par défaut « Feuille 1 », ni les onglets
  *    qu'on n'a pas créés) : pas de pruning destructif.
  *
- * Cloisonnement financier : AUCUN montant n'est exporté (pas de deal_amount /
- * commissions). De toute façon `deal_amount` ne vit plus sur `prospects` (il a
- * été isolé dans `prospect_finance`, RLS admin-only — cf. migration 0021), donc
- * le service-role read ci-dessous ne peut structurellement pas exfiltrer de CA.
+ * Cloisonnement financier — DEUX classeurs DISTINCTS dans le même dossier :
+ *   1. Le classeur MIROIR par-commercial (résolu par `findMirrorWorkbook`) :
+ *      AUCUN montant n'y est exporté (pas de deal_amount / commissions). De
+ *      toute façon `deal_amount` ne vit plus sur `prospects` (il a été isolé
+ *      dans `prospect_finance`, RLS admin-only — cf. migration 0021), donc le
+ *      service-role read ne peut structurellement pas y exfiltrer de CA.
+ *   2. Le classeur FINANCE ADMIN (résolu par son NOM exact, cf. constante
+ *      `FINANCE_WORKBOOK_NAME`) : reçoit le CA + les commissions, pour la
+ *      compta. C'est de la donnée ADMIN, volontairement SÉPARÉE du miroir
+ *      par-commercial — un commercial n'a accès QU'À son onglet du classeur 1,
+ *      jamais au classeur Finance.
  *
  * Déclenché par Vercel Cron (quotidien, cf. vercel.json). Service-role
  * UNIQUEMENT (bypass RLS) : on lit les prospects de TOUS les commerciaux, le
@@ -52,6 +60,17 @@ export const dynamic = 'force-dynamic';
 
 /** Rôles considérés comme « commercial » (un onglet miroir par user actif). */
 const COMMERCIAL_ROLES = new Set(['freelance', 'commercial']);
+
+/**
+ * Nom EXACT du classeur Finance ADMIN (pré-créé à la main par l'utilisateur dans
+ * le dossier GND CRM Sheets). On le résout par nom (jamais d'id hardcodé :
+ * l'utilisateur peut le recréer). SÉPARÉ du miroir par-commercial = cœur du
+ * cloisonnement : seul ce classeur porte le CA + les commissions.
+ */
+const FINANCE_WORKBOOK_NAME = 'CRM — Finance (CA & commissions) — ADMIN';
+
+/** Onglet du classeur Finance où vit le snapshot comptable. */
+const FINANCE_TAB = 'Finance';
 
 /**
  * Colonnes prospect lues pour le snapshot. AUCUNE colonne financière.
@@ -89,6 +108,17 @@ const HEADER = [
   'notes',
 ];
 
+/** En-tête du snapshot Finance ADMIN (ordre figé). */
+const FINANCE_HEADER = [
+  'date',
+  'entreprise',
+  'commercial',
+  'montant_deal_HT',
+  'taux_commission',
+  'montant_commission',
+  'statut',
+];
+
 type ProspectRow = {
   id: string;
   company_name: string | null;
@@ -110,6 +140,21 @@ type UserRow = {
   email: string | null;
   role: string | null;
   active: boolean | null;
+};
+
+/**
+ * Ligne `commissions` (cf. migration 0015). `amount` est GÉNÉRÉ en base
+ * (base_amount * rate) — on le relit tel quel, on ne le recalcule pas.
+ */
+type CommissionRow = {
+  id: string;
+  prospect_id: string | null;
+  commercial_id: string | null;
+  base_amount: number | null;
+  rate: number | null;
+  amount: number | null;
+  statut: string | null;
+  created_at: string | null;
 };
 
 function authenticate(req: Request): boolean {
@@ -147,6 +192,122 @@ function prospectToCells(p: ProspectRow): (string | number | null)[] {
   ];
 }
 
+/**
+ * Étape FINANCE (ADMIN-only) — écrit le CA + les commissions dans un classeur
+ * SÉPARÉ du miroir par-commercial.
+ *
+ * Source de vérité : la table `commissions` (1 ligne par deal gagné/payé, cf.
+ * migration 0015). Une commission EXISTE dès qu'un deal est « gagné »
+ * (recordCommission au passage status='gagne') ou « payé » (webhook Stripe) :
+ * c'est donc la représentation fiable d'un deal abouti. On joint :
+ *   commissions.prospect_id   → prospects.company_name (entreprise)
+ *   commissions.commercial_id → users.full_name|email  (commercial)
+ *   commissions.base_amount   = montant_deal_HT (= prospect_finance.deal_amount)
+ *   commissions.rate          = taux_commission
+ *   commissions.amount        = montant_commission (GÉNÉRÉ base*rate en base)
+ *   commissions.statut        = a_payer | paye | annule
+ *   commissions.created_at    = date
+ *
+ * Idempotent : réécriture intégrale de l'onglet `Finance` (clear + update).
+ *
+ * @returns soit `{ financeRows }` (succès), soit `{ financeSkipped }` (classeur
+ *          Finance introuvable ou lecture en échec) — JAMAIS de throw : un échec
+ *          finance ne doit pas casser le miroir par-commercial déjà écrit.
+ */
+async function runFinance(
+  clients: ReturnType<typeof getGoogleClients>,
+  admin: ReturnType<typeof createAdminClient>,
+  userById: Map<string, UserRow>
+): Promise<{ financeRows: number } | { financeSkipped: string }> {
+  // 1. Résolution du classeur Finance par NOM exact (séparé du miroir).
+  let financeWorkbookId: string | null;
+  try {
+    financeWorkbookId = await findWorkbookByName(clients, FINANCE_WORKBOOK_NAME);
+  } catch (e) {
+    return {
+      financeSkipped:
+        e instanceof Error
+          ? `recherche classeur Finance échouée : ${e.message}`
+          : 'recherche classeur Finance échouée',
+    };
+  }
+  if (!financeWorkbookId) {
+    return { financeSkipped: 'workbook introuvable' };
+  }
+
+  // 2. Lecture des commissions (service-role, bypass RLS admin-only).
+  const { data: comsRaw, error: comsErr } = await admin
+    .from('commissions')
+    .select(
+      'id, prospect_id, commercial_id, base_amount, rate, amount, statut, created_at'
+    )
+    .order('created_at', { ascending: false })
+    .limit(50000);
+  if (comsErr) {
+    return { financeSkipped: `lecture commissions échouée : ${comsErr.message}` };
+  }
+  const commissions = (comsRaw ?? []) as unknown as CommissionRow[];
+
+  // 3. Résolution des entreprises (company_name) par prospect_id, en une lecture.
+  const prospectIds = Array.from(
+    new Set(
+      commissions
+        .map((c) => c.prospect_id)
+        .filter((id): id is string => typeof id === 'string' && id.length > 0)
+    )
+  );
+  const companyById = new Map<string, string>();
+  if (prospectIds.length > 0) {
+    const { data: prosRaw, error: prosErr } = await admin
+      .from('prospects')
+      .select('id, company_name')
+      .in('id', prospectIds);
+    if (prosErr) {
+      return {
+        financeSkipped: `lecture entreprises (prospects) échouée : ${prosErr.message}`,
+      };
+    }
+    for (const p of (prosRaw ?? []) as {
+      id: string;
+      company_name: string | null;
+    }[]) {
+      companyById.set(p.id, p.company_name ?? '');
+    }
+  }
+
+  // 4. Construction des lignes comptables (1 ligne par commission).
+  const commercialName = (id: string | null): string => {
+    if (!id) return '';
+    const u = userById.get(id);
+    if (!u) return id;
+    return (
+      (u.full_name && u.full_name.trim()) || (u.email && u.email.trim()) || id
+    );
+  };
+
+  const rows: (string | number | null)[][] = commissions.map((c) => [
+    c.created_at ?? '',
+    (c.prospect_id && companyById.get(c.prospect_id)) || '',
+    commercialName(c.commercial_id),
+    c.base_amount ?? '',
+    c.rate ?? '',
+    c.amount ?? '',
+    c.statut ?? '',
+  ]);
+
+  // 5. Snapshot idempotent dans l'onglet Finance du classeur ADMIN.
+  await ensureTab(clients.sheets, financeWorkbookId, FINANCE_TAB);
+  await writeSnapshot(
+    clients,
+    financeWorkbookId,
+    FINANCE_TAB,
+    FINANCE_HEADER,
+    rows
+  );
+
+  return { financeRows: rows.length };
+}
+
 async function runMirror() {
   // Dormance : pas de clé → no-op propre (cohérent avec le digest sans Resend).
   if (!process.env.GOOGLE_SERVICE_ACCOUNT_KEY) {
@@ -176,7 +337,13 @@ async function runMirror() {
       status: 500 as const,
     };
   }
-  const commercials = ((usersRaw ?? []) as UserRow[]).filter(
+  const allUsers = (usersRaw ?? []) as UserRow[];
+  // Index id → user (utilisé par l'étape Finance pour nommer le commercial,
+  // y compris un commercial inactif qui a tout de même des commissions).
+  const userById = new Map<string, UserRow>();
+  for (const u of allUsers) userById.set(u.id, u);
+
+  const commercials = allUsers.filter(
     (u) =>
       u.role != null && COMMERCIAL_ROLES.has(u.role) && u.active !== false
   );
@@ -262,12 +429,26 @@ async function runMirror() {
     }
   }
 
+  // -------- 5. FINANCE (ADMIN-only, classeur SÉPARÉ) --------
+  // Ne doit jamais casser le miroir par-commercial déjà écrit : runFinance ne
+  // throw pas (il renvoie financeRows OU financeSkipped). On enveloppe tout de
+  // même en try/catch par prudence (erreur réseau inattendue).
+  let finance: { financeRows: number } | { financeSkipped: string };
+  try {
+    finance = await runFinance(clients, admin, userById);
+  } catch (e) {
+    finance = {
+      financeSkipped: e instanceof Error ? e.message : 'erreur finance inconnue',
+    };
+  }
+
   const result = {
     workbook: spreadsheetId,
     commercials: commercials.length,
     tabsWritten,
     rowsTotal,
     errors,
+    ...finance,
   };
   console.log('[sheets-mirror] ' + JSON.stringify(result));
   return result;

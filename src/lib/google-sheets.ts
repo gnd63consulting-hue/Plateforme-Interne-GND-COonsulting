@@ -23,6 +23,9 @@ import type { JWT } from 'google-auth-library';
  *   - `findMirrorWorkbook(clients)` : retrouve le classeur miroir dans le
  *     dossier `GND_CRM_SHEETS_FOLDER_ID` (premier spreadsheet par createdTime),
  *     ou `null` si le dossier n'en contient aucun. NE CRÉE RIEN.
+ *   - `findWorkbookByName(clients, name)` : retrouve UN classeur précis par son
+ *     nom EXACT dans le dossier (premier par createdTime), ou `null`. Sert au
+ *     classeur Finance ADMIN, séparé du miroir par-commercial. NE CRÉE RIEN.
  *   - `ensureTab(sheets, spreadsheetId, tabTitle)` : ajoute l'onglet `tabTitle`
  *     s'il n'existe pas encore (batchUpdate addSheet).
  *   - `sanitizeTabTitle(name)` : normalise un libellé en titre d'onglet valide
@@ -166,6 +169,52 @@ export async function findMirrorWorkbook(
 
   const q = [
     "mimeType = 'application/vnd.google-apps.spreadsheet'",
+    `'${folderId}' in parents`,
+    'trashed = false',
+  ].join(' and ');
+
+  const search = await drive.files.list({
+    q,
+    fields: 'files(id, name, createdTime)',
+    orderBy: 'createdTime',
+    spaces: 'drive',
+    pageSize: 10,
+    supportsAllDrives: true,
+    includeItemsFromAllDrives: true,
+  });
+
+  return search.data.files?.[0]?.id ?? null;
+}
+
+/** Échappe une chaîne pour une valeur littérale dans une requête `drive.files.list`. */
+function escapeDriveQueryValue(value: string): string {
+  // Dans la syntaxe de requête Drive, les littéraux sont entre apostrophes ;
+  // `\` et `'` doivent être échappés par un antislash.
+  return value.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+}
+
+/**
+ * Retrouve UN classeur précis par son NOM EXACT dans le dossier Drive configuré.
+ *
+ * Même contrainte que `findMirrorWorkbook` : le compte de service ne peut pas
+ * créer de fichier sur un Drive perso. Le classeur (ex. le classeur Finance
+ * ADMIN « CRM — Finance (CA & commissions) — ADMIN ») doit donc être pré-créé
+ * À LA MAIN par l'utilisateur dans le dossier. On le retrouve par son nom (pas
+ * d'id hardcodé : l'utilisateur peut le recréer). Si plusieurs classeurs
+ * portent le même nom, on renvoie le PREMIER par createdTime (déterministe).
+ *
+ * @param name nom EXACT du classeur (sensible à la casse, tel qu'affiché Drive).
+ * @returns le spreadsheetId, ou `null` si aucun classeur de ce nom dans le dossier.
+ */
+export async function findWorkbookByName(
+  clients: GoogleClients,
+  name: string
+): Promise<string | null> {
+  const { drive, folderId } = clients;
+
+  const q = [
+    "mimeType = 'application/vnd.google-apps.spreadsheet'",
+    `name = '${escapeDriveQueryValue(name)}'`,
     `'${folderId}' in parents`,
     'trashed = false',
   ].join(' and ');
