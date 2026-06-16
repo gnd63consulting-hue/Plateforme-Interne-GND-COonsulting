@@ -34,6 +34,10 @@ import {
   STATUS_OPTIONS,
   type Prospect,
 } from '@/lib/prospects';
+import {
+  filterByPipeline,
+  type Pipeline,
+} from '@/lib/pipelines';
 import { pastelClassesForStatus } from '@/lib/status-tone';
 import { phoneKey9 } from '@/lib/dedup';
 import { insertActivityRow } from '@/lib/activities';
@@ -48,6 +52,13 @@ type ProspectsClientProps = {
   initialProspects: Prospect[];
   currentUserId: string;
   firstName: string;
+  /** Multi-pipeline (Phase 1) : lignes de métier disponibles (triées). Peut
+   *  être vide tant que la migration 0024 n'est pas exécutée → le sélecteur
+   *  est alors masqué et le comportement est identique à aujourd'hui. */
+  pipelines: Pipeline[];
+  /** Id du pipeline par défaut (ou null si aucun pipeline). Sert de sélection
+   *  initiale et de cible des fiches sans pipeline_id. */
+  defaultPipelineId: string | null;
 };
 
 type ViewMode = 'table' | 'kanban';
@@ -103,6 +114,8 @@ export default function ProspectsClient({
   initialProspects,
   currentUserId,
   firstName,
+  pipelines,
+  defaultPipelineId,
 }: ProspectsClientProps) {
   const [prospects, setProspects] = useState<Prospect[]>(initialProspects);
   const [view, setView] = useState<ViewMode>('table');
@@ -124,6 +137,12 @@ export default function ProspectsClient({
   const [notesDraft, setNotesDraft] = useState('');
   const [relanceDraft, setRelanceDraft] = useState('');
   const [error, setError] = useState<string | null>(null);
+  // Multi-pipeline (Phase 1) : board sélectionné. Init = pipeline par défaut.
+  // Avec un seul pipeline, le sélecteur est masqué (cf. plus bas) → la valeur
+  // reste le défaut et le filtre laisse passer toutes les fiches (NULL incluses).
+  const [selectedPipelineId, setSelectedPipelineId] = useState<string | null>(
+    defaultPipelineId
+  );
   // Avertissement non bloquant : l'écriture prospect a réussi mais la trace
   // d'historique (activité) a échoué. Affiché via aria-live, sans bloquer.
   const [traceWarn, setTraceWarn] = useState<string | null>(null);
@@ -197,10 +216,21 @@ export default function ProspectsClient({
     setTraceWarn('✓ Enregistré — ⚠ historique non mis à jour, réessayez.');
   }
 
-  // Stats personnelles
+  // Multi-pipeline : on borne d'abord la liste au board sélectionné (les
+  // fiches sans pipeline_id sont rattachées au défaut). Toutes les stats /
+  // filtres / Kanban / pagination travaillent ensuite sur cette base bornée,
+  // de sorte que chaque board a son propre tableau ET ses propres KPI. Avec un
+  // seul pipeline, ce filtre laisse passer toutes les fiches → identique à
+  // aujourd'hui.
+  const pipelineScoped = useMemo(
+    () => filterByPipeline(prospects, selectedPipelineId, defaultPipelineId),
+    [prospects, selectedPipelineId, defaultPipelineId]
+  );
+
+  // Stats personnelles (bornées au board sélectionné).
   const stats = useMemo(() => {
-    const total = prospects.length;
-    const byStatus = prospects.reduce<Record<string, number>>((acc, p) => {
+    const total = pipelineScoped.length;
+    const byStatus = pipelineScoped.reduce<Record<string, number>>((acc, p) => {
       acc[p.status] = (acc[p.status] ?? 0) + 1;
       return acc;
     }, {});
@@ -211,46 +241,46 @@ export default function ProspectsClient({
     const contactRate = total > 0 ? (contacted / total) * 100 : 0;
     const rdvRate = total > 0 ? (rdv / total) * 100 : 0;
     return { total, byStatus, contacted, rdv, signed, conversionRate, contactRate, rdvRate };
-  }, [prospects]);
+  }, [pipelineScoped]);
 
-  // Options distinctes pour les filtres avancés (dérivées des prospects).
+  // Options distinctes pour les filtres avancés (dérivées du board sélectionné).
   const sectorOptions = useMemo(
     () =>
       Array.from(
         new Set(
-          prospects
+          pipelineScoped
             .map((p) => p.sector)
             .filter((s): s is string => !!s && s.trim() !== '')
         )
       ).sort((a, b) => a.localeCompare(b, 'fr')),
-    [prospects]
+    [pipelineScoped]
   );
   const cityOptions = useMemo(
     () =>
       Array.from(
         new Set(
-          prospects
+          pipelineScoped
             .map((p) => p.city)
             .filter((c): c is string => !!c && c.trim() !== '')
         )
       ).sort((a, b) => a.localeCompare(b, 'fr')),
-    [prospects]
+    [pipelineScoped]
   );
   const classifOptions = useMemo(
     () =>
       Array.from(
         new Set(
-          prospects
+          pipelineScoped
             .map((p) => p.classification)
             .filter((c): c is string => !!c && c.trim() !== '')
         )
       ).sort((a, b) => a.localeCompare(b, 'fr')),
-    [prospects]
+    [pipelineScoped]
   );
 
-  // Filter + search + filtres avancés + pagination
+  // Filter + search + filtres avancés + pagination (sur le board sélectionné)
   const filtered = useMemo(() => {
-    let list = prospects;
+    let list = pipelineScoped;
     if (filter !== 'all') list = list.filter((p) => p.status === filter);
     if (sector !== 'all') list = list.filter((p) => p.sector === sector);
     if (city !== 'all') list = list.filter((p) => p.city === city);
@@ -281,7 +311,7 @@ export default function ProspectsClient({
       );
     }
     return list;
-  }, [prospects, filter, search, sector, city, classif, relance]);
+  }, [pipelineScoped, filter, search, sector, city, classif, relance]);
 
   const activeAdvancedCount = [
     sector !== 'all',
@@ -407,6 +437,10 @@ export default function ProspectsClient({
       city: values.city.trim() || null,
       status: values.status,
       notes: values.notes.trim() || null,
+      // Multi-pipeline : on rattache la nouvelle fiche au board actuellement
+      // sélectionné (sinon le défaut). Avec un seul pipeline, c'est le défaut.
+      // Omis du payload si null (aucun pipeline) → colonne reste NULL = défaut.
+      ...(selectedPipelineId ? { pipeline_id: selectedPipelineId } : {}),
     };
 
     // Prévention anti-doublon (non bloquante) : si une fiche existe déjà avec
@@ -601,6 +635,10 @@ export default function ProspectsClient({
   const earnedBonus = TIERS.filter((t) => stats.signed >= t.threshold).reduce((sum, t) => sum + t.bonus, 0);
   const nextTier = TIERS.find((t) => stats.signed < t.threshold);
 
+  // Sélecteur de pipeline : on ne l'affiche qu'à partir de 2 boards. Avec 0 ou
+  // 1 pipeline, l'UI est identique à aujourd'hui (sélecteur masqué).
+  const showPipelineSelector = pipelines.length > 1;
+
   return (
     <div className="relative">
       {/* ---- En-tête sobre (Design System Sprint 10) ---- */}
@@ -633,6 +671,43 @@ export default function ProspectsClient({
           }
         />
       </motion.div>
+
+      {/* ---- Sélecteur de pipeline (multi-pipeline Phase 1) ---- */}
+      {/* Masqué avec <=1 board → comportement identique à aujourd'hui. */}
+      {showPipelineSelector && (
+        <div className="mb-6 flex flex-wrap items-center gap-2">
+          <span className="font-inter text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-warm">
+            Pipeline
+          </span>
+          <div
+            role="group"
+            aria-label="Choisir le pipeline"
+            className="inline-flex flex-wrap items-center gap-1 rounded-full border border-border-soft bg-white p-1 shadow-soft"
+          >
+            {pipelines.map((pl) => {
+              const active = (selectedPipelineId ?? defaultPipelineId) === pl.id;
+              return (
+                <button
+                  key={pl.id}
+                  type="button"
+                  onClick={() => { setSelectedPipelineId(pl.id); setPage(1); }}
+                  aria-pressed={active}
+                  className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors ${
+                    active ? 'bg-brand text-choco' : 'text-muted-warm hover:bg-cream-deep'
+                  }`}
+                >
+                  <span
+                    aria-hidden
+                    className="h-2 w-2 shrink-0 rounded-full"
+                    style={{ background: pl.color ?? '#C9B7A6' }}
+                  />
+                  {pl.name}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* ---- Bandeau KPI léger (StatCard DS) ---- */}
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -778,7 +853,7 @@ export default function ProspectsClient({
         <div className="flex items-center gap-3">
           <span className="font-inter text-[11px] uppercase tracking-[0.15em] text-muted-warm">
             {filtered.length} prospect{filtered.length > 1 ? 's' : ''}
-            {(filter !== 'all' || search || activeAdvancedCount > 0) ? ` / ${prospects.length}` : ''}
+            {(filter !== 'all' || search || activeAdvancedCount > 0) ? ` / ${pipelineScoped.length}` : ''}
           </span>
           <Button variant="primary" size="sm" onClick={() => setCreateOpen(true)}>
             <Plus className="h-4 w-4" aria-hidden />
