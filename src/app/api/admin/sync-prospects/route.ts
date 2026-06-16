@@ -172,22 +172,36 @@ async function authenticate(req: Request): Promise<
 /**
  * Logique partagée entre POST (manuel ou orchestrateur) et GET (cron Vercel).
  *
- * Comportement :
+ * Modèle de propriété des données (PLATEFORME = SOURCE DE VÉRITÉ) :
+ *   La plateforme Supabase est désormais le master ; Notion n'est qu'un canal
+ *   d'INTAKE (saisie initiale). En conséquence :
+ *
  *   - Lignes Notion qualifiées (statut ≠ "Détecté" + ≠ morts) :
- *       - existantes en DB → UPDATE (préserve notes manuelles, status saisi
- *         à la main, assigned_to, created_by). Resynchronise tous les autres
- *         champs d'enrichissement Notion.
- *       - nouvelles en DB → INSERT (nécessite targetUserId pour created_by ;
- *         status initial calculé depuis Notion via notionStatusToSupabase()).
- *         Pour les fiches NURTURE, le mapping renvoie `archived` : le
- *         prospect est conservé en base avec ce statut, masqué par défaut
- *         côté commercial.
- *   - Lignes Notion mortes (Rejeté, Non pertinent, REJECT, Archivé, Archive)
- *     ou pages absentes de la query Notion mais présentes en DB
- *     (= déplacées hors database / supprimées) → DELETE physique.
- *     NURTURE n'est PAS dans cette liste : ces prospects sont conservés.
+ *       - NOUVELLES en DB → INSERT (import UNIQUE). On pose `notion_page_id`
+ *         (clé de match stable) + tous les champs d'enrichissement Notion +
+ *         status initial + assigned_to. Après cet INSERT, l'UUID Supabase est
+ *         le `prospect_id` canonique. Le match futur se fait par
+ *         `notion_page_id` (colonne UNIQUE, déjà présente) — aucune réécriture
+ *         dans Notion n'est nécessaire pour stabiliser le match.
+ *       - EXISTANTES en DB → UPDATE NON DESTRUCTIF. On ne RÉÉCRIT JAMAIS une
+ *         valeur saisie/éditée côté plateforme : on se contente de COMBLER les
+ *         champs encore NULL/vides en DB avec la valeur Notion (Notion comble
+ *         les trous, la plateforme gagne toujours sur une valeur non nulle).
+ *         `assigned_to`, `status`/`statut`, `notes` ne sont jamais dans le
+ *         payload d'UPDATE → toujours préservés. C'est ce qui corrige le bug
+ *         connu « les éditions admin (email/téléphone/classification/secteur…)
+ *         repartaient au sync 6h suivant » : avant, l'UPDATE écrasait en bloc
+ *         tous les `baseFields` avec les valeurs Notion.
+ *   - Lignes Notion mortes ou pages absentes de la query → DELETE physique.
  *   - Prospects créés à la main dans /prospects (notion_page_id IS NULL)
  *     ne sont jamais touchés (ni update, ni delete).
+ *
+ * Suivi (follow-up, hors scope de ce sprint) : si un token d'écriture Notion
+ * devient disponible, on pourra réécrire l'UUID Supabase canonique dans la
+ * propriété `prospect_id` de la ligne Notion. Ce n'est PAS requis pour la
+ * stabilité du match (assurée par `notion_page_id`) — purement informatif côté
+ * Notion. Aucune capacité d'écriture Notion n'existe dans le codebase
+ * actuellement, donc on ne l'invente pas.
  *
  * @param targetUserId UUID du commercial cible (fallback) pour les INSERT
  *                    quand la fiche Notion n'a pas de `Commercial assigné`
@@ -203,6 +217,70 @@ function normalizeName(s: string): string {
     .trim()
     .replace(/\s+/g, ' ');
 }
+
+/**
+ * Colonnes d'enrichissement « comblables » lues sur la ligne DB existante pour
+ * calculer le diff non destructif de l'UPDATE. Doit rester aligné avec les clés
+ * de `enrichmentFields` ci-dessous (hors clés techniques `notion_page_id` /
+ * `synced_at` qui sont gérées à part).
+ */
+const FILLABLE_COLUMNS = [
+  'company_name',
+  'contact_name',
+  'prenom_contact',
+  'role_contact',
+  'email',
+  'phone',
+  'city',
+  'address',
+  'sector',
+  'website',
+  'instagram',
+  'facebook',
+  'linkedin_contact',
+  'linkedin_entreprise',
+  'tiktok',
+  'analyse_besoin',
+  'analyse_budget',
+  'analyse_timing',
+  'recommandation_approche',
+  'arguments_cles',
+  'besoins_detectes',
+  'ca_estime',
+  'classification',
+  'branche',
+  'note_google',
+  'nombre_avis',
+  'taille_entreprise',
+  'nombre_employes',
+] as const;
+
+/**
+ * Une valeur DB est « vide » (donc comblable par Notion) si elle est null,
+ * undefined, chaîne vide/espaces, ou tableau vide. Toute autre valeur est
+ * considérée comme une donnée plateforme à préserver.
+ */
+function isEmptyDbValue(v: unknown): boolean {
+  if (v === null || v === undefined) return true;
+  if (typeof v === 'string') return v.trim() === '';
+  if (Array.isArray(v)) return v.length === 0;
+  return false;
+}
+
+/**
+ * Une valeur Notion candidate au comblement doit elle-même porter de
+ * l'information (sinon comblement inutile / on ne « remplit » pas un trou par
+ * un autre trou).
+ */
+function hasNotionValue(v: unknown): boolean {
+  return !isEmptyDbValue(v);
+}
+
+type DbProspectRow = {
+  id: string;
+  notion_page_id: string | null;
+  status: string;
+} & Record<string, unknown>;
 
 async function runSync(targetUserId?: string) {
   const notionToken = process.env.NOTION_API_KEY;
@@ -285,9 +363,16 @@ async function runSync(targetUserId?: string) {
   const unmappedSamples = new Set<string>();
 
   // -------- Récupère l'état actuel côté DB pour calculer la diff --------
+  // On lit désormais TOUTES les colonnes comblables (pas seulement id/status) :
+  // l'UPDATE non destructif a besoin de connaître quels champs sont déjà
+  // remplis côté plateforme pour ne combler QUE les trous (cf. FILLABLE_COLUMNS
+  // + le diff plus bas). `select('*')` reste sûr ici : la table prospects ne
+  // porte plus de colonne financière (deal_amount déplacé dans
+  // prospect_finance, cf. migration 0021) — aucun montant ne transite par ce
+  // service-role read.
   const { data: dbRowsRaw, error: dbQueryErr } = await admin
     .from('prospects')
-    .select('id, notion_page_id, status')
+    .select('*')
     .not('notion_page_id', 'is', null);
 
   if (dbQueryErr) {
@@ -297,10 +382,10 @@ async function runSync(targetUserId?: string) {
     };
   }
 
-  const dbByNotionId = new Map<string, { id: string; status: string }>();
-  for (const row of dbRowsRaw ?? []) {
+  const dbByNotionId = new Map<string, DbProspectRow>();
+  for (const row of (dbRowsRaw ?? []) as DbProspectRow[]) {
     if (!row.notion_page_id) continue;
-    dbByNotionId.set(row.notion_page_id, { id: row.id, status: row.status });
+    dbByNotionId.set(row.notion_page_id, row);
   }
 
   // Page IDs vus côté Notion à ce run
@@ -309,6 +394,7 @@ async function runSync(targetUserId?: string) {
 
   let inserted = 0;
   let updated = 0;
+  let skippedNoFill = 0; // existants déjà complets → aucun trou à combler
   let deleted = 0;
   let skipped = 0;
   const errors: { page_id: string; error: string }[] = [];
@@ -378,12 +464,13 @@ async function runSync(targetUserId?: string) {
     }
     const contactName = `${prenomContact} ${nomContact}`.trim() || null;
 
-    // Champs synchronisés à chaque run (UPDATE et INSERT). Notion = source de
-    // vérité pour ces champs ; les éditions y sont propagées au sync suivant.
-    // NOTE: `status` n'est PAS dans ce payload car il est préservé à l'UPDATE
-    // (commercial saisit) et ajouté uniquement à l'INSERT initial ci-dessous.
-    const baseFields: Record<string, unknown> = {
-      notion_page_id: page.id,
+    // Champs d'enrichissement Notion. À l'INSERT : tous écrits tels quels.
+    // À l'UPDATE : utilisés UNIQUEMENT pour combler les colonnes encore vides
+    // côté plateforme (jamais d'écrasement d'une valeur non nulle). Notion =
+    // intake, la plateforme reste master.
+    // NOTE: `status`, `notes`, `assigned_to` ne sont PAS ici → toujours
+    // préservés à l'UPDATE.
+    const enrichmentFields: Record<string, unknown> = {
       company_name: companyName,
       contact_name: contactName,
       prenom_contact: prenomContact || null,
@@ -412,7 +499,6 @@ async function runSync(targetUserId?: string) {
       nombre_avis: nombreAvis,
       taille_entreprise: tailleEntreprise || null,
       nombre_employes: nombreEmployes,
-      synced_at: syncedAt,
     };
 
     // Notes générées depuis Notion (legacy concat). Utilisées UNIQUEMENT à
@@ -444,12 +530,35 @@ async function runSync(targetUserId?: string) {
     const existing = dbByNotionId.get(page.id);
 
     if (existing) {
-      // UPDATE : on ne touche jamais à `notes` ni à `status` (préserve la
-      // saisie commerciale). Les autres champs d'enrichissement sont
-      // resynchronisés.
+      // UPDATE NON DESTRUCTIF : on ne touche jamais à `notes`, `status` ni
+      // `assigned_to` (préserve la saisie commerciale/admin). Pour les champs
+      // d'enrichissement, on ne réécrit QUE ceux qui sont encore vides en DB —
+      // Notion comble les trous, la plateforme gagne sur toute valeur non nulle.
+      // C'est le correctif du bug « les éditions admin repartent au sync 6h ».
+      const fillUpdate: Record<string, unknown> = {};
+      for (const col of FILLABLE_COLUMNS) {
+        if (
+          isEmptyDbValue(existing[col]) &&
+          hasNotionValue(enrichmentFields[col])
+        ) {
+          fillUpdate[col] = enrichmentFields[col];
+        }
+      }
+
+      // Rien à combler → on n'écrit même pas `synced_at` pour éviter de
+      // déclencher le trigger d'audit / le trigger updated_at inutilement.
+      if (Object.keys(fillUpdate).length === 0) {
+        skippedNoFill++;
+        continue;
+      }
+
+      // On marque le passage de sync uniquement quand on a effectivement
+      // comblé quelque chose.
+      fillUpdate.synced_at = syncedAt;
+
       const { error: updateErr } = await admin
         .from('prospects')
-        .update(baseFields)
+        .update(fillUpdate)
         .eq('id', existing.id);
       if (updateErr) {
         errors.push({ page_id: page.id, error: updateErr.message });
@@ -529,6 +638,12 @@ async function runSync(targetUserId?: string) {
       }
 
       // 5. Fallback sur targetUserId du body si Notion vide ou non mappable.
+      //    NOTE (pool admin) : sur le run cron 6h, `targetUserId` est undefined.
+      //    Une fiche Notion sans commercial mappable est donc SKIPPÉE (pas
+      //    d'auto-assignation arbitraire à un commercial) → elle reste
+      //    disponible pour le pool d'attribution admin, qui l'onboarde via le
+      //    bouton Sync ciblé (targetUserId fourni). On NE réintroduit donc PAS
+      //    le bug « auto-assign à l'INSERT vide le pool admin ».
       if (!assignedTo) assignedTo = targetUserId ?? null;
 
       if (!assignedTo) {
@@ -539,7 +654,9 @@ async function runSync(targetUserId?: string) {
       }
 
       const { error: insertErr } = await admin.from('prospects').insert({
-        ...baseFields,
+        ...enrichmentFields,
+        notion_page_id: page.id,
+        synced_at: syncedAt,
         notes: notionDerivedNotes,
         status: initialStatus,
         created_by: targetUserId ?? assignedTo,
@@ -589,6 +706,7 @@ async function runSync(targetUserId?: string) {
     total: pages.length,
     inserted,
     updated,
+    skipped_no_fill: skippedNoFill,
     deleted,
     skipped,
     errors,
@@ -636,8 +754,8 @@ export async function POST(req: Request) {
  *
  * Pas de user_id transmis → les nouveaux prospects Notion non encore
  * synchronisés sont skipped. L'admin doit cliquer le bouton manuel pour
- * les onboarder avec un commercial cible. Les UPDATE et DELETE eux
- * tournent automatiquement.
+ * les onboarder avec un commercial cible. Les UPDATE (comblement non
+ * destructif) et DELETE eux tournent automatiquement.
  */
 export async function GET(req: Request) {
   const auth = await authenticate(req);
