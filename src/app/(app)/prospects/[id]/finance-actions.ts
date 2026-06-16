@@ -50,11 +50,20 @@ export async function recordCommission(
 
   const admin = createAdminClient();
 
-  // 2. Persist deal_amount sur le prospect (montant HT signé).
+  // 2. Persist deal_amount dans prospect_finance (montant HT signé). Le montant
+  //    est isolé sur sa propre table RLS admin-only (migration 0021) ; on
+  //    upsert sur la PK prospect_id. Service-role (bypass RLS) — la garde
+  //    d'autorisation sur la fiche a déjà été faite ci-dessus.
   const { error: dealErr } = await admin
-    .from('prospects')
-    .update({ deal_amount: amount, updated_at: new Date().toISOString() })
-    .eq('id', prospectId);
+    .from('prospect_finance')
+    .upsert(
+      {
+        prospect_id: prospectId,
+        deal_amount: amount,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'prospect_id' }
+    );
   if (dealErr) return { error: `Montant non enregistré : ${dealErr.message}` };
 
   // 3. Détermine le commercial propriétaire (assigned_to en priorité).
