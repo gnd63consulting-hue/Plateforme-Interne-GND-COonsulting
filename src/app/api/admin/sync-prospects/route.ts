@@ -10,6 +10,25 @@ const NOTION_DB_ID =
 const NOTION_API = 'https://api.notion.com/v1';
 const NOTION_VERSION = '2022-06-28';
 
+const ROUTE = '/api/admin/sync-prospects';
+
+/**
+ * Alerte de MISCONFIG : ce endpoint accepte aussi un déclenchement cron Vercel
+ * (GET avec Bearer CRON_SECRET) et un déclenchement orchestrateur (Bearer
+ * ADMIN_SYNC_SECRET). Si NI l'un NI l'autre n'est posé en env, ces appels
+ * machine renverront 401 en permanence (le bouton Sync admin avec session
+ * Supabase, lui, continue de marcher). On rend le cas bruyant dans les logs
+ * (distinct d'un 401 d'appel non autorisé légitime) pour qu'un secret oublié
+ * soit détectable.
+ */
+function warnIfNoCronSecretConfigured(): void {
+  if (!process.env.CRON_SECRET && !process.env.ADMIN_SYNC_SECRET) {
+    console.error(
+      `[cron][MISCONFIG] ${ROUTE}: no CRON_SECRET/ADMIN_SYNC_SECRET set — cron will 401 forever`
+    );
+  }
+}
+
 /**
  * Statuts Notion considérés comme « morts » (rejet / archivage définitifs).
  *
@@ -847,6 +866,7 @@ async function runSync(targetUserId?: string) {
  * Body : { user_id?: string } — UUID du commercial cible pour les INSERT.
  */
 export async function POST(req: Request) {
+  warnIfNoCronSecretConfigured();
   const auth = await authenticate(req);
   if (!auth.ok) {
     return NextResponse.json({ error: auth.message }, { status: auth.status });
@@ -859,14 +879,21 @@ export async function POST(req: Request) {
     // body vide toléré
   }
 
-  const result = await runSync(body.user_id);
-  if ('error' in result) {
-    return NextResponse.json(
-      { error: result.error },
-      { status: result.status }
-    );
+  try {
+    const result = await runSync(body.user_id);
+    if ('error' in result) {
+      console.error(`[cron][ERROR] ${ROUTE}: ${result.error}`);
+      return NextResponse.json(
+        { error: result.error },
+        { status: result.status }
+      );
+    }
+    return NextResponse.json(result);
+  } catch (e) {
+    const message = e instanceof Error ? e.message : 'unknown error';
+    console.error(`[cron][ERROR] ${ROUTE}: ${message}`);
+    return NextResponse.json({ error: 'Sync failed' }, { status: 500 });
   }
-  return NextResponse.json(result);
 }
 
 /**
@@ -882,17 +909,25 @@ export async function POST(req: Request) {
  * destructif) et DELETE eux tournent automatiquement.
  */
 export async function GET(req: Request) {
+  warnIfNoCronSecretConfigured();
   const auth = await authenticate(req);
   if (!auth.ok) {
     return NextResponse.json({ error: auth.message }, { status: auth.status });
   }
 
-  const result = await runSync();
-  if ('error' in result) {
-    return NextResponse.json(
-      { error: result.error },
-      { status: result.status }
-    );
+  try {
+    const result = await runSync();
+    if ('error' in result) {
+      console.error(`[cron][ERROR] ${ROUTE}: ${result.error}`);
+      return NextResponse.json(
+        { error: result.error },
+        { status: result.status }
+      );
+    }
+    return NextResponse.json(result);
+  } catch (e) {
+    const message = e instanceof Error ? e.message : 'unknown error';
+    console.error(`[cron][ERROR] ${ROUTE}: ${message}`);
+    return NextResponse.json({ error: 'Sync failed' }, { status: 500 });
   }
-  return NextResponse.json(result);
 }
