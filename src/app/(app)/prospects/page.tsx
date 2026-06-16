@@ -21,15 +21,16 @@ export default async function ProspectsPage() {
 
   const initialProspects = (prospects ?? []) as unknown as Prospect[];
 
-  // Best name for header (display_name first, then email local-part)
+  // Best name for header (full_name first, then email local-part).
+  // NB: la colonne est `full_name` (cf. users) — `display_name` n'existe pas.
   const { data: profile } = await supabase
     .from('users')
-    .select('display_name, email')
+    .select('full_name, email')
     .eq('id', user.id)
     .maybeSingle();
 
   const firstName =
-    (profile?.display_name as string | undefined)?.split(' ')[0] ??
+    (profile?.full_name as string | undefined)?.split(' ')[0] ??
     (profile?.email as string | undefined)?.split('@')[0] ??
     'Toi';
 
