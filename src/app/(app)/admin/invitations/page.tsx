@@ -5,6 +5,8 @@ import { revokeInvitation, reactivateMemberAction } from './actions';
 import { MemberManager, type Member } from './MemberManager';
 import { sanitizePerms } from '@/lib/permissions';
 
+export const dynamic = 'force-dynamic';
+
 // Design System crème/orange — texte FONCÉ sur fond clair (AA).
 const CREAM = '#2A2320';
 const CREAM_SOFT = '#7B665C';
