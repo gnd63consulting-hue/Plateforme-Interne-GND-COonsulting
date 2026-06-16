@@ -39,6 +39,22 @@ export const dynamic = 'force-dynamic';
  * hors borne) clôt proprement l'inscription (done).
  */
 
+const ROUTE = '/api/sequences/tick';
+
+/**
+ * Alerte de MISCONFIG : si NI CRON_SECRET NI ADMIN_SYNC_SECRET ne sont posés en
+ * env, ce cron renverra 401 à CHAQUE déclenchement Vercel (échec silencieux et
+ * permanent). On le rend bruyant dans les logs (distinct d'un 401 d'appel non
+ * autorisé légitime) pour qu'un secret oublié soit détectable.
+ */
+function warnIfNoCronSecretConfigured(): void {
+  if (!process.env.CRON_SECRET && !process.env.ADMIN_SYNC_SECRET) {
+    console.error(
+      `[cron][MISCONFIG] ${ROUTE}: no CRON_SECRET/ADMIN_SYNC_SECRET set — cron will 401 forever`
+    );
+  }
+}
+
 /** Statuts de prospect qui stoppent une séquence (sortie du pipeline). */
 const AUTO_STOP_STATUSES = new Set<string>([
   'gagne',
@@ -247,14 +263,21 @@ async function runTick() {
 }
 
 export async function GET(req: Request) {
+  warnIfNoCronSecretConfigured();
   if (!authenticate(req)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
-  const result = await runTick();
-  if ('error' in result) {
-    return NextResponse.json({ error: result.error }, { status: result.status });
+  try {
+    const result = await runTick();
+    if ('error' in result) {
+      return NextResponse.json({ error: result.error }, { status: result.status });
+    }
+    return NextResponse.json(result);
+  } catch (e) {
+    const message = e instanceof Error ? e.message : 'unknown error';
+    console.error(`[cron][ERROR] ${ROUTE}: ${message}`);
+    return NextResponse.json({ error: 'Sequence tick failed' }, { status: 500 });
   }
-  return NextResponse.json(result);
 }
 
 /**

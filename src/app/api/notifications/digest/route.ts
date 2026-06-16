@@ -31,6 +31,22 @@ const PROSPECT_COLS =
   'id, company_name, status, next_action_at, assigned_to, created_by';
 const RESEND_ENDPOINT = 'https://api.resend.com/emails';
 
+const ROUTE = '/api/notifications/digest';
+
+/**
+ * Alerte de MISCONFIG : si NI CRON_SECRET NI ADMIN_SYNC_SECRET ne sont posés
+ * en env, ce cron renverra 401 à CHAQUE déclenchement Vercel — un échec
+ * silencieux et permanent. On le rend bruyant dans les logs (distinct d'un 401
+ * d'appel non autorisé légitime) pour qu'un secret oublié soit détectable.
+ */
+function warnIfNoCronSecretConfigured(): void {
+  if (!process.env.CRON_SECRET && !process.env.ADMIN_SYNC_SECRET) {
+    console.error(
+      `[cron][MISCONFIG] ${ROUTE}: no CRON_SECRET/ADMIN_SYNC_SECRET set — cron will 401 forever`
+    );
+  }
+}
+
 function authenticate(req: Request): boolean {
   const authHeader = req.headers.get('authorization') ?? '';
   const cronSecret = process.env.CRON_SECRET;
@@ -199,11 +215,18 @@ async function runDigest() {
 }
 
 export async function GET(req: Request) {
+  warnIfNoCronSecretConfigured();
   if (!authenticate(req)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
-  const result = await runDigest();
-  return NextResponse.json(result);
+  try {
+    const result = await runDigest();
+    return NextResponse.json(result);
+  } catch (e) {
+    const message = e instanceof Error ? e.message : 'unknown error';
+    console.error(`[cron][ERROR] ${ROUTE}: ${message}`);
+    return NextResponse.json({ error: 'Digest failed' }, { status: 500 });
+  }
 }
 
 /** POST identique — declenchement manuel (curl) hors verbe impose par Vercel Cron. */
