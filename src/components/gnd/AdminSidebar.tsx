@@ -15,6 +15,7 @@ import {
   CopyCheck,
   BadgeEuro,
   ClipboardList,
+  BarChart3,
 } from 'lucide-react';
 
 type NavItem = {
@@ -46,6 +47,7 @@ const SECTIONS: NavSection[] = [
     title: 'ADMIN',
     items: [
       { id: 'vue-globale', icon: Shield, label: 'Vue globale', href: '/admin', adminOnly: true },
+      { id: 'reporting', icon: BarChart3, label: 'Reporting avancé', href: '/admin/reporting', adminOnly: true },
       { id: 'relances', icon: CalendarClock, label: 'Relances', href: '/admin/relances', section: 'relances', min: 'view' },
       { id: 'suivi', icon: ClipboardList, label: 'Suivi équipe', href: '/admin/suivi-equipe', section: 'suivi', min: 'view' },
       { id: 'commissions', icon: BadgeEuro, label: 'Commissions', href: '/admin/commissions', adminOnly: true },
