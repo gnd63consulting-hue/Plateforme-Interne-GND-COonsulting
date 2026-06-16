@@ -5,24 +5,21 @@ import { effectivePerms, hasConsoleAccess, roleLabel } from '@/lib/permissions';
 
 export const dynamic = 'force-dynamic';
 
+type Me = {
+  id: string;
+  email: string;
+  full_name: string | null;
+  role: string;
+  permissions: unknown;
+};
+
 /**
- * Layout fullscreen pour /admin (et toutes ses sous-routes : /admin/v2,
- * /admin/invitations, etc.).
+ * Layout fullscreen pour /admin (et toutes ses sous-routes).
  *
- * Couvre la fenêtre entière (position fixed inset:0 z-index:50) afin de
- * masquer la Navbar horizontale du layout (app)/ parent — c'est cette
- * sidebar qui est la signature visuelle de la console GND, on ne
- * veut pas avoir un menu en haut + une sidebar à gauche.
- *
- * Toutes les autres routes ((app)/dashboard, (app)/prospects, etc.) gardent
- * leur Navbar horizontale standard, ce layout n'est appliqué qu'aux pages
- * sous /admin.
- *
- * data-lenis-prevent : empêche le composant Lenis SmoothScroll global
- * (monté au niveau RootLayout) d'intercepter les events molette/wheel
- * sur le contenu admin. Sans cet attribut, Lenis tente de scroller le
- * body — qui ne scroll pas car notre layout est position:fixed au-dessus.
- * Avec cet attribut, le scroll natif du browser reprend la main.
+ * Gate d'acces : permissions effectives (role preset + override). ROBUSTE :
+ * si la colonne `permissions` n'est pas encore lisible cote API (cache de
+ * schema PostgREST pas recharge apres la migration 0020), on relit SANS elle
+ * pour ne JAMAIS verrouiller la console (le preset du role s'applique).
  */
 export default async function AdminLayout({
   children,
@@ -35,22 +32,28 @@ export default async function AdminLayout({
   } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  const { data: profile } = await supabase
+  const { data: withPerms, error: permsErr } = await supabase
     .from('users')
     .select('id, email, full_name, role, permissions')
     .eq('id', user.id)
     .maybeSingle();
 
-  if (!profile) {
-    redirect('/dashboard');
+  let me: Me | null = (withPerms as Me | null) ?? null;
+  if (permsErr || !me) {
+    const { data: fallback } = await supabase
+      .from('users')
+      .select('id, email, full_name, role')
+      .eq('id', user.id)
+      .maybeSingle();
+    me = fallback ? { ...fallback, permissions: null } : null;
   }
-  const perms = effectivePerms(profile.role, profile.permissions);
-  if (!hasConsoleAccess(perms)) {
-    redirect('/dashboard');
-  }
+  if (!me) redirect('/dashboard');
 
-  const userName = profile.full_name ?? profile.email.split('@')[0];
-  const userRole = roleLabel(profile.role);
+  const perms = effectivePerms(me.role, me.permissions);
+  if (!hasConsoleAccess(perms)) redirect('/dashboard');
+
+  const userName = me.full_name ?? me.email.split('@')[0];
+  const userRole = roleLabel(me.role);
 
   return (
     <div
@@ -66,9 +69,9 @@ export default async function AdminLayout({
     >
       <AdminSidebar
         userName={userName}
-        userEmail={profile.email}
+        userEmail={me.email}
         userRole={userRole}
-        roleKey={profile.role}
+        roleKey={me.role}
         perms={perms}
       />
       <main
