@@ -5,13 +5,32 @@ import type { JWT } from 'google-auth-library';
  * src/lib/google-sheets.ts — pont Google Sheets / Drive pour le miroir CRM.
  *
  * Authentifie un compte de service Google (clé JSON fournie en variable
- * d'environnement) et expose les helpers nécessaires au cron `sheets-mirror` :
- *   - `findOrCreateSpreadsheet(name)` : trouve (ou crée) un classeur portant un
- *     nom donné DANS le dossier Drive `GND_CRM_SHEETS_FOLDER_ID`.
- *   - `writeSnapshot(spreadsheetId, header, rows)` : réécrit intégralement
- *     l'onglet (clear + update) → idempotent, le classeur est un MIROIR
- *     unidirectionnel (la plateforme est master, toute édition manuelle dans
- *     le Sheet est écrasée au run suivant).
+ * d'environnement) et expose les helpers nécessaires au cron `sheets-mirror`.
+ *
+ * ⚠️ CONTRAINTE DRIVE PERSO — un compte de service N'A PAS de quota de stockage
+ *    propre. Sur un Drive personnel (Gmail), `drive.files.create` échoue donc
+ *    avec « The user's Drive storage quota has been exceeded ». Le compte de
+ *    service PEUT en revanche, avec un droit Éditeur sur le dossier :
+ *      - lister les fichiers du dossier (`drive.files.list`) ;
+ *      - écrire des valeurs et ajouter des onglets à un classeur DÉJÀ CRÉÉ PAR
+ *        L'UTILISATEUR.
+ *    => Le miroir N'EST PLUS « un classeur par commercial créé par le compte de
+ *       service », mais UN SEUL classeur (pré-créé à la main par l'utilisateur
+ *       dans le dossier) avec UN ONGLET par commercial. Le cron ne crée JAMAIS
+ *       de fichier Drive.
+ *
+ * Helpers exposés :
+ *   - `findMirrorWorkbook(clients)` : retrouve le classeur miroir dans le
+ *     dossier `GND_CRM_SHEETS_FOLDER_ID` (premier spreadsheet par createdTime),
+ *     ou `null` si le dossier n'en contient aucun. NE CRÉE RIEN.
+ *   - `ensureTab(sheets, spreadsheetId, tabTitle)` : ajoute l'onglet `tabTitle`
+ *     s'il n'existe pas encore (batchUpdate addSheet).
+ *   - `sanitizeTabTitle(name)` : normalise un libellé en titre d'onglet valide
+ *     (≤ 100 chars, sans `: \ / ? * [ ]`).
+ *   - `writeSnapshot(spreadsheetId, tabTitle, header, rows)` : réécrit
+ *     INTÉGRALEMENT l'onglet `tabTitle` (clear + update) → idempotent, le
+ *     classeur est un MIROIR unidirectionnel (la plateforme est master, toute
+ *     édition manuelle dans le Sheet est écrasée au run suivant).
  *
  * ⚠️ Server-only. Ne jamais importer côté client : la clé de service ne doit
  *    jamais fuiter dans un bundle navigateur.
@@ -21,17 +40,15 @@ import type { JWT } from 'google-auth-library';
  *     de service (gnd-crm-writer@…iam.gserviceaccount.com). Accepte aussi une
  *     valeur encodée en base64 (utile si l'UI Vercel échappe mal les retours à
  *     la ligne de la clé privée).
- *   - GND_CRM_SHEETS_FOLDER_ID : id du dossier Drive « GND CRM Sheets » où les
- *     classeurs par commercial sont créés/retrouvés.
+ *   - GND_CRM_SHEETS_FOLDER_ID : id du dossier Drive « GND CRM Sheets » où vit
+ *     le classeur miroir (pré-créé par l'utilisateur, partagé en Éditeur au
+ *     compte de service).
  */
 
 const SCOPES = [
   'https://www.googleapis.com/auth/spreadsheets',
   'https://www.googleapis.com/auth/drive',
 ];
-
-/** Onglet unique réécrit à chaque run. */
-export const MIRROR_SHEET_TITLE = 'Prospects';
 
 type ServiceAccountKey = {
   client_email: string;
@@ -130,28 +147,24 @@ export function getGoogleClients(): GoogleClients {
   };
 }
 
-/** Échappe un nom pour une requête Drive `q` (les apostrophes sont doublées). */
-function escapeDriveQueryValue(v: string): string {
-  return v.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-}
-
 /**
- * Trouve — ou crée si absent — un classeur Google Sheets portant `name` DANS le
- * dossier Drive configuré. Retourne le spreadsheetId.
+ * Retrouve le classeur miroir DANS le dossier Drive configuré.
  *
- * Recherche Drive : on filtre par nom EXACT, type spreadsheet, parent = dossier,
- * non supprimé. Si plusieurs classeurs homonymes existaient (ne devrait pas),
- * on réutilise le plus ancien (ordre createdTime) pour rester déterministe.
+ * Le compte de service ne peut PAS créer de fichier sur un Drive perso (pas de
+ * quota). Le classeur doit donc être créé À LA MAIN par l'utilisateur dans le
+ * dossier `GND_CRM_SHEETS_FOLDER_ID`. On le retrouve dynamiquement (jamais
+ * d'id hardcodé : l'utilisateur peut le recréer) en listant les spreadsheets
+ * du dossier, triés par createdTime, et on renvoie le PREMIER.
+ *
+ * @returns le spreadsheetId du classeur miroir, ou `null` si le dossier ne
+ *          contient aucun spreadsheet.
  */
-export async function findOrCreateSpreadsheet(
-  clients: GoogleClients,
-  name: string
-): Promise<string> {
-  const { drive, sheets, folderId } = clients;
-  const safeName = escapeDriveQueryValue(name);
+export async function findMirrorWorkbook(
+  clients: GoogleClients
+): Promise<string | null> {
+  const { drive, folderId } = clients;
 
   const q = [
-    `name = '${safeName}'`,
     "mimeType = 'application/vnd.google-apps.spreadsheet'",
     `'${folderId}' in parents`,
     'trashed = false',
@@ -167,79 +180,62 @@ export async function findOrCreateSpreadsheet(
     includeItemsFromAllDrives: true,
   });
 
-  const existing = search.data.files?.[0]?.id;
-  if (existing) return existing;
-
-  // Création directement dans le dossier cible (parents = [folderId]).
-  const created = await drive.files.create({
-    requestBody: {
-      name,
-      mimeType: 'application/vnd.google-apps.spreadsheet',
-      parents: [folderId],
-    },
-    fields: 'id',
-    supportsAllDrives: true,
-  });
-
-  const newId = created.data.id;
-  if (!newId) {
-    throw new Error(`Échec de création du classeur Google Sheets « ${name} ».`);
-  }
-
-  // Renomme l'onglet par défaut (Sheet1/Feuille1) en MIRROR_SHEET_TITLE pour
-  // que writeSnapshot écrive toujours sur un onglet au nom connu.
-  try {
-    const meta = await sheets.spreadsheets.get({ spreadsheetId: newId });
-    const firstSheet = meta.data.sheets?.[0]?.properties;
-    if (firstSheet?.sheetId != null && firstSheet.title !== MIRROR_SHEET_TITLE) {
-      await sheets.spreadsheets.batchUpdate({
-        spreadsheetId: newId,
-        requestBody: {
-          requests: [
-            {
-              updateSheetProperties: {
-                properties: {
-                  sheetId: firstSheet.sheetId,
-                  title: MIRROR_SHEET_TITLE,
-                },
-                fields: 'title',
-              },
-            },
-          ],
-        },
-      });
-    }
-  } catch {
-    // Non bloquant : si le rename échoue, writeSnapshot crée l'onglet au besoin.
-  }
-
-  return newId;
+  return search.data.files?.[0]?.id ?? null;
 }
 
-/** Garantit que l'onglet `MIRROR_SHEET_TITLE` existe sur le classeur. */
-async function ensureMirrorSheet(
+/**
+ * Normalise un libellé en titre d'onglet Google valide.
+ *
+ * Contraintes Google Sheets : un titre d'onglet ne peut pas contenir
+ * `: \ / ? * [ ]` et fait au plus ~100 caractères. On remplace les caractères
+ * interdits par un espace, on compacte les espaces, on tronque à 100, et on
+ * retombe sur un libellé non vide si tout a été retiré.
+ */
+export function sanitizeTabTitle(name: string): string {
+  const cleaned = (name ?? '')
+    .replace(/[:\\/?*[\]]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 100)
+    .trim();
+  return cleaned.length > 0 ? cleaned : 'Sans nom';
+}
+
+/**
+ * Garantit que l'onglet `tabTitle` existe sur le classeur. Si absent, l'ajoute
+ * via batchUpdate addSheet. Idempotent : ne touche à rien si l'onglet existe.
+ */
+export async function ensureTab(
   sheets: sheets_v4.Sheets,
-  spreadsheetId: string
+  spreadsheetId: string,
+  tabTitle: string
 ): Promise<void> {
   const meta = await sheets.spreadsheets.get({ spreadsheetId });
   const has = (meta.data.sheets ?? []).some(
-    (s) => s.properties?.title === MIRROR_SHEET_TITLE
+    (s) => s.properties?.title === tabTitle
   );
   if (has) return;
   await sheets.spreadsheets.batchUpdate({
     spreadsheetId,
     requestBody: {
-      requests: [
-        { addSheet: { properties: { title: MIRROR_SHEET_TITLE } } },
-      ],
+      requests: [{ addSheet: { properties: { title: tabTitle } } }],
     },
   });
 }
 
+/** Échappe un titre d'onglet pour l'usage dans une plage A1 (`'…'`). */
+function quoteTab(title: string): string {
+  return `'${title.replace(/'/g, "''")}'`;
+}
+
 /**
- * Réécrit INTÉGRALEMENT l'onglet miroir : clear complet puis update à partir de
- * A1 (en-tête + lignes). Opération idempotente — appeler avec le même snapshot
- * laisse le classeur identique. C'est le cœur du « miroir unidirectionnel ».
+ * Réécrit INTÉGRALEMENT l'onglet `tabTitle` du classeur : clear complet de
+ * l'onglet puis update à partir de A1 (en-tête + lignes). Opération idempotente
+ * — appeler avec le même snapshot laisse l'onglet identique. C'est le cœur du
+ * « miroir unidirectionnel ».
+ *
+ * L'onglet doit déjà exister (appeler `ensureTab` avant). On ne crée ni ne
+ * supprime aucun fichier Drive ici.
  *
  * `rows` : tableau de lignes, chaque ligne = tableau de cellules (string |
  * number | null). `null`/undefined deviennent des cellules vides.
@@ -247,25 +243,25 @@ async function ensureMirrorSheet(
 export async function writeSnapshot(
   clients: GoogleClients,
   spreadsheetId: string,
+  tabTitle: string,
   header: string[],
   rows: (string | number | null)[][]
 ): Promise<void> {
   const { sheets } = clients;
-
-  await ensureMirrorSheet(sheets, spreadsheetId);
+  const tab = quoteTab(tabTitle);
 
   // 1. Clear total de l'onglet (supprime les anciennes lignes — gère le cas où
   //    un prospect a été désassigné : il disparaît du miroir).
   await sheets.spreadsheets.values.clear({
     spreadsheetId,
-    range: MIRROR_SHEET_TITLE,
+    range: tab,
   });
 
   // 2. Réécriture en bloc depuis A1.
   const values: (string | number | null)[][] = [header, ...rows];
   await sheets.spreadsheets.values.update({
     spreadsheetId,
-    range: `${MIRROR_SHEET_TITLE}!A1`,
+    range: `${tab}!A1`,
     valueInputOption: 'RAW',
     requestBody: { values },
   });
