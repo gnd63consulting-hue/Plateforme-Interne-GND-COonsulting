@@ -99,12 +99,20 @@ export function MemberManager({ member }: { member: Member }) {
   async function assign(n: number) {
     setBusy(n);
     setMsg(null);
-    const res = await assignFreshProspects(member.id, n);
-    setBusy(false);
-    if (res.error) setMsg({ ok: false, text: res.error });
-    else {
-      setMsg({ ok: true, text: `✅ ${res.assigned} prospect(s) frais assigné(s) à ${member.name}.` });
-      startTransition(() => router.refresh());
+    try {
+      const res = await assignFreshProspects(member.id, n);
+      if (res.error) {
+        setMsg({ ok: false, text: res.error });
+      } else if (res.assigned === 0) {
+        setMsg({ ok: false, text: 'Aucun prospect assigné (pool vide ?).' });
+      } else {
+        setMsg({ ok: true, text: `✅ ${res.assigned} prospect(s) assigné(s) à ${member.name}.` });
+        startTransition(() => router.refresh());
+      }
+    } catch (e) {
+      setMsg({ ok: false, text: `Erreur : ${e instanceof Error ? e.message : 'inconnue'}` });
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -306,27 +314,27 @@ export function MemberManager({ member }: { member: Member }) {
         <div style={{ marginTop: 16 }}>
           <label style={labelStyle}>Assigner des prospects frais (depuis le pool)</label>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-            {[10, 20, 30, 50].map((n) => (
+            {[10, 20, 30, 50].map((nb) => (
               <button
-                key={n}
+                key={nb}
                 type="button"
-                onClick={() => assign(n)}
+                onClick={() => assign(nb)}
                 disabled={busy !== false}
                 style={{
                   padding: '10px 18px',
                   borderRadius: 999,
                   border: 'none',
-                  background: busy === n ? 'rgba(243,146,83,0.5)' : BTN_GRAD,
+                  background: busy === nb ? 'rgba(243,146,83,0.5)' : BTN_GRAD,
                   color: '#2A1810',
                   fontSize: 14,
                   fontWeight: 700,
                   fontFamily: SANS,
                   cursor: busy !== false ? 'wait' : 'pointer',
-                  opacity: busy !== false && busy !== n ? 0.5 : 1,
+                  opacity: busy !== false && busy !== nb ? 0.5 : 1,
                   minWidth: 64,
                 }}
               >
-                {busy === n ? '…' : `+ ${n}`}
+                {busy === nb ? '…' : `+ ${nb}`}
               </button>
             ))}
           </div>
