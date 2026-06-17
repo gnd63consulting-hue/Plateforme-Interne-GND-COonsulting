@@ -4,27 +4,28 @@ import { createClient } from '@/lib/supabase-server';
 export const dynamic = 'force-dynamic';
 
 /**
- * /admin/console — Console des agents Hermès embarquée (iframe plein écran).
+ * /admin/console — Lancement de la console des agents Hermès.
  *
- * Objectif : piloter l'armée Hermès (chat, Kanban, dispatch) SANS quitter la
- * plateforme. Le dashboard Hermès vit sur un sous-domaine séparé
- * (ex. https://agents.gndconsulting.fr) et est exposé ici en plein écran via
- * un <iframe>, dont l'origine est lue dans la variable d'env publique
- * `NEXT_PUBLIC_HERMES_CONSOLE_URL`.
+ * Objectif : piloter l'armée Hermès (chat, Kanban, dispatch). Le dashboard
+ * Hermès est un produit MANAGÉ qui REFUSE l'embedding iframe
+ * (`X-Frame-Options: DENY`). On abandonne donc l'iframe et on expose une
+ * carte de lancement : un CTA ouvre la console dans un nouvel onglet.
+ *
+ * URL : stable et publique. La constante `HERMES_CONSOLE_URL` lit
+ * `NEXT_PUBLIC_HERMES_CONSOLE_URL` si présente, sinon retombe sur l'URL qui
+ * marche — le bouton est donc TOUJOURS fonctionnel, même si la variable
+ * d'env est absente ou périmée.
  *
  * Gate d'accès : FULL-admin (admin / admin_limited), EXACTEMENT comme
  * /admin/agents. Le layout /admin gère déjà le gate via les permissions
  * effectives ; on réplique ici le guard page-level à l'identique pour la
  * défense en profondeur (même pattern que /admin/agents).
- *
- * Sécurité iframe : tant que le sous-domaine n'existe pas, la variable d'env
- * est absente → on affiche un état vide gracieux (jamais d'iframe cassé). Le
- * CRM ne pose AUCUNE Content-Security-Policy (ni next.config.mjs, ni
- * middleware), donc le navigateur n'a rien à bloquer côté CRM : c'est le
- * dashboard distant qui doit, lui, autoriser l'embedding (CSP frame-ancestors
- * / absence de X-Frame-Options côté agents.gndconsulting.fr).
  */
 const ADMIN_ROLES = new Set(['admin', 'admin_limited']);
+
+const HERMES_CONSOLE_URL =
+  process.env.NEXT_PUBLIC_HERMES_CONSOLE_URL ||
+  'https://aqua-spider-345596.hostingersite.com';
 
 type Me = { id: string; role: string };
 
@@ -56,25 +57,32 @@ export default async function AdminConsolePage() {
   const me = meRaw as Me | null;
   if (!me || !ADMIN_ROLES.has(me.role)) redirect('/dashboard');
 
-  // Server Component : process.env.NEXT_PUBLIC_* est lisible au render.
-  const url = process.env.NEXT_PUBLIC_HERMES_CONSOLE_URL;
-
   return (
     <div
       style={{
         // La zone de contenu admin (<main>) fait 100vh (sidebar à côté).
-        // On remplit toute la hauteur en colonne flex, sans scroll parasite.
+        // On centre la carte de lancement verticalement et horizontalement.
         display: 'flex',
         flexDirection: 'column',
-        height: '100vh',
+        alignItems: 'center',
+        justifyContent: 'center',
         minHeight: '80vh',
         boxSizing: 'border-box',
-        padding: '28px 28px 22px',
+        padding: '40px 28px',
         color: INK,
       }}
     >
-      {/* En-tête compact */}
-      <header style={{ flexShrink: 0, marginBottom: 16 }}>
+      <div
+        style={{
+          maxWidth: 560,
+          width: '100%',
+          background: CARD,
+          border: BORDER,
+          borderRadius: 20,
+          padding: '40px 36px',
+          textAlign: 'center',
+        }}
+      >
         <div
           style={{
             fontFamily: MONO,
@@ -83,208 +91,79 @@ export default async function AdminConsolePage() {
             textTransform: 'uppercase',
             letterSpacing: '0.22em',
             color: AMBER,
-            marginBottom: 8,
+            marginBottom: 14,
           }}
         >
           ADMIN · ARMÉE HERMÈS
         </div>
-        <div
+
+        <h1
           style={{
-            display: 'flex',
-            alignItems: 'flex-end',
-            justifyContent: 'space-between',
-            gap: 16,
-            flexWrap: 'wrap',
+            fontFamily: SERIF,
+            fontSize: 32,
+            fontWeight: 500,
+            letterSpacing: '-0.01em',
+            color: CHOCO,
+            margin: 0,
+            lineHeight: 1.1,
           }}
         >
-          <div style={{ minWidth: 0 }}>
-            <h1
-              style={{
-                fontFamily: SERIF,
-                fontSize: 30,
-                fontWeight: 500,
-                letterSpacing: '-0.01em',
-                color: CHOCO,
-                margin: 0,
-                lineHeight: 1.1,
-              }}
-            >
-              Console des agents
-            </h1>
-            <p
-              style={{
-                fontFamily: SANS,
-                fontSize: 13,
-                lineHeight: 1.5,
-                color: SOFT,
-                margin: '8px 0 0',
-                maxWidth: 660,
-              }}
-            >
-              Pilotez l&apos;armée Hermès (chat, Kanban, dispatch) sans quitter
-              la plateforme.
-            </p>
-          </div>
+          Console des agents
+        </h1>
 
-          {url && (
-            <a
-              href={url}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                flexShrink: 0,
-                fontFamily: SANS,
-                fontSize: 12,
-                fontWeight: 600,
-                letterSpacing: '0.01em',
-                color: AMBER,
-                textDecoration: 'none',
-                whiteSpace: 'nowrap',
-                padding: '6px 2px',
-              }}
-            >
-              Ouvrir en plein écran ↗
-            </a>
-          )}
-        </div>
-      </header>
-
-      {url ? (
-        <iframe
-          src={url}
-          title="Console Hermès"
-          allow="clipboard-read; clipboard-write; fullscreen"
+        <p
           style={{
-            flex: 1,
-            width: '100%',
-            minHeight: 0,
-            border: BORDER,
-            borderRadius: 16,
-            background: CARD,
-            display: 'block',
-          }}
-        />
-      ) : (
-        <div
-          style={{
-            flex: 1,
-            minHeight: 0,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
+            fontFamily: SANS,
+            fontSize: 14,
+            lineHeight: 1.55,
+            color: SOFT,
+            margin: '12px auto 0',
+            maxWidth: 420,
           }}
         >
-          <div
+          Pilotez l&apos;armée Hermès — chat, Kanban, dispatch.
+        </p>
+
+        <div style={{ marginTop: 30 }}>
+          <a
+            href={HERMES_CONSOLE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
             style={{
-              maxWidth: 520,
-              width: '100%',
-              background: CARD,
-              border: BORDER,
-              borderRadius: 18,
-              padding: '28px 26px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 10,
+              background: AMBER,
+              border: `1px solid ${CHOCO}`,
+              borderRadius: 999,
+              padding: '14px 28px',
+              fontFamily: SANS,
+              fontSize: 15,
+              fontWeight: 600,
+              letterSpacing: '0.01em',
+              color: '#FFF8F0',
+              textDecoration: 'none',
+              whiteSpace: 'nowrap',
             }}
           >
-            <div
-              style={{
-                fontFamily: MONO,
-                fontSize: 10,
-                fontWeight: 600,
-                textTransform: 'uppercase',
-                letterSpacing: '0.18em',
-                color: AMBER,
-                marginBottom: 10,
-              }}
-            >
-              Console non connectée
-            </div>
-            <h2
-              style={{
-                fontFamily: SERIF,
-                fontSize: 22,
-                fontWeight: 500,
-                color: CHOCO,
-                margin: '0 0 10px',
-                lineHeight: 1.15,
-              }}
-            >
-              La console n&apos;est pas encore connectée.
-            </h2>
-            <p
-              style={{
-                fontFamily: SANS,
-                fontSize: 13,
-                lineHeight: 1.55,
-                color: SOFT,
-                margin: '0 0 18px',
-              }}
-            >
-              Le dashboard Hermès vit sur un sous-domaine dédié. Une fois
-              celui-ci en ligne et la variable d&apos;environnement posée, il
-              s&apos;affichera ici en plein écran.
-            </p>
-            <ol
-              style={{
-                margin: 0,
-                padding: 0,
-                listStyle: 'none',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 12,
-              }}
-            >
-              <Step
-                n={1}
-                text="Exposer le dashboard Hermès derrière un reverse-proxy sur agents.gndconsulting.fr (HTTPS)."
-              />
-              <Step
-                n={2}
-                text="Poser la variable d'environnement NEXT_PUBLIC_HERMES_CONSOLE_URL = https://agents.gndconsulting.fr (Vercel), puis redéployer."
-              />
-              <Step
-                n={3}
-                text="Côté dashboard : autoriser l'embedding (frame-ancestors du CRM / pas de X-Frame-Options: DENY)."
-              />
-            </ol>
-          </div>
+            Ouvrir la console Hermès ↗
+          </a>
         </div>
-      )}
-    </div>
-  );
-}
 
-function Step({ n, text }: { n: number; text: string }) {
-  return (
-    <li style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-      <span
-        style={{
-          flexShrink: 0,
-          width: 24,
-          height: 24,
-          borderRadius: 999,
-          background: 'rgba(83,36,24,0.06)',
-          border: '1px solid rgba(83,36,24,0.16)',
-          color: CHOCO,
-          fontFamily: MONO,
-          fontSize: 12,
-          fontWeight: 600,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          lineHeight: 1,
-        }}
-      >
-        {n}
-      </span>
-      <span
-        style={{
-          fontFamily: SANS,
-          fontSize: 12.5,
-          lineHeight: 1.5,
-          color: FAINT,
-        }}
-      >
-        {text}
-      </span>
-    </li>
+        <p
+          style={{
+            fontFamily: SANS,
+            fontSize: 12,
+            lineHeight: 1.5,
+            color: FAINT,
+            margin: '22px auto 0',
+            maxWidth: 420,
+          }}
+        >
+          Connexion avec le mot de passe Hermès (demandez-le à
+          l&apos;administrateur).
+        </p>
+      </div>
+    </div>
   );
 }
