@@ -76,6 +76,12 @@ export default async function AdminAgentsPage() {
   const running = agents.filter((a) => a.status === 'running').length;
   const inError = agents.filter((a) => a.status === 'error').length;
 
+  // Console Hermès (dashboard externe) — n'apparaît QUE si la variable d'env
+  // publique est définie. Server Component : process.env.NEXT_PUBLIC_* est
+  // lisible au render. Tant que le sous-domaine n'existe pas, la variable est
+  // absente et le bouton reste invisible (safe par défaut).
+  const hermesConsoleUrl = process.env.NEXT_PUBLIC_HERMES_CONSOLE_URL;
+
   return (
     <div
       style={{
@@ -126,6 +132,47 @@ export default async function AdminAgentsPage() {
           il lit des vues cloisonnées et n&apos;accède jamais au chiffre
           d&apos;affaires. Lecture seule, temps réel.
         </p>
+
+        {hermesConsoleUrl && (
+          <div style={{ marginTop: 18 }}>
+            <a
+              href={hermesConsoleUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                background: AMBER,
+                border: `1px solid ${CHOCO}`,
+                borderRadius: 999,
+                padding: '9px 18px',
+                fontFamily: SANS,
+                fontSize: 13,
+                fontWeight: 600,
+                letterSpacing: '0.01em',
+                color: '#FFF8F0',
+                textDecoration: 'none',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              Ouvrir la console Hermès ↗
+            </a>
+            <p
+              style={{
+                fontFamily: SANS,
+                fontSize: 11,
+                lineHeight: 1.45,
+                color: FAINT,
+                margin: '8px 0 0',
+                maxWidth: 660,
+              }}
+            >
+              Pilote les agents (chat, Kanban, dispatch) sur
+              agents.gndconsulting.fr
+            </p>
+          </div>
+        )}
       </header>
 
       <div
