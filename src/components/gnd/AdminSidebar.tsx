@@ -17,6 +17,7 @@ import {
   ClipboardList,
   BarChart3,
   GitBranch,
+  Bot,
 } from 'lucide-react';
 
 type NavItem = {
@@ -50,6 +51,7 @@ const SECTIONS: NavSection[] = [
       { id: 'vue-globale', icon: Shield, label: 'Vue globale', href: '/admin', adminOnly: true },
       { id: 'reporting', icon: BarChart3, label: 'Reporting avancé', href: '/admin/reporting', adminOnly: true },
       { id: 'pipelines', icon: GitBranch, label: 'Pipelines', href: '/admin/pipelines', adminOnly: true },
+      { id: 'agents', icon: Bot, label: 'Agents', href: '/admin/agents', adminOnly: true },
       { id: 'relances', icon: CalendarClock, label: 'Relances', href: '/admin/relances', section: 'relances', min: 'view' },
       { id: 'suivi', icon: ClipboardList, label: 'Suivi équipe', href: '/admin/suivi-equipe', section: 'suivi', min: 'view' },
       { id: 'commissions', icon: BadgeEuro, label: 'Commissions', href: '/admin/commissions', adminOnly: true },
