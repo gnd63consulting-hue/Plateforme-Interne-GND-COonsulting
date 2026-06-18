@@ -17,6 +17,8 @@ export const dynamic = 'force-dynamic';
  * la plus recente (prospect_intel, cascade FR). Le telephone couvre ~100% de
  * la base, l'email ~35% -> on met l'appel en avant. Aucun montant financier.
  *
+ * Tri par defaut : meilleures cibles en tete (enrichi > email valide > tel).
+ *
  * Degrade proprement : si la migration 0028 n'est pas encore appliquee, la
  * requete prospect_intel renvoie 0 ligne pour un commercial -> la liste
  * s'affiche sans intel (coordonnees brutes du prospect), sans erreur.
@@ -91,6 +93,16 @@ export default async function ProspectIntelPage() {
       hasIntel: !!e,
     };
   });
+
+  // Tri : meilleures cibles d'abord (enrichi > email valide > a un tel), puis alpha.
+  const rank = (r: IntelRowVM): number => {
+    let s = 0;
+    if (r.enrichStatus === 'enrichi') s += 100;
+    if (r.email && r.emailStatus === 'valid') s += 10;
+    if (r.tel) s += 1;
+    return s;
+  };
+  rows.sort((a, b) => rank(b) - rank(a) || a.company.localeCompare(b.company));
 
   return <IntelCallListClient rows={rows} />;
 }
