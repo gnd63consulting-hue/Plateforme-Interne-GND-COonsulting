@@ -4,6 +4,7 @@ import {
   INTEL_SELECT_COLUMNS,
   latestEnrichmentByProspect,
   type ProspectIntelRow,
+  type LatestEnrichment,
 } from '@/lib/prospect-intel';
 import IntelCallListClient, { type IntelRowVM } from './IntelCallListClient';
 
@@ -52,7 +53,7 @@ export default async function ProspectIntelPage() {
   const prospects = (prospectsRaw ?? []) as unknown as PRow[];
   const ids = prospects.map((p) => p.id);
 
-  let intelMap = new Map<string, ReturnType<typeof latestEnrichmentByProspect> extends Map<string, infer V> ? V : never>();
+  let intelMap = new Map<string, LatestEnrichment>();
   if (ids.length) {
     const { data: intelRaw } = await supabase
       .from('prospect_intel')
@@ -70,8 +71,7 @@ export default async function ProspectIntelPage() {
     const dirigeant =
       e?.dirigeant_nom ??
       p.contact_name ??
-      [p.prenom_contact, p.role_contact].filter(Boolean).join(' ') ||
-      null;
+      ([p.prenom_contact, p.role_contact].filter(Boolean).join(' ') || null);
     return {
       id: p.id,
       company: p.company_name ?? '--',
