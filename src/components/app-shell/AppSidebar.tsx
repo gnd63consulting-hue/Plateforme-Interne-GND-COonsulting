@@ -6,6 +6,7 @@ import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import {
   LayoutDashboard,
   Users,
+  PhoneCall,
   AlarmClock,
   CheckSquare,
   Workflow,
@@ -63,7 +64,14 @@ const NAV_GROUPS: NavGroup[] = [
         match: (p) =>
           p.startsWith('/prospects') &&
           !p.startsWith('/prospects/relances') &&
-          !p.startsWith('/prospects/taches'),
+          !p.startsWith('/prospects/taches') &&
+          !p.startsWith('/prospects/intel'),
+      },
+      {
+        href: '/prospects/intel',
+        label: "Liste d'appel",
+        icon: PhoneCall,
+        match: (p) => p.startsWith('/prospects/intel'),
       },
       {
         href: '/prospects/relances',
