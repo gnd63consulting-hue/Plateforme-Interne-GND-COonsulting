@@ -19,6 +19,7 @@ import {
   GitBranch,
   Bot,
   MonitorPlay,
+  Palette,
 } from 'lucide-react';
 
 type NavItem = {
@@ -53,6 +54,7 @@ const SECTIONS: NavSection[] = [
       { id: 'reporting', icon: BarChart3, label: 'Reporting avancé', href: '/admin/reporting', adminOnly: true },
       { id: 'pipelines', icon: GitBranch, label: 'Pipelines', href: '/admin/pipelines', adminOnly: true },
       { id: 'agents', icon: Bot, label: 'Agents', href: '/admin/agents', adminOnly: true },
+      { id: 'inspiration', icon: Palette, label: 'Inspiration', href: '/admin/inspiration', adminOnly: true },
       { id: 'console-hermes', icon: MonitorPlay, label: 'Console', href: '/admin/console', adminOnly: true },
       { id: 'relances', icon: CalendarClock, label: 'Relances', href: '/admin/relances', section: 'relances', min: 'view' },
       { id: 'suivi', icon: ClipboardList, label: 'Suivi équipe', href: '/admin/suivi-equipe', section: 'suivi', min: 'view' },
@@ -173,8 +175,19 @@ export default function AdminSidebar({
         </div>
       </div>
 
-      {/* Sections */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 22, flex: 1 }}>
+      {/* Sections — scrollable pour ne jamais couper le bas du menu */}
+      <div
+        data-lenis-prevent
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 22,
+          flex: 1,
+          minHeight: 0,
+          overflowY: 'auto',
+          overscrollBehavior: 'contain',
+        }}
+      >
         {SECTIONS.map((section) => (
           <div
             key={section.title}
@@ -248,6 +261,7 @@ export default function AdminSidebar({
           borderRadius: 14,
           background: CREAM_CARD,
           border: `1px solid ${BORDER}`,
+          flexShrink: 0,
         }}
       >
         <div
