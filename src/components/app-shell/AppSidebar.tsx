@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   Users,
   PhoneCall,
+  Mail,
   AlarmClock,
   CheckSquare,
   Workflow,
@@ -65,13 +66,21 @@ const NAV_GROUPS: NavGroup[] = [
           p.startsWith('/prospects') &&
           !p.startsWith('/prospects/relances') &&
           !p.startsWith('/prospects/taches') &&
-          !p.startsWith('/prospects/intel'),
+          !p.startsWith('/prospects/intel') &&
+          !p.startsWith('/prospects/drafts'),
       },
       {
         href: '/prospects/intel',
         label: "Liste d'appel",
         icon: PhoneCall,
         match: (p) => p.startsWith('/prospects/intel'),
+      },
+      {
+        href: '/prospects/drafts',
+        label: 'Drafts a valider',
+        icon: Mail,
+        match: (p) => p.startsWith('/prospects/drafts'),
+        admin: true,
       },
       {
         href: '/prospects/relances',
