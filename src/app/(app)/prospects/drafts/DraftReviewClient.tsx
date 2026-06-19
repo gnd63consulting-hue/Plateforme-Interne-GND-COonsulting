@@ -14,6 +14,7 @@ import {
   Linkedin,
   MessageSquare,
   ExternalLink,
+  Globe,
 } from 'lucide-react';
 import {
   type DraftRow,
@@ -143,6 +144,18 @@ export default function DraftReviewClient({ rows }: { rows: DraftRow[] }) {
                   {prospectDisplay(r.prospect)} <ExternalLink className="h-4 w-4" />
                 </Link>
               </div>
+
+              {r.mockup_url && (
+                <a
+                  href={r.mockup_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mb-3 inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700 transition hover:bg-emerald-100"
+                >
+                  <Globe className="h-3.5 w-3.5" /> Maquette du prospect prete — voir le site
+                  <ExternalLink className="h-3.5 w-3.5" />
+                </a>
+              )}
 
               {editing === r.id ? (
                 <div className="space-y-2">

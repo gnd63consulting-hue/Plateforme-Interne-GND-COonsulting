@@ -6,7 +6,8 @@ export const dynamic = 'force-dynamic';
 
 /**
  * Ecran "Drafts a valider". Lit prospect_draft (RLS admin) + le nom du prospect
- * lie. La validation humaine est obligatoire avant tout envoi.
+ * lie + l'URL de sa maquette si elle existe (site_mockups). La validation
+ * humaine est obligatoire avant tout envoi.
  */
 export default async function DraftsPage() {
   const supabase = await createClient();
@@ -16,7 +17,7 @@ export default async function DraftsPage() {
     .select(DRAFT_SELECT_COLUMNS)
     .order('updated_at', { ascending: false });
 
-  const list = (drafts ?? []) as Omit<DraftRow, 'prospect'>[];
+  const list = (drafts ?? []) as Omit<DraftRow, 'prospect' | 'mockup_url'>[];
   const ids = Array.from(new Set(list.map((d) => d.prospect_id)));
 
   const { data: prospects } = ids.length
@@ -26,10 +27,27 @@ export default async function DraftsPage() {
         .in('id', ids)
     : { data: [] as DraftRow['prospect'][] };
 
+  const { data: mockups } = ids.length
+    ? await supabase
+        .from('site_mockups')
+        .select('prospect_id, preview_url, updated_at')
+        .in('prospect_id', ids)
+        .not('preview_url', 'is', null)
+        .order('updated_at', { ascending: false })
+    : { data: [] as { prospect_id: string | null; preview_url: string | null }[] };
+
   const nameById = new Map((prospects ?? []).map((p) => [p!.id, p]));
+  const mockupByProspect = new Map<string, string>();
+  for (const m of mockups ?? []) {
+    if (m.prospect_id && m.preview_url && !mockupByProspect.has(m.prospect_id)) {
+      mockupByProspect.set(m.prospect_id, m.preview_url);
+    }
+  }
+
   const rows: DraftRow[] = list.map((d) => ({
     ...d,
     prospect: (nameById.get(d.prospect_id) as DraftRow['prospect']) ?? null,
+    mockup_url: mockupByProspect.get(d.prospect_id) ?? null,
   }));
 
   return <DraftReviewClient rows={rows} />;

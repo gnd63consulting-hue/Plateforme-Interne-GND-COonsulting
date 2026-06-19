@@ -28,6 +28,7 @@ export type DraftRow = {
   created_at: string;
   updated_at: string;
   prospect: ProspectInfo | null;
+  mockup_url?: string | null;
 };
 
 export const DRAFT_SELECT_COLUMNS =

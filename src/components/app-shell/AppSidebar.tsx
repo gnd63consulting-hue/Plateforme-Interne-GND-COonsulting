@@ -8,6 +8,7 @@ import {
   Users,
   PhoneCall,
   Mail,
+  LayoutTemplate,
   AlarmClock,
   CheckSquare,
   Workflow,
@@ -38,11 +39,6 @@ type NavGroup = {
   items: NavItem[];
 };
 
-/**
- * Groupes de navigation — reprend TOUS les liens de l'ancienne Navbar,
- * reorganises en sections lisibles. Les items Admin ne sont rendus que pour
- * les admins (meme logique de role que l'ancien shell : `isAdmin`).
- */
 const NAV_GROUPS: NavGroup[] = [
   {
     title: 'Pilotage',
@@ -83,6 +79,12 @@ const NAV_GROUPS: NavGroup[] = [
         admin: true,
       },
       {
+        href: '/ressources/maquettes',
+        label: 'Maquettes',
+        icon: LayoutTemplate,
+        match: (p) => p.startsWith('/ressources/maquettes'),
+      },
+      {
         href: '/prospects/relances',
         label: 'Relances',
         icon: AlarmClock,
@@ -121,7 +123,7 @@ const NAV_GROUPS: NavGroup[] = [
         href: '/ressources',
         label: 'Ressources',
         icon: BookOpen,
-        match: (p) => p.startsWith('/ressources'),
+        match: (p) => p.startsWith('/ressources') && !p.startsWith('/ressources/maquettes'),
       },
     ],
   },
@@ -154,10 +156,6 @@ export type SidebarUser = {
   avatarUrl: string | null;
 };
 
-/* ------------------------------------------------------------------ */
-/*  Sous-composants                                                    */
-/* ------------------------------------------------------------------ */
-
 function Logo() {
   return (
     <Link
@@ -177,11 +175,6 @@ function Logo() {
   );
 }
 
-/**
- * Pill CTA primaire « + Nouveau prospect » (ref Drive « + Nouveau »).
- * Fond orange officiel #F39253, TEXTE CHOCOLAT (#2A1810) — l'orange clair en
- * texte blanc manque de contraste, le chocolat passe AAA. Ombre orange douce.
- */
 function NewProspectButton({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <Link
@@ -226,14 +219,12 @@ function NavLink({
     >
       {active && (
         <>
-          {/* Surbrillance arrondie douce orange (ref Drive item actif). */}
           <motion.span
             layoutId="sidebar-active"
             transition={{ type: 'spring', stiffness: 380, damping: 32 }}
             className="absolute inset-0 -z-10 rounded-xl bg-brand/[0.12]"
             aria-hidden
           />
-          {/* Petit indicateur a gauche. */}
           <span
             aria-hidden
             className="absolute left-0 top-1/2 h-5 w-1 -translate-y-1/2 rounded-full bg-brand"
@@ -304,10 +295,6 @@ function UserBlock({ user }: { user: SidebarUser }) {
   );
 }
 
-/* ------------------------------------------------------------------ */
-/*  Contenu commun (desktop + drawer)                                  */
-/* ------------------------------------------------------------------ */
-
 function SidebarInner({
   user,
   isAdmin,
@@ -331,11 +318,6 @@ function SidebarInner({
 
       <NewProspectButton onNavigate={onNavigate} />
 
-      {/*
-        Nav scrollable. `data-lenis-prevent` => le smooth-scroll global Lenis
-        ignore ce conteneur, donc la molette scrolle la sidebar NATIVEMENT.
-        Espacement vertical genereux entre sections (ref Drive).
-      */}
       <nav
         data-lenis-prevent
         aria-label="Navigation principale"
@@ -365,10 +347,6 @@ function SidebarInner({
   );
 }
 
-/* ------------------------------------------------------------------ */
-/*  Export — rail integre (desktop) + drawer (mobile)                  */
-/* ------------------------------------------------------------------ */
-
 export default function AppSidebar({
   user,
   isAdmin,
@@ -384,12 +362,10 @@ export default function AppSidebar({
 
   return (
     <>
-      {/* Desktop : rail integre dans le panneau blanc (lisere beige a droite). */}
       <aside className="hidden w-[264px] shrink-0 border-r border-border-soft/60 bg-surface-soft lg:block">
         <SidebarInner user={user} isAdmin={isAdmin} />
       </aside>
 
-      {/* Mobile : drawer */}
       <AnimatePresence>
         {mobileOpen && (
           <>
