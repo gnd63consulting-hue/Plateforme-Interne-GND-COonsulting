@@ -17,14 +17,11 @@ import {
   BookOpen,
   ShieldCheck,
   History,
+  Sparkles,
   Plus,
   X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-/* ------------------------------------------------------------------ */
-/*  Modele de navigation                                               */
-/* ------------------------------------------------------------------ */
 
 export type NavItem = {
   href: string;
@@ -134,7 +131,17 @@ const NAV_GROUPS: NavGroup[] = [
         href: '/admin',
         label: 'Admin',
         icon: ShieldCheck,
-        match: (p) => p.startsWith('/admin') && !p.startsWith('/admin/journal'),
+        match: (p) =>
+          p.startsWith('/admin') &&
+          !p.startsWith('/admin/journal') &&
+          !p.startsWith('/admin/inspiration'),
+        admin: true,
+      },
+      {
+        href: '/admin/inspiration',
+        label: 'Inspiration',
+        icon: Sparkles,
+        match: (p) => p.startsWith('/admin/inspiration'),
         admin: true,
       },
       {
