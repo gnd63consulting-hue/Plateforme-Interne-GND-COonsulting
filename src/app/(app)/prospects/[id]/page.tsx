@@ -15,7 +15,9 @@ import {
   type ProspectIntelRow,
   type EnrichmentPayload,
 } from '@/lib/prospect-intel';
+import { getMockupForProspect, getSiteBriefForProspect } from '@/lib/site-brief';
 import ProspectIntelPanel from './ProspectIntelPanel';
+import GenerateMockupButton from './GenerateMockupButton';
 import ProspectDetailClient from './ProspectDetailClient';
 
 export const dynamic = 'force-dynamic';
@@ -31,6 +33,10 @@ export const dynamic = 'force-dynamic';
  * cours, devis, et l'intel d'enrichissement la plus recente (cascade FR Atlas,
  * prospect_intel). L'intel s'affiche en tete via <ProspectIntelPanel> ; le gros
  * client (ProspectDetailClient) reste inchange.
+ *
+ * Studio Phase 4 : charge aussi la maquette la plus recente (site_mockups) et le
+ * brief actif (site_brief en 'requested'/'done') pour piloter le bouton
+ * "Generer une maquette" affiche sous l'intel.
  *
  * Next 15 : `params` est une Promise a await.
  */
@@ -78,38 +84,47 @@ export default async function ProspectDetailPage({
       finance?.deal_amount != null ? Number(finance.deal_amount) : null;
   }
 
-  // Timeline + sequences + inscription + devis + intel, en parallele.
-  const [activityRes, sequencesRes, enrollmentRes, quotesRes, intelRes] =
-    await Promise.all([
-      supabase
-        .from('activities')
-        .select(ACTIVITY_SELECT_COLUMNS)
-        .eq('prospect_id', id)
-        .order('occurred_at', { ascending: false })
-        .limit(30),
-      supabase
-        .from('sequences')
-        .select(SEQUENCE_SELECT_COLUMNS)
-        .eq('active', true)
-        .order('name', { ascending: true }),
-      supabase
-        .from('sequence_enrollments')
-        .select(ENROLLMENT_SELECT_COLUMNS)
-        .eq('prospect_id', id)
-        .order('created_at', { ascending: false }),
-      supabase
-        .from('quotes')
-        .select(QUOTE_SELECT_COLUMNS)
-        .eq('prospect_id', id)
-        .order('created_at', { ascending: false }),
-      supabase
-        .from('prospect_intel')
-        .select(INTEL_SELECT_COLUMNS)
-        .eq('prospect_id', id)
-        .eq('intel_type', 'enrichment')
-        .order('created_at', { ascending: false })
-        .limit(1),
-    ]);
+  // Timeline + sequences + inscription + devis + intel + maquette + brief, en parallele.
+  const [
+    activityRes,
+    sequencesRes,
+    enrollmentRes,
+    quotesRes,
+    intelRes,
+    mockup,
+    brief,
+  ] = await Promise.all([
+    supabase
+      .from('activities')
+      .select(ACTIVITY_SELECT_COLUMNS)
+      .eq('prospect_id', id)
+      .order('occurred_at', { ascending: false })
+      .limit(30),
+    supabase
+      .from('sequences')
+      .select(SEQUENCE_SELECT_COLUMNS)
+      .eq('active', true)
+      .order('name', { ascending: true }),
+    supabase
+      .from('sequence_enrollments')
+      .select(ENROLLMENT_SELECT_COLUMNS)
+      .eq('prospect_id', id)
+      .order('created_at', { ascending: false }),
+    supabase
+      .from('quotes')
+      .select(QUOTE_SELECT_COLUMNS)
+      .eq('prospect_id', id)
+      .order('created_at', { ascending: false }),
+    supabase
+      .from('prospect_intel')
+      .select(INTEL_SELECT_COLUMNS)
+      .eq('prospect_id', id)
+      .eq('intel_type', 'enrichment')
+      .order('created_at', { ascending: false })
+      .limit(1),
+    getMockupForProspect(supabase, id),
+    getSiteBriefForProspect(supabase, id),
+  ]);
 
   const initialActivities = (activityRes.data ?? []) as unknown as Activity[];
   const activeSequences = (sequencesRes.data ?? []) as unknown as Sequence[];
@@ -126,6 +141,18 @@ export default async function ProspectDetailPage({
   return (
     <>
       <ProspectIntelPanel intel={intel} createdAt={intelDate} />
+      <section className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-border-soft bg-white p-5 shadow-soft">
+        <div className="min-w-0">
+          <h2 className="font-inter text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-dark">
+            Maquette Studio
+          </h2>
+          <p className="mt-1 text-sm text-muted-warm">
+            Genere une maquette one-page a partir de ce prospect. Le Studio la
+            produit, elle apparaitra ici.
+          </p>
+        </div>
+        <GenerateMockupButton prospectId={id} mockup={mockup} brief={brief} />
+      </section>
       <ProspectDetailClient
         initialProspect={prospect}
         initialActivities={initialActivities}
