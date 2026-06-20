@@ -146,12 +146,19 @@ export function telHref(tel?: string | null): string | null {
  * temps -> on lit TOUJOURS le plus recent (created_at DESC).
  *
  * Le payload JSONB porte :
- *   - score          (0-100, int)      note globale de chaleur
- *   - tier           ('A'|'B'|'C')     palier de priorite
- *   - priorite_appel (int)             rang d'appel suggere (1 = a appeler en 1er)
- *   - opportunite_web(bool)            signal "trou digital" exploitable
- *   - raisons        (text[])          justifications lisibles
- *   - signal_label   (text)            etiquette courte (ex: "site absent")
+ *   - score           (0-100, int)      note globale de chaleur
+ *   - tier            ('A'|'B'|'C')     palier de priorite
+ *   - priorite_appel  (int)             rang d'appel suggere (1 = a appeler en 1er)
+ *   - opportunite_web (bool)            signal "trou digital" exploitable
+ *   - raisons         (text[])          justifications lisibles
+ *   - signal_label    (text)            etiquette courte (ex: "site absent")
+ *   - angle_recommande(text)            angle de pitch suggere (quoi dire)
+ *   - persona         (text)            persona cible (a qui on parle)
+ *   - fenetre_achat   (text)            fenetre d'achat estimee (quand)
+ *
+ * Les trois derniers champs sont la "pitch-helper" de Selene : ils disent au
+ * commercial QUOI dire. Tous optionnels (une ligne ancienne peut ne pas les
+ * porter) -> on degrade proprement.
  *
  * Aucune donnee financiere ici (cloisonnement respecte).
  */
@@ -162,6 +169,9 @@ export type SeleneScoringPayload = {
   opportunite_web?: boolean | null;
   raisons?: string[] | null;
   signal_label?: string | null;
+  angle_recommande?: string | null;
+  persona?: string | null;
+  fenetre_achat?: string | null;
 };
 
 export type SeleneScore = {
@@ -171,6 +181,9 @@ export type SeleneScore = {
   opportuniteWeb: boolean;
   raisons: string[];
   signalLabel: string | null;
+  angleRecommande: string | null;
+  persona: string | null;
+  fenetreAchat: string | null;
 };
 
 export const SCORING_SOURCE = 'selene.scoring';
@@ -179,6 +192,13 @@ function normalizeTier(tier?: string | null): 'A' | 'B' | 'C' | null {
   if (!tier) return null;
   const t = tier.trim().toUpperCase();
   return t === 'A' || t === 'B' || t === 'C' ? t : null;
+}
+
+/** Normalise une chaine optionnelle : trim -> null si vide. */
+function cleanStr(v?: string | null): string | null {
+  if (typeof v !== 'string') return null;
+  const t = v.trim();
+  return t.length ? t : null;
 }
 
 /**
@@ -200,7 +220,10 @@ export function latestScoringByProspect(
       prioriteAppel: typeof p.priorite_appel === 'number' ? p.priorite_appel : null,
       opportuniteWeb: p.opportunite_web === true,
       raisons: Array.isArray(p.raisons) ? p.raisons : [],
-      signalLabel: p.signal_label ?? null,
+      signalLabel: cleanStr(p.signal_label),
+      angleRecommande: cleanStr(p.angle_recommande),
+      persona: cleanStr(p.persona),
+      fenetreAchat: cleanStr(p.fenetre_achat),
     });
   }
   return map;

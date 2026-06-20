@@ -125,6 +125,11 @@ export default async function ProspectIntelPage() {
       opportuniteWeb: s?.opportuniteWeb ?? false,
       scoreLabel: s?.signalLabel ?? null,
       hasScore: !!s,
+      // Pitch-helper Selene (quoi dire) — tous optionnels.
+      angleSelene: s?.angleRecommande ?? null,
+      raisons: s?.raisons ?? [],
+      persona: s?.persona ?? null,
+      fenetreAchat: s?.fenetreAchat ?? null,
     };
   });
 

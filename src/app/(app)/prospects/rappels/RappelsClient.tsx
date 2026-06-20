@@ -13,6 +13,8 @@ import {
   ChevronRight,
   Flame,
   Search,
+  Target,
+  Users,
 } from 'lucide-react';
 import { tierTone, telHref } from '@/lib/prospect-intel';
 import { labelForStatus, toneForStatus } from '@/lib/prospects';
@@ -32,6 +34,11 @@ export type RappelRowVM = {
   tier: 'A' | 'B' | 'C' | null;
   scoreLabel: string | null;
   hasScore: boolean;
+  // Pitch-helper Selene (quoi dire) — tous optionnels.
+  angleSelene: string | null;
+  raisons: string[];
+  persona: string | null;
+  fenetreAchat: string | null;
 };
 
 type Bucket = 'overdue' | 'today' | 'upcoming';
@@ -123,7 +130,7 @@ export default function RappelsClient({ rows }: { rows: RappelRowVM[] }) {
     const needle = q.trim().toLowerCase();
     if (!needle) return rows;
     return rows.filter((r) =>
-      [r.company, r.dirigeant, r.city, r.sector, r.scoreLabel]
+      [r.company, r.dirigeant, r.city, r.sector, r.scoreLabel, r.angleSelene]
         .filter(Boolean)
         .join(' ')
         .toLowerCase()
@@ -269,6 +276,73 @@ function ScoreBadge({ r }: { r: RappelRowVM }) {
   );
 }
 
+/**
+ * Bloc "Pitch Selene" : ce que Selene recommande de DIRE au prospect avant de
+ * le rappeler (angle de pitch + raisons + persona/fenetre). Discret, collapsible.
+ * Ne s'affiche que si Selene a propose un angle. Memes champs / meme rendu que
+ * la liste d'appel.
+ */
+function PitchSelene({ r }: { r: RappelRowVM }) {
+  const [open, setOpen] = useState(false);
+  if (!r.angleSelene) return null;
+  const raisons = r.raisons.slice(0, 4);
+  return (
+    <div className="mt-2 rounded-2xl border border-border-soft bg-cream-deep/40 p-2.5">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        className="flex w-full items-start gap-1.5 text-left text-xs text-ink-warm"
+      >
+        <Target className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-dark" aria-hidden />
+        <span className="min-w-0 flex-1">
+          <span className="font-semibold text-brand-dark">Pitch Selene : </span>
+          {r.angleSelene}
+        </span>
+        <ChevronRight
+          className={`mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-warm transition-transform ${
+            open ? 'rotate-90' : ''
+          }`}
+          aria-hidden
+        />
+      </button>
+
+      {open && (
+        <div className="mt-2 space-y-2 border-t border-border-soft pt-2">
+          {raisons.length > 0 && (
+            <ul className="flex flex-wrap gap-1.5">
+              {raisons.map((raison, i) => (
+                <li
+                  key={i}
+                  className="inline-flex items-center rounded-full bg-white px-2 py-0.5 text-[11px] font-medium text-ink-warm ring-1 ring-gnd-bronze/12"
+                >
+                  {raison}
+                </li>
+              ))}
+            </ul>
+          )}
+          {(r.persona || r.fenetreAchat) && (
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted-warm">
+              {r.persona && (
+                <span className="inline-flex items-center gap-1">
+                  <Users className="h-3 w-3" aria-hidden />
+                  {r.persona}
+                </span>
+              )}
+              {r.fenetreAchat && (
+                <span className="inline-flex items-center gap-1">
+                  <CalendarClock className="h-3 w-3" aria-hidden />
+                  {r.fenetreAchat}
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function RappelCard({ r, overdue }: { r: RappelRowVM; overdue: boolean }) {
   const href = telHref(r.tel);
   // Statut + rappel locaux : refletent immediatement l'issue d'un appel relogue
@@ -340,6 +414,9 @@ function RappelCard({ r, overdue }: { r: RappelRowVM; overdue: boolean }) {
               </span>
             </span>
           </div>
+
+          {/* Pitch Selene = quoi dire avant de rappeler (scoring Selene) */}
+          <PitchSelene r={r} />
         </div>
 
         {/* Action phone-first */}

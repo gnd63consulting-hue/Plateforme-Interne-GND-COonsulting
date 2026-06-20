@@ -32,7 +32,8 @@ export const dynamic = 'force-dynamic';
  * automatiquement, meme si elle porte encore un vieux next_action_at.
  *
  * Aucune donnee financiere lue ici (cloisonnement respecte) ; on reutilise le
- * scoring Selene pour afficher le badge de chaleur, comme la liste d'appel.
+ * scoring Selene pour afficher le badge de chaleur et le pitch (angle + raisons),
+ * comme la liste d'appel.
  */
 
 /**
@@ -121,6 +122,11 @@ export default async function ProspectRappelsPage() {
       tier: s?.tier ?? null,
       scoreLabel: s?.signalLabel ?? null,
       hasScore: !!s,
+      // Pitch-helper Selene (quoi dire) — tous optionnels.
+      angleSelene: s?.angleRecommande ?? null,
+      raisons: s?.raisons ?? [],
+      persona: s?.persona ?? null,
+      fenetreAchat: s?.fenetreAchat ?? null,
     };
   });
 
