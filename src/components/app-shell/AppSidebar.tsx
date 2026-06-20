@@ -17,6 +17,7 @@ import {
   Compass,
   BookOpen,
   ShieldCheck,
+  ShieldQuestion,
   History,
   Sparkles,
   Plus,
@@ -62,6 +63,7 @@ const NAV_GROUPS: NavGroup[] = [
           !p.startsWith('/prospects/rappels') &&
           !p.startsWith('/prospects/taches') &&
           !p.startsWith('/prospects/intel') &&
+          !p.startsWith('/prospects/a-verifier') &&
           !p.startsWith('/prospects/drafts'),
       },
       {
@@ -69,6 +71,12 @@ const NAV_GROUPS: NavGroup[] = [
         label: "Liste d'appel",
         icon: PhoneCall,
         match: (p) => p.startsWith('/prospects/intel'),
+      },
+      {
+        href: '/prospects/a-verifier',
+        label: 'A verifier',
+        icon: ShieldQuestion,
+        match: (p) => p.startsWith('/prospects/a-verifier'),
       },
       {
         href: '/prospects/rappels',
