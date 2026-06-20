@@ -21,6 +21,7 @@ import {
   Bot,
   MonitorPlay,
   Palette,
+  Upload,
 } from 'lucide-react';
 
 type NavItem = {
@@ -62,6 +63,7 @@ const SECTIONS: NavSection[] = [
       { id: 'suivi', icon: ClipboardList, label: 'Suivi équipe', href: '/admin/suivi-equipe', section: 'suivi', min: 'view' },
       { id: 'commissions', icon: BadgeEuro, label: 'Commissions', href: '/admin/commissions', adminOnly: true },
       { id: 'doublons', icon: CopyCheck, label: 'Doublons', href: '/admin/doublons', adminOnly: true },
+      { id: 'import', icon: Upload, label: 'Import CSV', href: '/admin/import', adminOnly: true },
       { id: 'equipe', icon: Users, label: 'Équipe', href: '/admin/invitations', adminOnly: true },
       { id: 'paliers', icon: Rocket, label: 'Paliers bonus', href: '/admin', adminOnly: true },
     ],
