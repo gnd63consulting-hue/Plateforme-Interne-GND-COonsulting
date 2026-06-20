@@ -2,26 +2,38 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase-server';
 import {
   INTEL_SELECT_COLUMNS,
+  SCORING_SOURCE,
   latestEnrichmentByProspect,
+  latestScoringByProspect,
   type ProspectIntelRow,
   type LatestEnrichment,
+  type SeleneScore,
 } from '@/lib/prospect-intel';
 import IntelCallListClient, { type IntelRowVM } from './IntelCallListClient';
 
 export const dynamic = 'force-dynamic';
 
 /**
- * Liste d'appel phone-first (Hermes / enrichissement Atlas).
+ * Liste d'appel phone-first (Hermes / enrichissement Atlas + scoring Selene).
  *
  * Affiche les prospects de l'utilisateur (RLS owner) enrichis de l'intel
- * la plus recente (prospect_intel, cascade FR). Le telephone couvre ~100% de
- * la base, l'email ~35% -> on met l'appel en avant. Aucun montant financier.
+ * la plus recente (prospect_intel, cascade FR) et du score Selene le plus
+ * recent (prospect_intel, source='selene.scoring'). Le telephone couvre ~100%
+ * de la base, l'email ~35% -> on met l'appel en avant. Aucun montant financier.
  *
- * Tri par defaut : meilleures cibles en tete (enrichi > email valide > tel).
+ * Tri par defaut : priorite Selene (score le plus chaud en tete). Les prospects
+ * sans score passent en fin de liste en conservant le sous-ordre historique
+ * (enrichi > email valide > tel > alpha).
+ *
+ * Filtre par defaut cote client : "A appeler" — seuls les prospects dans un
+ * statut encore travaillable par un commercial. Les fiches reconciliees en
+ * perdu/archived/gagne/etc. sortent automatiquement de la liste d'appel : c'est
+ * un composant serveur live, donc tout changement de statut se reflete au
+ * prochain chargement (et au revalidate apres un appel logue).
  *
  * Degrade proprement : si la migration 0028 n'est pas encore appliquee, la
  * requete prospect_intel renvoie 0 ligne pour un commercial -> la liste
- * s'affiche sans intel (coordonnees brutes du prospect), sans erreur.
+ * s'affiche sans intel ni score (coordonnees brutes du prospect), sans erreur.
  */
 export default async function ProspectIntelPage() {
   const supabase = await createClient();
@@ -56,6 +68,7 @@ export default async function ProspectIntelPage() {
   const ids = prospects.map((p) => p.id);
 
   let intelMap = new Map<string, LatestEnrichment>();
+  let scoreMap = new Map<string, SeleneScore>();
   if (ids.length) {
     const { data: intelRaw } = await supabase
       .from('prospect_intel')
@@ -66,10 +79,24 @@ export default async function ProspectIntelPage() {
     intelMap = latestEnrichmentByProspect(
       (intelRaw ?? []) as unknown as ProspectIntelRow[]
     );
+
+    // Scores Selene : meme table, intel_type='signal' + source='selene.scoring'.
+    // On lit le plus recent par prospect (append-only) pour prioriser l'appel.
+    const { data: scoreRaw } = await supabase
+      .from('prospect_intel')
+      .select(INTEL_SELECT_COLUMNS)
+      .eq('intel_type', 'signal')
+      .eq('source', SCORING_SOURCE)
+      .in('prospect_id', ids)
+      .order('created_at', { ascending: false });
+    scoreMap = latestScoringByProspect(
+      (scoreRaw ?? []) as unknown as ProspectIntelRow[]
+    );
   }
 
   const rows: IntelRowVM[] = prospects.map((p) => {
     const e = intelMap.get(p.id);
+    const s = scoreMap.get(p.id);
     const dirigeant =
       e?.dirigeant_nom ??
       p.contact_name ??
@@ -91,18 +118,37 @@ export default async function ProspectIntelPage() {
       confidence: e?.confidence?.overall ?? null,
       sourceCount: Array.isArray(e?.source_urls) ? e!.source_urls!.length : 0,
       hasIntel: !!e,
+      // Scoring Selene (priorisation appel)
+      score: s?.score ?? null,
+      tier: s?.tier ?? null,
+      prioriteAppel: s?.prioriteAppel ?? null,
+      opportuniteWeb: s?.opportuniteWeb ?? false,
+      scoreLabel: s?.signalLabel ?? null,
+      hasScore: !!s,
     };
   });
 
-  // Tri : meilleures cibles d'abord (enrichi > email valide > a un tel), puis alpha.
-  const rank = (r: IntelRowVM): number => {
+  // Tri par defaut : priorite Selene (score DESC). Sans score -> fin de liste,
+  // sous-trie par les anciens signaux (enrichi > email valide > tel) puis alpha.
+  const fallbackRank = (r: IntelRowVM): number => {
     let s = 0;
     if (r.enrichStatus === 'enrichi') s += 100;
     if (r.email && r.emailStatus === 'valid') s += 10;
     if (r.tel) s += 1;
     return s;
   };
-  rows.sort((a, b) => rank(b) - rank(a) || a.company.localeCompare(b.company));
+  rows.sort((a, b) => {
+    // Les prospects avec score Selene passent toujours devant ceux sans score.
+    if (a.hasScore !== b.hasScore) return a.hasScore ? -1 : 1;
+    if (a.hasScore && b.hasScore) {
+      const sa = a.score ?? -1;
+      const sb = b.score ?? -1;
+      if (sb !== sa) return sb - sa; // score le plus chaud d'abord
+    }
+    return (
+      fallbackRank(b) - fallbackRank(a) || a.company.localeCompare(b.company)
+    );
+  });
 
   return <IntelCallListClient rows={rows} />;
 }

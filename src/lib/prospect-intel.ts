@@ -133,3 +133,89 @@ export function telHref(tel?: string | null): string | null {
   const cleaned = tel.replace(/[^+0-9]/g, '');
   return cleaned.length >= 6 ? `tel:${cleaned}` : null;
 }
+
+/* -------------------------------------------------------------------------- */
+/* Scoring Selene (priorisation appel)                                        */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Signaux de scoring ecrits par l'agent Selene dans `public.prospect_intel`
+ * avec intel_type='signal' et source='selene.scoring' (migration 0025, meme
+ * table que l'enrichissement Atlas). Comme l'enrichissement, ces lignes sont
+ * APPEND-ONLY : un meme prospect peut recevoir plusieurs scores au fil du
+ * temps -> on lit TOUJOURS le plus recent (created_at DESC).
+ *
+ * Le payload JSONB porte :
+ *   - score          (0-100, int)      note globale de chaleur
+ *   - tier           ('A'|'B'|'C')     palier de priorite
+ *   - priorite_appel (int)             rang d'appel suggere (1 = a appeler en 1er)
+ *   - opportunite_web(bool)            signal "trou digital" exploitable
+ *   - raisons        (text[])          justifications lisibles
+ *   - signal_label   (text)            etiquette courte (ex: "site absent")
+ *
+ * Aucune donnee financiere ici (cloisonnement respecte).
+ */
+export type SeleneScoringPayload = {
+  score?: number | null;
+  tier?: string | null; // 'A' | 'B' | 'C'
+  priorite_appel?: number | null;
+  opportunite_web?: boolean | null;
+  raisons?: string[] | null;
+  signal_label?: string | null;
+};
+
+export type SeleneScore = {
+  score: number | null;
+  tier: 'A' | 'B' | 'C' | null;
+  prioriteAppel: number | null;
+  opportuniteWeb: boolean;
+  raisons: string[];
+  signalLabel: string | null;
+};
+
+export const SCORING_SOURCE = 'selene.scoring';
+
+function normalizeTier(tier?: string | null): 'A' | 'B' | 'C' | null {
+  if (!tier) return null;
+  const t = tier.trim().toUpperCase();
+  return t === 'A' || t === 'B' || t === 'C' ? t : null;
+}
+
+/**
+ * Reduit une liste de lignes prospect_intel (signaux Selene, triees created_at
+ * DESC en amont) au score le PLUS RECENT par prospect. Append-only -> on garde
+ * la 1ere vue, comme `latestEnrichmentByProspect`.
+ */
+export function latestScoringByProspect(
+  rows: ProspectIntelRow[]
+): Map<string, SeleneScore> {
+  const map = new Map<string, SeleneScore>();
+  for (const r of rows) {
+    if (!r.payload) continue;
+    if (map.has(r.prospect_id)) continue; // deja le plus recent (tri DESC)
+    const p = r.payload as SeleneScoringPayload;
+    map.set(r.prospect_id, {
+      score: typeof p.score === 'number' ? p.score : null,
+      tier: normalizeTier(p.tier),
+      prioriteAppel: typeof p.priorite_appel === 'number' ? p.priorite_appel : null,
+      opportuniteWeb: p.opportunite_web === true,
+      raisons: Array.isArray(p.raisons) ? p.raisons : [],
+      signalLabel: p.signal_label ?? null,
+    });
+  }
+  return map;
+}
+
+/** Couleur du badge de score selon le palier Selene (A fort, B moyen, C attenue). */
+export function tierTone(tier?: string | null): string {
+  switch (normalizeTier(tier)) {
+    case 'A':
+      return 'bg-brand text-choco ring-1 ring-gnd-bronze/20';
+    case 'B':
+      return 'bg-amber-100 text-amber-800';
+    case 'C':
+      return 'bg-slate-100 text-slate-500';
+    default:
+      return 'bg-slate-100 text-slate-600';
+  }
+}

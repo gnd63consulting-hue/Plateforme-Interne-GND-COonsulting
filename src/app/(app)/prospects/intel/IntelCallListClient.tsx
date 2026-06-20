@@ -13,6 +13,7 @@ import {
   ShieldCheck,
   Globe,
   ChevronRight,
+  Flame,
 } from 'lucide-react';
 import {
   emailStatusTone,
@@ -20,6 +21,7 @@ import {
   statusTone,
   statusLabel,
   confidenceTone,
+  tierTone,
   telHref,
   type PresenceDigitale,
 } from '@/lib/prospect-intel';
@@ -43,39 +45,74 @@ export type IntelRowVM = {
   confidence: string | null;
   sourceCount: number;
   hasIntel: boolean;
+  // Scoring Selene (priorisation appel)
+  score: number | null;
+  tier: 'A' | 'B' | 'C' | null;
+  prioriteAppel: number | null;
+  opportuniteWeb: boolean;
+  scoreLabel: string | null;
+  hasScore: boolean;
 };
 
-type Filter = 'all' | 'enrichi' | 'with_email' | 'phone_only';
+type Filter = 'callable' | 'all' | 'enrichi' | 'with_email' | 'phone_only';
 
 const FILTERS: { value: Filter; label: string }[] = [
+  { value: 'callable', label: 'A appeler' },
   { value: 'all', label: 'Tous' },
   { value: 'enrichi', label: 'Enrichis' },
   { value: 'with_email', label: 'Email verifie' },
   { value: 'phone_only', label: 'Tel seul' },
 ];
 
+/**
+ * Statuts encore travaillables par un commercial : la fiche reste dans la liste
+ * d'appel tant qu'elle porte un de ces statuts. Toute fiche reconciliee en
+ * statut terminal/traite (contacte, rdv_pris, devis_envoye, gagne, perdu,
+ * archived, pas_interesse, coordonnees_invalides, ne_plus_demarcher,
+ * processus_termine) sort automatiquement de la vue "A appeler". 'prospecte'
+ * (legacy) est tolere comme appelable. Aligne sur l'enum de src/lib/prospects.ts.
+ */
+const CALLABLE_STATUSES = new Set<string>([
+  'a_contacter',
+  'tentative_appel',
+  'a_rappeler',
+  'a_recontacter',
+  'en_attente_retour',
+  'en_discussion',
+  'prospecte',
+]);
+
+function isCallable(status: string | null): boolean {
+  // Sans statut, on garde la fiche visible (cas d'import brut a traiter).
+  if (!status) return true;
+  return CALLABLE_STATUSES.has(status);
+}
+
 export default function IntelCallListClient({ rows }: { rows: IntelRowVM[] }) {
   const [q, setQ] = useState('');
-  const [filter, setFilter] = useState<Filter>('all');
+  // Defaut : "A appeler" — on masque d'emblee les fiches terminees/traitees.
+  const [filter, setFilter] = useState<Filter>('callable');
 
   const stats = useMemo(() => {
+    const callable = rows.filter((r) => isCallable(r.status)).length;
     const withTel = rows.filter((r) => r.tel).length;
     const withValidEmail = rows.filter(
       (r) => r.email && r.emailStatus === 'valid'
     ).length;
     const enrichi = rows.filter((r) => r.enrichStatus === 'enrichi').length;
-    return { total: rows.length, withTel, withValidEmail, enrichi };
+    return { total: rows.length, callable, withTel, withValidEmail, enrichi };
   }, [rows]);
 
   const filtered = useMemo(() => {
     const needle = q.trim().toLowerCase();
     return rows.filter((r) => {
       const validEmail = !!(r.email && r.emailStatus === 'valid');
+      if (filter === 'callable' && !isCallable(r.status)) return false;
       if (filter === 'enrichi' && r.enrichStatus !== 'enrichi') return false;
       if (filter === 'with_email' && !validEmail) return false;
       if (filter === 'phone_only' && (validEmail || !r.tel)) return false;
       if (!needle) return true;
-      return [r.company, r.dirigeant, r.city, r.sector, r.angle]
+      return [r.company, r.dirigeant, r.city, r.sector, r.angle, r.scoreLabel]
         .filter(Boolean)
         .join(' ')
         .toLowerCase()
@@ -92,11 +129,13 @@ export default function IntelCallListClient({ rows }: { rows: IntelRowVM[] }) {
           <h1 className="font-marcellus text-2xl text-choco">Liste d&apos;appel</h1>
         </div>
         <p className="mt-1 text-sm text-muted-warm">
-          Prospects enrichis par l&apos;IA (cascade FR). Le telephone couvre la
-          quasi-totalite de la base, l&apos;email environ un tiers : on appelle
-          d&apos;abord, l&apos;email vient en complement.
+          Prospects priorises par Selene (score de chaleur) et enrichis par
+          l&apos;IA (cascade FR). La liste se trie du plus chaud au plus froid et
+          n&apos;affiche par defaut que les fiches encore a appeler : les
+          prospects traites disparaissent tout seuls.
         </p>
         <div className="mt-3 flex flex-wrap gap-2 text-xs">
+          <StatChip label="A appeler" value={stats.callable} tone="bronze" />
           <StatChip label="Prospects" value={stats.total} />
           <StatChip label="Avec tel" value={stats.withTel} tone="emerald" />
           <StatChip label="Email verifie" value={stats.withValidEmail} tone="amber" />
@@ -133,11 +172,13 @@ export default function IntelCallListClient({ rows }: { rows: IntelRowVM[] }) {
         </div>
       </div>
 
-      {/* Liste */}
+      {/* Liste — deja triee par score Selene cote serveur (la plus chaude en tete) */}
       {filtered.length === 0 ? (
         <p className="rounded-3xl border border-border-soft bg-white p-8 text-center text-sm text-muted-warm shadow-soft">
           {rows.length === 0
             ? "Aucun prospect pour le moment. L'enrichissement Atlas remplira cette liste."
+            : filter === 'callable'
+            ? 'Aucun prospect a appeler pour le moment. Les fiches traitees sont masquees (voir le filtre "Tous").'
             : 'Aucun prospect ne correspond a ce filtre.'}
         </p>
       ) : (
@@ -174,6 +215,25 @@ function StatChip({
   );
 }
 
+/** Badge compact du score Selene : "Score 93 . A" + etiquette signal. */
+function ScoreBadge({ r }: { r: IntelRowVM }) {
+  if (!r.hasScore || r.score === null) return null;
+  return (
+    <span
+      title={
+        r.prioriteAppel != null
+          ? `Priorite d'appel Selene #${r.prioriteAppel}`
+          : 'Score de priorite Selene'
+      }
+      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ${tierTone(r.tier)}`}
+    >
+      <Flame className="h-3 w-3" aria-hidden />
+      Score {r.score}
+      {r.tier ? <span className="opacity-80">&middot; {r.tier}</span> : null}
+    </span>
+  );
+}
+
 function IntelCard({ r }: { r: IntelRowVM }) {
   const href = telHref(r.tel);
   // Statut local : reflete immediatement l'issue d'un appel logue (optimiste),
@@ -202,6 +262,12 @@ function IntelCard({ r }: { r: IntelRowVM }) {
             >
               {r.company}
             </Link>
+            <ScoreBadge r={r} />
+            {r.scoreLabel && (
+              <span className="inline-flex items-center rounded-full bg-cream-deep px-2 py-0.5 text-[11px] font-medium text-brand-dark ring-1 ring-gnd-bronze/12">
+                {r.scoreLabel}
+              </span>
+            )}
             {r.enrichStatus && (
               <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold ${statusTone(r.enrichStatus)}`}>
                 {statusLabel(r.enrichStatus)}
