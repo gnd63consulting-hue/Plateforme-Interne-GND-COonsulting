@@ -3,14 +3,14 @@
 -- ADDITIF. Schema canonique = 0015_finance.sql (+0017 stripe), confirme en prod
 -- (quotes = numero/statut/montant_ht/montant_ttc/owner_id/stripe_*).
 -- 0031_postvente avait re-CREATE quotes/quote_lines avec des colonnes
--- incompatibles (reference/total_ht/status/created_by_agent) qui n'ont jamais
--- pris (CREATE IF NOT EXISTS no-op car 0015 < 0031), donc ses GRANT/RLS
--- agent_devis visaient des colonnes fantomes.
+-- incompatibles qui n'ont jamais pris (CREATE IF NOT EXISTS no-op), donc ses
+-- GRANT/RLS agent_devis visaient des colonnes fantomes.
 -- Cette migration : (1) ajoute les colonnes que agent_devis a besoin sur la
 -- VRAIE table, (2) reecrit les GRANT/RLS agent_devis sur les noms canoniques
--- (numero/montant_ht/montant_ttc/statut='brouillon'), (3) garde le mur dur
--- (agent_devis aveugle a prospect_finance/commissions/invoices).
--- Idempotent. Aucun rename, aucun drop de colonne, zero perte de donnee.
+-- (numero/montant_ht/montant_ttc/statut='brouillon'), (3) garde le mur dur.
+-- Idempotent. Aucun rename, aucun drop, zero perte de donnee.
+-- NB: invoices peut ne pas exister (0031 post-vente non appliquee en prod) ->
+-- le REVOKE invoices est garde derriere to_regclass.
 -- A executer MANUELLEMENT dans Supabase SQL editor.
 -- =============================================
 
@@ -22,26 +22,25 @@ ALTER TABLE public.quotes
   ADD COLUMN IF NOT EXISTS created_by       UUID,
   ADD COLUMN IF NOT EXISTS updated_at       TIMESTAMPTZ DEFAULT now();
 
--- Backfill explicite des devis humains existants (le DEFAULT couvre les futurs).
 UPDATE public.quotes SET created_by_agent = false WHERE created_by_agent IS NULL;
 
--- 2. GRANT agent_devis sur les noms de colonnes CANONIQUES (remplace 0031).
+-- 2. GRANT agent_devis sur les noms de colonnes CANONIQUES.
 GRANT USAGE ON SCHEMA public TO agent_devis;
-
 GRANT SELECT ON public.quotes TO agent_devis;
 GRANT INSERT (prospect_id, numero, montant_ht, montant_tva, montant_ttc, tva_rate, created_by_agent)
   ON public.quotes TO agent_devis;
 GRANT UPDATE (numero, montant_ht, montant_tva, montant_ttc, tva_rate)
   ON public.quotes TO agent_devis;
--- NB: 'statut' volontairement NON accorde en UPDATE -> l'agent ne change pas le
--- statut (transition humaine uniquement), meme intention que 0031.
-
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.quote_lines TO agent_devis;
 
--- 3. Mur dur : aveugle a la finance signee / factures / commissions.
+-- 3. Mur dur : aveugle a la finance signee / commissions / factures.
 REVOKE ALL ON public.prospect_finance FROM agent_devis;
 REVOKE ALL ON public.commissions      FROM agent_devis;
-REVOKE ALL ON public.invoices         FROM agent_devis;
+DO $$ BEGIN
+  IF to_regclass('public.invoices') IS NOT NULL THEN
+    EXECUTE 'REVOKE ALL ON public.invoices FROM agent_devis';
+  END IF;
+END $$;
 
 -- 4. RLS agent_devis sur statut canonique 'brouillon' + created_by_agent.
 DROP POLICY IF EXISTS "quotes_devis_select" ON public.quotes;
@@ -76,10 +75,9 @@ NOTIFY pgrst, 'reload schema';
 
 COMMIT;
 
--- VERIFICATION (hors transaction)
+-- VERIFICATION (hors transaction ; invoices omis car peut ne pas exister)
 SELECT 'devis SELECT quotes (true)'              AS chk, has_table_privilege('agent_devis','public.quotes','SELECT')               AS got, true  AS exp
 UNION ALL SELECT 'devis UPDATE quotes.statut (false)',    has_column_privilege('agent_devis','public.quotes','statut','UPDATE'),    false
 UNION ALL SELECT 'devis INSERT quotes.numero (true)',     has_column_privilege('agent_devis','public.quotes','numero','INSERT'),    true
-UNION ALL SELECT 'devis SELECT invoices (false)',         has_table_privilege('agent_devis','public.invoices','SELECT'),           false
 UNION ALL SELECT 'devis SELECT prospect_finance (false)', has_table_privilege('agent_devis','public.prospect_finance','SELECT'),   false
 UNION ALL SELECT 'devis SELECT commissions (false)',      has_table_privilege('agent_devis','public.commissions','SELECT'),        false;
