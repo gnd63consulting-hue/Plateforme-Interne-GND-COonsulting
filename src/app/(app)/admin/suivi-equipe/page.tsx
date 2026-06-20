@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
 import { createClient } from '@/lib/supabase-server';
 import { effectivePerms, allows } from '@/lib/permissions';
 import { createAdminClient } from '@/lib/supabase-admin';
@@ -165,7 +166,9 @@ function Row({ s, now }: { s: RepSummary; now: Date }) {
   return (
     <tr style={{ borderBottom: '1px solid rgba(83,36,24,0.07)' }}>
       <td style={{ padding: '12px 16px', fontFamily: SANS, color: INK, fontWeight: 600 }}>
-        {s.name}
+        <Link href={`/admin/commercial/${s.userId}`} style={{ color: CHOCO, textDecoration: 'none', borderBottom: '1px solid rgba(83,36,24,0.25)' }}>
+          {s.name}
+        </Link>
         {clean && <span style={{ marginLeft: 8, fontFamily: MONO, fontSize: 10, color: GREEN }}>à jour</span>}
       </td>
       <Cell n={s.relancesOverdue} danger />
