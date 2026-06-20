@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   Users,
   PhoneCall,
+  CalendarClock,
   Mail,
   LayoutTemplate,
   AlarmClock,
@@ -58,6 +59,7 @@ const NAV_GROUPS: NavGroup[] = [
         match: (p) =>
           p.startsWith('/prospects') &&
           !p.startsWith('/prospects/relances') &&
+          !p.startsWith('/prospects/rappels') &&
           !p.startsWith('/prospects/taches') &&
           !p.startsWith('/prospects/intel') &&
           !p.startsWith('/prospects/drafts'),
@@ -67,6 +69,12 @@ const NAV_GROUPS: NavGroup[] = [
         label: "Liste d'appel",
         icon: PhoneCall,
         match: (p) => p.startsWith('/prospects/intel'),
+      },
+      {
+        href: '/prospects/rappels',
+        label: 'Rappels',
+        icon: CalendarClock,
+        match: (p) => p.startsWith('/prospects/rappels'),
       },
       {
         href: '/prospects/drafts',

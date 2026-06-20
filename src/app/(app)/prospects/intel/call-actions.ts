@@ -102,6 +102,10 @@ export async function logCall(input: LogCallInput): Promise<LogCallResult> {
   }
 
   revalidatePath('/prospects/intel');
+  // La vue Rappels (relances next_action_at) lit le meme prospect : on la
+  // revalide aussi pour qu'un appel logue depuis n'importe ou (liste d'appel
+  // ou rappels) deplace / sorte la fiche immediatement.
+  revalidatePath('/prospects/rappels');
   revalidatePath(`/prospects/${prospectId}`);
   return { ok: true };
 }
