@@ -111,26 +111,36 @@ export function briefStatusLabel(s?: string | null): string {
 
 /**
  * Derive le calibrage budget S/M/L a partir du signal ca_estime du prospect
- * (chaine libre Notion, ex "50k-100k", "Moins de 50 000 EUR", "> 1M"). Heuristique
- * volontairement prudente : si on ne sait pas, on calibre 'S' (le plus modeste).
- * Ce n'est PAS le deal signe (joyau scelle), juste un signal de capacite.
+ * (chaine libre Notion, ex "50k-100k", "Moins de 50 000 EUR", "> 1M", "2 000 000").
+ * Heuristique volontairement prudente : si on ne sait pas, on calibre 'S' (le
+ * plus modeste). Ce n'est PAS le deal signe (joyau scelle), juste un signal de
+ * capacite.
+ *
+ * Deux passes pour eviter le piege des separateurs de milliers :
+ *   1. montants suffixes k / m / million (ex "100k", "1,5M", "2 millions") ;
+ *   2. montants en euros pleins : on retire d'abord les separateurs de milliers
+ *      (espace, espace insecable/fin, point) entre groupes de 3 chiffres, puis
+ *      on lit les entiers >= 4 chiffres. Sans ca, "2 000 000" etait lu 2000.
  */
 export function deriveBudgetTier(caEstime?: string | null): BudgetTier {
   if (!caEstime) return 'S';
   const raw = caEstime.toLowerCase();
-
-  // Extrait le plus grand nombre present (en gerant les suffixes k / m / millions).
-  const matches = raw.matchAll(/(\d+(?:[.,]\d+)?)\s*(m(?:illion)?|k|000)?/g);
   let maxEuros = 0;
-  for (const m of matches) {
+
+  // Passe 1 : montants avec suffixe explicite k / m / million.
+  for (const m of raw.matchAll(/(\d+(?:[.,]\d+)?)\s*(m(?:illions?)?|k)\b/g)) {
     const n = parseFloat(m[1].replace(',', '.'));
     if (Number.isNaN(n)) continue;
-    const unit = m[2];
-    let euros = n;
-    if (unit === 'k') euros = n * 1_000;
-    else if (unit && unit.startsWith('m')) euros = n * 1_000_000;
-    else if (unit === '000') euros = n * 1_000;
+    const euros = m[2].startsWith('m') ? n * 1_000_000 : n * 1_000;
     if (euros > maxEuros) maxEuros = euros;
+  }
+
+  // Passe 2 : montants en euros pleins. On supprime les separateurs de milliers
+  // (entre un chiffre et un groupe de 3 chiffres) avant de lire les entiers.
+  const plain = raw.replace(/(?<=\d)[ .  ](?=\d{3}\b)/g, '');
+  for (const m of plain.matchAll(/\d{4,}/g)) {
+    const euros = parseInt(m[0], 10);
+    if (!Number.isNaN(euros) && euros > maxEuros) maxEuros = euros;
   }
 
   if (maxEuros >= 1_000_000) return 'L';
