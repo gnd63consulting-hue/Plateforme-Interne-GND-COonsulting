@@ -7,6 +7,17 @@
 
 BEGIN;
 
+-- -------- Reconciliation users.active (replay-safe) [ajoute pour la CI] -------
+-- La colonne public.users.active a ete ajoutee A LA MAIN en prod et n'a jamais
+-- ete versionnee. La vue ci-dessous (et 0038) la referencent. Sur une base
+-- vierge rejouee depuis le repo, elle n'existe pas -> ERROR 42703. On la cree
+-- ici de facon idempotente : ADD COLUMN IF NOT EXISTS = no-op total en prod
+-- (la colonne existe deja), cree la colonne sur base vierge. DEFAULT true =
+-- tout commercial est actif par defaut, ce qui preserve le comportement (la
+-- vue filtre `active IS NOT FALSE`). Etat final inchange.
+ALTER TABLE public.users
+  ADD COLUMN IF NOT EXISTS active BOOLEAN NOT NULL DEFAULT true;
+
 CREATE OR REPLACE VIEW public.v_agent_commerciaux AS
 SELECT u.id, u.full_name, u.role, u.active
 FROM public.users u
