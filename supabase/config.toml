@@ -1,0 +1,48 @@
+# Supabase local stack config — industrialisation BDD (replay reproductible).
+# Minimal mais valide pour `supabase db start` + `supabase db reset` en CI.
+# Les migrations n'utilisent AUCUNE extension custom (pas de vector/postgis) ;
+# gen_random_uuid() est fourni en natif par Postgres 13+ (pgcrypto preinstalle
+# par l'image Supabase). Postgres figé en major_version 15 (defaut Supabase).
+
+project_id = "plateforme-interne-gnd"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+# Version MAJEURE de Postgres figee (reproductibilite CI).
+major_version = 15
+
+[db.pooler]
+enabled = false
+
+[studio]
+enabled = false
+
+[inbucket]
+enabled = false
+
+[storage]
+enabled = false
+
+# Auth ACTIVE : les migrations dependent de auth.users / auth.uid() et des roles
+# Supabase (anon / authenticated / service_role) que cette stack provisionne.
+[auth]
+enabled = true
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://localhost:3000"]
+jwt_expiry = 3600
+enable_signup = true
+
+[auth.email]
+enable_signup = true
+enable_confirmations = false
+
+[analytics]
+enabled = false

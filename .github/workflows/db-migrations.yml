@@ -1,0 +1,68 @@
+name: DB Migrations (replay)
+
+# Industrialisation BDD — rejoue TOUTES les migrations supabase/migrations/*.sql
+# sur une base VIERGE via la stack locale Supabase, et echoue au moindre erreur SQL.
+# But : garantir que le schema de prod est reproductible depuis le repo (les
+# migrations ayant historiquement ete appliquees a la main, une par une, dans le
+# SQL editor Supabase). Mirroir du workflow standard supabase db start + db reset.
+
+on:
+  push:
+    branches:
+      - claude/gnd-training-platform-KKeVi
+  pull_request:
+    branches:
+      - claude/gnd-training-platform-KKeVi
+
+# Evite les runs concurrents redondants sur la meme ref.
+concurrency:
+  group: db-migrations-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  replay-migrations:
+    name: Replay migrations sur base vierge
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Le CLI Supabase orchestre la stack locale (Postgres + auth + PostgREST).
+      # C'est elle qui fournit auth.users / auth.uid() / les roles anon /
+      # authenticated / service_role et le canal NOTIFY pgrst — indispensables a
+      # ces migrations (un Postgres nu ne les a pas). Version EPINGLEE.
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: 2.39.2
+
+      - name: Versions (trace)
+        run: |
+          supabase --version
+          docker --version
+
+      # Demarre la stack locale. La version majeure de Postgres (15) est figee
+      # dans supabase/config.toml ([db].major_version = 15).
+      - name: Supabase db start
+        run: supabase db start
+
+      # db reset DROP la base et REJOUE supabase/migrations/*.sql dans l'ordre
+      # lexicographique des noms de fichiers (0001 -> 0040), puis supabase/seed.sql
+      # s'il existe. --debug remonte le SQL fautif. Le step echoue (set -e par
+      # defaut) au moindre code retour non nul -> CI rouge si une migration casse.
+      - name: Replay migrations (supabase db reset)
+        run: supabase db reset --debug
+
+      # Lint statique des migrations au niveau "warning" (detecte erreurs de
+      # syntaxe / objets manquants). NON bloquant : certains warnings Supabase
+      # (ex. RLS, search_path) sont des faux positifs sur ce schema. La garantie
+      # dure de reproductibilite vient du step "db reset" ci-dessus.
+      - name: Supabase db lint
+        run: supabase db lint --level warning
+        continue-on-error: true
+
+      - name: Supabase db stop
+        if: always()
+        run: supabase db stop --no-backup
