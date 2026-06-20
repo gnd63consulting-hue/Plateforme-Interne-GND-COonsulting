@@ -3,6 +3,15 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import {
+  ArrowLeft,
+  ArrowRight,
+  BookOpen,
+  CheckCircle2,
+  Eye,
+  RotateCcw,
+  XCircle,
+} from 'lucide-react';
 import { QUIZ_PASS_THRESHOLD } from '@/lib/quiz/constants';
 
 // ---------- Types ----------
@@ -141,16 +150,16 @@ export default function Quiz({ moduleSlug }: QuizProps) {
 
   if (phase === 'loading') {
     return (
-      <section className="rounded-xl border border-outline-variant/10 bg-surface-container-lowest p-10 text-center">
-        <p className="text-sm text-on-surface-variant">Chargement du quiz…</p>
+      <section className="rounded-xl border border-border-soft bg-white p-10 text-center">
+        <p className="text-sm text-muted-warm">Chargement du quiz…</p>
       </section>
     );
   }
 
   if (phase === 'error' && questions.length === 0) {
     return (
-      <section className="rounded-xl border border-error/20 bg-error-container p-10">
-        <p className="text-sm text-on-error-container">
+      <section className="rounded-xl border border-red-200 bg-red-50 p-10">
+        <p className="text-sm text-red-700">
           Impossible de charger le quiz : {error}
         </p>
       </section>
@@ -159,8 +168,8 @@ export default function Quiz({ moduleSlug }: QuizProps) {
 
   if (questions.length === 0) {
     return (
-      <section className="rounded-xl border border-tertiary-fixed/40 bg-tertiary-fixed/20 p-10">
-        <p className="text-sm text-on-tertiary-fixed">
+      <section className="rounded-xl border border-border-soft bg-cream p-10">
+        <p className="text-sm text-muted-warm">
           Aucune question n&apos;est encore enregistrée pour ce module.
         </p>
       </section>
@@ -210,34 +219,34 @@ export default function Quiz({ moduleSlug }: QuizProps) {
       {/* Progress */}
       <div>
         <div className="mb-3 flex items-center justify-between">
-          <span className="font-label font-medium text-on-surface-variant">
+          <span className="font-inter font-medium text-muted-warm">
             Question {current + 1} / {questions.length}
           </span>
-          <span className="font-label text-sm font-bold text-primary">
+          <span className="font-inter text-sm font-bold text-brand-dark">
             {answeredCount} réponse{answeredCount > 1 ? 's' : ''} sur{' '}
             {questions.length}
           </span>
         </div>
-        <div className="h-1 w-full overflow-hidden rounded-full bg-surface-container-highest">
+        <div className="h-1 w-full overflow-hidden rounded-full bg-border-soft">
           <div
-            className="h-full rounded-full bg-primary transition-all duration-500"
+            className="h-full rounded-full bg-brand transition-all duration-500"
             style={{ width: `${percentProgress}%` }}
           />
         </div>
       </div>
 
       {/* Question courante */}
-      <div className="rounded-xl border border-outline-variant/10 bg-surface-container-lowest p-6 md:p-10">
+      <div className="rounded-xl border border-border-soft bg-white p-6 md:p-10">
         <div className="mb-6 flex items-start gap-3">
-          <span className="mt-0.5 inline-flex h-8 min-w-[32px] items-center justify-center rounded-full bg-primary-fixed px-2.5 font-mono text-sm font-bold text-on-primary-fixed-variant">
+          <span className="mt-0.5 inline-flex h-8 min-w-[32px] items-center justify-center rounded-full bg-brand-soft px-2.5 font-inter text-sm font-bold text-brand-dark">
             {String(current + 1).padStart(2, '0')}
           </span>
           <div className="flex-1">
-            <p className="text-lg font-medium leading-relaxed text-on-surface md:text-xl">
+            <p className="text-lg font-medium leading-relaxed text-ink-warm md:text-xl">
               {question.question}
             </p>
             {question.kind === 'multiple' && (
-              <p className="mt-1 text-xs text-on-surface-variant">
+              <p className="mt-1 text-xs text-muted-warm">
                 Plusieurs réponses possibles
               </p>
             )}
@@ -254,8 +263,8 @@ export default function Quiz({ moduleSlug }: QuizProps) {
                 htmlFor={inputId}
                 className={
                   isSelected
-                    ? 'flex cursor-pointer items-start gap-4 rounded-xl border border-primary bg-primary-fixed p-4 transition-all'
-                    : 'flex cursor-pointer items-start gap-4 rounded-xl border border-transparent bg-surface-container-low p-4 transition-all hover:bg-primary-fixed/30'
+                    ? 'flex cursor-pointer items-start gap-4 rounded-xl border border-brand bg-brand-soft p-4 transition-all'
+                    : 'flex cursor-pointer items-start gap-4 rounded-xl border border-transparent bg-cream p-4 transition-all hover:bg-brand-soft/40'
                 }
               >
                 <input
@@ -266,9 +275,9 @@ export default function Quiz({ moduleSlug }: QuizProps) {
                   checked={isSelected}
                   disabled={submitting}
                   onChange={() => toggleAnswer(question, opt.id)}
-                  className="mt-0.5 h-5 w-5 cursor-pointer text-primary focus:ring-primary focus:ring-offset-0"
+                  className="mt-0.5 h-5 w-5 cursor-pointer accent-brand focus:ring-brand focus:ring-offset-0"
                 />
-                <span className="font-body leading-snug text-on-surface">
+                <span className="font-inter leading-snug text-ink-warm">
                   {opt.label}
                 </span>
               </label>
@@ -278,7 +287,7 @@ export default function Quiz({ moduleSlug }: QuizProps) {
       </div>
 
       {error && (
-        <p className="rounded-xl border border-error/20 bg-error-container px-4 py-3 text-sm text-on-error-container">
+        <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
         </p>
       )}
@@ -289,9 +298,9 @@ export default function Quiz({ moduleSlug }: QuizProps) {
           type="button"
           onClick={() => setCurrent((v) => Math.max(0, v - 1))}
           disabled={current === 0 || submitting}
-          className="inline-flex items-center justify-center gap-2 rounded-full border border-outline-variant bg-surface-container-lowest px-6 py-3 font-label text-sm font-semibold text-on-surface transition-all hover:bg-surface-container-low disabled:opacity-40"
+          className="inline-flex items-center justify-center gap-2 rounded-full border border-border-soft bg-white px-6 py-3 font-inter text-sm font-semibold text-choco transition-all hover:bg-cream disabled:opacity-40"
         >
-          <span className="material-symbols-outlined text-[18px]">arrow_back</span>
+          <ArrowLeft className="h-4 w-4" aria-hidden />
           Précédente
         </button>
 
@@ -307,10 +316,10 @@ export default function Quiz({ moduleSlug }: QuizProps) {
                 aria-label={`Aller à la question ${i + 1}`}
                 className={
                   i === current
-                    ? 'h-2.5 w-6 rounded-full bg-primary transition-all'
+                    ? 'h-2.5 w-6 rounded-full bg-brand transition-all'
                     : answered
-                    ? 'h-2.5 w-2.5 rounded-full bg-primary/50 transition-all hover:bg-primary/80'
-                    : 'h-2.5 w-2.5 rounded-full bg-surface-container-highest transition-all hover:bg-outline-variant'
+                    ? 'h-2.5 w-2.5 rounded-full bg-brand/50 transition-all hover:bg-brand/80'
+                    : 'h-2.5 w-2.5 rounded-full bg-border-soft transition-all hover:bg-muted-warm'
                 }
               />
             );
@@ -322,19 +331,17 @@ export default function Quiz({ moduleSlug }: QuizProps) {
             type="button"
             onClick={() => setCurrent((v) => Math.min(questions.length - 1, v + 1))}
             disabled={!hasAnswered || submitting}
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 font-label text-sm font-bold text-on-primary shadow-lg shadow-primary/20 transition-all hover:opacity-90 active:scale-95 disabled:opacity-40"
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-brand px-6 py-3 font-inter text-sm font-bold text-white shadow-soft transition-all hover:bg-brand-dark active:scale-95 disabled:opacity-40"
           >
             Suivante
-            <span className="material-symbols-outlined text-[18px]">
-              arrow_forward
-            </span>
+            <ArrowRight className="h-4 w-4" aria-hidden />
           </button>
         ) : (
           <button
             type="button"
             onClick={handleSubmit}
             disabled={answeredCount < questions.length || submitting}
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-primary to-primary-container px-8 py-3.5 font-headline text-sm font-bold text-on-primary shadow-lg shadow-primary/20 transition-all hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100"
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-brand to-brand-dark px-8 py-3.5 font-marcellus text-sm font-bold text-white shadow-soft-lg transition-all hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100"
           >
             {submitting
               ? 'Envoi…'
@@ -344,9 +351,7 @@ export default function Quiz({ moduleSlug }: QuizProps) {
                 }`
               : 'Soumettre mes réponses'}
             {answeredCount === questions.length && !submitting && (
-              <span className="material-symbols-outlined text-[18px]">
-                check_circle
-              </span>
+              <CheckCircle2 className="h-4 w-4" aria-hidden />
             )}
           </button>
         )}
@@ -373,16 +378,14 @@ function ResultScreen({
   if (passed) {
     return (
       <section className="space-y-10">
-        <div className="rounded-2xl bg-surface-container p-10 text-center md:p-16">
+        <div className="rounded-2xl bg-cream-deep p-10 text-center md:p-16">
           <div className="mb-6 inline-flex h-24 w-24 animate-[pulse_2s_ease-in-out_infinite] items-center justify-center rounded-full bg-green-100 text-green-600">
-            <span className="material-symbols-outlined filled text-6xl">
-              check_circle
-            </span>
+            <CheckCircle2 className="h-12 w-12" aria-hidden />
           </div>
-          <h3 className="mb-3 font-headline text-3xl font-bold text-on-surface md:text-4xl">
+          <h3 className="mb-3 font-marcellus text-3xl font-medium text-choco md:text-4xl">
             Félicitations ! Module validé.
           </h3>
-          <p className="mx-auto max-w-md text-lg text-on-surface-variant">
+          <p className="mx-auto max-w-md text-lg text-muted-warm">
             Tu as obtenu <strong>{score}/{total}</strong> (
             <strong>{percentage}%</strong>).
           </p>
@@ -392,17 +395,17 @@ function ResultScreen({
           <button
             type="button"
             onClick={onShowReview}
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-8 py-4 font-label font-bold text-on-primary shadow-lg shadow-primary/20 transition-all hover:opacity-90 active:scale-95"
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-brand px-8 py-4 font-inter font-bold text-white shadow-soft-lg transition-all hover:bg-brand-dark active:scale-95"
           >
-            <span className="material-symbols-outlined">visibility</span>
+            <Eye className="h-5 w-5" aria-hidden />
             Voir le détail des réponses
           </button>
           <Link
             href="/formation"
-            className="inline-flex items-center justify-center gap-2 rounded-full border border-outline-variant bg-surface-container-lowest px-8 py-4 font-label font-bold text-on-surface transition-all hover:bg-surface-container-low"
+            className="inline-flex items-center justify-center gap-2 rounded-full border border-border-soft bg-white px-8 py-4 font-inter font-bold text-choco transition-all hover:bg-cream"
           >
             Retour à la formation
-            <span className="material-symbols-outlined">arrow_forward</span>
+            <ArrowRight className="h-5 w-5" aria-hidden />
           </Link>
         </div>
       </section>
@@ -411,18 +414,18 @@ function ResultScreen({
 
   return (
     <section className="space-y-10">
-      <div className="rounded-2xl bg-surface-container p-10 text-center md:p-16">
-        <div className="mb-6 inline-flex h-24 w-24 items-center justify-center rounded-full bg-tertiary-fixed text-on-tertiary-fixed-variant">
-          <span className="material-symbols-outlined text-6xl">refresh</span>
+      <div className="rounded-2xl bg-cream-deep p-10 text-center md:p-16">
+        <div className="mb-6 inline-flex h-24 w-24 items-center justify-center rounded-full bg-brand-soft text-brand-dark">
+          <RotateCcw className="h-12 w-12" aria-hidden />
         </div>
-        <h3 className="mb-3 font-headline text-3xl font-bold text-on-surface md:text-4xl">
+        <h3 className="mb-3 font-marcellus text-3xl font-medium text-choco md:text-4xl">
           Pas tout à fait…
         </h3>
-        <p className="mx-auto mb-2 max-w-md text-lg text-on-surface-variant">
+        <p className="mx-auto mb-2 max-w-md text-lg text-muted-warm">
           Tu as obtenu <strong>{score}/{total}</strong> ({percentage}%) — seuil
           requis : {QUIZ_PASS_THRESHOLD}%.
         </p>
-        <p className="mx-auto max-w-md text-sm text-on-surface-variant">
+        <p className="mx-auto max-w-md text-sm text-muted-warm">
           Pas de panique, relis le module et retente. Tu peux essayer autant
           de fois que nécessaire.
         </p>
@@ -431,25 +434,25 @@ function ResultScreen({
       <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
         <Link
           href={`/formation/${moduleSlug}`}
-          className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-8 py-4 font-label font-bold text-on-primary shadow-lg shadow-primary/20 transition-all hover:opacity-90 active:scale-95"
+          className="inline-flex items-center justify-center gap-2 rounded-full bg-brand px-8 py-4 font-inter font-bold text-white shadow-soft-lg transition-all hover:bg-brand-dark active:scale-95"
         >
-          <span className="material-symbols-outlined">menu_book</span>
+          <BookOpen className="h-5 w-5" aria-hidden />
           Relire le module
         </Link>
         <button
           type="button"
           onClick={onShowReview}
-          className="inline-flex items-center justify-center gap-2 rounded-full border border-outline-variant bg-surface-container-lowest px-6 py-4 font-label font-bold text-on-surface transition-all hover:bg-surface-container-low"
+          className="inline-flex items-center justify-center gap-2 rounded-full border border-border-soft bg-white px-6 py-4 font-inter font-bold text-choco transition-all hover:bg-cream"
         >
-          <span className="material-symbols-outlined">visibility</span>
+          <Eye className="h-5 w-5" aria-hidden />
           Voir mes erreurs
         </button>
         <button
           type="button"
           onClick={onRetry}
-          className="inline-flex items-center justify-center gap-2 rounded-full border border-outline-variant bg-surface-container-lowest px-6 py-4 font-label font-bold text-on-surface transition-all hover:bg-surface-container-low"
+          className="inline-flex items-center justify-center gap-2 rounded-full border border-border-soft bg-white px-6 py-4 font-inter font-bold text-choco transition-all hover:bg-cream"
         >
-          <span className="material-symbols-outlined">refresh</span>
+          <RotateCcw className="h-5 w-5" aria-hidden />
           Retenter
         </button>
       </div>
@@ -477,45 +480,39 @@ function ReviewScreen({
 
   return (
     <section className="space-y-8">
-      <div className="flex flex-col items-start justify-between gap-4 rounded-2xl border border-outline-variant/10 bg-surface-container-low p-6 sm:flex-row sm:items-center">
+      <div className="flex flex-col items-start justify-between gap-4 rounded-2xl border border-border-soft bg-cream p-6 sm:flex-row sm:items-center">
         <div>
-          <p className="font-label text-xs font-semibold uppercase tracking-wider text-on-surface-variant">
+          <p className="font-inter text-xs font-semibold uppercase tracking-wider text-muted-warm">
             Récapitulatif
           </p>
-          <p className="font-headline text-2xl font-bold text-on-surface">
+          <p className="font-marcellus text-2xl font-medium text-choco">
             {result.score}/{result.total} · {result.percentage}%
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
           <Link
             href="/formation"
-            className="inline-flex items-center gap-2 rounded-full border border-outline-variant bg-surface-container-lowest px-4 py-2 text-xs font-semibold text-on-surface hover:bg-surface-container"
+            className="inline-flex items-center gap-2 rounded-full border border-border-soft bg-white px-4 py-2 text-xs font-semibold text-choco hover:bg-cream"
           >
-            <span className="material-symbols-outlined text-[16px]">
-              arrow_back
-            </span>
+            <ArrowLeft className="h-4 w-4" aria-hidden />
             Formation
           </Link>
           {!result.passed && (
             <button
               type="button"
               onClick={onRetry}
-              className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-bold text-on-primary hover:opacity-90"
+              className="inline-flex items-center gap-2 rounded-full bg-brand px-4 py-2 text-xs font-bold text-white hover:bg-brand-dark"
             >
-              <span className="material-symbols-outlined text-[16px]">
-                refresh
-              </span>
+              <RotateCcw className="h-4 w-4" aria-hidden />
               Retenter
             </button>
           )}
           {result.passed && (
             <Link
               href={`/formation/${moduleSlug}/quiz`}
-              className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-bold text-on-primary hover:opacity-90"
+              className="inline-flex items-center gap-2 rounded-full bg-brand px-4 py-2 text-xs font-bold text-white hover:bg-brand-dark"
             >
-              <span className="material-symbols-outlined text-[16px]">
-                refresh
-              </span>
+              <RotateCcw className="h-4 w-4" aria-hidden />
               Refaire le quiz
             </Link>
           )}
@@ -540,22 +537,18 @@ function ReviewScreen({
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-start gap-3">
-                  <span className="font-mono text-sm text-on-surface-variant">
+                  <span className="font-inter text-sm text-muted-warm">
                     {String(idx + 1).padStart(2, '0')}.
                   </span>
-                  <p className="font-medium leading-relaxed text-on-surface">
+                  <p className="font-medium leading-relaxed text-ink-warm">
                     {q.question}
                   </p>
                 </div>
-                <span
-                  className={
-                    ok
-                      ? 'material-symbols-outlined shrink-0 text-2xl text-green-600'
-                      : 'material-symbols-outlined shrink-0 text-2xl text-red-600'
-                  }
-                >
-                  {ok ? 'check_circle' : 'cancel'}
-                </span>
+                {ok ? (
+                  <CheckCircle2 className="h-6 w-6 shrink-0 text-green-600" aria-hidden />
+                ) : (
+                  <XCircle className="h-6 w-6 shrink-0 text-red-600" aria-hidden />
+                )}
               </div>
 
               <div className="mt-4 space-y-2 pl-8">
@@ -574,8 +567,8 @@ function ReviewScreen({
                           : hlWrong
                           ? 'rounded-lg border border-red-300 bg-red-50 px-4 py-2.5 text-sm line-through'
                           : isSelected
-                          ? 'rounded-lg border border-outline-variant bg-surface-container-low px-4 py-2.5 text-sm'
-                          : 'rounded-lg border border-transparent px-4 py-2.5 text-sm text-on-surface-variant'
+                          ? 'rounded-lg border border-border-soft bg-cream px-4 py-2.5 text-sm'
+                          : 'rounded-lg border border-transparent px-4 py-2.5 text-sm text-muted-warm'
                       }
                     >
                       {opt.label}
@@ -606,18 +599,18 @@ function ReviewScreen({
       <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
         <Link
           href="/formation"
-          className="inline-flex items-center justify-center gap-2 rounded-full border border-outline-variant bg-surface-container-lowest px-8 py-4 font-label font-bold text-on-surface transition-all hover:bg-surface-container-low"
+          className="inline-flex items-center justify-center gap-2 rounded-full border border-border-soft bg-white px-8 py-4 font-inter font-bold text-choco transition-all hover:bg-cream"
         >
-          <span className="material-symbols-outlined">arrow_back</span>
+          <ArrowLeft className="h-5 w-5" aria-hidden />
           Retour à la formation
         </Link>
         {!result.passed && (
           <button
             type="button"
             onClick={onRetry}
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-8 py-4 font-label font-bold text-on-primary shadow-lg shadow-primary/20 transition-all hover:opacity-90 active:scale-95"
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-brand px-8 py-4 font-inter font-bold text-white shadow-soft-lg transition-all hover:bg-brand-dark active:scale-95"
           >
-            <span className="material-symbols-outlined">refresh</span>
+            <RotateCcw className="h-5 w-5" aria-hidden />
             Retenter le quiz
           </button>
         )}
