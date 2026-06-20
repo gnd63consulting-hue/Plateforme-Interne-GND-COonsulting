@@ -53,6 +53,7 @@ import { formatEurExact, type Quote } from '@/lib/finance';
 import SequenceEnrollPanel from './SequenceEnrollPanel';
 import QuotesPanel from './QuotesPanel';
 import { recordCommission } from './finance-actions';
+import RecallDatePicker from '@/components/gnd/RecallDatePicker';
 
 /* ====================================================================== */
 /* Constantes                                                              */
@@ -948,14 +949,7 @@ function NextActionBanner({
                 : 'Aucune relance prévue sur ce prospect actif.'}
             </p>
             <div className="mt-3 flex flex-wrap items-center gap-2">
-              <input
-                ref={inputRef}
-                type="datetime-local"
-                value={value}
-                onChange={(e) => setValue(e.target.value)}
-                aria-label="Date et heure de la prochaine relance"
-                className="rounded-xl border border-border-soft bg-white px-3 py-2 text-sm text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
-              />
+              <RecallDatePicker value={value} onChange={setValue} />
               <button
                 type="button"
                 onClick={save}
@@ -1114,13 +1108,7 @@ function RelancePlanner({
         Planifier une relance
       </label>
       <div className="flex flex-wrap items-center gap-2">
-        <input
-          id="fiche-relance"
-          type="datetime-local"
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          className="flex-1 rounded-xl border border-border-soft bg-white px-3 py-2 text-sm text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
-        />
+        <RecallDatePicker value={value} onChange={setValue} />
         <button
           type="button"
           onClick={save}
