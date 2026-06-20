@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import RessourcesHeroVisual from '@/components/RessourcesHeroVisual';
 import ScriptsAppelTabs from '@/components/ScriptsAppelTabs';
+import PricingPacks from '@/components/gnd/PricingPacks';
 
 export default function RessourcesClient() {
   const heroRef = useRef<HTMLDivElement>(null);
@@ -328,11 +329,7 @@ export default function RessourcesClient() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:items-stretch">
-          {PACKS.map((p, i) => (
-            <PricingCard key={p.name} pack={p} index={i} />
-          ))}
-        </div>
+        <PricingPacks />
       </motion.section>
 
       {/* Modalités */}
