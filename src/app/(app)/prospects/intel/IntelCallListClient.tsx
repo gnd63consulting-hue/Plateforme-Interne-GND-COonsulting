@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import {
   Phone,
+  PhoneCall,
   Mail,
   MapPin,
   Sparkles,
@@ -23,6 +24,7 @@ import {
   type PresenceDigitale,
 } from '@/lib/prospect-intel';
 import { labelForStatus, toneForStatus } from '@/lib/prospects';
+import LogCallDialog from './LogCallDialog';
 
 export type IntelRowVM = {
   id: string;
@@ -174,6 +176,11 @@ function StatChip({
 
 function IntelCard({ r }: { r: IntelRowVM }) {
   const href = telHref(r.tel);
+  // Statut local : reflete immediatement l'issue d'un appel logue (optimiste),
+  // tout en restant cale sur la valeur serveur au prochain revalidate.
+  const [status, setStatus] = useState<string | null>(r.status);
+  const [logOpen, setLogOpen] = useState(false);
+
   const presenceChips: string[] = [];
   if (r.presence) {
     if (r.presence.site === false) presenceChips.push('Pas de site');
@@ -200,9 +207,9 @@ function IntelCard({ r }: { r: IntelRowVM }) {
                 {statusLabel(r.enrichStatus)}
               </span>
             )}
-            {r.status && (
-              <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold ${toneForStatus(r.status)}`}>
-                {labelForStatus(r.status)}
+            {status && (
+              <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold ${toneForStatus(status)}`}>
+                {labelForStatus(status)}
               </span>
             )}
             {r.confidence && (
@@ -291,6 +298,18 @@ function IntelCard({ r }: { r: IntelRowVM }) {
               Pas de tel
             </span>
           )}
+          <button
+            type="button"
+            onClick={() => setLogOpen((v) => !v)}
+            className={`inline-flex items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold transition-colors ${
+              logOpen
+                ? 'bg-brand text-choco'
+                : 'border border-border-soft bg-white text-ink-warm hover:bg-cream-deep'
+            }`}
+          >
+            <PhoneCall className="h-3.5 w-3.5" aria-hidden />
+            Loguer l&apos;appel
+          </button>
           <Link
             href={`/prospects/${r.id}`}
             className="inline-flex items-center justify-center gap-1 rounded-xl border border-border-soft bg-white px-3 py-2 text-xs font-semibold text-ink-warm hover:bg-cream-deep"
@@ -300,6 +319,16 @@ function IntelCard({ r }: { r: IntelRowVM }) {
           </Link>
         </div>
       </div>
+
+      {/* Panneau de log d'appel (statut + note + rappel) */}
+      {logOpen && (
+        <LogCallDialog
+          prospectId={r.id}
+          company={r.company}
+          onClose={() => setLogOpen(false)}
+          onLogged={(next) => setStatus(next)}
+        />
+      )}
     </li>
   );
 }
