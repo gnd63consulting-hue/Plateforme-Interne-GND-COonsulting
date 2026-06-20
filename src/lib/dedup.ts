@@ -10,6 +10,14 @@
  * (migration 0013) — on ne renormalise donc rien en JS, on consomme la valeur
  * Postgres telle quelle. Le helper `phoneKey9` reproduit la logique
  * `right(phone_norm, 9)` utilisée pour le rapprochement téléphonique.
+ *
+ * Triage « entreprises différentes » : un groupe n'est signalé que s'il
+ * couvre 2+ noms de sociétés DISTINCTS partageant le même email/tél. Deux
+ * fiches d'une même société (même standard téléphonique p.ex.) ne sont donc
+ * pas remontées comme doublon à arbitrer. Un même numéro partagé entre deux
+ * sociétés distinctes PEUT être légitime (centre d'affaires, secrétariat
+ * mutualisé…) : la vue ne décide rien, elle expose le rapprochement à
+ * l'humain qui tranche.
  */
 
 /** Critère de rapprochement d'un groupe de doublons. */
@@ -55,6 +63,15 @@ export function signatureFor(criterion: DedupCriterion, key: string): string {
   return `${criterion}:${key}`;
 }
 
+/** Clé de société normalisée : minuscules, espaces compressés, trimé.
+ *  Sert à compter les entreprises DISTINCTES d'un groupe (cf. buildDedupGroups).
+ *  Renvoie null si le nom est vide. */
+export function companyKey(companyName: string | null | undefined): string | null {
+  if (!companyName) return null;
+  const key = companyName.toLowerCase().replace(/\s+/g, ' ').trim();
+  return key || null;
+}
+
 /** Score de complétude d'une fiche — sert à proposer la fiche maître.
  *  Plus la fiche est renseignée, plus le score est haut. À score égal, le
  *  caller départage par ancienneté (created_at le plus ancien gagne). */
@@ -90,13 +107,29 @@ export function pickMaster(prospects: DedupProspect[]): string {
   return best.id;
 }
 
+/** Nombre d'entreprises DISTINCTES (par companyKey) dans une liste de fiches.
+ *  Les fiches sans nom de société comptent chacune comme une entité distincte
+ *  (on ne les fusionne pas aveuglément sous une clé vide). */
+export function distinctCompanyCount(prospects: DedupProspect[]): number {
+  let nullCount = 0;
+  const keys = new Set<string>();
+  for (const p of prospects) {
+    const k = companyKey(p.company_name);
+    if (k) keys.add(k);
+    else nullCount += 1;
+  }
+  return keys.size + nullCount;
+}
+
 /**
  * Construit les groupes de doublons à partir d'une liste de prospects actifs.
  *
  * Règles :
  *   - rapproche par `email_norm` exact (non null), OU par les 9 derniers
  *     chiffres de `phone_norm` (non null, ≥ 9 chiffres) ;
- *   - un groupe valide compte ≥ 2 fiches ;
+ *   - un groupe valide compte ≥ 2 fiches ET couvre ≥ 2 entreprises
+ *     DISTINCTES (sinon ce sont des fiches de la même société, hors périmètre
+ *     de cette revue) ;
  *   - les signatures présentes dans `dismissed` sont exclues ;
  *   - tri des groupes par taille décroissante (les plus gros d'abord),
  *     limité à `maxGroups`.
@@ -134,6 +167,9 @@ export function buildDedupGroups(
   ) => {
     for (const [key, list] of map) {
       if (list.length < 2) continue;
+      // Revue « entreprises différentes » : on ignore les rapprochements qui ne
+      // couvrent qu'une seule société (doublon intra-société, hors périmètre).
+      if (distinctCompanyCount(list) < 2) continue;
       const signature = signatureFor(criterion, key);
       if (dismissed.has(signature)) continue;
       groups.push({
