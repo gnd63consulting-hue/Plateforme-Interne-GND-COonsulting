@@ -78,7 +78,7 @@ function HeroVariant({
     >
       <Link
         href={`/formation/${module.slug}`}
-        className="group relative flex h-full w-full flex-col justify-between overflow-hidden rounded-3xl border border-gnd-bronze/15 bg-gradient-to-br from-gnd-bronze via-gnd-bronze to-gnd-ink p-10 text-gnd-cream shadow-warm-lg transition-all duration-500 hover:shadow-warm-xl"
+        className="group relative flex h-full w-full flex-col justify-between overflow-hidden rounded-3xl border border-choco/15 bg-gradient-to-br from-choco via-choco to-ink-warm p-10 text-cream shadow-soft-lg transition-all duration-500 hover:shadow-soft-lg"
       >
         {/* Architectural corner brackets */}
         <Corner position="tl" />
@@ -89,34 +89,34 @@ function HeroVariant({
         {/* Warm glow */}
         <div
           aria-hidden
-          className="pointer-events-none absolute -right-32 -top-32 h-80 w-80 rounded-full bg-gnd-amber/15 blur-3xl transition-all duration-700 group-hover:bg-gnd-amber/25"
+          className="pointer-events-none absolute -right-32 -top-32 h-80 w-80 rounded-full bg-brand/15 blur-3xl transition-all duration-700 group-hover:bg-brand/25"
         />
 
         {/* Watermark number */}
         <span
           aria-hidden
-          className="pointer-events-none absolute -bottom-12 right-2 select-none font-display text-[14rem] font-medium italic leading-none text-gnd-cream/[0.06]"
+          className="pointer-events-none absolute -bottom-12 right-2 select-none font-marcellus text-[14rem] font-medium italic leading-none text-cream/[0.06]"
         >
           {numberLabel}
         </span>
 
         {/* Top: badge */}
         <div className="relative z-10 flex items-center justify-between">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-gnd-amber/20 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-gnd-amber-glow">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-brand/20 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-brand">
             <Sparkles className="h-3 w-3" aria-hidden />
             Prochain module
           </span>
-          <span className="font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-gnd-cream/40">
+          <span className="font-inter text-[10px] font-medium uppercase tracking-[0.18em] text-cream/40">
             Module {numberLabel}
           </span>
         </div>
 
         {/* Center: title */}
         <div className="relative z-10 max-w-md">
-          <h2 className="font-display text-display-md font-medium leading-tight tracking-tight text-gnd-cream">
+          <h2 className="font-marcellus text-display-md font-medium leading-tight tracking-tight text-cream">
             {module.title}
           </h2>
-          <p className="mt-4 text-sm text-gnd-cream/60">
+          <p className="mt-4 text-sm text-cream/60">
             Découvre les fondamentaux et valide tes acquis avec le quiz
             associé.
           </p>
@@ -124,7 +124,7 @@ function HeroVariant({
 
         {/* Bottom: meta + CTA */}
         <div className="relative z-10 flex items-end justify-between">
-          <div className="flex items-center gap-4 text-xs text-gnd-cream/60">
+          <div className="flex items-center gap-4 text-xs text-cream/60">
             <span className="inline-flex items-center gap-1.5">
               <Clock className="h-3.5 w-3.5" aria-hidden />
               {module.duration} min
@@ -136,7 +136,7 @@ function HeroVariant({
               </span>
             )}
           </div>
-          <div className="inline-flex items-center gap-2 rounded-full bg-gnd-amber px-5 py-2.5 text-xs font-semibold text-gnd-bronze transition-all group-hover:gap-3 group-hover:bg-gnd-amber-glow">
+          <div className="inline-flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-xs font-semibold text-choco transition-all group-hover:gap-3 group-hover:bg-brand-dark">
             Commencer
             <ArrowRight
               className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5"
@@ -165,8 +165,8 @@ function DefaultVariant({
   const baseClasses = cn(
     'group relative flex h-full flex-col justify-between overflow-hidden rounded-3xl border bg-white p-6 transition-all duration-500',
     state === 'locked'
-      ? 'cursor-not-allowed border-gnd-bronze/8 opacity-60'
-      : 'border-gnd-bronze/10 hover:-translate-y-1 hover:border-gnd-bronze/20 hover:shadow-warm-lg'
+      ? 'cursor-not-allowed border-border-soft opacity-60'
+      : 'border-border-soft hover:-translate-y-1 hover:border-choco/20 hover:shadow-soft-lg'
   );
 
   const inner = (
@@ -174,7 +174,7 @@ function DefaultVariant({
       {state !== 'locked' && (
         <div
           aria-hidden
-          className="pointer-events-none absolute -right-16 -top-16 h-32 w-32 rounded-full bg-gnd-amber/0 blur-3xl transition-all duration-700 group-hover:bg-gnd-amber/15"
+          className="pointer-events-none absolute -right-16 -top-16 h-32 w-32 rounded-full bg-brand/0 blur-3xl transition-all duration-700 group-hover:bg-brand/15"
         />
       )}
 
@@ -182,12 +182,12 @@ function DefaultVariant({
       <div className="relative flex items-start justify-between">
         <span
           className={cn(
-            'font-display text-5xl font-medium italic leading-none tracking-tight',
+            'font-marcellus text-5xl font-medium italic leading-none tracking-tight',
             state === 'locked'
-              ? 'text-gnd-bronze/15'
+              ? 'text-choco/15'
               : state === 'validated'
-                ? 'text-gnd-amber'
-                : 'text-gnd-bronze/30 transition-colors duration-500 group-hover:text-gnd-amber'
+                ? 'text-brand'
+                : 'text-choco/30 transition-colors duration-500 group-hover:text-brand'
           )}
         >
           {numberLabel}
@@ -198,8 +198,8 @@ function DefaultVariant({
       {/* Title */}
       <h3
         className={cn(
-          'mt-6 font-display text-lg font-medium leading-tight tracking-tight',
-          state === 'locked' ? 'text-gnd-bronze-faded' : 'text-gnd-bronze'
+          'mt-6 font-marcellus text-lg font-medium leading-tight tracking-tight',
+          state === 'locked' ? 'text-muted-warm' : 'text-choco'
         )}
       >
         {module.title}
@@ -207,7 +207,7 @@ function DefaultVariant({
 
       {/* Meta + CTA bottom */}
       <div className="mt-6 flex items-center justify-between">
-        <div className="flex items-center gap-3 text-[11px] font-medium text-gnd-bronze-soft">
+        <div className="flex items-center gap-3 text-[11px] font-medium text-muted-warm">
           <span className="inline-flex items-center gap-1">
             <Clock className="h-3 w-3" aria-hidden />
             {module.duration}min
@@ -222,20 +222,20 @@ function DefaultVariant({
 
         {state === 'available' && (
           <ArrowUpRight
-            className="h-4 w-4 text-gnd-amber transition-transform duration-500 group-hover:rotate-45"
+            className="h-4 w-4 text-brand transition-transform duration-500 group-hover:rotate-45"
             aria-hidden
           />
         )}
         {state === 'validated' && (
           <ArrowUpRight
-            className="h-3.5 w-3.5 text-gnd-bronze-soft transition-transform duration-500 group-hover:rotate-45"
+            className="h-3.5 w-3.5 text-muted-warm transition-transform duration-500 group-hover:rotate-45"
             aria-hidden
           />
         )}
       </div>
 
       {state === 'locked' && previousOrder !== undefined && (
-        <p className="mt-3 inline-flex items-center gap-1 text-[10px] font-medium text-gnd-bronze-faded">
+        <p className="mt-3 inline-flex items-center gap-1 text-[10px] font-medium text-muted-warm">
           <Lock className="h-2.5 w-2.5" aria-hidden />
           Débloque le {String(previousOrder).padStart(2, '0')} d&apos;abord
         </p>
@@ -249,8 +249,8 @@ function DefaultVariant({
             bestPercentage !== undefined &&
               bestPercentage !== null &&
               bestPercentage < 80
-              ? 'bg-gradient-to-r from-transparent via-gnd-amber-dim to-transparent'
-              : 'bg-gradient-to-r from-transparent via-gnd-amber to-transparent'
+              ? 'bg-gradient-to-r from-transparent via-brand-dark to-transparent'
+              : 'bg-gradient-to-r from-transparent via-brand to-transparent'
           )}
         />
       )}
@@ -298,7 +298,7 @@ function StatusChip({
   if (state === 'validated') {
     const hasScore = bestPercentage !== undefined && bestPercentage !== null;
     return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-gnd-amber/12 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-gnd-amber-dim">
+      <span className="inline-flex items-center gap-1 rounded-full bg-brand/12 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-brand-dark">
         <CheckCircle2 className="h-2.5 w-2.5" aria-hidden />
         {hasScore ? `${bestPercentage}%` : 'Validé'}
       </span>
@@ -306,17 +306,17 @@ function StatusChip({
   }
   if (state === 'available') {
     return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-gnd-bronze/8 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-gnd-bronze">
+      <span className="inline-flex items-center gap-1 rounded-full bg-choco/8 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-choco">
         <span
           aria-hidden
-          className="h-1 w-1 animate-pulse rounded-full bg-gnd-amber"
+          className="h-1 w-1 animate-pulse rounded-full bg-brand"
         />
         À faire
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-gnd-bronze/5 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-gnd-bronze-faded">
+    <span className="inline-flex items-center gap-1 rounded-full bg-choco/5 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-muted-warm">
       <Lock className="h-2 w-2" aria-hidden />
       Verrouillé
     </span>
@@ -334,7 +334,7 @@ function Corner({ position }: { position: 'tl' | 'tr' | 'bl' | 'br' }) {
     <span
       aria-hidden
       className={cn(
-        'pointer-events-none absolute h-3 w-3 border-gnd-amber/40',
+        'pointer-events-none absolute h-3 w-3 border-brand/40',
         positions[position]
       )}
     />
