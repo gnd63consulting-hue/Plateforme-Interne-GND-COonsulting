@@ -17,6 +17,7 @@ import {
   Target,
   Users,
   CalendarClock,
+  Download,
 } from 'lucide-react';
 import {
   emailStatusTone,
@@ -28,7 +29,7 @@ import {
   telHref,
   type PresenceDigitale,
 } from '@/lib/prospect-intel';
-import { labelForStatus, toneForStatus } from '@/lib/prospects';
+import { labelForStatus, toneForStatus, formatDate } from '@/lib/prospects';
 import LogCallDialog from './LogCallDialog';
 
 export type IntelRowVM = {
@@ -41,6 +42,7 @@ export type IntelRowVM = {
   city: string | null;
   sector: string | null;
   status: string | null;
+  nextActionAt: string | null;
   enrichStatus: string | null;
   angle: string | null;
   signal: string | null;
@@ -96,10 +98,89 @@ function isCallable(status: string | null): boolean {
   return CALLABLE_STATUSES.has(status);
 }
 
+/* -------------------------------------------------------------------------- */
+/* Export CSV (client-side, aucune requete serveur)                           */
+/* -------------------------------------------------------------------------- */
+
+const CSV_HEADERS = [
+  'Societe',
+  'Contact',
+  'Telephone',
+  'Email',
+  'Ville',
+  'Secteur',
+  'Statut',
+  'Score Selene',
+  'Tier',
+  'Angle Selene',
+  'Prochain rappel',
+] as const;
+
+/**
+ * Echappe une valeur pour un champ CSV : on quote systematiquement et on double
+ * les guillemets internes. Couvre virgules, guillemets et sauts de ligne.
+ */
+function csvCell(value: string | number | null | undefined): string {
+  const s = value == null ? '' : String(value);
+  return `"${s.replace(/"/g, '""')}"`;
+}
+
+/** Construit la chaine CSV des prospects deja filtres + tries (vue courante). */
+function buildCsv(rows: IntelRowVM[]): string {
+  const lines: string[] = [];
+  lines.push(CSV_HEADERS.map(csvCell).join(','));
+  for (const r of rows) {
+    lines.push(
+      [
+        r.company,
+        r.dirigeant,
+        r.tel,
+        r.email,
+        r.city,
+        r.sector,
+        labelForStatus(r.status),
+        r.score,
+        r.tier,
+        r.angleSelene,
+        r.nextActionAt ? formatDate(r.nextActionAt) : '',
+      ]
+        .map(csvCell)
+        .join(',')
+    );
+  }
+  // CRLF : maximise la compatibilite tableurs (Excel FR notamment).
+  return lines.join('\r\n');
+}
+
+/** Declenche le telechargement client du CSV (BOM UTF-8 pour les accents). */
+function downloadCsv(rows: IntelRowVM[]): void {
+  const csv = buildCsv(rows);
+  const blob = new Blob(['﻿' + csv], {
+    type: 'text/csv;charset=utf-8;',
+  });
+  const url = URL.createObjectURL(blob);
+  const now = new Date();
+  const stamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(
+    2,
+    '0'
+  )}-${String(now.getDate()).padStart(2, '0')}`;
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `liste-appel-${stamp}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
 export default function IntelCallListClient({ rows }: { rows: IntelRowVM[] }) {
   const [q, setQ] = useState('');
   // Defaut : "A appeler" — on masque d'emblee les fiches terminees/traitees.
   const [filter, setFilter] = useState<Filter>('callable');
+  // Toggle "Voir tout mon pipeline" : quand actif, on leve le masque "appelable"
+  // (statuts non travaillables compris) tout en restant scope RLS/owner. Vue
+  // purement client : la requete serveur ramene deja tous les statuts.
+  const [allPipeline, setAllPipeline] = useState(false);
 
   const stats = useMemo(() => {
     const callable = rows.filter((r) => isCallable(r.status)).length;
@@ -115,7 +196,10 @@ export default function IntelCallListClient({ rows }: { rows: IntelRowVM[] }) {
     const needle = q.trim().toLowerCase();
     return rows.filter((r) => {
       const validEmail = !!(r.email && r.emailStatus === 'valid');
-      if (filter === 'callable' && !isCallable(r.status)) return false;
+      // "Voir tout mon pipeline" desactive le masque "appelable" du filtre
+      // "A appeler". Les autres filtres (enrichi / email / tel) restent actifs.
+      if (filter === 'callable' && !allPipeline && !isCallable(r.status))
+        return false;
       if (filter === 'enrichi' && r.enrichStatus !== 'enrichi') return false;
       if (filter === 'with_email' && !validEmail) return false;
       if (filter === 'phone_only' && (validEmail || !r.tel)) return false;
@@ -126,7 +210,7 @@ export default function IntelCallListClient({ rows }: { rows: IntelRowVM[] }) {
         .toLowerCase()
         .includes(needle);
     });
-  }, [rows, q, filter]);
+  }, [rows, q, filter, allPipeline]);
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-6">
@@ -180,13 +264,49 @@ export default function IntelCallListClient({ rows }: { rows: IntelRowVM[] }) {
         </div>
       </div>
 
+      {/* Toggle "tout mon pipeline" + export CSV de la vue courante */}
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <label
+          className={`inline-flex cursor-pointer select-none items-center gap-2 rounded-xl border px-3 py-1.5 text-xs font-semibold transition-colors ${
+            allPipeline
+              ? 'border-brand bg-cream-deep text-brand-dark'
+              : 'border-border-soft bg-white text-ink-warm hover:bg-cream-deep'
+          } ${filter !== 'callable' ? 'opacity-50' : ''}`}
+          title={
+            filter === 'callable'
+              ? 'Afficher aussi les fiches deja traitees (contactees, gagnees, perdues...)'
+              : 'Ce filtre montre deja tous les statuts'
+          }
+        >
+          <input
+            type="checkbox"
+            checked={allPipeline}
+            disabled={filter !== 'callable'}
+            onChange={(e) => setAllPipeline(e.target.checked)}
+            className="h-3.5 w-3.5 rounded border-border-soft text-brand focus:ring-brand"
+          />
+          Voir tout mon pipeline
+        </label>
+        <button
+          type="button"
+          onClick={() => downloadCsv(filtered)}
+          disabled={filtered.length === 0}
+          className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-border-soft bg-white px-3 py-1.5 text-xs font-semibold text-ink-warm transition-colors hover:bg-cream-deep disabled:cursor-not-allowed disabled:opacity-50"
+          title="Exporter la liste affichee (filtres + tri appliques) au format CSV"
+        >
+          <Download className="h-3.5 w-3.5" aria-hidden />
+          Exporter CSV
+          <span className="tabular-nums opacity-70">({filtered.length})</span>
+        </button>
+      </div>
+
       {/* Liste — deja triee par score Selene cote serveur (la plus chaude en tete) */}
       {filtered.length === 0 ? (
         <p className="rounded-3xl border border-border-soft bg-white p-8 text-center text-sm text-muted-warm shadow-soft">
           {rows.length === 0
             ? "Aucun prospect pour le moment. L'enrichissement Atlas remplira cette liste."
-            : filter === 'callable'
-            ? 'Aucun prospect a appeler pour le moment. Les fiches traitees sont masquees (voir le filtre "Tous").'
+            : filter === 'callable' && !allPipeline
+            ? 'Aucun prospect a appeler pour le moment. Les fiches traitees sont masquees (active "Voir tout mon pipeline" ou le filtre "Tous").'
             : 'Aucun prospect ne correspond a ce filtre.'}
         </p>
       ) : (

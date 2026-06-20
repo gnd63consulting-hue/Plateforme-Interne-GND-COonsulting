@@ -29,7 +29,10 @@ export const dynamic = 'force-dynamic';
  * statut encore travaillable par un commercial. Les fiches reconciliees en
  * perdu/archived/gagne/etc. sortent automatiquement de la liste d'appel : c'est
  * un composant serveur live, donc tout changement de statut se reflete au
- * prochain chargement (et au revalidate apres un appel logue).
+ * prochain chargement (et au revalidate apres un appel logue). Le toggle "Voir
+ * tout mon pipeline" cote client leve ce masque sans nouvelle requete : la
+ * requete serveur ci-dessous ramene DEJA tous les prospects de l'utilisateur,
+ * tous statuts confondus (le filtrage "appelable" est purement client).
  *
  * Degrade proprement : si la migration 0028 n'est pas encore appliquee, la
  * requete prospect_intel renvoie 0 ligne pour un commercial -> la liste
@@ -54,12 +57,13 @@ export default async function ProspectIntelPage() {
     sector: string | null;
     status: string | null;
     website: string | null;
+    next_action_at: string | null;
   };
 
   const { data: prospectsRaw } = await supabase
     .from('prospects')
     .select(
-      'id, company_name, contact_name, prenom_contact, role_contact, phone, email, city, sector, status, website'
+      'id, company_name, contact_name, prenom_contact, role_contact, phone, email, city, sector, status, website, next_action_at'
     )
     .or(`assigned_to.eq.${user.id},created_by.eq.${user.id}`)
     .order('updated_at', { ascending: false });
@@ -111,6 +115,7 @@ export default async function ProspectIntelPage() {
       city: e?.ville || p.city || null,
       sector: e?.naf_secteur || p.sector || null,
       status: p.status ?? null,
+      nextActionAt: p.next_action_at ?? null,
       enrichStatus: e?.status ?? null,
       angle: e?.angle_gnd ?? null,
       signal: e?.signal_detecte ?? null,
