@@ -16,6 +16,7 @@ import {
   BadgeEuro,
   ClipboardList,
   BarChart3,
+  Activity,
   GitBranch,
   Bot,
   MonitorPlay,
@@ -52,6 +53,7 @@ const SECTIONS: NavSection[] = [
     items: [
       { id: 'vue-globale', icon: Shield, label: 'Vue globale', href: '/admin', adminOnly: true },
       { id: 'reporting', icon: BarChart3, label: 'Reporting avancé', href: '/admin/reporting', adminOnly: true },
+      { id: 'pilotage', icon: Activity, label: 'Pilotage live', href: '/admin/reporting/pilotage', adminOnly: true },
       { id: 'pipelines', icon: GitBranch, label: 'Pipelines', href: '/admin/pipelines', adminOnly: true },
       { id: 'agents', icon: Bot, label: 'Agents', href: '/admin/agents', adminOnly: true },
       { id: 'inspiration', icon: Palette, label: 'Inspiration', href: '/admin/inspiration', adminOnly: true },
