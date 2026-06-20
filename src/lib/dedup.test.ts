@@ -86,11 +86,14 @@ describe('pickMaster', () => {
 });
 
 describe('buildDedupGroups', () => {
+  // Triage « entreprises différentes » (cf. dedup.ts) : un groupe n'est remonté
+  // que s'il couvre 2+ noms de sociétés DISTINCTS partageant le même email/tél.
+  // Les fixtures ci-dessous utilisent donc des sociétés distinctes.
   it('regroupe par email_norm exact (≥ 2 fiches)', () => {
     const rows = [
-      { ...base({ id: '1', email: 'a@x.fr' }), email_norm: 'a@x.fr', phone_norm: null },
-      { ...base({ id: '2', email: 'a@x.fr' }), email_norm: 'a@x.fr', phone_norm: null },
-      { ...base({ id: '3', email: 'b@x.fr' }), email_norm: 'b@x.fr', phone_norm: null },
+      { ...base({ id: '1', email: 'a@x.fr', company_name: 'Salon Lea' }), email_norm: 'a@x.fr', phone_norm: null },
+      { ...base({ id: '2', email: 'a@x.fr', company_name: 'Patisserie Max' }), email_norm: 'a@x.fr', phone_norm: null },
+      { ...base({ id: '3', email: 'b@x.fr', company_name: 'Autre' }), email_norm: 'b@x.fr', phone_norm: null },
     ];
     const groups = buildDedupGroups(rows, new Set());
     expect(groups).toHaveLength(1);
@@ -101,8 +104,8 @@ describe('buildDedupGroups', () => {
 
   it('regroupe par 9 derniers chiffres de phone_norm', () => {
     const rows = [
-      { ...base({ id: '1', phone: '+33612345678' }), email_norm: null, phone_norm: '+33612345678' },
-      { ...base({ id: '2', phone: '0612345678' }), email_norm: null, phone_norm: '0612345678' },
+      { ...base({ id: '1', phone: '+33612345678', company_name: 'Salon Lea' }), email_norm: null, phone_norm: '+33612345678' },
+      { ...base({ id: '2', phone: '0612345678', company_name: 'Patisserie Max' }), email_norm: null, phone_norm: '0612345678' },
     ];
     const groups = buildDedupGroups(rows, new Set());
     expect(groups).toHaveLength(1);
@@ -110,10 +113,18 @@ describe('buildDedupGroups', () => {
     expect(groups[0].signature).toBe('phone:612345678');
   });
 
+  it('ne remonte PAS un groupe d\'une même société (même email/tél, 1 seule entreprise)', () => {
+    const rows = [
+      { ...base({ id: '1', email: 'a@x.fr', company_name: 'ACME' }), email_norm: 'a@x.fr', phone_norm: null },
+      { ...base({ id: '2', email: 'a@x.fr', company_name: 'ACME' }), email_norm: 'a@x.fr', phone_norm: null },
+    ];
+    expect(buildDedupGroups(rows, new Set())).toHaveLength(0);
+  });
+
   it('exclut les signatures dismissed', () => {
     const rows = [
-      { ...base({ id: '1', email: 'a@x.fr' }), email_norm: 'a@x.fr', phone_norm: null },
-      { ...base({ id: '2', email: 'a@x.fr' }), email_norm: 'a@x.fr', phone_norm: null },
+      { ...base({ id: '1', email: 'a@x.fr', company_name: 'Salon Lea' }), email_norm: 'a@x.fr', phone_norm: null },
+      { ...base({ id: '2', email: 'a@x.fr', company_name: 'Patisserie Max' }), email_norm: 'a@x.fr', phone_norm: null },
     ];
     const groups = buildDedupGroups(rows, new Set(['email:a@x.fr']));
     expect(groups).toHaveLength(0);
@@ -121,18 +132,18 @@ describe('buildDedupGroups', () => {
 
   it('ignore les groupes singletons', () => {
     const rows = [
-      { ...base({ id: '1', email: 'solo@x.fr' }), email_norm: 'solo@x.fr', phone_norm: null },
+      { ...base({ id: '1', email: 'solo@x.fr', company_name: 'Solo' }), email_norm: 'solo@x.fr', phone_norm: null },
     ];
     expect(buildDedupGroups(rows, new Set())).toHaveLength(0);
   });
 
   it('trie les groupes par taille décroissante', () => {
     const rows = [
-      { ...base({ id: '1', email: 'a@x.fr' }), email_norm: 'a@x.fr', phone_norm: null },
-      { ...base({ id: '2', email: 'a@x.fr' }), email_norm: 'a@x.fr', phone_norm: null },
-      { ...base({ id: '3', email: 'a@x.fr' }), email_norm: 'a@x.fr', phone_norm: null },
-      { ...base({ id: '4', email: 'b@x.fr' }), email_norm: 'b@x.fr', phone_norm: null },
-      { ...base({ id: '5', email: 'b@x.fr' }), email_norm: 'b@x.fr', phone_norm: null },
+      { ...base({ id: '1', email: 'a@x.fr', company_name: 'Salon Lea' }), email_norm: 'a@x.fr', phone_norm: null },
+      { ...base({ id: '2', email: 'a@x.fr', company_name: 'Patisserie Max' }), email_norm: 'a@x.fr', phone_norm: null },
+      { ...base({ id: '3', email: 'a@x.fr', company_name: 'Garage Tom' }), email_norm: 'a@x.fr', phone_norm: null },
+      { ...base({ id: '4', email: 'b@x.fr', company_name: 'Fleuriste Iris' }), email_norm: 'b@x.fr', phone_norm: null },
+      { ...base({ id: '5', email: 'b@x.fr', company_name: 'Boucherie Paul' }), email_norm: 'b@x.fr', phone_norm: null },
     ];
     const groups = buildDedupGroups(rows, new Set());
     expect(groups.map((g) => g.prospects.length)).toEqual([3, 2]);

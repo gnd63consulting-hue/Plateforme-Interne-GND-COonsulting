@@ -63,6 +63,10 @@ jobs:
         run: supabase db lint --level warning
         continue-on-error: true
 
-      - name: Supabase db stop
+      # Arrete la stack locale. La commande est `supabase stop` (il n'existe pas
+      # de sous-commande `supabase db stop`). `--no-backup` est un flag valide de
+      # `supabase stop` (CLI 2.39.2). `if: always()` garantit le teardown meme si
+      # un step precedent a echoue.
+      - name: Supabase stop
         if: always()
-        run: supabase db stop --no-backup
+        run: supabase stop --no-backup

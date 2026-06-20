@@ -26,6 +26,18 @@
 -- PARTIE A — RLS alignée sur le schéma EN
 -- =============================================
 
+-- Pré-requis colonnes : created_by / assigned_to.
+-- En prod ces colonnes ont été ajoutées à la main (SQL editor) AVANT ce
+-- script. Sur une base VIERGE rejouée depuis le repo (CI db reset), elles
+-- n'existent pas encore au moment où la policy ci-dessous les référence, d'où
+-- un ERROR 42703 "column created_by does not exist". On les crée donc ici de
+-- façon idempotente, juste avant la policy. `IF NOT EXISTS` = no-op total en
+-- prod et sur toute base où elles existent déjà → l'état final est inchangé.
+-- Type/FK alignés sur user_id (uuid, FK vers public.users(id)), nullable.
+ALTER TABLE public.prospects
+  ADD COLUMN IF NOT EXISTS created_by  UUID REFERENCES public.users(id),
+  ADD COLUMN IF NOT EXISTS assigned_to UUID REFERENCES public.users(id);
+
 -- Drop la policy de 0005 (prospects_owner_all sur user_id)
 DROP POLICY IF EXISTS "prospects_owner_all" ON public.prospects;
 
