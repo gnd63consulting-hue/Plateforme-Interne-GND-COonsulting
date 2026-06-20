@@ -76,7 +76,7 @@ export default async function ModulePage({
       {/* Decorative side watermark — large screens only, fixed position */}
       <div
         aria-hidden
-        className="pointer-events-none fixed right-[-2rem] top-[15vh] z-0 hidden select-none font-display text-[16rem] font-medium italic leading-none text-gnd-bronze/[0.045] xl:block xl:text-[20rem] print:hidden"
+        className="pointer-events-none fixed right-[-2rem] top-[15vh] z-0 hidden select-none font-marcellus text-[16rem] font-medium italic leading-none text-choco/[0.045] xl:block xl:text-[20rem] print:hidden"
       >
         {orderLabel}
       </div>
@@ -86,17 +86,17 @@ export default async function ModulePage({
         {/* Breadcrumb — minimal mono                                 */}
         {/* ====================================================== */}
         <nav
-          className="mb-12 flex animate-fade-in items-center gap-2 font-mono text-[11px] font-medium uppercase tracking-[0.15em] text-gnd-bronze-soft opacity-0"
+          className="mb-12 flex animate-fade-in items-center gap-2 font-inter text-[11px] font-medium uppercase tracking-[0.15em] text-muted-warm opacity-0"
           style={{ animationDelay: '0ms', animationFillMode: 'forwards' }}
         >
           <Link
             href="/formation"
-            className="transition-colors hover:text-gnd-amber"
+            className="transition-colors hover:text-brand"
           >
             Formation
           </Link>
           <ChevronRight className="h-3 w-3" aria-hidden />
-          <span className="text-gnd-bronze">Module {orderLabel}</span>
+          <span className="text-choco">Module {orderLabel}</span>
         </nav>
 
         {/* ====================================================== */}
@@ -107,27 +107,27 @@ export default async function ModulePage({
           style={{ animationDelay: '120ms', animationFillMode: 'forwards' }}
         >
           <div className="mb-5 flex flex-wrap items-center gap-3">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-gnd-amber/12 px-3 py-1 font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-gnd-amber-dim">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-brand/12 px-3 py-1 font-inter text-[10px] font-semibold uppercase tracking-[0.18em] text-brand-dark">
               E-learning path
             </span>
-            <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-gnd-bronze-soft">
+            <span className="font-inter text-[10px] uppercase tracking-[0.15em] text-muted-warm">
               Lecture — {loaded.meta.duration} min
             </span>
             {isValidated && (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-gnd-bronze/8 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-gnd-bronze">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-choco/8 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-choco">
                 <CheckCircle2 className="h-3 w-3" aria-hidden />
                 Validé
               </span>
             )}
           </div>
 
-          <p className="mb-3 font-display text-2xl italic font-medium text-gnd-amber">
+          <p className="mb-3 font-marcellus text-2xl italic font-medium text-brand-dark">
             Module {orderLabel}
           </p>
-          <h1 className="font-display text-display-lg font-medium leading-[1.05] tracking-tight text-gnd-bronze">
+          <h1 className="font-marcellus text-display-lg font-medium leading-[1.05] tracking-tight text-choco">
             {loaded.meta.title}
           </h1>
-          <div className="mt-6 h-px w-16 bg-gnd-amber" />
+          <div className="mt-6 h-px w-16 bg-brand" />
         </header>
 
         {/* ====================================================== */}
@@ -135,21 +135,21 @@ export default async function ModulePage({
         {/* ====================================================== */}
         {lastAttempt && (
           <section
-            className="mb-12 flex animate-fade-in-up flex-col gap-4 rounded-3xl border border-gnd-bronze/8 bg-white p-6 opacity-0 shadow-warm sm:flex-row sm:items-center sm:justify-between"
+            className="mb-12 flex animate-fade-in-up flex-col gap-4 rounded-3xl border border-border-soft bg-white p-6 opacity-0 shadow-soft sm:flex-row sm:items-center sm:justify-between"
             style={{ animationDelay: '240ms', animationFillMode: 'forwards' }}
           >
             <div>
-              <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-gnd-bronze-soft">
+              <p className="font-inter text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-warm">
                 Dernière tentative
               </p>
-              <p className="mt-1 font-display text-2xl font-medium text-gnd-bronze">
+              <p className="mt-1 font-marcellus text-2xl font-medium text-choco">
                 {lastAttempt.score}
-                <span className="text-gnd-bronze-soft">/{lastAttempt.total}</span>
-                <span className="ml-3 text-base text-gnd-bronze-soft">
+                <span className="text-muted-warm">/{lastAttempt.total}</span>
+                <span className="ml-3 text-base text-muted-warm">
                   {lastAttempt.percentage}%
                 </span>
                 {isValidated && progression?.best_percentage != null && (
-                  <span className="ml-3 text-xs font-medium text-gnd-bronze-soft">
+                  <span className="ml-3 text-xs font-medium text-muted-warm">
                     · Meilleur : {progression.best_percentage}%
                   </span>
                 )}
@@ -157,7 +157,7 @@ export default async function ModulePage({
             </div>
             <Link
               href={`/formation/${slug}/quiz`}
-              className="inline-flex items-center gap-2 rounded-full bg-gnd-bronze px-5 py-2.5 text-xs font-semibold text-gnd-cream transition-all hover:bg-gnd-ink hover:gap-3"
+              className="inline-flex items-center gap-2 rounded-full bg-choco px-5 py-2.5 text-xs font-semibold text-cream transition-all hover:bg-ink-warm hover:gap-3"
             >
               <RefreshCw className="h-3.5 w-3.5" aria-hidden />
               {isValidated ? 'Refaire le quiz' : 'Retenter le quiz'}
@@ -170,7 +170,7 @@ export default async function ModulePage({
         {/* ====================================================== */}
         {videoFileId && (
           <div
-            className="mb-14 animate-fade-in-up overflow-hidden rounded-3xl border border-gnd-bronze/8 bg-white opacity-0 shadow-warm"
+            className="mb-14 animate-fade-in-up overflow-hidden rounded-3xl border border-border-soft bg-white opacity-0 shadow-soft"
             style={{ animationDelay: '320ms', animationFillMode: 'forwards' }}
           >
             <DriveVideoPlayer
@@ -193,26 +193,26 @@ export default async function ModulePage({
         {/* ====================================================== */}
         {/* Quiz CTA                                                  */}
         {/* ====================================================== */}
-        <section className="relative mt-20 overflow-hidden rounded-3xl border border-gnd-bronze/8 bg-gradient-to-br from-gnd-cream via-white to-gnd-cream-dim p-10">
+        <section className="relative mt-20 overflow-hidden rounded-3xl border border-border-soft bg-gradient-to-br from-cream via-white to-cream-deep p-10">
           <div
             aria-hidden
-            className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-gnd-amber/15 blur-3xl"
+            className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-brand/15 blur-3xl"
           />
           <div
             aria-hidden
-            className="pointer-events-none absolute -bottom-20 -left-10 h-48 w-48 rounded-full bg-gnd-bronze/8 blur-3xl"
+            className="pointer-events-none absolute -bottom-20 -left-10 h-48 w-48 rounded-full bg-choco/8 blur-3xl"
           />
           <div className="relative flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
             <div className="max-w-md">
-              <p className="mb-3 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-gnd-amber">
+              <p className="mb-3 font-inter text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-dark">
                 Quiz Module {orderLabel}
               </p>
-              <h3 className="font-display text-2xl font-medium leading-tight text-gnd-bronze">
+              <h3 className="font-marcellus text-2xl font-medium leading-tight text-choco">
                 {isValidated
                   ? 'Module déjà validé.'
                   : 'Prêt à valider tes acquis ?'}
               </h3>
-              <p className="mt-2 text-sm text-gnd-bronze-soft">
+              <p className="mt-2 text-sm text-muted-warm">
                 {isValidated
                   ? `Meilleur score : ${progression?.best_percentage ?? 0}%. Tu peux retenter le quiz à tout moment.`
                   : `Teste tes connaissances avant de passer à la suite. Seuil de validation : 70 %.`}
@@ -220,7 +220,7 @@ export default async function ModulePage({
             </div>
             <Link
               href={`/formation/${slug}/quiz`}
-              className="group inline-flex shrink-0 items-center gap-3 rounded-full bg-gnd-bronze px-7 py-4 text-sm font-semibold text-gnd-cream shadow-warm-lg transition-all hover:bg-gnd-ink hover:shadow-warm-xl"
+              className="group inline-flex shrink-0 items-center gap-3 rounded-full bg-choco px-7 py-4 text-sm font-semibold text-cream shadow-soft-lg transition-all hover:bg-ink-warm hover:shadow-soft-lg"
             >
               <span>{isValidated ? 'Refaire le quiz' : 'Passer au quiz'}</span>
               <ArrowRight
