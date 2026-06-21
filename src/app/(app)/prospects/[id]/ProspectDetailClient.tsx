@@ -53,6 +53,11 @@ import SequenceEnrollPanel from './SequenceEnrollPanel';
 import QuotesPanel from './QuotesPanel';
 import { recordCommission } from './finance-actions';
 import RecallDatePicker from '@/components/gnd/RecallDatePicker';
+import ProspectIntelPanel from './ProspectIntelPanel';
+import GenerateMockupButton from './GenerateMockupButton';
+import type { EnrichmentPayload } from '@/lib/prospect-intel';
+import type { MockupRow } from '@/lib/site-mockup';
+import type { SiteBriefRow } from '@/lib/site-brief';
 
 /* ====================================================================== */
 /* Constantes                                                              */
@@ -160,6 +165,14 @@ type ProspectDetailClientProps = {
   // L'utilisateur courant peut-il voir/saisir les montants financiers ?
   // (admin / admin_limited). Pour les autres rôles, on n'affiche rien.
   canViewFinance: boolean;
+  // Renseignements IA (intel d'enrichissement) + maquette Studio — déplacés
+  // depuis la route serveur pour s'afficher SOUS le hero, en tête de la colonne
+  // gauche. Présentation uniquement : aucune logique de fetch ici.
+  intel?: EnrichmentPayload | null;
+  intelCreatedAt?: string | null;
+  mockup?: MockupRow | null;
+  brief?: SiteBriefRow | null;
+  mockupProspectId?: string;
 };
 
 export default function ProspectDetailClient({
@@ -170,6 +183,11 @@ export default function ProspectDetailClient({
   initialQuotes,
   initialDealAmount,
   canViewFinance,
+  intel,
+  intelCreatedAt,
+  mockup,
+  brief,
+  mockupProspectId,
 }: ProspectDetailClientProps) {
   const supabase = useMemo(() => createClient(), []);
   const reduceMotion = useReducedMotion();
@@ -613,6 +631,43 @@ export default function ProspectDetailClient({
         {/* COLONNE GAUCHE : infos + analyse + devis + timeline             */}
         {/* =============================================================== */}
         <div className="flex flex-col gap-3">
+          {/* Renseignements IA — affiché en tête, juste sous le hero */}
+          {intel ? (
+            <div className="panel p-4">
+              <ProspectIntelPanel
+                intel={intel}
+                createdAt={intelCreatedAt ?? null}
+              />
+            </div>
+          ) : null}
+
+          {/* Maquette Studio — rangée compacte une ligne */}
+          {mockupProspectId ? (
+            <section className="panel flex flex-wrap items-center justify-between gap-3 p-4">
+              <div className="flex min-w-0 items-center gap-3">
+                <span
+                  aria-hidden
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-brand-pale text-brand-burnt"
+                >
+                  <Sparkles className="h-4 w-4" />
+                </span>
+                <div className="min-w-0">
+                  <p className="font-grotesk text-[11px] font-semibold uppercase tracking-[0.12em] text-brand-burnt">
+                    Maquette Studio
+                  </p>
+                  <p className="mt-0.5 text-[13px] text-[#6F5A50]">
+                    Genere une maquette one-page a partir de ce prospect.
+                  </p>
+                </div>
+              </div>
+              <GenerateMockupButton
+                prospectId={mockupProspectId}
+                mockup={mockup ?? null}
+                brief={brief ?? null}
+              />
+            </section>
+          ) : null}
+
           {/* B. BLOC INFOS */}
           <section className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <ContactCard
@@ -1013,13 +1068,13 @@ function NextActionBanner({
                 ? `Relance dépassée (${formatDate(relanceIso)}). Pose une nouvelle date.`
                 : 'Aucune relance prévue sur ce prospect actif.'}
             </p>
-            <div className="mt-3 flex flex-wrap items-center gap-2">
+            <div className="mt-2 space-y-2 rounded-xl bg-white/75 p-3">
               <RecallDatePicker value={value} onChange={setValue} />
               <button
                 type="button"
                 onClick={save}
                 disabled={!value || saving}
-                className="inline-flex items-center gap-1.5 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-[#2A1810] transition hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-[#2A1810] shadow-[0_8px_22px_rgba(201,106,43,0.30)] transition hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {saving ? (
                   <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
@@ -1175,13 +1230,13 @@ function RelancePlanner({
       >
         Planifier une relance
       </label>
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2 rounded-xl bg-white/75 p-3">
         <RecallDatePicker value={value} onChange={setValue} />
         <button
           type="button"
           onClick={save}
           disabled={saving || !value}
-          className="inline-flex items-center gap-1.5 rounded-full bg-brand px-3.5 py-2 text-sm font-semibold text-[#2A1810] transition hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-full bg-brand px-3.5 py-2 text-sm font-semibold text-[#2A1810] shadow-[0_8px_22px_rgba(201,106,43,0.30)] transition hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-50"
         >
           {saving ? (
             <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
@@ -1616,6 +1671,80 @@ function AnalysisSection({ prospect }: { prospect: Prospect }) {
   );
 }
 
+/**
+ * Découpe un texte d'analyse en sous-sections « intitulé en gras + corps ».
+ *
+ * Présentation uniquement : ne modifie pas la donnée, ne fait que repérer les
+ * intitulés (courte amorce capitalisée terminée par un point, ex. « Identité de
+ * l'entreprise. », « Présence digitale actuelle. », « Manques identifiés. »)
+ * pour les afficher en label eyebrow + corps resserré. Si aucun intitulé n'est
+ * détecté, retourne le texte tel quel en un seul bloc de corps.
+ */
+function splitAnalysisLeads(
+  text: string
+): { lead: string | null; body: string }[] {
+  const re = /(^|\n|\.\s+)([A-ZÀ-ÖØ-Þ][^.\n]{2,60}?)\.(?=\s)/g;
+  const out: { lead: string | null; body: string }[] = [];
+  let lastIndex = 0;
+  let pendingLead: string | null = null;
+  let match: RegExpExecArray | null;
+
+  while ((match = re.exec(text)) !== null) {
+    const leadText = match[2].trim();
+    // Une amorce = phrase courte sans espace-final ambigu ; on ignore les
+    // fragments qui ressemblent à une phrase normale (présence de virgule
+    // longue déjà couverte par la limite de longueur ci-dessus).
+    const bodyChunk = text.slice(lastIndex, match.index).trim();
+    if (bodyChunk || pendingLead) {
+      out.push({ lead: pendingLead, body: bodyChunk });
+    }
+    pendingLead = leadText;
+    lastIndex = re.lastIndex;
+  }
+
+  const tail = text.slice(lastIndex).trim();
+  if (pendingLead || tail) {
+    out.push({ lead: pendingLead, body: tail });
+  }
+
+  // Filtre les blocs totalement vides (lead null + body vide).
+  const cleaned = out.filter((s) => s.lead || s.body);
+  if (cleaned.length === 0) return [{ lead: null, body: text.trim() }];
+  return cleaned;
+}
+
+function AnalysisBody({ text, dark }: { text: string; dark?: boolean }) {
+  const sections = splitAnalysisLeads(text);
+  const leadTone = dark ? 'text-[#F2C29B]' : 'text-brand-burnt';
+  const bodyTone = dark ? 'text-cream/85' : 'text-[#5C3A2C]';
+
+  return (
+    <div>
+      {sections.map((s, i) => (
+        <div
+          key={i}
+          className={i > 0 ? 'divider-warm pt-3 mt-3' : undefined}
+        >
+          {s.lead && (
+            <div
+              className={`font-grotesk text-[11px] font-semibold uppercase tracking-[0.1em] ${leadTone}`}
+            >
+              {s.lead}
+            </div>
+          )}
+          {s.body && (
+            <p
+              className={`${s.lead ? 'mt-1 ' : ''}whitespace-pre-wrap break-words text-[13px] leading-relaxed max-w-[60ch] ${bodyTone}`}
+            >
+              {s.body}
+            </p>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function AnalysisBlock({
   icon,
   title,
@@ -1629,26 +1758,22 @@ function AnalysisBlock({
 }) {
   if (dark) {
     return (
-      <div className="surface-chocolate rounded-[10px] p-3">
-        <div className="mb-1.5 flex items-center gap-1.5 font-grotesk text-xs text-[#F2C29B]">
+      <div className="surface-chocolate rounded-[10px] p-4">
+        <div className="mb-2 flex items-center gap-1.5 font-grotesk text-[11px] font-semibold uppercase tracking-[0.1em] text-[#F2C29B]">
           <span aria-hidden>{icon}</span>
           {title}
         </div>
-        <p className="whitespace-pre-wrap break-words text-[13px] leading-relaxed text-cream/85">
-          {text}
-        </p>
+        <AnalysisBody text={text} dark />
       </div>
     );
   }
   return (
-    <div className="rounded-[10px] border border-[rgba(201,106,43,0.2)] bg-[#FBF1E8] p-3">
-      <div className="mb-1.5 flex items-center gap-1.5 font-grotesk text-xs text-brand-burnt">
+    <div className="panel p-4">
+      <div className="mb-2 flex items-center gap-1.5 font-grotesk text-[11px] font-semibold uppercase tracking-[0.1em] text-brand-burnt">
         <span aria-hidden>{icon}</span>
         {title}
       </div>
-      <p className="whitespace-pre-wrap break-words text-[13px] leading-relaxed text-[#5C3A2C]">
-        {text}
-      </p>
+      <AnalysisBody text={text} />
     </div>
   );
 }
