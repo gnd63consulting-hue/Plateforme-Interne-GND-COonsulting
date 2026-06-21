@@ -70,30 +70,33 @@ export default function PilotageClient({ data }: { data: PilotageData }) {
     baseTotale > 0 ? enrichissement.distincts / baseTotale : 0;
 
   return (
-    <div className="mx-auto max-w-[1040px] px-7 pb-16 pt-10 text-ink-warm">
-      {/* Header */}
-      <header className="relative mb-9 overflow-hidden">
+    <div className="mx-auto max-w-[1040px] px-5 pb-16 pt-8 text-ink-warm sm:px-7">
+      {/* Header — cockpit chocolat */}
+      <header className="surface-chocolate relative mb-6 overflow-hidden rounded-[16px] p-5 sm:p-6">
         <span
           aria-hidden
-          className="watermark pointer-events-none absolute -right-2 -top-10 select-none font-marcellus text-[120px] leading-none"
+          className="pointer-events-none absolute -right-3 -top-8 select-none font-marcellus text-[110px] leading-none text-cream/[0.08]"
         >
           Live
         </span>
         <div className="relative">
-          <span className="label-eyebrow text-[11px] uppercase tracking-[0.14em] text-brand-burnt">
-            Admin · Pilotage live
+          <span className="inline-flex items-center gap-2">
+            <span className="h-px w-4 bg-gradient-to-r from-brand to-transparent" />
+            <span className="font-grotesk text-[11px] font-semibold uppercase tracking-[0.13em] text-[#E0A572]">
+              Admin · Pilotage live
+            </span>
           </span>
-          <h1 className="mt-3 font-marcellus text-[34px] font-medium leading-[1.08] tracking-[-0.01em] text-choco">
+          <h1 className="mt-3 font-marcellus text-3xl font-medium leading-[1.08] tracking-[-0.01em] text-cream">
             Pilotage du carnet
           </h1>
-          <p className="mt-3 max-w-[680px] text-sm leading-[1.55] text-[#6F5A50]">
+          <p className="mt-3 max-w-[680px] text-sm leading-[1.55] text-cream/55">
             Lecture de pilotage recalculee a chaque chargement directement depuis
             la base : volume, repartition par statut, enrichissement Atlas, qualite
             de la donnee et lecture phone-first. Tout est en nombres et en
             pourcentages, jamais en euros. C&apos;est le rapport que produit
             l&apos;agent, disponible sans l&apos;agent.
           </p>
-          <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
             <Stat label="Base totale" value={String(baseTotale)} color={CHOCO} hint="Fiches maitres (hors fusionnees)" />
             <Stat label="A contacter" value={String(highlights.aContacter)} color={BRAND_DARK} hint="Pas encore approches" />
             <Stat label="Enrichis Atlas" value={String(enrichissement.distincts)} color={GREEN} hint={pct(pctEnrichis) + ' de la base'} />
@@ -104,7 +107,7 @@ export default function PilotageClient({ data }: { data: PilotageData }) {
 
       {/* Bloc 1 — Repartition par statut */}
       <Section icon={GitBranch} eyebrow="Bloc 1" title="Repartition par statut">
-        <p className="mb-5 text-[13px] leading-[1.5] text-[#6F5A50]">
+        <p className="mb-4 text-[13px] leading-[1.5] text-[#6F5A50]">
           Nombre de prospects par statut et part de la base totale. Les statuts
           du debut de funnel (a contacter, contacte) face aux issues (devis
           signe, perdu) donnent l&apos;etat d&apos;avancement du carnet.
@@ -130,16 +133,18 @@ export default function PilotageClient({ data }: { data: PilotageData }) {
                       background: isHi
                         ? `linear-gradient(90deg, ${BRAND}, ${BRAND_DARK})`
                         : 'linear-gradient(90deg, #E8C9A8, #C99A6E)',
-                      boxShadow: isHi ? '0 1px 6px rgba(243,146,83,0.35)' : 'none',
+                      boxShadow: isHi
+                        ? 'inset 0 1px 0 rgba(255,255,255,0.22), 0 1px 6px rgba(243,146,83,0.35)'
+                        : 'inset 0 1px 0 rgba(255,255,255,0.18)',
                     }}
                   >
-                    <span className="font-inter text-[11.5px] font-bold tabular-nums text-[#2A1810]">
+                    <span className="font-num text-[11.5px] font-bold tabular-nums text-[#2A1810]">
                       {r.count}
                     </span>
                   </div>
                 </div>
                 <div
-                  className="w-[52px] shrink-0 text-right font-inter text-[11.5px] font-semibold tabular-nums text-muted-warm"
+                  className="w-[52px] shrink-0 text-right font-num text-[11.5px] font-semibold tabular-nums text-muted-warm"
                   title="Part de la base totale"
                 >
                   {pct(r.pct)}
@@ -148,9 +153,9 @@ export default function PilotageClient({ data }: { data: PilotageData }) {
             );
           })}
           {repartition.length === 0 && (
-            <div className="flex flex-col items-center gap-3 rounded-2xl border border-[rgba(74,36,26,0.10)] bg-cream/60 px-6 py-10 text-center">
-              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-pale text-brand-dark">
-                <GitBranch size={20} strokeWidth={1.8} />
+            <div className="flex items-center gap-3 rounded-2xl border border-[rgba(74,36,26,0.08)] bg-cream/60 px-4 py-3">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-brand-pale text-brand-burnt">
+                <GitBranch size={18} strokeWidth={1.8} />
               </span>
               <div className="text-[13px] text-muted-warm">Aucun prospect dans la base.</div>
             </div>
@@ -160,12 +165,12 @@ export default function PilotageClient({ data }: { data: PilotageData }) {
 
       {/* Bloc 2 — Enrichissement Atlas */}
       <Section icon={Sparkles} eyebrow="Bloc 2" title="Enrichissement Atlas" accent>
-        <p className="mb-5 text-[13px] leading-[1.5] text-cream/80">
+        <p className="mb-4 text-[13px] leading-[1.5] text-cream/80">
           Prospects ayant une fiche d&apos;enrichissement Atlas (cascade FR), en
           ne gardant que la version la plus recente par prospect. Split selon le
           statut de l&apos;enrichissement.
         </p>
-        <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <MiniCard label="Prospects enrichis" value={String(enrichissement.distincts)} sub={pct(pctEnrichis) + ' de la base'} color={CHOCO} onDark />
           <MiniCard label="Enrichi" value={String(enrichissement.enrichis)} sub="Donnees confirmees" color={GREEN} onDark />
           <MiniCard label="A verifier (humain)" value={String(enrichissement.aVerifier)} sub="Revue manuelle requise" color={BRAND_DARK} onDark />
@@ -177,11 +182,11 @@ export default function PilotageClient({ data }: { data: PilotageData }) {
 
       {/* Bloc 3 — Qualite data */}
       <Section icon={ShieldAlert} eyebrow="Bloc 3" title="Qualite de la donnee">
-        <p className="mb-5 text-[13px] leading-[1.5] text-[#6F5A50]">
+        <p className="mb-4 text-[13px] leading-[1.5] text-[#6F5A50]">
           Trous de donnees qui freinent le demarchage. Chaque chiffre est un
           nombre de fiches a corriger ou a assigner.
         </p>
-        <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <MiniCard
             label="Sans telephone"
             value={String(qualite.sansTel)}
@@ -205,7 +210,7 @@ export default function PilotageClient({ data }: { data: PilotageData }) {
 
       {/* Bloc 4 — Lecture phone-first */}
       <Section icon={PhoneCall} eyebrow="Bloc 4" title="Lecture phone-first">
-        <p className="mb-5 text-[13px] leading-[1.5] text-[#6F5A50]">
+        <p className="mb-4 text-[13px] leading-[1.5] text-[#6F5A50]">
           Le demarchage GND est d&apos;abord telephonique. On compare la part de
           la base joignable par telephone a la part avec un email valide
           {phoneFirst.emailEnrichmentDispo
@@ -229,7 +234,7 @@ export default function PilotageClient({ data }: { data: PilotageData }) {
           />
         </div>
         {!phoneFirst.emailEnrichmentDispo && (
-          <p className="mt-4 rounded-2xl border border-[rgba(74,36,26,0.10)] bg-cream/50 px-4 py-3 text-xs leading-[1.5] text-muted-warm">
+          <p className="mt-3 rounded-2xl border border-[rgba(74,36,26,0.08)] bg-cream/50 px-4 py-2.5 text-xs leading-[1.5] text-muted-warm">
             Repli : aucune ligne d&apos;enrichissement Atlas trouvee, l&apos;email
             valide est approxime par le nombre de fiches avec un email renseigne.
             Le chiffre se precisera des qu&apos;Atlas aura tourne sur la base.
@@ -257,30 +262,39 @@ function Section({
     <section
       className={
         accent
-          ? 'surface-chocolate mb-6 rounded-3xl p-7'
-          : 'surface-ceramic mb-6 rounded-3xl p-7'
+          ? 'surface-chocolate relative mb-4 overflow-hidden rounded-[16px] p-4 sm:p-5'
+          : 'panel mb-4 p-4 sm:p-5'
       }
     >
-      <div className="mb-4 flex items-center gap-3">
+      <div className="mb-3 flex items-center gap-3">
         <div
           className={
             accent
-              ? 'flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-brand/20 text-brand p-2.5'
-              : 'flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-brand-pale text-brand-dark p-2.5'
+              ? 'flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-brand/20 p-2 text-brand'
+              : 'flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-brand-pale p-2 text-brand-burnt'
           }
         >
           <Icon size={18} strokeWidth={1.8} />
         </div>
         <div>
-          <div
-            className={
-              accent
-                ? 'font-inter text-[10px] font-semibold uppercase tracking-[0.18em] text-brand'
-                : 'font-inter text-[10px] font-semibold uppercase tracking-[0.18em] text-brand-burnt'
-            }
-          >
-            {eyebrow}
-          </div>
+          <span className="inline-flex items-center gap-2">
+            <span
+              className={
+                accent
+                  ? 'h-px w-4 bg-gradient-to-r from-[#E0A572] to-transparent'
+                  : 'h-px w-4 bg-gradient-to-r from-brand to-transparent'
+              }
+            />
+            <span
+              className={
+                accent
+                  ? 'font-grotesk text-[11px] font-semibold uppercase tracking-[0.13em] text-[#E0A572]'
+                  : 'font-grotesk text-[11px] font-semibold uppercase tracking-[0.13em] text-brand-burnt'
+              }
+            >
+              {eyebrow}
+            </span>
+          </span>
           <h2
             className={
               accent
@@ -292,7 +306,7 @@ function Section({
           </h2>
         </div>
       </div>
-      <div className="mt-4">{children}</div>
+      <div className="mt-3">{children}</div>
     </section>
   );
 }
@@ -309,18 +323,15 @@ function Stat({
   hint?: string;
 }) {
   return (
-    <div className="surface-ceramic rounded-3xl p-6">
-      <div className="font-inter text-[10px] font-semibold uppercase tracking-[0.16em] text-brand-burnt">
+    <div className="rounded-[12px] border border-cream/15 bg-cream/[0.06] p-4">
+      <div className="font-grotesk text-[10px] font-semibold uppercase tracking-[0.16em] text-cream/70">
         {label}
       </div>
-      <div
-        className="mt-2 font-marcellus text-[30px] font-medium leading-none tabular-nums"
-        style={{ color }}
-      >
+      <div className="mt-2 font-num text-[30px] font-medium leading-none tabular-nums text-cream">
         {value}
       </div>
       {hint && (
-        <div className="mt-2 font-inter text-[11px] text-muted-warm">{hint}</div>
+        <div className="mt-1.5 font-inter text-[11px] text-cream/55">{hint}</div>
       )}
     </div>
   );
@@ -343,21 +354,21 @@ function MiniCard({
     <div
       className={
         onDark
-          ? 'rounded-2xl border border-cream/15 bg-cream/[0.06] p-5'
-          : 'rounded-2xl border border-[rgba(74,36,26,0.10)] bg-cream/60 p-5'
+          ? 'rounded-[12px] border border-cream/15 bg-cream/[0.06] p-4'
+          : 'panel card-hover p-4'
       }
     >
       <div
         className={
           onDark
-            ? 'font-inter text-[10px] font-semibold uppercase tracking-[0.16em] text-cream/70'
-            : 'font-inter text-[10px] font-semibold uppercase tracking-[0.16em] text-brand-burnt'
+            ? 'font-grotesk text-[10px] font-semibold uppercase tracking-[0.16em] text-cream/70'
+            : 'font-grotesk text-[10px] font-semibold uppercase tracking-[0.16em] text-brand-burnt'
         }
       >
         {label}
       </div>
       <div
-        className="mt-2 font-marcellus text-[26px] font-medium leading-none tabular-nums"
+        className="mt-2 font-num text-[26px] font-medium leading-none tabular-nums"
         style={{ color: onDark ? '#FBF7F1' : color }}
       >
         {value}
@@ -365,8 +376,8 @@ function MiniCard({
       <div
         className={
           onDark
-            ? 'mt-2 font-inter text-[11.5px] text-cream/60'
-            : 'mt-2 font-inter text-[11.5px] text-muted-warm'
+            ? 'mt-1.5 font-inter text-[11.5px] text-cream/60'
+            : 'mt-1.5 font-inter text-[11.5px] text-muted-warm'
         }
       >
         {sub}
@@ -398,10 +409,14 @@ function Gauge({
         <div className="absolute inset-0 rounded-lg bg-cream-deep" />
         <div
           className="absolute bottom-0 left-0 top-0 min-w-[4px] rounded-lg transition-[width] duration-500 ease-out"
-          style={{ width: `${widthPct}%`, background: color }}
+          style={{
+            width: `${widthPct}%`,
+            background: color,
+            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.18), 0 1px 5px rgba(74,36,26,0.16)',
+          }}
         />
       </div>
-      <div className="w-[110px] shrink-0 text-right font-inter text-xs font-bold tabular-nums text-ink-warm">
+      <div className="w-[110px] shrink-0 text-right font-num text-xs font-bold tabular-nums text-ink-warm">
         {pct(ratio)}
         <span className="font-medium text-muted-warm">
           {' '}({count}/{total})
