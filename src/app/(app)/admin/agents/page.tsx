@@ -43,9 +43,6 @@ const FAINT = '#9A8A80';
 const AMBER = '#C96A2B';
 const BRAND = '#F39253';
 const CHOCO = '#532418';
-const CARD = '#FFFFFF';
-const HAIRLINE = 'rgba(74,36,26,0.10)';
-const BORDER = '1px solid rgba(74,36,26,0.10)';
 const SERIF = 'var(--font-marcellus), Georgia, serif';
 const MONO = 'var(--font-inter), ui-monospace, monospace';
 const SANS = 'var(--font-inter), system-ui, sans-serif';
@@ -94,62 +91,99 @@ export default async function AdminAgentsPage() {
         color: INK,
       }}
     >
-      <header style={{ marginBottom: 28, position: 'relative' }}>
+      {/* En-tête cockpit chocolat (identité admin Hermès) */}
+      <header
+        className="surface-chocolate"
+        style={{
+          position: 'relative',
+          overflow: 'hidden',
+          borderRadius: 16,
+          padding: '24px 26px',
+          marginBottom: 18,
+        }}
+      >
+        <span
+          aria-hidden
+          style={{
+            position: 'absolute',
+            right: 18,
+            bottom: -36,
+            fontFamily: SERIF,
+            fontSize: 110,
+            lineHeight: 1,
+            color: 'rgba(251,247,241,0.08)',
+            pointerEvents: 'none',
+            userSelect: 'none',
+          }}
+        >
+          Hermès
+        </span>
         <div
           style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 10,
-            fontFamily: MONO,
-            fontSize: 11,
-            fontWeight: 600,
-            textTransform: 'uppercase',
-            letterSpacing: '0.14em',
-            color: AMBER,
-            marginBottom: 12,
+            position: 'relative',
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'flex-end',
+            justifyContent: 'space-between',
+            gap: 16,
           }}
         >
-          <span
-            aria-hidden
-            style={{
-              width: 22,
-              height: 2,
-              borderRadius: 2,
-              background: BRAND,
-              display: 'inline-block',
-            }}
-          />
-          ADMIN · ARMÉE HERMÈS
-        </div>
-        <h1
-          style={{
-            fontFamily: SERIF,
-            fontSize: 32,
-            fontWeight: 500,
-            letterSpacing: '-0.01em',
-            color: CHOCO,
-            margin: 0,
-            lineHeight: 1.1,
-          }}
-        >
-          Registre des agents
-        </h1>
-        <p
-          style={{
-            fontSize: 14,
-            lineHeight: 1.55,
-            color: SOFT,
-            marginTop: 12,
-            maxWidth: 660,
-          }}
-        >
-          Armée commerciale Hermès — registre des agents IA. Chaque agent a un
-          périmètre DB scopé via son rôle Postgres (jamais <code style={{ fontFamily: MONO, fontSize: 13, color: AMBER }}>deal_amount</code>) :
-          il lit des vues cloisonnées et n&apos;accède jamais au chiffre
-          d&apos;affaires. Lecture seule, temps réel.
-        </p>
+          <div style={{ minWidth: 0 }}>
+            <div
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 10,
+                fontFamily: MONO,
+                fontSize: 11,
+                fontWeight: 600,
+                textTransform: 'uppercase',
+                letterSpacing: '0.14em',
+                color: '#E0A572',
+                marginBottom: 12,
+              }}
+            >
+              <span
+                aria-hidden
+                style={{
+                  width: 22,
+                  height: 2,
+                  borderRadius: 2,
+                  background: BRAND,
+                  display: 'inline-block',
+                }}
+              />
+              ADMIN · ARMÉE HERMÈS
+            </div>
+            <h1
+              style={{
+                fontFamily: SERIF,
+                fontSize: 32,
+                fontWeight: 500,
+                letterSpacing: '-0.01em',
+                color: '#FBF7F1',
+                margin: 0,
+                lineHeight: 1.1,
+              }}
+            >
+              Registre des agents
+            </h1>
+            <p
+              style={{
+                fontSize: 13.5,
+                lineHeight: 1.55,
+                color: 'rgba(251,247,241,0.58)',
+                marginTop: 10,
+                maxWidth: 600,
+              }}
+            >
+              Armée commerciale Hermès — registre des agents IA. Chaque agent a un
+              périmètre DB scopé via son rôle Postgres (jamais <code style={{ fontFamily: MONO, fontSize: 13, color: '#E0A572' }}>deal_amount</code>) :
+              il lit des vues cloisonnées et n&apos;accède jamais au chiffre
+              d&apos;affaires. Lecture seule, temps réel.
+            </p>
+          </div>
 
-        <div style={{ marginTop: 18 }}>
           <a
             href={HERMES_CONSOLE_URL}
             target="_blank"
@@ -169,35 +203,37 @@ export default async function AdminAgentsPage() {
               color: '#2A1810',
               textDecoration: 'none',
               whiteSpace: 'nowrap',
-              boxShadow: '0 8px 22px -10px rgba(243,146,83,0.65)',
+              boxShadow: '0 10px 26px -10px rgba(243,146,83,0.7)',
+              flexShrink: 0,
             }}
           >
             Ouvrir la console Hermès ↗
           </a>
-          <p
-            style={{
-              fontFamily: SANS,
-              fontSize: 11,
-              lineHeight: 1.45,
-              color: FAINT,
-              margin: '8px 0 0',
-              maxWidth: 660,
-            }}
-          >
-            Pilote les agents (chat, Kanban, dispatch) dans un nouvel onglet.
-          </p>
         </div>
+        <p
+          style={{
+            position: 'relative',
+            fontFamily: SANS,
+            fontSize: 11,
+            lineHeight: 1.45,
+            color: 'rgba(251,247,241,0.42)',
+            margin: '10px 0 0',
+          }}
+        >
+          Pilote les agents (chat, Kanban, dispatch) dans un nouvel onglet.
+        </p>
       </header>
 
+      {/* Stats compactes — matière + chiffres font-num */}
       <div
         style={{
           display: 'flex',
           flexWrap: 'wrap',
           gap: 12,
-          marginBottom: 32,
+          marginBottom: 26,
         }}
       >
-        <Stat label="Agents" value={agents.length} color={INK} />
+        <Stat label="Agents" value={agents.length} color={CHOCO} />
         <Stat label="En cours" value={running} color={'#4F7A38'} />
         <Stat label="En erreur" value={inError} color={'#A04A4A'} />
         <Stat label="Périmètres DB" value={groups.size} color={AMBER} />
@@ -205,17 +241,12 @@ export default async function AdminAgentsPage() {
 
       {agents.length === 0 ? (
         <div
+          className="panel"
           style={{
-            background: CARD,
-            border: BORDER,
-            borderRadius: 24,
-            padding: '48px 32px',
-            textAlign: 'center',
             display: 'flex',
-            flexDirection: 'column',
             alignItems: 'center',
             gap: 14,
-            boxShadow: '0 1px 2px rgba(74,36,26,0.04), 0 14px 38px -26px rgba(74,36,26,0.30)',
+            padding: 16,
           }}
         >
           <span
@@ -224,30 +255,33 @@ export default async function AdminAgentsPage() {
               display: 'inline-flex',
               alignItems: 'center',
               justifyContent: 'center',
-              width: 52,
-              height: 52,
+              width: 44,
+              height: 44,
               borderRadius: 16,
               background: 'rgba(243,146,83,0.12)',
-              fontSize: 24,
+              color: AMBER,
+              fontSize: 22,
+              flexShrink: 0,
             }}
           >
             🤖
           </span>
-          <p
-            style={{
-              fontFamily: SERIF,
-              fontSize: 20,
-              fontWeight: 500,
-              color: CHOCO,
-              margin: 0,
-            }}
-          >
-            Aucun agent enregistré
-          </p>
-          <p style={{ fontSize: 13.5, lineHeight: 1.55, color: SOFT, margin: 0, maxWidth: 420 }}>
-            Aucun agent enregistré pour l&apos;instant. Les agents apparaîtront ici
-            une fois le socle Hermès provisionné (migration 0025).
-          </p>
+          <div style={{ minWidth: 0 }}>
+            <p
+              style={{
+                fontFamily: SERIF,
+                fontSize: 16,
+                fontWeight: 500,
+                color: CHOCO,
+                margin: 0,
+              }}
+            >
+              Aucun agent enregistré
+            </p>
+            <p style={{ fontSize: 12.5, lineHeight: 1.5, color: SOFT, margin: '3px 0 0' }}>
+              Les agents apparaîtront ici une fois le socle Hermès provisionné (migration 0025).
+            </p>
+          </div>
         </div>
       ) : (
         [...groups.entries()].map(([dbRole, list]) => (
@@ -300,14 +334,11 @@ function Stat({
 }) {
   return (
     <div
+      className="panel"
       style={{
         flex: 1,
         minWidth: 150,
-        background: CARD,
-        border: BORDER,
-        borderRadius: 22,
-        padding: '18px 20px',
-        boxShadow: '0 1px 2px rgba(74,36,26,0.04), 0 10px 30px -22px rgba(74,36,26,0.30)',
+        padding: 16,
       }}
     >
       <div
@@ -324,6 +355,7 @@ function Stat({
         {label}
       </div>
       <div
+        className="font-num"
         style={{
           fontFamily: SERIF,
           fontSize: 30,
@@ -389,7 +421,12 @@ function Field({ label, value }: { label: string; value: string }) {
       >
         {label}
       </span>
-      <span style={{ fontFamily: SANS, fontSize: 12, color: INK }}>{value}</span>
+      <span
+        className="font-num"
+        style={{ fontFamily: SANS, fontSize: 12, color: INK }}
+      >
+        {value}
+      </span>
     </div>
   );
 }
@@ -397,16 +434,12 @@ function Field({ label, value }: { label: string; value: string }) {
 function AgentCard({ agent }: { agent: Agent }) {
   return (
     <article
-      className="card-hover"
+      className="panel card-hover"
       style={{
-        background: CARD,
-        border: BORDER,
-        borderRadius: 24,
-        padding: 22,
+        padding: 16,
         display: 'flex',
         flexDirection: 'column',
-        gap: 14,
-        boxShadow: '0 1px 2px rgba(74,36,26,0.04), 0 14px 38px -26px rgba(74,36,26,0.32)',
+        gap: 12,
       }}
     >
       {/* Titre + statut */}
@@ -470,14 +503,14 @@ function AgentCard({ agent }: { agent: Agent }) {
         <Field label="Modèle" value={agent.model ?? '—'} />
       </div>
 
+      <span className="divider-warm" aria-hidden style={{ display: 'block', height: 1 }} />
+
       {/* db_role + Telegram + last seen */}
       <div
         style={{
           display: 'flex',
           flexWrap: 'wrap',
           gap: 16,
-          paddingTop: 12,
-          borderTop: `1px solid ${HAIRLINE}`,
         }}
       >
         <Field label="Rôle DB" value={agent.db_role ?? '—'} />
