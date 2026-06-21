@@ -203,17 +203,28 @@ function Card({
       whileHover={{ y: -4 }}
       transition={{ type: 'spring', stiffness: 300, damping: 22 }}
       className={
-        'rounded-3xl border border-border-soft bg-white/80 p-5 shadow-soft backdrop-blur-sm transition-shadow hover:shadow-soft-md md:p-7 ' +
+        'surface-ceramic card-hover group/card relative overflow-hidden rounded-3xl p-6 md:p-7 ' +
         (wide ? 'md:col-span-2' : '')
       }
     >
-      <h2 className="mb-4 flex items-center gap-2.5 font-marcellus text-lg font-medium text-choco">
-        <span aria-hidden className="text-xl">
+      <span
+        aria-hidden
+        className="pointer-events-none absolute right-5 top-4 select-none text-[2.75rem] leading-none opacity-[0.06] transition-opacity duration-300 group-hover/card:opacity-[0.1]"
+      >
+        {emoji}
+      </span>
+      <div className="relative mb-5 flex items-center gap-3">
+        <span
+          aria-hidden
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-brand-pale text-xl shadow-soft"
+        >
           {emoji}
         </span>
-        {title}
-      </h2>
-      {children}
+        <h2 className="font-marcellus text-lg font-medium tracking-tight text-choco">
+          {title}
+        </h2>
+      </div>
+      <div className="relative">{children}</div>
     </motion.section>
   );
 }
@@ -315,21 +326,21 @@ export default function OnboardingClient({
           </Card>
 
           <Card emoji="💰" title="Ta rémunération">
-            <ul className="space-y-2 text-sm text-ink-warm">
-              <li>
-                <strong>Ta commission : {commissionPct ?? '—'}%</strong> par
-                contrat signé.
+            <ul className="space-y-3 text-sm text-ink-warm">
+              <li className="flex flex-col gap-0.5">
+                <strong className="text-choco">Ta commission : {commissionPct ?? '—'}%</strong>
+                <span className="text-muted-warm">par contrat signé.</span>
               </li>
-              <li>
-                <strong>Paiement</strong> : 15 jours après encaissement total du
-                client.
+              <li className="flex flex-col gap-0.5">
+                <strong className="text-choco">Paiement</strong>
+                <span className="text-muted-warm">15 jours après encaissement total du client.</span>
               </li>
-              <li className="text-muted-warm">
+              <li className="hairline mt-1 rounded-2xl bg-cream/50 px-3.5 py-3 text-xs text-muted-warm">
                 Acompte 50% → livraison → solde 50% → tu factures → payé sous 15 j.
               </li>
             </ul>
-            <div className="mt-4 rounded-2xl bg-cream-deep p-4">
-              <p className="mb-2.5 font-inter text-[10px] font-semibold uppercase tracking-[0.15em] text-brand-dark">
+            <div className="surface-accent mt-5 rounded-2xl p-4">
+              <p className="label-eyebrow mb-3">
                 Paliers bonus (sur 3 mois)
               </p>
               <div className="flex flex-wrap gap-2">
@@ -340,9 +351,9 @@ export default function OnboardingClient({
                     whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true }}
                     transition={{ delay: 0.1 * i }}
-                    className="rounded-full border border-border-soft bg-white px-3 py-1 text-xs font-medium text-ink-warm"
+                    className="hairline-brand inline-flex items-center gap-1 rounded-full bg-white px-3 py-1.5 text-xs font-medium text-ink-warm shadow-soft"
                   >
-                    {t.contrats} contrats → <strong>{t.bonus}€</strong>
+                    {t.contrats} contrats → <strong className="text-brand-burnt">{t.bonus}€</strong>
                   </motion.span>
                 ))}
               </div>
@@ -350,52 +361,84 @@ export default function OnboardingClient({
           </Card>
 
           <Card emoji="🎯" title="Process de vente — A à Z">
-            <ol className="space-y-1.5 text-sm text-ink-warm">
-              <li>1. Tu prospectes sur ta zone / liste attribuée</li>
-              <li>2. Tu qualifies (besoin, budget, décideur)</li>
-              <li>3. Tu présentes l&apos;offre adaptée</li>
-              <li>4. Tu closes et fais signer le devis</li>
-              <li>5. Tu transmets les infos par email</li>
+            <ol className="space-y-2.5 text-sm text-ink-warm">
+              <li className="flex items-start gap-3">
+                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-pale text-[11px] font-semibold text-brand-burnt tabular-nums">1</span>
+                <span>Tu prospectes sur ta zone / liste attribuée</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-pale text-[11px] font-semibold text-brand-burnt tabular-nums">2</span>
+                <span>Tu qualifies (besoin, budget, décideur)</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-pale text-[11px] font-semibold text-brand-burnt tabular-nums">3</span>
+                <span>Tu présentes l&apos;offre adaptée</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-pale text-[11px] font-semibold text-brand-burnt tabular-nums">4</span>
+                <span>Tu closes et fais signer le devis</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-pale text-[11px] font-semibold text-brand-burnt tabular-nums">5</span>
+                <span>Tu transmets les infos par email</span>
+              </li>
             </ol>
-            <p className="mt-3 text-xs text-muted-warm">
+            <p className="hairline mt-4 rounded-2xl bg-cream/50 px-3.5 py-3 text-xs text-muted-warm">
               Blocage majeur uniquement → tu me contactes, on voit ensemble.
             </p>
           </Card>
 
           <Card emoji="📞" title="Communication">
-            <ul className="space-y-2 text-sm text-ink-warm">
-              <li>
-                Questions rapides / informel → <strong>WhatsApp</strong>
+            <ul className="divide-y divide-[rgba(74,36,26,0.08)] text-sm text-ink-warm">
+              <li className="flex items-center justify-between gap-3 py-2">
+                <span className="text-muted-warm">Questions rapides / informel</span>
+                <strong className="shrink-0 rounded-full bg-ok-bg px-2.5 py-0.5 text-xs text-ok-fg">WhatsApp</strong>
               </li>
-              <li>
-                Infos clients (nom, formule, montant) → <strong>Email</strong>
+              <li className="flex items-center justify-between gap-3 py-2">
+                <span className="text-muted-warm">Infos clients (nom, formule, montant)</span>
+                <strong className="shrink-0 rounded-full bg-info-bg px-2.5 py-0.5 text-xs text-info-fg">Email</strong>
               </li>
-              <li>
-                Déclarer un contrat signé → <strong>Email</strong>
+              <li className="flex items-center justify-between gap-3 py-2">
+                <span className="text-muted-warm">Déclarer un contrat signé</span>
+                <strong className="shrink-0 rounded-full bg-info-bg px-2.5 py-0.5 text-xs text-info-fg">Email</strong>
               </li>
-              <li>
-                Facturation &amp; commissions → <strong>Email</strong>
+              <li className="flex items-center justify-between gap-3 py-2">
+                <span className="text-muted-warm">Facturation &amp; commissions</span>
+                <strong className="shrink-0 rounded-full bg-info-bg px-2.5 py-0.5 text-xs text-info-fg">Email</strong>
               </li>
             </ul>
             <a
               href={`mailto:${CONTACT_EMAIL}`}
-              className="mt-3 inline-block text-sm font-semibold text-brand-dark underline decoration-brand/30 underline-offset-4 hover:decoration-brand"
+              className="mt-4 inline-flex items-center rounded-full bg-cream-deep px-3.5 py-1.5 text-sm font-semibold text-brand-burnt transition hover:bg-brand-pale"
             >
               {CONTACT_EMAIL}
             </a>
           </Card>
 
           <Card emoji="✅" title="Déclarer un contrat signé">
-            <p className="mb-2 text-sm text-muted-warm">
+            <p className="mb-3 text-sm text-muted-warm">
               Par email à {CONTACT_EMAIL}, avec :
             </p>
-            <ul className="space-y-1 text-sm text-ink-warm">
-              <li>• Nom du commerce</li>
-              <li>• Contact : nom + téléphone + email</li>
-              <li>• Formule (Essentiel / Réservation / Pack Complet)</li>
-              <li>• Montant signé</li>
-              <li>
-                • <strong>Devis signé en pièce jointe</strong>
+            <ul className="space-y-2 text-sm text-ink-warm">
+              <li className="flex items-start gap-2.5">
+                <span aria-hidden className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-brand" />
+                <span>Nom du commerce</span>
+              </li>
+              <li className="flex items-start gap-2.5">
+                <span aria-hidden className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-brand" />
+                <span>Contact : nom + téléphone + email</span>
+              </li>
+              <li className="flex items-start gap-2.5">
+                <span aria-hidden className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-brand" />
+                <span>Formule (Essentiel / Réservation / Pack Complet)</span>
+              </li>
+              <li className="flex items-start gap-2.5">
+                <span aria-hidden className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-brand" />
+                <span>Montant signé</span>
+              </li>
+              <li className="flex items-start gap-2.5">
+                <span aria-hidden className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-brand" />
+                <span><strong className="text-choco">Devis signé en pièce jointe</strong></span>
               </li>
             </ul>
           </Card>
@@ -416,21 +459,22 @@ export default function OnboardingClient({
           </Card>
 
           <Card emoji="🚫" title="Règles d'or">
-            <ol className="space-y-1.5 text-sm text-ink-warm">
-              <li>
-                1. <strong>Confidentialité</strong> — tarifs, marges et méthodes
-                restent confidentiels.
+            <ol className="space-y-2.5 text-sm text-ink-warm">
+              <li className="flex items-start gap-3">
+                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-pale text-[11px] font-semibold text-brand-burnt tabular-nums">1</span>
+                <span><strong className="text-choco">Confidentialité</strong> — tarifs, marges et méthodes restent confidentiels.</span>
               </li>
-              <li>
-                2. <strong>Pas de doublon</strong> — uniquement ta zone / liste
-                attribuée.
+              <li className="flex items-start gap-3">
+                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-pale text-[11px] font-semibold text-brand-burnt tabular-nums">2</span>
+                <span><strong className="text-choco">Pas de doublon</strong> — uniquement ta zone / liste attribuée.</span>
               </li>
-              <li>
-                3. Interdit d&apos;appeler un prospect marqué « En cours » par un
-                autre.
+              <li className="flex items-start gap-3">
+                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-pale text-[11px] font-semibold text-brand-burnt tabular-nums">3</span>
+                <span>Interdit d&apos;appeler un prospect marqué « En cours » par un autre.</span>
               </li>
-              <li>
-                4. <strong>Autonomie</strong> — tu gères ton emploi du temps.
+              <li className="flex items-start gap-3">
+                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-pale text-[11px] font-semibold text-brand-burnt tabular-nums">4</span>
+                <span><strong className="text-choco">Autonomie</strong> — tu gères ton emploi du temps.</span>
               </li>
             </ol>
           </Card>
