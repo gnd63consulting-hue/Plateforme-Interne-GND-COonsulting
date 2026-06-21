@@ -84,20 +84,30 @@ export default async function InvitationsPage() {
   }));
 
   return (
-    <div style={{ maxWidth: 920, margin: '0 auto', padding: '40px 28px 64px', color: CREAM, position: 'relative' }}>
-      {/* Header */}
-      <header style={{ marginBottom: 32, position: 'relative' }}>
+    <div style={{ maxWidth: 920, margin: '0 auto', padding: '32px 28px 56px', color: CREAM, position: 'relative' }}>
+      {/* Header — bandeau chocolat cockpit */}
+      <header
+        style={{
+          position: 'relative',
+          overflow: 'hidden',
+          borderRadius: 16,
+          padding: '22px 26px',
+          marginBottom: 28,
+          background: 'linear-gradient(155deg, #4A2719 0%, #2A1510 100%)',
+          boxShadow: '0 1px 2px rgba(42,21,16,0.18), 0 18px 44px -28px rgba(42,21,16,0.55)',
+        }}
+      >
         <div
           aria-hidden
           style={{
             position: 'absolute',
-            top: -28,
-            right: -8,
+            top: -34,
+            right: -6,
             fontFamily: SERIF,
-            fontSize: 116,
+            fontSize: 110,
             lineHeight: 1,
             fontWeight: 500,
-            color: 'rgba(243,146,83,0.06)',
+            color: 'rgba(255,247,240,0.08)',
             letterSpacing: '-0.02em',
             pointerEvents: 'none',
             userSelect: 'none',
@@ -106,50 +116,64 @@ export default async function InvitationsPage() {
         >
           Équipe
         </div>
-        <div
-          style={{
-            position: 'relative',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 8,
-            fontFamily: MONO,
-            fontSize: 10,
-            fontWeight: 600,
-            textTransform: 'uppercase',
-            letterSpacing: '0.22em',
-            color: AMBER,
-            marginBottom: 10,
-          }}
-        >
-          <span style={{ width: 18, height: 1.5, background: BRAND, borderRadius: 999 }} />
-          ADMIN · ÉQUIPE
+        <div style={{ position: 'relative', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+          <div style={{ minWidth: 0 }}>
+            <div
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                fontFamily: MONO,
+                fontSize: 10,
+                fontWeight: 600,
+                textTransform: 'uppercase',
+                letterSpacing: '0.22em',
+                color: '#E0A572',
+                marginBottom: 10,
+              }}
+            >
+              <span style={{ width: 18, height: 1.5, background: BRAND, borderRadius: 999 }} />
+              ADMIN · ÉQUIPE
+            </div>
+            <h1
+              style={{
+                fontFamily: SERIF,
+                fontSize: 32,
+                fontWeight: 500,
+                letterSpacing: '-0.01em',
+                color: '#FBF7F1',
+                margin: 0,
+                lineHeight: 1.1,
+              }}
+            >
+              Équipe &amp; invitations
+            </h1>
+            <p style={{ fontSize: 13.5, lineHeight: 1.55, color: 'rgba(255,247,240,0.58)', marginTop: 10, maxWidth: 560 }}>
+              Gère tes membres (rôle, autorisations, commission, prospects) et invite de nouvelles personnes.
+              Login Google uniquement, tu ajoutes un email, la personne se connecte.
+            </p>
+          </div>
+          <div style={{ display: 'flex', gap: 18, flexShrink: 0 }}>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontFamily: MONO, fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.16em', color: 'rgba(255,247,240,0.42)' }}>Membres</div>
+              <div style={{ fontFamily: SERIF, fontSize: 26, color: '#F4C79A', lineHeight: 1.1, marginTop: 4, fontVariantNumeric: 'tabular-nums' }}>{members.length}</div>
+            </div>
+            <div style={{ width: 1, background: 'rgba(255,247,240,0.12)' }} />
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontFamily: MONO, fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.16em', color: 'rgba(255,247,240,0.42)' }}>En attente</div>
+              <div style={{ fontFamily: SERIF, fontSize: 26, color: '#F4C79A', lineHeight: 1.1, marginTop: 4, fontVariantNumeric: 'tabular-nums' }}>{pending.length}</div>
+            </div>
+          </div>
         </div>
-        <h1
-          style={{
-            position: 'relative',
-            fontFamily: SERIF,
-            fontSize: 32,
-            fontWeight: 500,
-            letterSpacing: '-0.01em',
-            color: '#532418',
-            margin: 0,
-            lineHeight: 1.1,
-          }}
-        >
-          Équipe &amp; invitations
-        </h1>
-        <p style={{ position: 'relative', fontSize: 14, lineHeight: 1.55, color: CREAM_SOFT, marginTop: 12, maxWidth: 560 }}>
-          Gère tes membres (rôle, autorisations, commission, prospects) et invite de nouvelles personnes.
-          Login Google uniquement — tu ajoutes un email, la personne se connecte.
-        </p>
       </header>
 
       {/* Membres actifs */}
-      <section style={{ marginBottom: 36 }}>
-        <h2 style={{ fontFamily: MONO, fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.18em', color: AMBER, margin: '0 0 16px' }}>
-          Membres actifs ({members.length})
+      <section style={{ marginBottom: 30 }}>
+        <h2 style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontFamily: MONO, fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.18em', color: AMBER, margin: '0 0 14px' }}>
+          <span style={{ width: 16, height: 1, background: 'linear-gradient(90deg, #F39253, transparent)', borderRadius: 999 }} />
+          Membres actifs (<span style={{ fontVariantNumeric: 'tabular-nums' }}>{members.length}</span>)
         </h2>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {members.map((m) => (
             <MemberManager key={m.id} member={m} />
           ))}
@@ -162,13 +186,14 @@ export default async function InvitationsPage() {
 
       {/* Membres archivés (réversible) */}
       {archivedMembers.length > 0 && (
-        <section style={{ marginBottom: 36 }}>
-          <h2 style={{ fontFamily: MONO, fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.18em', color: '#9A8A80', margin: '0 0 16px' }}>
-            Membres archivés ({archivedMembers.length})
+        <section style={{ marginBottom: 30 }}>
+          <h2 style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontFamily: MONO, fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.18em', color: '#9A8A80', margin: '0 0 14px' }}>
+            <span style={{ width: 16, height: 1, background: 'linear-gradient(90deg, rgba(154,138,128,0.7), transparent)', borderRadius: 999 }} />
+            Membres archivés (<span style={{ fontVariantNumeric: 'tabular-nums' }}>{archivedMembers.length}</span>)
           </h2>
-          <div style={{ background: CARD_BG, border: CARD_BORDER, borderRadius: 24, overflow: 'hidden', boxShadow: CARD_SHADOW }}>
+          <div style={{ background: CARD_BG, border: CARD_BORDER, borderRadius: 14, overflow: 'hidden', boxShadow: CARD_SHADOW }}>
             {archivedMembers.map((u) => (
-              <div key={u.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 18px', borderBottom: HAIRLINE }}>
+              <div key={u.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 16px', borderBottom: HAIRLINE }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontFamily: 'var(--font-inter), system-ui, sans-serif', fontSize: 14, fontWeight: 600, color: CREAM }}>
                     {u.full_name ?? u.email.split('@')[0]}
@@ -195,13 +220,13 @@ export default async function InvitationsPage() {
         style={{
           background: CARD_BG,
           border: CARD_BORDER,
-          borderRadius: 24,
-          padding: 28,
-          marginBottom: 36,
+          borderRadius: 14,
+          padding: 20,
+          marginBottom: 30,
           boxShadow: CARD_SHADOW,
         }}
       >
-        <h2 style={{ fontFamily: SERIF, fontSize: 19, fontWeight: 500, color: '#532418', margin: '0 0 18px', display: 'flex', alignItems: 'center', gap: 10 }}>
+        <h2 style={{ fontFamily: SERIF, fontSize: 19, fontWeight: 500, color: '#532418', margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 10 }}>
           <span style={{ width: 22, height: 1.5, background: BRAND, borderRadius: 999 }} />
           Inviter quelqu&apos;un
         </h2>
@@ -209,23 +234,27 @@ export default async function InvitationsPage() {
       </section>
 
       {/* Pending */}
-      <section style={{ marginBottom: 40 }}>
+      <section style={{ marginBottom: 34 }}>
         <h2
           style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 8,
             fontFamily: MONO,
             fontSize: 11,
             fontWeight: 600,
             textTransform: 'uppercase',
             letterSpacing: '0.18em',
             color: AMBER,
-            margin: '0 0 16px',
+            margin: '0 0 14px',
           }}
         >
-          Invitations en attente ({pending.length})
+          <span style={{ width: 16, height: 1, background: 'linear-gradient(90deg, #F39253, transparent)', borderRadius: 999 }} />
+          Invitations en attente (<span style={{ fontVariantNumeric: 'tabular-nums' }}>{pending.length}</span>)
         </h2>
         {pending.length === 0 ? (
-          <div style={{ background: 'linear-gradient(180deg, rgba(243,146,83,0.05) 0%, rgba(253,250,246,0.6) 100%)', border: HAIRLINE, borderRadius: 24, padding: '32px 24px', textAlign: 'center' }}>
-            <div style={{ width: 44, height: 44, margin: '0 auto 12px', borderRadius: 16, background: 'rgba(243,146,83,0.14)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: AMBER, fontFamily: SERIF, fontSize: 22 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'linear-gradient(180deg, rgba(243,146,83,0.05) 0%, rgba(253,250,246,0.6) 100%)', border: HAIRLINE, borderRadius: 14, padding: '12px 16px' }}>
+            <div style={{ width: 34, height: 34, flexShrink: 0, borderRadius: 12, background: 'rgba(243,146,83,0.14)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: AMBER, fontFamily: SERIF, fontSize: 17 }}>
               ✦
             </div>
             <p style={{ fontSize: 13, color: CREAM_SOFT, margin: 0 }}>Aucune invitation en attente.</p>
@@ -235,7 +264,7 @@ export default async function InvitationsPage() {
             style={{
               background: CARD_BG,
               border: CARD_BORDER,
-              borderRadius: 24,
+              borderRadius: 14,
               overflow: 'hidden',
               boxShadow: CARD_SHADOW,
             }}
@@ -266,10 +295,10 @@ export default async function InvitationsPage() {
               <tbody>
                 {pending.map((inv) => (
                   <tr key={inv.id} style={{ borderBottom: HAIRLINE }}>
-                    <td style={{ padding: '13px 16px', color: CREAM, fontFamily: MONO, fontSize: 12 }}>
+                    <td style={{ padding: '10px 16px', color: CREAM, fontFamily: MONO, fontSize: 12, fontVariantNumeric: 'tabular-nums' }}>
                       {inv.email}
                     </td>
-                    <td style={{ padding: '13px 16px' }}>
+                    <td style={{ padding: '10px 16px' }}>
                       <span
                         style={{
                           display: 'inline-block',
@@ -285,13 +314,13 @@ export default async function InvitationsPage() {
                         {inv.role}
                       </span>
                     </td>
-                    <td style={{ padding: '13px 16px', color: CREAM_SOFT }}>
+                    <td style={{ padding: '10px 16px', color: CREAM_SOFT, fontVariantNumeric: 'tabular-nums' }}>
                       {new Date(inv.invited_at).toLocaleDateString('fr-FR')}
                     </td>
-                    <td style={{ padding: '13px 16px', color: CREAM_SOFT }}>
+                    <td style={{ padding: '10px 16px', color: CREAM_SOFT, fontVariantNumeric: 'tabular-nums' }}>
                       {new Date(inv.expires_at).toLocaleDateString('fr-FR')}
                     </td>
-                    <td style={{ padding: '13px 16px' }}>
+                    <td style={{ padding: '10px 16px' }}>
                       <form action={revokeInvitation}>
                         <input type="hidden" name="id" value={inv.id} />
                         <button
@@ -323,19 +352,24 @@ export default async function InvitationsPage() {
       <section>
         <h2
           style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 8,
             fontFamily: MONO,
             fontSize: 11,
             fontWeight: 600,
             textTransform: 'uppercase',
             letterSpacing: '0.18em',
             color: '#9A8A80',
-            margin: '0 0 16px',
+            margin: '0 0 14px',
           }}
         >
-          Membres déjà entrés ({consumed.length})
+          <span style={{ width: 16, height: 1, background: 'linear-gradient(90deg, rgba(154,138,128,0.7), transparent)', borderRadius: 999 }} />
+          Membres déjà entrés (<span style={{ fontVariantNumeric: 'tabular-nums' }}>{consumed.length}</span>)
         </h2>
         {consumed.length === 0 ? (
-          <div style={{ background: 'linear-gradient(180deg, rgba(243,146,83,0.05) 0%, rgba(253,250,246,0.6) 100%)', border: HAIRLINE, borderRadius: 24, padding: '28px 24px', textAlign: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'linear-gradient(180deg, rgba(243,146,83,0.05) 0%, rgba(253,250,246,0.6) 100%)', border: HAIRLINE, borderRadius: 14, padding: '12px 16px' }}>
+            <div style={{ width: 34, height: 34, flexShrink: 0, borderRadius: 12, background: 'rgba(243,146,83,0.14)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: AMBER, fontFamily: SERIF, fontSize: 17 }}>✦</div>
             <p style={{ fontSize: 13, color: CREAM_SOFT, margin: 0 }}>Aucun.</p>
           </div>
         ) : (
@@ -352,11 +386,11 @@ export default async function InvitationsPage() {
                   flexWrap: 'wrap',
                 }}
               >
-                <span style={{ fontFamily: MONO, fontSize: 12, color: CREAM }}>{inv.email}</span>
+                <span style={{ fontFamily: MONO, fontSize: 12, color: CREAM, fontVariantNumeric: 'tabular-nums' }}>{inv.email}</span>
                 <span style={{ color: '#B8A99C' }}>·</span>
                 <span>{inv.role}</span>
                 <span style={{ color: '#B8A99C' }}>·</span>
-                <span>
+                <span style={{ fontVariantNumeric: 'tabular-nums' }}>
                   entré le{' '}
                   {inv.consumed_at ? new Date(inv.consumed_at).toLocaleDateString('fr-FR') : '—'}
                 </span>
