@@ -1,9 +1,16 @@
 'use client';
 
+import Link from 'next/link';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
-import ModuleCard from '@/components/ModuleCard';
-import FormationHeroVisual from '@/components/FormationHeroVisual';
+import {
+  ArrowRight,
+  ArrowUpRight,
+  BookOpen,
+  CheckCircle2,
+  Clock,
+  Lock,
+} from 'lucide-react';
 
 type ModuleWithState = {
   slug: string;
@@ -48,65 +55,53 @@ export default function FormationClient({
     : modules;
 
   return (
-    <div className="relative">
+    <div className="relative flex flex-col gap-8">
       {/* ====================================================== */}
-      {/* Hero — split in 2: text+dial left, 3D scene right        */}
+      {/* HERO — bandeau chocolat cockpit : eyebrow + titre + progression */}
       {/* ====================================================== */}
       <header
         ref={heroRef}
-        className="surface-accent relative mb-20 grid min-h-[70vh] grid-cols-1 items-center gap-12 overflow-hidden rounded-[32px] px-6 py-12 shadow-soft-md hairline sm:px-10 sm:py-14 lg:grid-cols-[7fr_5fr] lg:gap-16 lg:px-14"
+        className="surface-chocolate relative overflow-hidden rounded-[16px] p-5 sm:p-6"
       >
-        {/* Watermark FORMATION */}
+        {/* Filigrane */}
         <motion.span
           aria-hidden
           style={{ y: watermarkY, opacity: watermarkOpacity }}
-          className="watermark pointer-events-none absolute -bottom-10 -left-4 select-none whitespace-nowrap font-marcellus text-[20vw] font-medium leading-none tracking-tighter text-choco/[0.04] sm:-bottom-20 sm:text-[16rem]"
+          className="pointer-events-none absolute -bottom-10 right-2 select-none whitespace-nowrap font-marcellus text-[110px] leading-none tracking-tight text-cream/[0.08] sm:text-[130px]"
         >
-          Formation.
+          Formation
         </motion.span>
 
-        {/* Soft warm halos for depth */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-brand/10 blur-3xl"
-        />
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -bottom-24 left-1/3 h-64 w-64 rounded-full bg-brand-pale/40 blur-3xl"
-        />
-
-        {/* Left column — title + intro + dial */}
-        <div className="relative z-10 flex flex-col gap-10">
+        <div className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+          {/* Identité gauche */}
           <motion.div
-            initial={{ opacity: 0, y: 24 }}
+            initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-            className="max-w-2xl"
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            className="max-w-xl"
           >
-            <div className="label-eyebrow mb-5 flex items-center gap-2">
-              <span className="h-px w-8 bg-brand" />
-              <span className="font-inter text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-burnt">
-                E-learning path
+            <span className="inline-flex items-center gap-2">
+              <span className="h-px w-4 bg-gradient-to-r from-brand to-transparent" />
+              <span className="font-grotesk text-[11px] font-semibold uppercase tracking-[0.13em] text-[#E0A572]">
+                E-learning · parcours
               </span>
-            </div>
-            <h1 className="font-marcellus text-display-xl font-medium leading-[0.95] tracking-tight text-choco">
-              Bienvenue,
-              <br />
-              <span className="italic text-brand-dark">{firstName}.</span>
+            </span>
+            <h1 className="mt-3 font-marcellus text-3xl leading-tight text-cream">
+              Bienvenue, <span className="italic text-[#E0A572]">{firstName}</span>.
             </h1>
-            <p className="mt-6 max-w-md text-pretty text-base leading-relaxed text-[#6F5A50] sm:text-lg">
+            <p className="mt-2 max-w-md text-pretty text-sm leading-relaxed text-cream/55">
               {isComplete
-                ? "Tu as terminé le parcours. Reviens à tout moment pour réviser."
+                ? 'Tu as terminé le parcours. Reviens à tout moment pour réviser.'
                 : `${totalCount - completedCount} module${totalCount - completedCount > 1 ? 's' : ''} à valider pour atteindre ta certification.`}
             </p>
           </motion.div>
 
-          {/* Progression dial sits below title on mobile, beside on tablet */}
+          {/* Progression droite */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.92 }}
+            initial={{ opacity: 0, scale: 0.94 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-            className="surface-ceramic flex items-center gap-6 rounded-3xl p-6 shadow-soft hairline"
+            transition={{ duration: 0.7, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+            className="flex items-center gap-5"
           >
             <ProgressionDial
               percent={progressPercent}
@@ -114,151 +109,253 @@ export default function FormationClient({
               total={totalCount}
             />
             <div className="flex flex-col gap-1">
-              <span className="font-inter text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-burnt">
+              <span className="font-grotesk text-[10px] font-semibold uppercase tracking-[0.13em] text-[#E0A572]">
                 Avancement global
               </span>
-              <span className="font-marcellus text-lg font-medium text-choco">
+              <span className="font-marcellus text-lg text-cream">
                 {isComplete ? 'Parcours terminé' : 'En progression'}
               </span>
-              <span className="mt-0.5 font-inter text-xs text-[#6F5A50]">
+              <span className="font-num tabular-nums text-xs text-cream/55">
                 {completedCount} / {totalCount} modules validés
               </span>
             </div>
           </motion.div>
         </div>
-
-        {/* Right column — 3D scene */}
-        <motion.div
-          initial={{ opacity: 0, x: 30 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.9, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-          className="relative z-10"
-        >
-          <FormationHeroVisual
-            percent={progressPercent}
-            completed={completedCount}
-            total={totalCount}
-            nextModuleTitle={heroModule?.title ?? 'Tous les modules sont validés'}
-            nextModuleOrder={heroModule?.order ?? totalCount}
-          />
-        </motion.div>
       </header>
 
       {/* ====================================================== */}
-      {/* Bento grid — hero card + smaller cards                   */}
+      {/* PARCOURS — liste dense de modules en cartes matière       */}
       {/* ====================================================== */}
       <section className="relative">
-        <div className="mb-8 flex items-end justify-between gap-4">
+        <div className="mb-4 flex items-end justify-between gap-4">
           <div className="flex flex-col gap-2">
-            <div className="label-eyebrow flex items-center gap-2">
-              <span className="h-px w-8 bg-brand" />
-              <span className="font-inter text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-burnt">
+            <span className="inline-flex items-center gap-2">
+              <span className="h-px w-4 bg-gradient-to-r from-brand to-transparent" />
+              <span className="font-grotesk text-[11px] font-semibold uppercase tracking-[0.13em] text-brand-burnt">
                 Parcours
               </span>
-            </div>
-            <h2 className="font-marcellus text-2xl font-medium tracking-tight text-choco sm:text-3xl">
-              {totalCount} modules
+            </span>
+            <h2 className="font-marcellus text-2xl tracking-tight text-choco">
+              <span className="font-num tabular-nums">{totalCount}</span> modules
             </h2>
           </div>
-          <span className="surface-glass rounded-full px-4 py-1.5 font-inter text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-burnt shadow-glass">
-            {completedCount} validé{completedCount > 1 ? 's' : ''}
+          <span className="surface-ceramic rounded-full px-3.5 py-1.5 font-grotesk text-[11px] font-semibold uppercase tracking-[0.13em] text-brand-burnt">
+            <span className="font-num tabular-nums">{completedCount}</span> validé
+            {completedCount > 1 ? 's' : ''}
           </span>
         </div>
 
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-6 lg:auto-rows-[minmax(220px,auto)]">
-          {/* Hero card (next module to do) takes 4 cols + 2 rows */}
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+          {/* Module en cours — carte accent mise en avant */}
           {heroModule && (
-            <div className="card-hover lg:col-span-4 lg:row-span-2">
-              <ModuleCard
-                module={{
-                  slug: heroModule.slug,
-                  title: heroModule.title,
-                  order: heroModule.order,
-                  duration: heroModule.duration,
-                }}
-                state={heroModule.state}
-                questionsCount={heroModule.questionsCount}
-                bestPercentage={heroModule.bestPercentage}
-                previousOrder={heroModule.previousOrder}
-                index={0}
-                variant="hero"
-              />
-            </div>
+            <Link
+              href={`/formation/${heroModule.slug}`}
+              className="panel-accent card-hover group relative flex flex-col justify-between gap-4 overflow-hidden rounded-[14px] p-4 md:col-span-2 xl:col-span-3"
+            >
+              <span
+                aria-hidden
+                className="pointer-events-none absolute -bottom-8 right-2 select-none font-num tabular-nums text-[110px] font-semibold leading-none text-[#3A2017]/[0.07]"
+              >
+                {String(heroModule.order).padStart(2, '0')}
+              </span>
+              <div className="relative z-10 flex items-start justify-between gap-4">
+                <div className="flex items-start gap-3">
+                  <span className="font-num tabular-nums text-3xl font-semibold leading-none text-[#3A2017]">
+                    {String(heroModule.order).padStart(2, '0')}
+                  </span>
+                  <div className="flex flex-col gap-1.5">
+                    <span className="font-grotesk text-[10px] font-semibold uppercase tracking-[0.13em] text-[#3A2017]/70">
+                      Prochain module
+                    </span>
+                    <h3 className="font-marcellus text-xl leading-tight text-[#2A1810]">
+                      {heroModule.title}
+                    </h3>
+                  </div>
+                </div>
+                <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[#2A1810] px-4 py-2 font-grotesk text-[11px] font-semibold uppercase tracking-[0.1em] text-cream transition-all group-hover:gap-2.5">
+                  Commencer
+                  <ArrowRight className="h-3.5 w-3.5" aria-hidden />
+                </span>
+              </div>
+              <div className="relative z-10 flex flex-wrap items-center gap-x-4 gap-y-1 text-[#3A2017]/75">
+                <span className="inline-flex items-center gap-1.5 font-num tabular-nums text-xs">
+                  <Clock className="h-3.5 w-3.5" aria-hidden />
+                  {heroModule.duration} min
+                </span>
+                {heroModule.questionsCount !== undefined && (
+                  <span className="inline-flex items-center gap-1.5 border-l border-[rgba(58,32,23,0.18)] pl-4 font-num tabular-nums text-xs">
+                    <BookOpen className="h-3.5 w-3.5" aria-hidden />
+                    {heroModule.questionsCount} questions
+                  </span>
+                )}
+              </div>
+            </Link>
           )}
 
-          {/* Other cards take 2 cols each */}
-          {otherModules.map((mod, idx) => (
-            <div key={mod.slug} className="card-hover lg:col-span-2">
-              <ModuleCard
-                module={{
-                  slug: mod.slug,
-                  title: mod.title,
-                  order: mod.order,
-                  duration: mod.duration,
-                }}
-                state={mod.state}
-                questionsCount={mod.questionsCount}
-                bestPercentage={mod.bestPercentage}
-                previousOrder={mod.previousOrder}
-                index={idx + 1}
-                variant="default"
-              />
-            </div>
-          ))}
+          {/* Autres modules — cartes matière denses */}
+          {otherModules.map((mod) => {
+            const numberLabel = String(mod.order).padStart(2, '0');
+            const isLocked = mod.state === 'locked';
+            const isValidated = mod.state === 'validated';
+            const hasScore =
+              mod.bestPercentage !== undefined && mod.bestPercentage !== null;
+
+            const inner = (
+              <>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-start gap-3">
+                    <span
+                      className={
+                        'font-num tabular-nums text-2xl font-semibold leading-none ' +
+                        (isLocked
+                          ? 'text-choco/20'
+                          : isValidated
+                            ? 'text-brand-burnt'
+                            : 'text-choco/40 transition-colors group-hover:text-brand-burnt')
+                      }
+                    >
+                      {numberLabel}
+                    </span>
+                    <h3
+                      className={
+                        'font-marcellus text-base leading-tight ' +
+                        (isLocked ? 'text-muted-warm' : 'text-choco')
+                      }
+                    >
+                      {mod.title}
+                    </h3>
+                  </div>
+                  {isValidated ? (
+                    <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-ok-bg px-2 py-0.5 font-grotesk text-[9px] font-semibold uppercase tracking-wider text-ok-fg">
+                      <CheckCircle2 className="h-2.5 w-2.5" aria-hidden />
+                      {hasScore ? (
+                        <span className="font-num tabular-nums">
+                          {mod.bestPercentage}%
+                        </span>
+                      ) : (
+                        'Validé'
+                      )}
+                    </span>
+                  ) : mod.state === 'available' ? (
+                    <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-info-bg px-2 py-0.5 font-grotesk text-[9px] font-semibold uppercase tracking-wider text-info-fg">
+                      <span
+                        aria-hidden
+                        className="h-1 w-1 animate-pulse rounded-full bg-brand"
+                      />
+                      À faire
+                    </span>
+                  ) : (
+                    <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-cream-deep px-2 py-0.5 font-grotesk text-[9px] font-semibold uppercase tracking-wider text-muted-warm">
+                      <Lock className="h-2 w-2" aria-hidden />
+                      Verrouillé
+                    </span>
+                  )}
+                </div>
+
+                <div className="mt-3 flex items-center justify-between gap-3">
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-muted-warm">
+                    <span className="inline-flex items-center gap-1 font-num tabular-nums text-[11px]">
+                      <Clock className="h-3 w-3" aria-hidden />
+                      {mod.duration} min
+                    </span>
+                    {mod.questionsCount !== undefined && (
+                      <span className="inline-flex items-center gap-1 border-l border-[rgba(74,36,26,0.07)] pl-3 font-num tabular-nums text-[11px]">
+                        <BookOpen className="h-3 w-3" aria-hidden />
+                        {mod.questionsCount}q
+                      </span>
+                    )}
+                  </div>
+                  {!isLocked && (
+                    <ArrowUpRight
+                      className={
+                        'h-4 w-4 transition-transform duration-300 group-hover:rotate-45 ' +
+                        (isValidated ? 'text-muted-warm' : 'text-brand-burnt')
+                      }
+                      aria-hidden
+                    />
+                  )}
+                </div>
+
+                {isLocked && mod.previousOrder !== undefined && (
+                  <p className="mt-2 inline-flex items-center gap-1 font-grotesk text-[10px] text-muted-warm">
+                    <Lock className="h-2.5 w-2.5" aria-hidden />
+                    Débloque le{' '}
+                    <span className="font-num tabular-nums">
+                      {String(mod.previousOrder).padStart(2, '0')}
+                    </span>{' '}
+                    d&apos;abord
+                  </p>
+                )}
+              </>
+            );
+
+            if (isLocked) {
+              return (
+                <div
+                  key={mod.slug}
+                  aria-disabled
+                  className="panel relative flex cursor-not-allowed flex-col justify-between overflow-hidden rounded-[14px] p-4 opacity-60"
+                >
+                  {inner}
+                </div>
+              );
+            }
+
+            return (
+              <Link
+                key={mod.slug}
+                href={`/formation/${mod.slug}`}
+                className="panel card-hover group relative flex flex-col justify-between overflow-hidden rounded-[14px] p-4"
+              >
+                {inner}
+              </Link>
+            );
+          })}
         </div>
       </section>
 
       {/* ====================================================== */}
-      {/* Certification CTA — carte CREME harmonisee (plus d'orange plein) */}
+      {/* CERTIFICATION — carte matière harmonisée                  */}
       {/* ====================================================== */}
       <motion.section
-        initial={{ opacity: 0, y: 32 }}
+        initial={{ opacity: 0, y: 24 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-100px' }}
-        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        className="surface-ceramic relative mt-20 overflow-hidden rounded-3xl p-10 text-ink-warm shadow-soft-md hairline md:p-16"
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        className="surface-ceramic relative overflow-hidden rounded-[16px] p-5 sm:p-6"
       >
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full bg-brand/10 blur-3xl"
-        />
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-brand/[0.07] blur-3xl"
-        />
         <span
           aria-hidden
-          className="watermark pointer-events-none absolute -bottom-20 right-10 select-none font-marcellus text-[14rem] font-medium italic leading-none text-brand/[0.08] sm:text-[18rem]"
+          className="pointer-events-none absolute -bottom-10 right-6 select-none font-num tabular-nums text-[120px] font-semibold leading-none text-brand/[0.08]"
         >
           {totalCount}
         </span>
 
         <div className="relative max-w-2xl">
-          <div className="label-eyebrow mb-4 flex items-center gap-2">
-            <span className="h-px w-8 bg-brand" />
-            <span className="font-inter text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-burnt">
+          <span className="inline-flex items-center gap-2">
+            <span className="h-px w-4 bg-gradient-to-r from-brand to-transparent" />
+            <span className="font-grotesk text-[11px] font-semibold uppercase tracking-[0.13em] text-brand-burnt">
               {isComplete ? 'Formation complète' : 'Certification'}
             </span>
-          </div>
-          <h2 className="font-marcellus text-display-md font-medium leading-tight text-choco">
+          </span>
+          <h2 className="mt-3 font-marcellus text-2xl leading-tight text-choco sm:text-3xl">
             {isComplete ? (
               <>
-                Tu es{' '}
-                <span className="italic text-brand-dark">certifié</span>
-                {' '}GND Consulting.
+                Tu es <span className="italic text-brand-dark">certifié</span> GND
+                Consulting.
               </>
             ) : (
               <>
-                {totalCount} modules pour devenir{' '}
-                <span className="italic text-brand-dark">certifié</span>
-                .
+                <span className="font-num tabular-nums">{totalCount}</span> modules
+                pour devenir{' '}
+                <span className="italic text-brand-dark">certifié</span>.
               </>
             )}
           </h2>
-          <p className="mt-5 max-w-xl text-pretty text-base leading-relaxed text-[#6F5A50]">
+          <p className="mt-2 max-w-xl text-pretty text-sm leading-relaxed text-[#6F5A50]">
             {isComplete
-              ? "Tu peux revenir à tout moment sur les modules pour réviser. Le savoir reste accessible."
-              : "Chaque module se valide avec un quiz à 70 % minimum. Tu peux retenter autant de fois que nécessaire."}
+              ? 'Tu peux revenir à tout moment sur les modules pour réviser. Le savoir reste accessible.'
+              : 'Chaque module se valide avec un quiz à 70 % minimum. Tu peux retenter autant de fois que nécessaire.'}
           </p>
         </div>
       </motion.section>
@@ -280,7 +377,7 @@ function ProgressionDial({
   const dashOffset = circumference - (percent / 100) * circumference;
 
   return (
-    <div className="relative inline-flex h-32 w-32 items-center justify-center md:h-36 md:w-36">
+    <div className="relative inline-flex h-24 w-24 items-center justify-center sm:h-28 sm:w-28">
       <svg
         className="absolute inset-0 -rotate-90"
         viewBox="0 0 130 130"
@@ -292,9 +389,9 @@ function ProgressionDial({
           cy="65"
           r={radius}
           fill="none"
-          stroke="#532418"
-          strokeOpacity="0.08"
-          strokeWidth="3"
+          stroke="#FBF1E8"
+          strokeOpacity="0.18"
+          strokeWidth="4"
         />
         {/* Progress ring */}
         <motion.circle
@@ -303,7 +400,7 @@ function ProgressionDial({
           r={radius}
           fill="none"
           stroke="url(#progress-gradient-inline)"
-          strokeWidth="3"
+          strokeWidth="4"
           strokeLinecap="round"
           strokeDasharray={circumference}
           initial={{ strokeDashoffset: circumference }}
@@ -312,18 +409,18 @@ function ProgressionDial({
         />
         <defs>
           <linearGradient id="progress-gradient-inline" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#D4732A" />
-            <stop offset="100%" stopColor="#FFA060" />
+            <stop offset="0%" stopColor="#C96A2B" />
+            <stop offset="100%" stopColor="#F39253" />
           </linearGradient>
         </defs>
       </svg>
 
       <div className="flex flex-col items-center text-center">
-        <span className="font-marcellus text-3xl font-medium leading-none text-choco md:text-4xl">
+        <span className="font-num tabular-nums text-2xl font-semibold leading-none text-cream sm:text-3xl">
           {percent}
-          <span className="text-lg text-muted-warm">%</span>
+          <span className="text-base text-cream/55">%</span>
         </span>
-        <span className="mt-1 font-inter text-[9px] uppercase tracking-[0.18em] text-muted-warm">
+        <span className="mt-1 font-num tabular-nums text-[9px] uppercase tracking-[0.18em] text-cream/55">
           {completed} / {total}
         </span>
       </div>
