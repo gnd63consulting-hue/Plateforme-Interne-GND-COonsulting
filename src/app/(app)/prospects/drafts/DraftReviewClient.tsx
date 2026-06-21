@@ -89,14 +89,19 @@ export default function DraftReviewClient({ rows }: { rows: DraftRow[] }) {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
-      <header className="relative mb-8 overflow-hidden">
+      <header className="relative mb-7 overflow-hidden">
         <span
           aria-hidden
           className="watermark pointer-events-none absolute -right-2 -top-8 select-none font-marcellus text-[120px] leading-none text-choco"
         >
           Nyx
         </span>
-        <span className="label-eyebrow">File de validation</span>
+        <span className="inline-flex items-center gap-2">
+          <span className="h-px w-4 bg-gradient-to-r from-brand to-transparent" />
+          <span className="font-grotesk text-[11px] font-semibold uppercase tracking-[0.13em] text-brand-burnt">
+            File de validation
+          </span>
+        </span>
         <h1 className="mt-2 font-marcellus text-3xl tracking-tight text-choco">
           Drafts a valider
         </h1>
@@ -106,41 +111,45 @@ export default function DraftReviewClient({ rows }: { rows: DraftRow[] }) {
         </p>
       </header>
 
-      <div className="mb-7 flex flex-wrap gap-2">
+      <div className="mb-6 flex flex-wrap gap-2">
         {FILTERS.map((f) => (
           <button
             key={f.key}
             onClick={() => setFilter(f.key)}
-            className={`rounded-full px-4 py-1.5 font-inter text-sm transition ${
+            className={`inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 font-inter text-sm transition ${
               filter === f.key
                 ? 'bg-brand text-[#2A1810] font-semibold orange-glow'
                 : 'border border-border-soft bg-white text-choco hover:bg-cream-deep'
             }`}
           >
             {f.label}
-            {counts[f.key] ? ` (${counts[f.key]})` : ''}
+            {counts[f.key] ? (
+              <span className="font-num tabular-nums text-xs opacity-80">{counts[f.key]}</span>
+            ) : null}
           </button>
         ))}
       </div>
 
       {visible.length === 0 ? (
-        <div className="surface-ceramic rounded-3xl p-12 text-center">
-          <div className="mx-auto mb-4 inline-flex rounded-2xl bg-brand-pale p-3 text-brand-dark">
-            <Mail className="h-6 w-6" />
+        <div className="panel flex items-center gap-3 p-4">
+          <span className="inline-flex shrink-0 rounded-2xl bg-brand-pale p-2.5 text-brand-burnt">
+            <Mail className="h-5 w-5" />
+          </span>
+          <div className="min-w-0">
+            <p className="font-marcellus text-base text-choco">Aucun draft dans cette vue.</p>
+            <p className="mt-0.5 font-inter text-sm text-[#6F5A50]">
+              Les brouillons des agents apparaitront ici des qu'ils seront prets.
+            </p>
           </div>
-          <p className="font-marcellus text-lg text-choco">Aucun draft dans cette vue.</p>
-          <p className="mt-1 font-inter text-sm text-[#6F5A50]">
-            Les brouillons des agents apparaitront ici des qu'ils seront prets.
-          </p>
         </div>
       ) : (
-        <div className="space-y-5">
+        <div className="space-y-3">
           {visible.map((r) => (
             <article
               key={r.id}
-              className="surface-ceramic card-hover rounded-3xl p-6"
+              className="panel card-hover p-4"
             >
-              <div className="mb-4 flex flex-wrap items-center gap-2">
+              <div className="mb-3 flex flex-wrap items-center gap-2">
                 <span
                   className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${statusTone(r.status)}`}
                 >
@@ -149,7 +158,7 @@ export default function DraftReviewClient({ rows }: { rows: DraftRow[] }) {
                 <span className="inline-flex items-center gap-1 rounded-full bg-cream-deep px-2.5 py-0.5 text-xs text-choco">
                   <ChannelIcon channel={r.channel} /> {channelLabel(r.channel)}
                 </span>
-                <span className="inline-flex items-center gap-1 text-xs text-[#6F5A50]">
+                <span className="inline-flex items-center gap-1 font-grotesk text-[11px] uppercase tracking-[0.08em] text-muted-warm">
                   <Bot className="h-3.5 w-3.5" /> {r.created_by ?? 'agent'}
                 </span>
                 <Link
@@ -215,7 +224,7 @@ export default function DraftReviewClient({ rows }: { rows: DraftRow[] }) {
                 </>
               )}
 
-              <div className="mt-5 flex flex-wrap gap-2 border-t border-[rgba(74,36,26,0.10)] pt-4">
+              <div className="mt-4 flex flex-wrap gap-2 border-t border-[rgba(74,36,26,0.08)] pt-4">
                 {r.status !== 'ready' && (
                   <button
                     disabled={pending}
