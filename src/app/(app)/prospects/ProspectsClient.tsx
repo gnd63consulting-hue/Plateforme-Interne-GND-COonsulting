@@ -45,6 +45,7 @@ import { resolveDropStatus, type PipelineColumnId } from '@/lib/pipeline';
 import ProspectModal, { type ProspectFormValues } from '@/components/ProspectModal';
 import ProspectDetailsModal from '@/components/ProspectDetailsModal';
 import ProspectTimeline from '@/components/ProspectTimeline';
+import RecallDatePicker from '@/components/gnd/RecallDatePicker';
 import ProspectKanban from '@/components/ProspectKanban';
 import { StatCard, Button, Avatar } from '@/components/ui';
 
@@ -1232,41 +1233,39 @@ export default function ProspectsClient({
             <div className="flex-1 overflow-y-auto p-7">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-inter text-[10px] font-semibold uppercase tracking-[0.18em] text-brand-dark">Notes &amp; relance</p>
-                  <h3 className="mt-1 font-marcellus text-xl font-normal text-choco">{notesFor.company_name}</h3>
+                  <span className="inline-flex items-center gap-2">
+                    <span aria-hidden className="h-px w-4 bg-gradient-to-r from-brand to-transparent" />
+                    <span className="font-grotesk text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-burnt">Notes &amp; relance</span>
+                  </span>
+                  <h3 className="mt-1.5 font-marcellus text-xl font-normal text-choco">{notesFor.company_name}</h3>
                 </div>
                 <button onClick={() => setNotesFor(null)} className="rounded-full p-2 text-muted-warm transition-colors hover:bg-cream-deep hover:text-ink-warm" aria-label="Fermer la modale">✕</button>
               </div>
               <textarea
-                rows={7}
+                rows={6}
                 value={notesDraft}
                 onChange={(e) => setNotesDraft(e.target.value)}
-                className="mt-5 w-full rounded-2xl border border-border-soft bg-white p-4 text-sm text-ink-warm placeholder:text-muted-warm/70 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+                className="mt-5 w-full resize-y rounded-2xl border border-border-soft bg-white p-4 text-sm leading-relaxed text-ink-warm placeholder:text-muted-warm/70 focus:border-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring"
                 placeholder="Contexte, historique, comment s'est passé l'appel…"
               />
-              <div className="mt-4">
-                <label htmlFor="relance-datetime" className="mb-1.5 block font-inter text-[10px] font-semibold uppercase tracking-[0.15em] text-brand-dark">
-                  Prochaine relance
-                </label>
-                <div className="flex items-center gap-2">
-                  <input
-                    id="relance-datetime"
-                    type="datetime-local"
-                    value={relanceDraft}
-                    onChange={(e) => setRelanceDraft(e.target.value)}
-                    className="rounded-xl border border-border-soft bg-white px-3 py-2 text-sm text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
-                  />
-                  {relanceDraft && (
-                    <button
-                      type="button"
-                      onClick={() => setRelanceDraft('')}
-                      className="text-xs font-semibold text-muted-warm underline underline-offset-2 hover:text-ink-warm"
-                    >
-                      Retirer
-                    </button>
-                  )}
+              <div className="panel-accent mt-4 p-3.5">
+                <span className="inline-flex items-center gap-2">
+                  <span aria-hidden className="h-px w-4 bg-gradient-to-r from-brand to-transparent" />
+                  <span className="font-grotesk text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-burnt">Prochaine relance</span>
+                </span>
+                <div className="mt-2.5">
+                  <RecallDatePicker value={relanceDraft} onChange={setRelanceDraft} />
                 </div>
-                <p className="mt-1.5 text-[11px] text-muted-warm">
+                {relanceDraft && (
+                  <button
+                    type="button"
+                    onClick={() => setRelanceDraft('')}
+                    className="mt-2 text-xs font-semibold text-muted-warm underline underline-offset-2 transition-colors hover:text-ink-warm"
+                  >
+                    Retirer la relance
+                  </button>
+                )}
+                <p className="mt-2 text-[11px] text-[#8A7E73]">
                   Visible dans « Mes relances » (et par l&apos;admin dans son pilotage).
                 </p>
               </div>
@@ -1283,10 +1282,11 @@ export default function ProspectsClient({
               </div>
 
               {/* Timeline d'activité */}
-              <div className="mt-6 border-t border-border-soft pt-5">
-                <p className="mb-3 font-inter text-[10px] font-semibold uppercase tracking-[0.18em] text-brand-dark">
-                  Historique d&apos;activité
-                </p>
+              <div className="divider-warm mt-6 pt-5">
+                <span className="mb-3 inline-flex items-center gap-2">
+                  <span aria-hidden className="h-px w-4 bg-gradient-to-r from-brand to-transparent" />
+                  <span className="font-grotesk text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-burnt">Historique d&apos;activité</span>
+                </span>
                 <ProspectTimeline prospectId={notesFor.id} />
               </div>
             </div>
