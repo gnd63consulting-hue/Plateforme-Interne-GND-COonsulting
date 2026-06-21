@@ -247,37 +247,37 @@ export default function TachesClient({
       {/* ================================================================== */}
       {/* A. À FAIRE AUJOURD'HUI                                              */}
       {/* ================================================================== */}
-      <section className="mb-12" aria-labelledby="todo-today-heading">
+      <section className="mb-10" aria-labelledby="todo-today-heading">
         <div className="mb-4 flex items-center gap-2">
-          <span
-            className="flex h-2 w-2 rounded-full bg-brand shadow-[0_0_8px_rgba(243,146,83,0.7)]"
-            aria-hidden
-          />
+          <span className="h-px w-4 bg-gradient-to-r from-brand to-transparent" aria-hidden />
           <h2
             id="todo-today-heading"
-            className="font-inter text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-warm"
+            className="font-grotesk text-[11px] font-semibold uppercase tracking-[0.13em] text-brand-burnt"
           >
-            À faire aujourd&apos;hui ({agenda.length})
+            À faire aujourd&apos;hui (
+            <span className="font-num tabular-nums">{agenda.length}</span>)
           </h2>
         </div>
 
         {agenda.length === 0 ? (
-          <div className="surface-ceramic rounded-3xl p-10 text-center">
+          <div className="panel flex items-center gap-3 p-4">
             <span
-              className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-pale text-brand-dark"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-brand-pale text-brand-burnt"
               aria-hidden
             >
-              <CheckSquare className="h-6 w-6" />
+              <CheckSquare className="h-5 w-5" />
             </span>
-            <p className="font-marcellus text-lg text-choco">
-              Rien d&apos;urgent aujourd&apos;hui. 👌
-            </p>
-            <p className="mt-2 text-sm text-[#6F5A50]">
-              Aucune tâche ni relance due. Profites-en pour en planifier une.
-            </p>
+            <div className="min-w-0 flex-1">
+              <p className="font-marcellus text-base text-choco">
+                Rien d&apos;urgent aujourd&apos;hui. 👌
+              </p>
+              <p className="text-sm text-[#6F5A50]">
+                Aucune tâche ni relance due. Profites-en pour en planifier une.
+              </p>
+            </div>
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-2.5">
             <AnimatePresence initial={false}>
               {agenda.map((item) =>
                 item.kind === 'task' ? (
@@ -321,18 +321,26 @@ export default function TachesClient({
       {/* B. MES TÂCHES                                                       */}
       {/* ================================================================== */}
       <section aria-labelledby="my-tasks-heading">
-        <div className="mb-4 flex items-center justify-between gap-3">
-          <h2
-            id="my-tasks-heading"
-            className="font-marcellus text-xl font-medium text-choco sm:text-2xl"
-          >
-            Mes tâches
-          </h2>
+        <div className="mb-4 flex items-end justify-between gap-3">
+          <div>
+            <span className="mb-1.5 inline-flex items-center gap-2">
+              <span className="h-px w-4 bg-gradient-to-r from-brand to-transparent" aria-hidden />
+              <span className="font-grotesk text-[11px] font-semibold uppercase tracking-[0.13em] text-brand-burnt">
+                Toutes mes tâches
+              </span>
+            </span>
+            <h2
+              id="my-tasks-heading"
+              className="font-marcellus text-2xl font-medium text-choco sm:text-3xl"
+            >
+              Mes tâches
+            </h2>
+          </div>
           <button
             type="button"
             onClick={() => setCreateOpen((v) => !v)}
             aria-expanded={createOpen}
-            className="orange-glow inline-flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-[#2A1810] transition-all hover:bg-brand-dark hover:shadow-soft-md"
+            className="orange-glow inline-flex shrink-0 items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-[#2A1810] transition-all hover:bg-brand-dark hover:shadow-soft-md"
           >
             <Plus className="h-4 w-4" aria-hidden />
             Nouvelle tâche
@@ -363,19 +371,29 @@ export default function TachesClient({
 
         {/* Liste groupée */}
         {activeTasks.length === 0 ? (
-          <div className="surface-ceramic mt-4 rounded-3xl p-10 text-center">
+          <div className="panel mt-4 flex items-center gap-3 p-4">
             <span
-              className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-pale text-brand-dark"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-brand-pale text-brand-burnt"
               aria-hidden
             >
-              <Plus className="h-6 w-6" />
+              <Plus className="h-5 w-5" />
             </span>
-            <p className="font-marcellus text-lg text-choco">
-              Aucune tâche active.
-            </p>
-            <p className="mt-2 text-sm text-[#6F5A50]">
-              Crée ta première tâche pour la voir apparaître ici.
-            </p>
+            <div className="min-w-0 flex-1">
+              <p className="font-marcellus text-base text-choco">
+                Aucune tâche active.
+              </p>
+              <p className="text-sm text-[#6F5A50]">
+                Crée ta première tâche pour la voir apparaître ici.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setCreateOpen(true)}
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-brand px-4 py-2 text-xs font-semibold text-[#2A1810] transition-colors hover:bg-brand-dark"
+            >
+              <Plus className="h-3.5 w-3.5" aria-hidden />
+              Créer
+            </button>
           </div>
         ) : (
           <div className="mt-6 space-y-7">
@@ -452,7 +470,8 @@ export default function TachesClient({
                 className={`h-3.5 w-3.5 transition-transform ${showDone ? 'rotate-180' : ''}`}
                 aria-hidden
               />
-              Tâches terminées ({doneTasks.length})
+              Tâches terminées (
+              <span className="font-num tabular-nums">{doneTasks.length}</span>)
             </button>
             <AnimatePresence initial={false}>
               {showDone && (
@@ -531,13 +550,13 @@ function AgendaTaskRow({
 }) {
   const due = effectiveDue(task);
   return (
-    <div className="surface-ceramic card-hover flex items-center gap-4 rounded-2xl p-4">
+    <div className="panel card-hover flex items-center gap-4 p-4">
       <Checkbox
         checked={false}
         onChange={onToggle}
         label={`Marquer « ${task.title} » comme terminée`}
       />
-      <span className="shrink-0 font-inter text-xs font-semibold tabular-nums text-brand-burnt">
+      <span className="shrink-0 font-num text-xs font-semibold tabular-nums text-brand-burnt">
         {due ? formatTime(due) : '—'}
       </span>
       <div className="min-w-0 flex-1">
@@ -553,7 +572,7 @@ function AgendaTaskRow({
           </Link>
         )}
       </div>
-      <span className="hidden shrink-0 items-center gap-1 rounded-full bg-cream-deep px-2.5 py-1 font-inter text-[9px] font-semibold uppercase tracking-[0.12em] text-brand-burnt sm:inline-flex">
+      <span className="hidden shrink-0 items-center gap-1 rounded-full bg-ok-bg px-2.5 py-1 font-grotesk text-[9px] font-semibold uppercase tracking-[0.12em] text-ok-fg sm:inline-flex">
         <CheckSquare className="h-3 w-3" aria-hidden />
         Tâche
       </span>
@@ -565,15 +584,15 @@ function AgendaRelanceRow({ relance }: { relance: RelanceLite }) {
   return (
     <Link
       href={`/prospects/${relance.id}`}
-      className="surface-ceramic card-hover flex items-center gap-4 rounded-2xl p-4"
+      className="panel card-hover flex items-center gap-4 p-4"
     >
       <span
-        className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-brand-pale text-brand-dark"
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-pale text-brand-burnt"
         aria-hidden
       >
-        <Phone className="h-3.5 w-3.5" />
+        <Phone className="h-4 w-4" />
       </span>
-      <span className="shrink-0 font-inter text-xs font-semibold tabular-nums text-brand-burnt">
+      <span className="shrink-0 font-num text-xs font-semibold tabular-nums text-brand-burnt">
         {formatTime(relance.next_action_at)}
       </span>
       <div className="min-w-0 flex-1">
@@ -584,7 +603,7 @@ function AgendaRelanceRow({ relance }: { relance: RelanceLite }) {
           {relance.contact_name ?? labelForStatus(relance.status)}
         </p>
       </div>
-      <span className="hidden shrink-0 items-center gap-1 rounded-full bg-brand-soft px-2.5 py-1 font-inter text-[9px] font-semibold uppercase tracking-[0.12em] text-brand-dark sm:inline-flex">
+      <span className="hidden shrink-0 items-center gap-1 rounded-full bg-info-bg px-2.5 py-1 font-grotesk text-[9px] font-semibold uppercase tracking-[0.12em] text-info-fg sm:inline-flex">
         <CalendarClock className="h-3 w-3" aria-hidden />
         Relance
       </span>
@@ -628,11 +647,12 @@ function TaskGroup({
     <section>
       <div className="mb-3 flex items-center gap-2">
         <span className={`h-2 w-2 rounded-full ${dotClass}`} aria-hidden />
-        <h3 className="font-inter text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-burnt">
-          {title} ({tasks.length})
+        <h3 className="font-grotesk text-[11px] font-semibold uppercase tracking-[0.13em] text-brand-burnt">
+          {title} (
+          <span className="font-num tabular-nums">{tasks.length}</span>)
         </h3>
       </div>
-      <div className="space-y-2">
+      <div className="space-y-2.5">
         <AnimatePresence initial={false}>
           {tasks.map((t) => (
             <motion.div
@@ -687,7 +707,7 @@ function TaskRow({
   const due = effectiveDue(task);
   return (
     <div
-      className={`surface-ceramic card-hover group flex items-center gap-4 rounded-2xl p-4 ${
+      className={`panel card-hover group flex items-center gap-4 p-4 ${
         danger ? 'ring-1 ring-danger-fg/20' : ''
       }`}
     >
@@ -703,7 +723,7 @@ function TaskRow({
         <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
           {due && (
             <span
-              className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-inter font-semibold ${
+              className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-num font-semibold tabular-nums ${
                 danger ? 'bg-danger-bg text-danger-fg' : 'bg-cream-deep text-[#6F5A50]'
               }`}
             >
@@ -767,7 +787,10 @@ function DoneTaskRow({
         </p>
         <div className="mt-0.5 flex flex-wrap items-center gap-x-3 text-xs text-muted-warm/70">
           {task.done_at && (
-            <span className="font-inter">Fait le {formatDateTime(task.done_at)}</span>
+            <span>
+              Fait le{' '}
+              <span className="font-num tabular-nums">{formatDateTime(task.done_at)}</span>
+            </span>
           )}
           {prospectName && task.prospect_id && (
             <Link
@@ -853,9 +876,9 @@ function TaskForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="surface-ceramic mt-4 rounded-3xl p-6"
+      className="panel-accent mt-4 rounded-[14px] p-4"
     >
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div className="sm:col-span-2">
           <label
             htmlFor="task-title"
