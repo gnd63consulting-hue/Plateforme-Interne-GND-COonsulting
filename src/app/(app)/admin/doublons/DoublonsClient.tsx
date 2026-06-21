@@ -5,19 +5,6 @@ import { labelForStatus } from '@/lib/prospects';
 import type { DedupGroup } from '@/lib/dedup';
 import { mergeProspects, dismissGroup } from './actions';
 
-// Design System crème/orange — texte FONCÉ sur fond clair (AA).
-const CREAM = '#2A2320';
-const CREAM_SOFT = '#7B665C';
-const CREAM_FAINT = '#9A8A80';
-const AMBER = '#B5601C';        // accent orange foncé (texte, AA)
-const BTN = '#F39253';          // orange vif (fond bouton)
-const GREEN = '#4F7A38';
-const CARD_BG = '#FFFFFF';
-const BORDER = '1px solid #E2D5C3';
-const SERIF = 'var(--font-marcellus), Georgia, serif';
-const MONO = 'var(--font-inter), ui-monospace, monospace';
-const SANS = 'var(--font-inter), system-ui, sans-serif';
-
 function fmt(iso: string): string {
   try {
     return new Date(iso).toLocaleDateString('fr-FR', {
@@ -97,161 +84,89 @@ export default function DoublonsClient({ groups, assignedNames, totalActive }: P
   }
 
   return (
-    <div style={{ maxWidth: 1040, margin: '0 auto', padding: '40px 28px 64px', color: CREAM }}>
-      <header style={{ marginBottom: 28 }}>
-        <div
-          style={{
-            fontFamily: MONO,
-            fontSize: 10,
-            fontWeight: 600,
-            textTransform: 'uppercase',
-            letterSpacing: '0.22em',
-            color: AMBER,
-            marginBottom: 10,
-          }}
-        >
-          ADMIN · QUALITÉ DATA
-        </div>
-        <h1
-          style={{
-            fontFamily: SERIF,
-            fontSize: 32,
-            fontWeight: 500,
-            letterSpacing: '-0.01em',
-            color: '#532418',
-            margin: 0,
-            lineHeight: 1.1,
-          }}
-        >
+    <div className="relative mx-auto max-w-[1040px] px-7 pb-16 pt-10 font-inter text-ink-warm">
+      <span aria-hidden className="watermark absolute right-0 top-4 text-[120px] leading-none">
+        Doublons
+      </span>
+
+      <header className="relative mb-7">
+        <div className="label-eyebrow mb-3">ADMIN · QUALITÉ DATA</div>
+        <h1 className="m-0 font-marcellus text-[32px] font-medium leading-[1.1] tracking-[-0.01em] text-choco">
           Doublons détectés
         </h1>
-        <p
-          style={{
-            fontSize: 14,
-            lineHeight: 1.55,
-            color: CREAM_SOFT,
-            marginTop: 12,
-            maxWidth: 640,
-          }}
-        >
+        <p className="mt-3 max-w-[640px] text-sm leading-[1.55] text-[#6F5A50]">
           Fiches actives partageant le même email ou le même numéro (9 derniers chiffres).
           Choisissez la fiche maître, fusionnez — les doublons sont archivés (jamais supprimés)
           et leur historique est rattaché. « Ignorer » écarte définitivement un faux positif.
         </p>
       </header>
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginBottom: 28 }}>
-        <Stat label="Groupes à traiter" value={visible.length} color={visible.length > 0 ? AMBER : GREEN} />
-        <Stat label="Fiches actives" value={totalActive} color={CREAM} />
+      <div className="mb-7 flex flex-wrap gap-3">
+        <Stat label="Groupes à traiter" value={visible.length} tone={visible.length > 0 ? 'warn' : 'ok'} />
+        <Stat label="Fiches actives" value={totalActive} tone="ink" />
       </div>
 
       {feedback && (
         <div
           role="status"
           aria-live="polite"
-          style={{
-            marginBottom: 20,
-            borderRadius: 14,
-            border: BORDER,
-            background: '#FBF3EA',
-            padding: '12px 16px',
-            fontSize: 13,
-            color: CREAM,
-          }}
+          className="surface-accent mb-5 rounded-2xl px-4 py-3 text-[13px] text-ink-warm"
         >
           {feedback}
         </div>
       )}
 
       {visible.length === 0 ? (
-        <div
-          style={{
-            background: CARD_BG,
-            border: BORDER,
-            borderRadius: 16,
-            padding: '40px 24px',
-            textAlign: 'center',
-          }}
-        >
-          <p style={{ fontFamily: SERIF, fontSize: 20, color: '#532418', margin: 0 }}>
+        <div className="surface-ceramic flex flex-col items-center rounded-3xl px-6 py-12 text-center">
+          <span className="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-pale text-brand-dark">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+              <path d="M20 6 9 17l-5-5" />
+            </svg>
+          </span>
+          <p className="m-0 font-marcellus text-xl text-choco">
             Aucun doublon à traiter.
           </p>
-          <p style={{ fontSize: 13, color: CREAM_SOFT, marginTop: 8 }}>
+          <p className="mt-2 text-[13px] text-[#6F5A50]">
             La base est propre — ou tous les groupes ont été traités. 👍
           </p>
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+        <div className="flex flex-col gap-[18px]">
           {visible.map((g) => {
             const masterId = masters[g.signature] ?? g.suggestedMasterId;
             const isBusy = busy === g.signature;
             return (
               <section
                 key={g.signature}
-                style={{
-                  background: CARD_BG,
-                  border: BORDER,
-                  borderRadius: 16,
-                  overflow: 'hidden',
-                }}
+                className="surface-ceramic card-hover overflow-hidden rounded-3xl"
               >
                 {/* En-tête de groupe : critère commun */}
-                <div
-                  style={{
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    alignItems: 'center',
-                    gap: 10,
-                    padding: '14px 18px',
-                    borderBottom: '1px solid #E2D5C3',
-                  }}
-                >
+                <div className="flex flex-wrap items-center gap-2.5 border-b border-[rgba(74,36,26,0.10)] px-[18px] py-3.5">
                   <span
-                    style={{
-                      fontFamily: MONO,
-                      fontSize: 9,
-                      fontWeight: 600,
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.16em',
-                      color: g.criterion === 'email' ? AMBER : GREEN,
-                      background: '#FBF7F2',
-                      border: BORDER,
-                      borderRadius: 999,
-                      padding: '4px 10px',
-                    }}
+                    className={`rounded-full px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.16em] ${
+                      g.criterion === 'email'
+                        ? 'bg-info-bg text-info-fg'
+                        : 'bg-ok-bg text-ok-fg'
+                    }`}
                   >
                     {g.criterion === 'email' ? 'Email commun' : 'Téléphone commun'}
                   </span>
-                  <span style={{ fontFamily: MONO, fontSize: 13, color: CREAM }}>{g.value}</span>
-                  <span
-                    style={{
-                      marginLeft: 'auto',
-                      fontFamily: MONO,
-                      fontSize: 11,
-                      fontWeight: 700,
-                      color: AMBER,
-                    }}
-                  >
+                  <span className="font-inter text-[13px] text-ink-warm">{g.value}</span>
+                  <span className="ml-auto font-inter text-[11px] font-bold tabular-nums text-brand-burnt">
                     {g.prospects.length} fiches
                   </span>
                 </div>
 
                 {/* Liste des fiches du groupe */}
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <div className="flex flex-col">
                   {g.prospects.map((p) => {
                     const isMaster = p.id === masterId;
                     return (
                       <label
                         key={p.id}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'flex-start',
-                          gap: 12,
-                          padding: '14px 18px',
-                          borderBottom: '1px solid rgba(83,36,24,0.06)',
-                          background: isMaster ? 'rgba(243,146,83,0.10)' : 'transparent',
-                          cursor: 'pointer',
-                        }}
+                        className={`flex cursor-pointer items-start gap-3 border-b border-[rgba(83,36,24,0.06)] px-[18px] py-3.5 transition ${
+                          isMaster ? 'bg-brand-pale/60' : 'hover:bg-cream-deep/50'
+                        }`}
                       >
                         <input
                           type="radio"
@@ -261,84 +176,31 @@ export default function DoublonsClient({ groups, assignedNames, totalActive }: P
                             setMasters((prev) => ({ ...prev, [g.signature]: p.id }))
                           }
                           aria-label={`Définir ${p.company_name} comme fiche maître`}
-                          style={{ marginTop: 4, accentColor: BTN }}
+                          className="mt-1 accent-brand"
                         />
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div
-                            style={{
-                              display: 'flex',
-                              flexWrap: 'wrap',
-                              alignItems: 'center',
-                              gap: 8,
-                            }}
-                          >
-                            <span
-                              style={{
-                                fontFamily: SANS,
-                                fontSize: 14,
-                                fontWeight: 600,
-                                color: CREAM,
-                              }}
-                            >
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="font-inter text-sm font-semibold text-ink-warm">
                               {p.company_name}
                             </span>
                             {isMaster && (
-                              <span
-                                style={{
-                                  fontFamily: MONO,
-                                  fontSize: 8,
-                                  fontWeight: 700,
-                                  textTransform: 'uppercase',
-                                  letterSpacing: '0.16em',
-                                  color: AMBER,
-                                  border: `1px solid ${AMBER}`,
-                                  borderRadius: 999,
-                                  padding: '2px 7px',
-                                }}
-                              >
+                              <span className="rounded-full border border-brand-burnt px-[7px] py-0.5 text-[8px] font-bold uppercase tracking-[0.16em] text-brand-burnt">
                                 Maître
                               </span>
                             )}
-                            <span
-                              style={{
-                                fontFamily: MONO,
-                                fontSize: 9,
-                                textTransform: 'uppercase',
-                                letterSpacing: '0.1em',
-                                color: CREAM_SOFT,
-                              }}
-                            >
+                            <span className="font-inter text-[9px] uppercase tracking-[0.1em] text-[#6F5A50]">
                               {labelForStatus(p.status)}
                             </span>
                           </div>
-                          <div
-                            style={{
-                              marginTop: 4,
-                              display: 'flex',
-                              flexWrap: 'wrap',
-                              gap: 14,
-                              fontSize: 12,
-                              color: CREAM_SOFT,
-                            }}
-                          >
+                          <div className="mt-1 flex flex-wrap gap-x-3.5 gap-y-1 text-xs text-[#6F5A50]">
                             {p.contact_name && <span>{p.contact_name}</span>}
-                            {p.email && <span style={{ fontFamily: MONO }}>{p.email}</span>}
+                            {p.email && <span className="font-inter">{p.email}</span>}
                             {p.phone && (
-                              <span style={{ fontFamily: MONO, color: AMBER }}>{p.phone}</span>
+                              <span className="font-inter text-brand-burnt">{p.phone}</span>
                             )}
                             {p.city && <span>{p.city}</span>}
                           </div>
-                          <div
-                            style={{
-                              marginTop: 4,
-                              display: 'flex',
-                              flexWrap: 'wrap',
-                              gap: 14,
-                              fontFamily: MONO,
-                              fontSize: 10,
-                              color: CREAM_FAINT,
-                            }}
-                          >
+                          <div className="mt-1 flex flex-wrap gap-x-3.5 gap-y-1 font-inter text-[10px] text-muted-warm">
                             <span>Créé {fmt(p.created_at)}</span>
                             <span>
                               {p.assigned_to
@@ -353,31 +215,12 @@ export default function DoublonsClient({ groups, assignedNames, totalActive }: P
                 </div>
 
                 {/* Actions de groupe */}
-                <div
-                  style={{
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    gap: 10,
-                    padding: '14px 18px',
-                    borderTop: '1px solid #E2D5C3',
-                  }}
-                >
+                <div className="flex flex-wrap gap-2.5 border-t border-[rgba(74,36,26,0.10)] px-[18px] py-3.5">
                   <button
                     type="button"
                     disabled={isBusy}
                     onClick={() => handleMerge(g)}
-                    style={{
-                      fontFamily: SANS,
-                      fontSize: 13,
-                      fontWeight: 600,
-                      color: '#2A1810',
-                      background: BTN,
-                      border: 'none',
-                      borderRadius: 999,
-                      padding: '9px 18px',
-                      cursor: isBusy ? 'wait' : 'pointer',
-                      opacity: isBusy ? 0.6 : 1,
-                    }}
+                    className="orange-glow rounded-full bg-brand px-[18px] py-2.5 font-inter text-[13px] font-semibold text-[#2A1810] transition hover:bg-brand-dark disabled:cursor-wait disabled:opacity-60"
                   >
                     {isBusy ? 'Fusion…' : 'Fusionner'}
                   </button>
@@ -385,18 +228,7 @@ export default function DoublonsClient({ groups, assignedNames, totalActive }: P
                     type="button"
                     disabled={isBusy}
                     onClick={() => handleDismiss(g)}
-                    style={{
-                      fontFamily: SANS,
-                      fontSize: 13,
-                      fontWeight: 600,
-                      color: CREAM_SOFT,
-                      background: 'transparent',
-                      border: BORDER,
-                      borderRadius: 999,
-                      padding: '9px 18px',
-                      cursor: isBusy ? 'wait' : 'pointer',
-                      opacity: isBusy ? 0.6 : 1,
-                    }}
+                    className="rounded-full border border-border-soft bg-white px-[18px] py-2.5 font-inter text-[13px] font-semibold text-choco transition hover:bg-cream-deep disabled:cursor-wait disabled:opacity-60"
                   >
                     Ignorer (pas un doublon)
                   </button>
@@ -410,41 +242,13 @@ export default function DoublonsClient({ groups, assignedNames, totalActive }: P
   );
 }
 
-function Stat({ label, value, color }: { label: string; value: number; color: string }) {
+function Stat({ label, value, tone }: { label: string; value: number; tone: 'warn' | 'ok' | 'ink' }) {
+  const valueColor =
+    tone === 'warn' ? 'text-brand-burnt' : tone === 'ok' ? 'text-ok-fg' : 'text-choco';
   return (
-    <div
-      style={{
-        flex: 1,
-        minWidth: 150,
-        background: CARD_BG,
-        border: BORDER,
-        borderRadius: 16,
-        padding: '16px 18px',
-      }}
-    >
-      <div
-        style={{
-          fontFamily: MONO,
-          fontSize: 9,
-          fontWeight: 600,
-          textTransform: 'uppercase',
-          letterSpacing: '0.16em',
-          color: CREAM_FAINT,
-          marginBottom: 8,
-        }}
-      >
-        {label}
-      </div>
-      <div
-        style={{
-          fontFamily: SERIF,
-          fontSize: 30,
-          fontWeight: 500,
-          color,
-          lineHeight: 1,
-          fontVariantNumeric: 'tabular-nums',
-        }}
-      >
+    <div className="surface-ceramic min-w-[150px] flex-1 rounded-3xl p-6">
+      <div className="label-eyebrow mb-2">{label}</div>
+      <div className={`font-marcellus text-[30px] font-medium leading-none tabular-nums ${valueColor}`}>
         {value}
       </div>
     </div>
