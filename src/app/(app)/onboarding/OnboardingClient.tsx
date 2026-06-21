@@ -203,26 +203,34 @@ function Card({
       whileHover={{ y: -4 }}
       transition={{ type: 'spring', stiffness: 300, damping: 22 }}
       className={
-        'surface-ceramic card-hover group/card relative overflow-hidden rounded-3xl p-6 md:p-7 ' +
+        'panel card-hover group/card relative overflow-hidden rounded-[14px] p-4 ' +
         (wide ? 'md:col-span-2' : '')
       }
     >
       <span
         aria-hidden
-        className="pointer-events-none absolute right-5 top-4 select-none text-[2.75rem] leading-none opacity-[0.06] transition-opacity duration-300 group-hover/card:opacity-[0.1]"
+        className="pointer-events-none absolute right-4 top-3 select-none text-[2.25rem] leading-none opacity-[0.06] transition-opacity duration-300 group-hover/card:opacity-[0.1]"
       >
         {emoji}
       </span>
-      <div className="relative mb-5 flex items-center gap-3">
+      <div className="relative mb-3 flex items-center gap-3">
         <span
           aria-hidden
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-brand-pale text-xl shadow-soft"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-pale text-lg shadow-soft"
         >
           {emoji}
         </span>
-        <h2 className="font-marcellus text-lg font-medium tracking-tight text-choco">
-          {title}
-        </h2>
+        <div className="min-w-0">
+          <span className="mb-1 inline-flex items-center gap-2">
+            <span aria-hidden className="h-px w-4 bg-gradient-to-r from-brand to-transparent" />
+            <span className="font-grotesk text-[10px] font-semibold uppercase tracking-[0.13em] text-brand-burnt">
+              GND
+            </span>
+          </span>
+          <h2 className="font-marcellus text-base font-medium tracking-tight text-choco">
+            {title}
+          </h2>
+        </div>
       </div>
       <div className="relative">{children}</div>
     </motion.section>
@@ -278,23 +286,29 @@ export default function OnboardingClient({
         animate={contentReady ? 'show' : 'hidden'}
       >
         {/* Hero */}
-        <motion.header variants={item} className="relative mb-8 overflow-hidden">
+        <motion.header
+          variants={item}
+          className="surface-chocolate relative mb-6 overflow-hidden rounded-[16px] p-5 sm:p-6"
+        >
           <span
             aria-hidden
-            className="pointer-events-none absolute -right-6 -top-16 select-none font-marcellus text-[12rem] font-black leading-none text-choco/[0.04] md:text-[16rem]"
+            className="pointer-events-none absolute -right-4 -top-10 select-none font-marcellus text-[110px] font-black leading-none text-cream/[0.08]"
             style={{ fontFamily: 'var(--font-fraunces), Georgia, serif' }}
           >
             G
           </span>
           <div className="relative">
-            <p className="mb-3 font-inter text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-dark">
-              Onboarding commercial
-            </p>
-            <h1 className="font-marcellus text-4xl font-medium leading-tight tracking-tight text-choco md:text-5xl">
+            <span className="mb-3 inline-flex items-center gap-2">
+              <span aria-hidden className="h-px w-4 bg-gradient-to-r from-brand to-transparent" />
+              <span className="font-grotesk text-[11px] font-semibold uppercase tracking-[0.13em] text-[#E0A572]">
+                Onboarding commercial
+              </span>
+            </span>
+            <h1 className="font-marcellus text-3xl font-medium leading-tight tracking-tight text-cream">
               Bienvenue chez GND,{' '}
-              <span className="italic text-brand-dark">{prenom}</span>.
+              <span className="italic text-[#E0A572]">{prenom}</span>.
             </h1>
-            <p className="mt-3 max-w-xl text-muted-warm">
+            <p className="mt-3 max-w-xl text-cream/55">
               Tout ce dont tu as besoin pour démarrer : ton espace, tes
               prospects, ta rémunération.
             </p>
@@ -303,16 +317,16 @@ export default function OnboardingClient({
                 <motion.span
                   initial={{ scale: 0.9 }}
                   animate={contentReady ? { scale: 1 } : {}}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-brand/25 bg-brand-soft px-3.5 py-1.5 text-sm font-semibold text-brand-dark tabular-nums"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-brand/30 bg-brand/15 px-3.5 py-1.5 text-sm font-semibold text-[#E0A572]"
                 >
-                  Commission&nbsp;: {commissionShown}%
+                  Commission&nbsp;: <span className="font-num tabular-nums">{commissionShown}%</span>
                 </motion.span>
               )}
               <Link
                 href="/prospects"
-                className="group inline-flex items-center gap-1.5 rounded-full border border-border-soft bg-white px-3.5 py-1.5 text-sm font-medium text-ink-warm transition-all hover:border-brand/30 hover:shadow-soft"
+                className="group inline-flex items-center gap-1.5 rounded-full border border-cream/15 bg-cream/[0.06] px-3.5 py-1.5 text-sm font-medium text-cream/80 transition-all hover:bg-cream/10"
               >
-                {nbProspects} prospect{nbProspects > 1 ? 's' : ''} assigné
+                <span className="font-num tabular-nums">{nbProspects}</span> prospect{nbProspects > 1 ? 's' : ''} assigné
                 {nbProspects > 1 ? 's' : ''}
                 <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden />
               </Link>
@@ -320,29 +334,32 @@ export default function OnboardingClient({
           </div>
         </motion.header>
 
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           <Card emoji="🚀" title="Tes premiers pas" wide>
             <OnboardingChecklist storageKey={`gnd-onboarding-${userId}`} />
           </Card>
 
           <Card emoji="💰" title="Ta rémunération">
-            <ul className="space-y-3 text-sm text-ink-warm">
-              <li className="flex flex-col gap-0.5">
-                <strong className="text-choco">Ta commission : {commissionPct ?? '—'}%</strong>
-                <span className="text-muted-warm">par contrat signé.</span>
+            <ul className="text-sm text-ink-warm [&>li+li]:border-t [&>li+li]:border-[rgba(74,36,26,0.07)]">
+              <li className="flex items-center justify-between gap-3 py-2.5">
+                <span className="text-muted-warm">Commission par contrat signé</span>
+                <strong className="shrink-0 font-num tabular-nums text-choco">{commissionPct ?? '—'}%</strong>
               </li>
-              <li className="flex flex-col gap-0.5">
-                <strong className="text-choco">Paiement</strong>
-                <span className="text-muted-warm">15 jours après encaissement total du client.</span>
-              </li>
-              <li className="hairline mt-1 rounded-2xl bg-cream/50 px-3.5 py-3 text-xs text-muted-warm">
-                Acompte 50% → livraison → solde 50% → tu factures → payé sous 15 j.
+              <li className="flex items-center justify-between gap-3 py-2.5">
+                <span className="text-muted-warm">Paiement après encaissement total</span>
+                <strong className="shrink-0 font-num tabular-nums text-choco">15 j</strong>
               </li>
             </ul>
-            <div className="surface-accent mt-5 rounded-2xl p-4">
-              <p className="label-eyebrow mb-3">
-                Paliers bonus (sur 3 mois)
-              </p>
+            <p className="hairline mt-2 rounded-2xl bg-cream/50 px-3.5 py-2.5 text-xs text-muted-warm">
+              Acompte 50% → livraison → solde 50% → tu factures → payé sous 15 j.
+            </p>
+            <div className="panel-accent mt-3 rounded-2xl p-4">
+              <span className="mb-3 inline-flex items-center gap-2">
+                <span aria-hidden className="h-px w-4 bg-gradient-to-r from-brand-burnt to-transparent" />
+                <span className="font-grotesk text-[10px] font-semibold uppercase tracking-[0.13em] text-brand-burnt">
+                  Paliers bonus (sur 3 mois)
+                </span>
+              </span>
               <div className="flex flex-wrap gap-2">
                 {BONUS_TIERS.map((t, i) => (
                   <motion.span
@@ -353,7 +370,7 @@ export default function OnboardingClient({
                     transition={{ delay: 0.1 * i }}
                     className="hairline-brand inline-flex items-center gap-1 rounded-full bg-white px-3 py-1.5 text-xs font-medium text-ink-warm shadow-soft"
                   >
-                    {t.contrats} contrats → <strong className="text-brand-burnt">{t.bonus}€</strong>
+                    <span className="font-num tabular-nums">{t.contrats}</span> contrats → <strong className="font-num tabular-nums text-brand-burnt">{t.bonus}€</strong>
                   </motion.span>
                 ))}
               </div>
@@ -361,55 +378,55 @@ export default function OnboardingClient({
           </Card>
 
           <Card emoji="🎯" title="Process de vente — A à Z">
-            <ol className="space-y-2.5 text-sm text-ink-warm">
-              <li className="flex items-start gap-3">
-                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-pale text-[11px] font-semibold text-brand-burnt tabular-nums">1</span>
+            <ol className="text-sm text-ink-warm [&>li+li]:border-t [&>li+li]:border-[rgba(74,36,26,0.07)]">
+              <li className="flex items-center gap-3 py-2.5">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-pale font-num text-[11px] font-semibold text-brand-burnt tabular-nums">1</span>
                 <span>Tu prospectes sur ta zone / liste attribuée</span>
               </li>
-              <li className="flex items-start gap-3">
-                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-pale text-[11px] font-semibold text-brand-burnt tabular-nums">2</span>
+              <li className="flex items-center gap-3 py-2.5">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-pale font-num text-[11px] font-semibold text-brand-burnt tabular-nums">2</span>
                 <span>Tu qualifies (besoin, budget, décideur)</span>
               </li>
-              <li className="flex items-start gap-3">
-                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-pale text-[11px] font-semibold text-brand-burnt tabular-nums">3</span>
+              <li className="flex items-center gap-3 py-2.5">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-pale font-num text-[11px] font-semibold text-brand-burnt tabular-nums">3</span>
                 <span>Tu présentes l&apos;offre adaptée</span>
               </li>
-              <li className="flex items-start gap-3">
-                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-pale text-[11px] font-semibold text-brand-burnt tabular-nums">4</span>
+              <li className="flex items-center gap-3 py-2.5">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-pale font-num text-[11px] font-semibold text-brand-burnt tabular-nums">4</span>
                 <span>Tu closes et fais signer le devis</span>
               </li>
-              <li className="flex items-start gap-3">
-                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-pale text-[11px] font-semibold text-brand-burnt tabular-nums">5</span>
+              <li className="flex items-center gap-3 py-2.5">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-pale font-num text-[11px] font-semibold text-brand-burnt tabular-nums">5</span>
                 <span>Tu transmets les infos par email</span>
               </li>
             </ol>
-            <p className="hairline mt-4 rounded-2xl bg-cream/50 px-3.5 py-3 text-xs text-muted-warm">
+            <p className="hairline mt-2 rounded-2xl bg-cream/50 px-3.5 py-2.5 text-xs text-muted-warm">
               Blocage majeur uniquement → tu me contactes, on voit ensemble.
             </p>
           </Card>
 
           <Card emoji="📞" title="Communication">
-            <ul className="divide-y divide-[rgba(74,36,26,0.08)] text-sm text-ink-warm">
-              <li className="flex items-center justify-between gap-3 py-2">
+            <ul className="text-sm text-ink-warm [&>li+li]:border-t [&>li+li]:border-[rgba(74,36,26,0.07)]">
+              <li className="flex items-center justify-between gap-3 py-2.5">
                 <span className="text-muted-warm">Questions rapides / informel</span>
                 <strong className="shrink-0 rounded-full bg-ok-bg px-2.5 py-0.5 text-xs text-ok-fg">WhatsApp</strong>
               </li>
-              <li className="flex items-center justify-between gap-3 py-2">
+              <li className="flex items-center justify-between gap-3 py-2.5">
                 <span className="text-muted-warm">Infos clients (nom, formule, montant)</span>
                 <strong className="shrink-0 rounded-full bg-info-bg px-2.5 py-0.5 text-xs text-info-fg">Email</strong>
               </li>
-              <li className="flex items-center justify-between gap-3 py-2">
+              <li className="flex items-center justify-between gap-3 py-2.5">
                 <span className="text-muted-warm">Déclarer un contrat signé</span>
                 <strong className="shrink-0 rounded-full bg-info-bg px-2.5 py-0.5 text-xs text-info-fg">Email</strong>
               </li>
-              <li className="flex items-center justify-between gap-3 py-2">
+              <li className="flex items-center justify-between gap-3 py-2.5">
                 <span className="text-muted-warm">Facturation &amp; commissions</span>
                 <strong className="shrink-0 rounded-full bg-info-bg px-2.5 py-0.5 text-xs text-info-fg">Email</strong>
               </li>
             </ul>
             <a
               href={`mailto:${CONTACT_EMAIL}`}
-              className="mt-4 inline-flex items-center rounded-full bg-cream-deep px-3.5 py-1.5 text-sm font-semibold text-brand-burnt transition hover:bg-brand-pale"
+              className="mt-3 inline-flex items-center rounded-full bg-cream-deep px-3.5 py-1.5 text-sm font-semibold text-brand-burnt transition hover:bg-brand-pale"
             >
               {CONTACT_EMAIL}
             </a>
@@ -459,21 +476,21 @@ export default function OnboardingClient({
           </Card>
 
           <Card emoji="🚫" title="Règles d'or">
-            <ol className="space-y-2.5 text-sm text-ink-warm">
-              <li className="flex items-start gap-3">
-                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-pale text-[11px] font-semibold text-brand-burnt tabular-nums">1</span>
+            <ol className="text-sm text-ink-warm [&>li+li]:border-t [&>li+li]:border-[rgba(74,36,26,0.07)]">
+              <li className="flex items-start gap-3 py-2.5">
+                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-pale font-num text-[11px] font-semibold text-brand-burnt tabular-nums">1</span>
                 <span><strong className="text-choco">Confidentialité</strong> — tarifs, marges et méthodes restent confidentiels.</span>
               </li>
-              <li className="flex items-start gap-3">
-                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-pale text-[11px] font-semibold text-brand-burnt tabular-nums">2</span>
+              <li className="flex items-start gap-3 py-2.5">
+                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-pale font-num text-[11px] font-semibold text-brand-burnt tabular-nums">2</span>
                 <span><strong className="text-choco">Pas de doublon</strong> — uniquement ta zone / liste attribuée.</span>
               </li>
-              <li className="flex items-start gap-3">
-                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-pale text-[11px] font-semibold text-brand-burnt tabular-nums">3</span>
+              <li className="flex items-start gap-3 py-2.5">
+                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-pale font-num text-[11px] font-semibold text-brand-burnt tabular-nums">3</span>
                 <span>Interdit d&apos;appeler un prospect marqué « En cours » par un autre.</span>
               </li>
-              <li className="flex items-start gap-3">
-                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-pale text-[11px] font-semibold text-brand-burnt tabular-nums">4</span>
+              <li className="flex items-start gap-3 py-2.5">
+                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-pale font-num text-[11px] font-semibold text-brand-burnt tabular-nums">4</span>
                 <span><strong className="text-choco">Autonomie</strong> — tu gères ton emploi du temps.</span>
               </li>
             </ol>
@@ -488,16 +505,16 @@ export default function OnboardingClient({
             <div className="flex flex-wrap gap-3">
               <Link
                 href="/ressources"
-                className="group inline-flex items-center gap-1.5 rounded-full bg-brand px-4 py-2 text-sm font-semibold text-choco transition-all hover:opacity-90"
+                className="group inline-flex items-center gap-1.5 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-[#2A1810] shadow-soft transition-all hover:opacity-90"
               >
                 Sales toolkit
                 <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden />
               </Link>
               <Link
                 href="/formation"
-                className="rounded-full border border-border-soft bg-white px-4 py-2 text-sm font-semibold text-ink-warm transition-all hover:border-brand/30 hover:shadow-soft"
+                className="rounded-full border border-border-soft bg-white px-5 py-2.5 text-sm font-semibold text-choco transition-all hover:border-brand/30 hover:shadow-soft"
               >
-                Formation (7 modules) →
+                Formation (<span className="font-num tabular-nums">7</span> modules) →
               </Link>
             </div>
           </Card>
