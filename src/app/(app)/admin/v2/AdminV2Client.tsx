@@ -42,7 +42,8 @@ function KpiCard({ label, value, sub, accent, spark }: { label: string; value: s
   const sparkPts = spark ? spark.map((v, i) => `${(i / (spark.length - 1)) * 56},${18 - ((v - Math.min(...spark)) / (Math.max(...spark) - Math.min(...spark) || 1)) * 16}`).join(' ') : null;
   const lastY = spark ? 18 - ((spark[spark.length - 1] - Math.min(...spark)) / (Math.max(...spark) - Math.min(...spark) || 1)) * 16 : 0;
   return (
-    <div style={{ position: 'relative', overflow: 'hidden', borderRadius: 16, padding: '14px 18px', border: '1px solid #E2D5C3', backgroundImage: 'radial-gradient(circle at 20% 0%,rgba(243,146,83,0.10) 0%,transparent 55%),linear-gradient(135deg,#FFFFFF 0%,#FBF7F2 100%)', boxShadow: '0 1px 3px rgba(83,36,24,0.06)', flex: 1, minWidth: 120, transition: 'all .2s cubic-bezier(0.22,1,0.36,1)' }}>
+    <div style={{ position: 'relative', overflow: 'hidden', borderRadius: 20, padding: '16px 20px', border: '1px solid rgba(74,36,26,0.10)', backgroundImage: 'radial-gradient(circle at 20% 0%,rgba(243,146,83,0.12) 0%,transparent 55%),linear-gradient(135deg,#FFFFFF 0%,#FBF7F1 100%)', boxShadow: '0 1px 2px rgba(83,36,24,0.05), 0 12px 30px -20px rgba(83,36,24,0.22)', flex: 1, minWidth: 120, transition: 'all .2s cubic-bezier(0.22,1,0.36,1)' }}>
+      <span aria-hidden style={{ position: 'absolute', left: 0, top: 14, bottom: 14, width: 3, borderRadius: 999, background: accent ? `linear-gradient(180deg,${accent},${accent}55)` : 'linear-gradient(180deg,#F39253,rgba(243,146,83,0.35))' }} />
       <Mono size={8} color="#B5601C" style={{ display: 'block', marginBottom: 8 }}>{label}</Mono>
       <div style={{ fontFamily: 'var(--font-marcellus), Georgia, serif', fontSize: 36, fontWeight: 500, lineHeight: 1, letterSpacing: '-0.02em', color: accent ?? '#532418', fontVariantNumeric: 'tabular-nums', marginBottom: 8 }}>{value}</div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -102,8 +103,8 @@ function RocketMini({ palier = 2, total = 5, height = 100 }: { palier?: number; 
 function FunnelSection({ stages }: { stages: FunnelStage[] }) {
   const total = stages[0]?.count ?? 0;
   return (
-    <div style={{ background: '#FFFFFF', border: '1px solid #E2D5C3', borderRadius: 18, overflow: 'hidden', boxShadow: '0 1px 3px rgba(83,36,24,0.06)' }}>
-      <div style={{ padding: '14px 20px', borderBottom: '1px solid #E2D5C3', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+    <div style={{ background: 'linear-gradient(160deg,#FFFFFF 0%,#FCF8F3 100%)', border: '1px solid rgba(74,36,26,0.10)', borderRadius: 24, overflow: 'hidden', boxShadow: '0 1px 2px rgba(83,36,24,0.05), 0 10px 30px -18px rgba(83,36,24,0.18)' }}>
+      <div style={{ padding: '14px 20px', borderBottom: '1px solid rgba(74,36,26,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Hairline label="FUNNEL DE CONVERSION" />
         <Mono size={9} color="#7B665C">PAR ÉTAPE PIPELINE</Mono>
       </div>
@@ -136,8 +137,8 @@ function ClassementSection({ entries, commerciaux }: { entries: ClassementEntry[
   const fourth = entries[3];
   const rankColors = ['#D97A3D', '#C49A3C', '#A0735C'];
   return (
-    <div style={{ background: '#FFFFFF', border: '1px solid #E2D5C3', borderRadius: 18, overflow: 'hidden', boxShadow: '0 1px 3px rgba(83,36,24,0.06)' }}>
-      <div style={{ padding: '14px 20px', borderBottom: '1px solid #E2D5C3', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}><Hairline label="CLASSEMENT COMMERCIAUX" /><Mono size={9} color="#7B665C">PODIUM · CA POTENTIEL</Mono></div>
+    <div style={{ background: 'linear-gradient(160deg,#FFFFFF 0%,#FCF8F3 100%)', border: '1px solid rgba(74,36,26,0.10)', borderRadius: 24, overflow: 'hidden', boxShadow: '0 1px 2px rgba(83,36,24,0.05), 0 10px 30px -18px rgba(83,36,24,0.18)' }}>
+      <div style={{ padding: '14px 20px', borderBottom: '1px solid rgba(74,36,26,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}><Hairline label="CLASSEMENT COMMERCIAUX" /><Mono size={9} color="#7B665C">PODIUM · CA POTENTIEL</Mono></div>
       <div style={{ padding: 20 }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.3fr 1fr', gap: 10, alignItems: 'end', marginBottom: 14 }}>
           {podium.map((c) => {
@@ -222,8 +223,8 @@ function FormationSection({ entries }: { entries: FormationEntry[] }) {
     </div>
   );
   return (
-    <div style={{ background: '#FFFFFF', border: '1px solid #E2D5C3', borderRadius: 18, overflow: 'hidden', boxShadow: '0 1px 3px rgba(83,36,24,0.06)' }}>
-      <div style={{ padding: '14px 20px', borderBottom: '1px solid #E2D5C3', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}><Hairline label="SUIVI FORMATION" /><Mono size={9} color="#7B665C">7 MODULES · {entries.length} MEMBRES</Mono></div>
+    <div style={{ background: 'linear-gradient(160deg,#FFFFFF 0%,#FCF8F3 100%)', border: '1px solid rgba(74,36,26,0.10)', borderRadius: 24, overflow: 'hidden', boxShadow: '0 1px 2px rgba(83,36,24,0.05), 0 10px 30px -18px rgba(83,36,24,0.18)' }}>
+      <div style={{ padding: '14px 20px', borderBottom: '1px solid rgba(74,36,26,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}><Hairline label="SUIVI FORMATION" /><Mono size={9} color="#7B665C">7 MODULES · {entries.length} MEMBRES</Mono></div>
       <div style={{ padding: '20px 24px' }}>
         <div style={{ display: 'flex', alignItems: 'flex-end', paddingLeft: 196, marginBottom: 0 }}>
           {FORMATION_MODULES.map((mod, idx) => (
@@ -246,8 +247,8 @@ function FormationSection({ entries }: { entries: FormationEntry[] }) {
 function PaliersSection({ commerciaux }: { commerciaux: CommercialV2[] }) {
   const maxPalier = commerciaux.length > 0 ? Math.max(...commerciaux.map((c) => c.palier)) : 0;
   return (
-    <div style={{ background: '#FFFFFF', border: '1px solid #E2D5C3', borderRadius: 18, overflow: 'hidden', boxShadow: '0 1px 3px rgba(83,36,24,0.06)' }}>
-      <div style={{ padding: '14px 20px', borderBottom: '1px solid #E2D5C3', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}><Hairline label="PALIERS BONUS" /><Mono size={9} color="#7B665C">PAR COMMERCIAL · MENSUEL</Mono></div>
+    <div style={{ background: 'linear-gradient(160deg,#FFFFFF 0%,#FCF8F3 100%)', border: '1px solid rgba(74,36,26,0.10)', borderRadius: 24, overflow: 'hidden', boxShadow: '0 1px 2px rgba(83,36,24,0.05), 0 10px 30px -18px rgba(83,36,24,0.18)' }}>
+      <div style={{ padding: '14px 20px', borderBottom: '1px solid rgba(74,36,26,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}><Hairline label="PALIERS BONUS" /><Mono size={9} color="#7B665C">PAR COMMERCIAL · MENSUEL</Mono></div>
       <div style={{ padding: '20px 24px 24px' }}>
         <div style={{ position: 'relative', marginBottom: 20 }}>
           <div style={{ display: 'flex', alignItems: 'flex-end', marginBottom: 10 }}>
@@ -307,7 +308,7 @@ function CommercialCards({ commerciaux }: { commerciaux: CommercialV2[] }) {
       {commerciaux.map((c) => {
         const palier = PALIERS_BONUS[Math.min(c.palier - 1, PALIERS_BONUS.length - 1)];
         return (
-          <div key={c.id} style={{ background: '#FFFFFF', border: '1px solid #E2D5C3', borderRadius: 18, padding: 18, display: 'flex', flexDirection: 'column', gap: 14, boxShadow: '0 1px 3px rgba(83,36,24,0.06)' }}>
+          <div key={c.id} style={{ background: 'linear-gradient(160deg,#FFFFFF 0%,#FCF8F3 100%)', border: '1px solid rgba(74,36,26,0.10)', borderRadius: 24, padding: 18, display: 'flex', flexDirection: 'column', gap: 14, boxShadow: '0 1px 2px rgba(83,36,24,0.05), 0 10px 30px -18px rgba(83,36,24,0.18)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <div style={{ width: 44, height: 44, borderRadius: 999, flexShrink: 0, background: 'linear-gradient(135deg,rgba(243,146,83,0.25),rgba(196,154,60,0.15))', border: '1px solid rgba(243,146,83,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-marcellus)', fontSize: 16, fontWeight: 500, color: '#B5601C' }}>{c.initials}</div>
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -396,8 +397,8 @@ function SyncSection({ commerciaux }: { commerciaux: CommercialV2[] }) {
   };
 
   return (
-    <div style={{ background: '#FFFFFF', border: '1px solid #E2D5C3', borderRadius: 18, overflow: 'hidden', boxShadow: '0 1px 3px rgba(83,36,24,0.06)' }}>
-      <div style={{ padding: '14px 20px', borderBottom: '1px solid #E2D5C3', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}><Hairline label="SYNC NOTION" /><Mono size={9} color="#7B665C">{relSync()}</Mono></div>
+    <div style={{ background: 'linear-gradient(160deg,#FFFFFF 0%,#FCF8F3 100%)', border: '1px solid rgba(74,36,26,0.10)', borderRadius: 24, overflow: 'hidden', boxShadow: '0 1px 2px rgba(83,36,24,0.05), 0 10px 30px -18px rgba(83,36,24,0.18)' }}>
+      <div style={{ padding: '14px 20px', borderBottom: '1px solid rgba(74,36,26,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}><Hairline label="SYNC NOTION" /><Mono size={9} color="#7B665C">{relSync()}</Mono></div>
       <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
           <Mono size={8} color="#7B665C" style={{ marginRight: 4 }}>CIBLE :</Mono>
@@ -423,8 +424,8 @@ function SyncSection({ commerciaux }: { commerciaux: CommercialV2[] }) {
 export default function AdminV2Client({ data }: { data: AdminV2PageData }) {
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
-      <div style={{ flex: 1, background: '#F6EFE7', overflowY: 'auto' }}>
-      <header style={{ position: 'relative', padding: '28px 40px', overflow: 'hidden', borderBottom: '1px solid #E2D5C3' }}>
+      <div style={{ flex: 1, background: 'linear-gradient(180deg,#F8F1E9 0%,#F6EFE7 60%,#F4ECE2 100%)', overflowY: 'auto' }}>
+      <header style={{ position: 'relative', padding: '34px 40px 30px', overflow: 'hidden', borderBottom: '1px solid rgba(74,36,26,0.10)', backgroundImage: 'radial-gradient(circle at 12% -10%,rgba(243,146,83,0.10) 0%,transparent 45%),linear-gradient(180deg,#FBF7F1 0%,#F6EFE7 100%)' }}>
         <span aria-hidden style={{ position: 'absolute', right: -20, top: -40, fontFamily: 'var(--font-marcellus)', fontSize: 200, fontWeight: 500, lineHeight: 1, letterSpacing: '-0.04em', color: 'rgba(243,146,83,0.08)', whiteSpace: 'nowrap', pointerEvents: 'none', userSelect: 'none' }}>Pipeline.</span>
         <div style={{ position: 'relative' }}>
           <div style={{ marginBottom: 12 }}>
@@ -445,9 +446,12 @@ export default function AdminV2Client({ data }: { data: AdminV2PageData }) {
           </div>
         </div>
       </header>
-      <div style={{ padding: '28px 40px', display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div style={{ padding: '30px 40px 40px', display: 'flex', flexDirection: 'column', gap: 22 }}>
         <section>
-          <div style={{ marginBottom: 14 }}><Hairline label="PERFORMANCE PAR COMMERCIAL" /></div>
+          <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 12 }}>
+            <span aria-hidden style={{ fontFamily: 'var(--font-marcellus)', fontSize: 13, fontWeight: 500, color: 'rgba(217,122,61,0.55)', fontVariantNumeric: 'tabular-nums', letterSpacing: '0.04em' }}>01</span>
+            <Hairline label="PERFORMANCE PAR COMMERCIAL" />
+          </div>
           <CommercialCards commerciaux={data.commerciaux} />
         </section>
         <FunnelSection stages={data.funnel} />
@@ -456,7 +460,7 @@ export default function AdminV2Client({ data }: { data: AdminV2PageData }) {
         <PaliersSection commerciaux={data.commerciaux} />
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 20 }}>
           <SyncSection commerciaux={data.commerciaux} />
-          <div style={{ background: '#FFFFFF', border: '1px solid #E2D5C3', borderRadius: 18, padding: 20, boxShadow: '0 1px 3px rgba(83,36,24,0.06)' }}>
+          <div style={{ background: 'linear-gradient(160deg,#FFFFFF 0%,#FCF8F3 100%)', border: '1px solid rgba(74,36,26,0.10)', borderRadius: 24, padding: 20, boxShadow: '0 1px 2px rgba(83,36,24,0.05), 0 10px 30px -18px rgba(83,36,24,0.18)' }}>
             <div style={{ marginBottom: 14 }}><Hairline label="ACTIVITÉ RÉCENTE · ÉQUIPE" /></div>
             <ActivityLog logs={data.activity} />
           </div>
