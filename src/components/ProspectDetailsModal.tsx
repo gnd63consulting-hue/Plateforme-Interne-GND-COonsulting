@@ -57,7 +57,7 @@ type AnalysisTheme = {
 
 const RECOMMENDATION_THEME: AnalysisTheme = {
   cardClass:
-    'rounded-xl bg-gradient-to-br from-amber-50 to-amber-100/60 p-4 ring-1 ring-amber-200/70 shadow-sm',
+    'rounded-xl bg-gradient-to-br from-amber-50 to-amber-100/60 p-4 ring-1 ring-amber-200/70 shadow-soft',
   headerColor: 'text-amber-800',
   iconColor: 'text-amber-700',
   bodyColor: 'text-amber-950',
@@ -72,22 +72,22 @@ const RECOMMENDATION_THEME: AnalysisTheme = {
 
 const BESOIN_THEME: AnalysisTheme = {
   cardClass:
-    'rounded-xl bg-gradient-to-br from-sky-50 to-sky-100/60 p-4 ring-1 ring-sky-200/70 shadow-sm',
-  headerColor: 'text-sky-800',
-  iconColor: 'text-sky-700',
-  bodyColor: 'text-sky-950',
-  sectionLabelColor: 'text-sky-700',
-  bulletColor: 'bg-sky-500/70',
-  boldColor: 'text-sky-950',
-  linkColor: 'text-sky-700',
-  phoneBg: 'bg-sky-100/60',
-  phoneText: 'text-sky-800',
-  handleColor: 'text-sky-700',
+    'rounded-xl bg-gradient-to-br from-info-bg to-info-bg/60 p-4 ring-1 ring-[rgba(49,104,156,0.25)]/70 shadow-soft',
+  headerColor: 'text-info-fg',
+  iconColor: 'text-info-fg',
+  bodyColor: 'text-info-fg',
+  sectionLabelColor: 'text-info-fg',
+  bulletColor: 'bg-brand/70',
+  boldColor: 'text-info-fg',
+  linkColor: 'text-info-fg',
+  phoneBg: 'bg-info-bg/60',
+  phoneText: 'text-info-fg',
+  handleColor: 'text-info-fg',
 };
 
 const TIMING_THEME: AnalysisTheme = {
   cardClass:
-    'rounded-xl bg-gradient-to-br from-violet-50 to-violet-100/60 p-4 ring-1 ring-violet-200/70 shadow-sm',
+    'rounded-xl bg-gradient-to-br from-violet-50 to-violet-100/60 p-4 ring-1 ring-violet-200/70 shadow-soft',
   headerColor: 'text-violet-800',
   iconColor: 'text-violet-700',
   bodyColor: 'text-violet-950',
@@ -102,7 +102,7 @@ const TIMING_THEME: AnalysisTheme = {
 
 const BUDGET_THEME: AnalysisTheme = {
   cardClass:
-    'rounded-xl bg-gradient-to-br from-emerald-50 to-emerald-100/60 p-4 ring-1 ring-emerald-200/70 shadow-sm',
+    'rounded-xl bg-gradient-to-br from-emerald-50 to-emerald-100/60 p-4 ring-1 ring-emerald-200/70 shadow-soft',
   headerColor: 'text-emerald-800',
   iconColor: 'text-emerald-700',
   bodyColor: 'text-emerald-950',
@@ -168,23 +168,23 @@ export default function ProspectDetailsModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/60 backdrop-blur-sm sm:items-center sm:p-4"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-[#2A1510]/60 backdrop-blur-sm sm:items-center sm:p-4"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
       aria-label={`Détails du prospect ${prospect.company_name}`}
     >
       <div
-        className="relative flex h-[95vh] w-full flex-col overflow-hidden rounded-t-2xl bg-white shadow-2xl ring-1 ring-slate-900/5 sm:h-auto sm:max-h-[90vh] sm:max-w-4xl sm:rounded-2xl"
+        className="relative flex h-[95vh] w-full flex-col overflow-hidden rounded-t-2xl bg-white shadow-2xl ring-1 ring-[rgba(83,36,24,0.06)] sm:h-auto sm:max-h-[90vh] sm:max-w-4xl sm:rounded-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* ============================================================== */}
         {/* STICKY HEADER                                                   */}
         {/* ============================================================== */}
-        <header className="flex shrink-0 items-start gap-4 border-b border-slate-200 bg-white px-5 py-4 sm:px-6">
+        <header className="flex shrink-0 items-start gap-4 border-b border-[rgba(74,36,26,0.10)] bg-white px-5 py-4 sm:px-6">
           {/* Hash-color avatar with initials */}
           <div
-            className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-xl text-lg font-bold text-white shadow-md ring-2 ring-white ${avatarColor}`}
+            className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-xl text-lg font-bold text-white shadow-soft-md ring-2 ring-white ${avatarColor}`}
             aria-hidden="true"
           >
             {avatarInitials}
@@ -192,12 +192,12 @@ export default function ProspectDetailsModal({
 
           {/* Title + meta + badges */}
           <div className="min-w-0 flex-1">
-            <h2 className="text-xl font-bold leading-tight text-gnd-primary sm:text-2xl">
+            <h2 className="text-xl font-bold leading-tight text-ink-warm sm:text-2xl">
               {prospect.company_name}
             </h2>
 
             {/* Sector + Address */}
-            <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gnd-muted sm:text-sm">
+            <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-warm sm:text-sm">
               {prospect.sector && (
                 <span className="inline-flex items-center gap-1">
                   <Building2 className="h-3.5 w-3.5" aria-hidden />
@@ -248,7 +248,7 @@ export default function ProspectDetailsModal({
                 </span>
               )}
               {prospect.notion_page_id && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-medium text-blue-700 ring-1 ring-blue-200">
+                <span className="inline-flex items-center gap-1 rounded-full bg-info-bg px-2 py-0.5 text-[11px] font-medium text-info-fg ring-1 ring-[rgba(49,104,156,0.25)]">
                   <Sparkles className="h-3 w-3" aria-hidden />
                   Synchro Notion
                 </span>
@@ -259,7 +259,7 @@ export default function ProspectDetailsModal({
           {/* Close button */}
           <button
             onClick={onClose}
-            className="-m-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-gnd-accent"
+            className="-m-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-muted-warm transition hover:bg-cream-deep hover:text-ink-warm focus:outline-none focus:ring-2 focus:ring-brand"
             aria-label="Fermer la modale"
           >
             <X className="h-5 w-5" />
@@ -269,7 +269,7 @@ export default function ProspectDetailsModal({
         {/* ============================================================== */}
         {/* SCROLLABLE BODY                                                  */}
         {/* ============================================================== */}
-        <div className="flex-1 overflow-y-auto bg-slate-50/40 px-5 py-5 sm:px-6 sm:py-6">
+        <div className="flex-1 overflow-y-auto bg-cream/40 px-5 py-5 sm:px-6 sm:py-6">
           <div className="space-y-4">
             {/* Row 1 : Décisionnaire & canal | Présence digitale */}
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -336,7 +336,7 @@ export default function ProspectDetailsModal({
                   !prospect.linkedin_contact &&
                   !prospect.linkedin_entreprise &&
                   !prospect.tiktok && (
-                    <p className="text-xs italic text-gnd-muted">
+                    <p className="text-xs italic text-muted-warm">
                       Aucune présence sociale renseignée.
                     </p>
                   )}
@@ -392,14 +392,14 @@ export default function ProspectDetailsModal({
                 {prospect.besoins_detectes &&
                   prospect.besoins_detectes.length > 0 && (
                     <div>
-                      <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-gnd-muted">
+                      <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-warm">
                         Besoins détectés
                       </div>
                       <div className="flex flex-wrap gap-1.5">
                         {prospect.besoins_detectes.map((b) => (
                           <span
                             key={b}
-                            className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700 ring-1 ring-blue-200"
+                            className="inline-flex items-center rounded-full bg-info-bg px-2.5 py-1 text-xs font-medium text-info-fg ring-1 ring-[rgba(49,104,156,0.25)]"
                           >
                             {b}
                           </span>
@@ -410,7 +410,7 @@ export default function ProspectDetailsModal({
                 {prospect.arguments_cles &&
                   prospect.arguments_cles.length > 0 && (
                     <div className="mt-3">
-                      <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-gnd-muted">
+                      <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-warm">
                         Arguments clés
                       </div>
                       <div className="flex flex-wrap gap-1.5">
@@ -484,7 +484,7 @@ export default function ProspectDetailsModal({
               </ThemedCard>
             )}
 
-            <p className="pt-1 text-center text-[11px] italic text-gnd-muted">
+            <p className="pt-1 text-center text-[11px] italic text-muted-warm">
               Données issues de Notion (Pipeline Prospects GND). Les notes et
               le statut saisis sur la plateforme sont préservés au sync.
             </p>
@@ -494,7 +494,7 @@ export default function ProspectDetailsModal({
         {/* ============================================================== */}
         {/* STICKY FOOTER ACTIONS                                            */}
         {/* ============================================================== */}
-        <footer className="flex shrink-0 flex-wrap items-center justify-end gap-2 border-t border-slate-200 bg-white px-5 py-3 sm:px-6">
+        <footer className="flex shrink-0 flex-wrap items-center justify-end gap-2 border-t border-[rgba(74,36,26,0.10)] bg-white px-5 py-3 sm:px-6">
           {telHref && (
             <FooterAction href={telHref} icon={<Phone className="h-4 w-4" />}>
               Appeler
@@ -543,8 +543,8 @@ function Card({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-xl bg-white p-4 ring-1 ring-slate-200 shadow-sm">
-      <header className="mb-3 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gnd-muted">
+    <section className="rounded-xl bg-white p-4 ring-1 ring-border-soft shadow-soft">
+      <header className="mb-3 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-warm">
         <span aria-hidden>{icon}</span>
         {title}
       </header>
@@ -596,16 +596,16 @@ function KV({
       href={href}
       target={isExternal ? '_blank' : undefined}
       rel={isExternal ? 'noopener noreferrer' : undefined}
-      className="text-gnd-primary hover:underline"
+      className="text-ink-warm hover:underline"
     >
       {value}
     </a>
   ) : (
-    <span className="text-slate-800">{value}</span>
+    <span className="text-choco">{value}</span>
   );
   return (
     <div className="mb-2 last:mb-0">
-      <div className="text-[11px] font-semibold uppercase tracking-wide text-gnd-muted">
+      <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-warm">
         {label}
       </div>
       <div className="mt-0.5 break-words text-sm">{content}</div>
@@ -631,16 +631,16 @@ function SocialLink({
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="-mx-1 mb-1 flex items-center gap-2 rounded-lg px-1.5 py-1 transition hover:bg-slate-100 last:mb-0"
+      className="-mx-1 mb-1 flex items-center gap-2 rounded-lg px-1.5 py-1 transition hover:bg-cream-deep last:mb-0"
     >
-      <span className="shrink-0 text-slate-500">{icon}</span>
+      <span className="shrink-0 text-muted-warm">{icon}</span>
       <div className="min-w-0 flex-1">
-        <div className="text-[11px] font-semibold uppercase tracking-wide text-gnd-muted">
+        <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-warm">
           {label}
         </div>
-        <div className="truncate text-sm text-gnd-primary">{value}</div>
+        <div className="truncate text-sm text-ink-warm">{value}</div>
       </div>
-      <ExternalLink className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+      <ExternalLink className="h-3.5 w-3.5 shrink-0 text-muted-warm" />
     </a>
   );
 }
@@ -655,12 +655,12 @@ function Stat({
   icon?: React.ReactNode;
 }) {
   return (
-    <div className="rounded-lg bg-slate-50 p-2.5 ring-1 ring-slate-200">
-      <div className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-gnd-muted">
+    <div className="rounded-lg bg-cream p-2.5 ring-1 ring-border-soft">
+      <div className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-muted-warm">
         {icon}
         {label}
       </div>
-      <div className="mt-1 break-words text-sm font-semibold text-slate-800">
+      <div className="mt-1 break-words text-sm font-semibold text-choco">
         {value ?? '—'}
       </div>
     </div>
@@ -683,7 +683,7 @@ function FooterAction({
       href={href}
       target={external ? '_blank' : undefined}
       rel={external ? 'noopener noreferrer' : undefined}
-      className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 hover:text-gnd-primary"
+      className="inline-flex items-center gap-1.5 rounded-lg border border-[rgba(74,36,26,0.10)] bg-white px-3 py-1.5 text-sm font-medium text-ink-warm transition hover:border-border-soft hover:bg-cream hover:text-ink-warm"
     >
       {icon}
       {children}
@@ -966,7 +966,7 @@ function renderInline(text: string, theme: AnalysisTheme): React.ReactNode[] {
       out.push(
         <span
           key={`s${key++}`}
-          className="rounded bg-slate-100 px-1 py-0.5 font-inter text-[12px] text-slate-700"
+          className="rounded bg-cream-deep px-1 py-0.5 font-inter text-[12px] text-ink-warm"
         >
           {match[7]}
         </span>
@@ -993,10 +993,10 @@ const AVATAR_COLORS = [
   'bg-fuchsia-500',
   'bg-purple-500',
   'bg-violet-500',
-  'bg-indigo-500',
-  'bg-blue-500',
-  'bg-sky-500',
-  'bg-cyan-500',
+  'bg-brand',
+  'bg-brand',
+  'bg-brand',
+  'bg-brand',
   'bg-teal-500',
   'bg-emerald-500',
   'bg-green-500',
@@ -1040,17 +1040,17 @@ function initials(name: string): string {
 const CLASSIFICATION_TONES: Record<string, string> = {
   '🔥 Chaud': 'bg-rose-100 text-rose-800 ring-rose-200',
   '🌡️ Tiède': 'bg-amber-100 text-amber-800 ring-amber-200',
-  '❄️ Froid': 'bg-sky-100 text-sky-800 ring-sky-200',
+  '❄️ Froid': 'bg-info-bg text-info-fg ring-[rgba(49,104,156,0.25)]',
   // Legacy fallbacks
   'Lead A': 'bg-amber-100 text-amber-800 ring-amber-200',
-  'Lead B': 'bg-blue-100 text-blue-800 ring-blue-200',
-  'Lead C': 'bg-slate-100 text-slate-700 ring-slate-200',
+  'Lead B': 'bg-info-bg text-info-fg ring-[rgba(49,104,156,0.25)]',
+  'Lead C': 'bg-cream-deep text-ink-warm ring-border-soft',
   A: 'bg-emerald-100 text-emerald-800 ring-emerald-200',
   'A (80-100)': 'bg-emerald-100 text-emerald-800 ring-emerald-200',
-  B: 'bg-blue-100 text-blue-800 ring-blue-200',
-  'B (65-79)': 'bg-blue-100 text-blue-800 ring-blue-200',
-  C: 'bg-slate-100 text-slate-700 ring-slate-200',
-  'C (50-64)': 'bg-slate-100 text-slate-700 ring-slate-200',
+  B: 'bg-info-bg text-info-fg ring-[rgba(49,104,156,0.25)]',
+  'B (65-79)': 'bg-info-bg text-info-fg ring-[rgba(49,104,156,0.25)]',
+  C: 'bg-cream-deep text-ink-warm ring-border-soft',
+  'C (50-64)': 'bg-cream-deep text-ink-warm ring-border-soft',
   Rejeté: 'bg-rose-100 text-rose-800 ring-rose-200',
   'Rejeté (<50)': 'bg-rose-100 text-rose-800 ring-rose-200',
 };
@@ -1065,10 +1065,10 @@ const CLASSIFICATION_TOOLTIPS: Record<string, string> = {
 };
 
 function classificationTone(classification: string | null): string {
-  if (!classification) return 'bg-slate-100 text-slate-700 ring-slate-200';
+  if (!classification) return 'bg-cream-deep text-ink-warm ring-border-soft';
   return (
     CLASSIFICATION_TONES[classification] ??
-    'bg-slate-100 text-slate-700 ring-slate-200'
+    'bg-cream-deep text-ink-warm ring-border-soft'
   );
 }
 
