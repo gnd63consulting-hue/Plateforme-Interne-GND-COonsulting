@@ -46,7 +46,7 @@ import ProspectModal, { type ProspectFormValues } from '@/components/ProspectMod
 import ProspectDetailsModal from '@/components/ProspectDetailsModal';
 import ProspectTimeline from '@/components/ProspectTimeline';
 import ProspectKanban from '@/components/ProspectKanban';
-import { SectionHeader, StatCard, Button, Avatar } from '@/components/ui';
+import { StatCard, Button, Avatar } from '@/components/ui';
 
 type ProspectsClientProps = {
   initialProspects: Prospect[];
@@ -641,48 +641,55 @@ export default function ProspectsClient({
 
   return (
     <div className="relative">
-      {/* ---- En-tête sobre (Design System Sprint 10) ---- */}
+      {/* ---- En-tête premium (eyebrow + titre Marcellus + watermark) ---- */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="mb-7"
+        className="relative mb-8 overflow-hidden"
       >
-        <SectionHeader
-          as="h1"
-          eyebrow="Mon pipeline"
-          title="Mes prospects"
-          subtitle={`Carnet de bord de ${firstName} — crée, édite et fais évoluer tes prospects au fil des contacts. Progression et paliers de bonus en direct.`}
-          action={
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-brand/25 bg-brand-soft px-3.5 py-1.5 text-sm font-semibold text-choco tabular-nums">
-                <Trophy className="h-3.5 w-3.5 text-brand-dark" aria-hidden />
-                Bonus&nbsp;: {earnedBonus} €
-              </span>
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={() => setCreateOpen(true)}
-              >
-                <Plus className="h-4 w-4" aria-hidden />
-                Nouveau
-              </Button>
-            </div>
-          }
-        />
+        <span
+          aria-hidden
+          className="watermark pointer-events-none absolute -right-4 -top-10 select-none font-marcellus text-[120px] leading-none text-choco"
+        >
+          Pipeline
+        </span>
+        <div className="relative flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+          <div className="min-w-0">
+            <span className="label-eyebrow">Mon pipeline</span>
+            <h1 className="mt-2 font-marcellus text-3xl tracking-tight text-choco sm:text-4xl">
+              Mes prospects
+            </h1>
+            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[#6F5A50]">
+              {`Carnet de bord de ${firstName} — crée, édite et fais évoluer tes prospects au fil des contacts. Progression et paliers de bonus en direct.`}
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2.5">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-brand/25 bg-brand-soft px-4 py-2 text-sm font-semibold text-choco tabular-nums shadow-soft">
+              <Trophy className="h-4 w-4 text-brand-dark" aria-hidden />
+              Bonus&nbsp;: {earnedBonus} €
+            </span>
+            <button
+              type="button"
+              onClick={() => setCreateOpen(true)}
+              className="orange-glow inline-flex items-center gap-1.5 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-[#2A1810] transition hover:bg-brand-dark"
+            >
+              <Plus className="h-4 w-4" aria-hidden />
+              Nouveau
+            </button>
+          </div>
+        </div>
       </motion.div>
 
       {/* ---- Sélecteur de pipeline (multi-pipeline Phase 1) ---- */}
       {/* Masqué avec <=1 board → comportement identique à aujourd'hui. */}
       {showPipelineSelector && (
-        <div className="mb-6 flex flex-wrap items-center gap-2">
-          <span className="font-inter text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-warm">
-            Pipeline
-          </span>
+        <div className="mb-6 flex flex-wrap items-center gap-2.5">
+          <span className="label-eyebrow !mb-0">Pipeline</span>
           <div
             role="group"
             aria-label="Choisir le pipeline"
-            className="inline-flex flex-wrap items-center gap-1 rounded-full border border-border-soft bg-white p-1 shadow-soft"
+            className="surface-glass inline-flex flex-wrap items-center gap-1 rounded-full p-1"
           >
             {pipelines.map((pl) => {
               const active = (selectedPipelineId ?? defaultPipelineId) === pl.id;
@@ -692,8 +699,8 @@ export default function ProspectsClient({
                   type="button"
                   onClick={() => { setSelectedPipelineId(pl.id); setPage(1); }}
                   aria-pressed={active}
-                  className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors ${
-                    active ? 'bg-brand text-choco' : 'text-muted-warm hover:bg-cream-deep'
+                  className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition ${
+                    active ? 'bg-brand text-[#2A1810] shadow-soft' : 'text-muted-warm hover:bg-cream-deep'
                   }`}
                 >
                   <span
@@ -758,7 +765,7 @@ export default function ProspectsClient({
       {/* ==================================================================== */}
       {/* Filters + actions                                                      */}
       {/* ==================================================================== */}
-      <div className="mb-6 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+      <div className="surface-glass mb-6 flex flex-col gap-3 rounded-3xl p-3 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
           {/* Toggle Table / Kanban */}
           <div
@@ -770,9 +777,9 @@ export default function ProspectsClient({
               type="button"
               onClick={() => changeView('table')}
               aria-pressed={view === 'table'}
-              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
+              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition ${
                 view === 'table'
-                  ? 'bg-brand text-choco'
+                  ? 'bg-brand text-[#2A1810] shadow-soft'
                   : 'text-muted-warm hover:bg-cream-deep'
               }`}
             >
@@ -783,9 +790,9 @@ export default function ProspectsClient({
               type="button"
               onClick={() => changeView('kanban')}
               aria-pressed={view === 'kanban'}
-              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
+              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition ${
                 view === 'kanban'
-                  ? 'bg-brand text-choco'
+                  ? 'bg-brand text-[#2A1810] shadow-soft'
                   : 'text-muted-warm hover:bg-cream-deep'
               }`}
             >
@@ -795,21 +802,21 @@ export default function ProspectsClient({
           </div>
 
           <div className="relative flex-1 sm:max-w-sm">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-warm" aria-hidden />
+            <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-brand-burnt" aria-hidden />
             <input
               type="text"
               value={search}
               onChange={(e) => { setSearch(e.target.value); setPage(1); }}
               placeholder="Rechercher entreprise, contact, ville…"
-              className="w-full rounded-full border border-border-soft bg-white py-2.5 pl-10 pr-4 text-sm text-ink-warm placeholder:text-muted-warm/70 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+              className="w-full rounded-full border border-border-soft bg-cream/60 py-2.5 pl-10 pr-4 text-sm text-ink-warm placeholder:text-muted-warm/70 transition focus:border-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring"
             />
           </div>
           <div className="relative">
-            <Filter className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-warm" aria-hidden />
+            <Filter className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-brand-burnt" aria-hidden />
             <select
               value={filter}
               onChange={(e) => { setFilter(e.target.value); setPage(1); }}
-              className="appearance-none rounded-full border border-border-soft bg-white py-2.5 pl-9 pr-9 text-sm text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+              className="appearance-none rounded-full border border-border-soft bg-cream/60 py-2.5 pl-10 pr-9 text-sm text-ink-warm transition focus:border-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring"
             >
               <option value="all">Tous statuts</option>
               {STATUS_OPTIONS.map((opt) => (
@@ -823,7 +830,7 @@ export default function ProspectsClient({
             type="button"
             onClick={() => setAdvancedOpen((v) => !v)}
             aria-expanded={advancedOpen}
-            className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-2.5 text-xs font-semibold transition-colors ${
+            className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-2.5 text-xs font-semibold transition ${
               advancedOpen || activeAdvancedCount > 0
                 ? 'border-brand bg-brand-soft text-choco'
                 : 'border-border-soft bg-white text-muted-warm hover:bg-cream-deep'
@@ -832,7 +839,7 @@ export default function ProspectsClient({
             <SlidersHorizontal className="h-3.5 w-3.5" aria-hidden />
             Filtres
             {activeAdvancedCount > 0 && (
-              <span className="inline-flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-brand px-1 text-[10px] font-bold text-choco">
+              <span className="inline-flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-brand px-1 text-[10px] font-bold text-[#2A1810]">
                 {activeAdvancedCount}
               </span>
             )}
@@ -842,7 +849,7 @@ export default function ProspectsClient({
             <select
               value={pageSize}
               onChange={(e) => { setPageSize(Number(e.target.value)); setPage(1); }}
-              className="rounded-full border border-border-soft bg-white px-4 py-2.5 text-sm text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+              className="rounded-full border border-border-soft bg-cream/60 px-4 py-2.5 text-sm text-ink-warm transition focus:border-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring"
             >
               <option value={20}>20 par page</option>
               <option value={30}>30 par page</option>
@@ -850,15 +857,19 @@ export default function ProspectsClient({
             </select>
           )}
         </div>
-        <div className="flex items-center gap-3">
-          <span className="font-inter text-[11px] uppercase tracking-[0.15em] text-muted-warm">
+        <div className="flex items-center gap-3 lg:pr-1">
+          <span className="font-inter text-[11px] uppercase tracking-[0.15em] text-brand-burnt">
             {filtered.length} prospect{filtered.length > 1 ? 's' : ''}
             {(filter !== 'all' || search || activeAdvancedCount > 0) ? ` / ${pipelineScoped.length}` : ''}
           </span>
-          <Button variant="primary" size="sm" onClick={() => setCreateOpen(true)}>
+          <button
+            type="button"
+            onClick={() => setCreateOpen(true)}
+            className="orange-glow inline-flex shrink-0 items-center gap-1.5 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-[#2A1810] transition hover:bg-brand-dark"
+          >
             <Plus className="h-4 w-4" aria-hidden />
             Nouveau prospect
-          </Button>
+          </button>
         </div>
       </div>
 
@@ -866,17 +877,17 @@ export default function ProspectsClient({
       {/* Panneau filtres avancés (repliable) + vues sauvegardées               */}
       {/* ==================================================================== */}
       {advancedOpen && (
-        <div className="mb-6 rounded-2xl border border-border-soft bg-cream p-4 shadow-soft">
+        <div className="surface-ceramic mb-6 rounded-3xl p-5">
           <div className="flex flex-wrap items-end gap-3">
             {/* Secteur */}
-            <label className="flex flex-col gap-1">
-              <span className="font-inter text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-warm">
+            <label className="flex flex-col gap-1.5">
+              <span className="font-inter text-[10px] font-semibold uppercase tracking-[0.15em] text-brand-burnt">
                 Secteur
               </span>
               <select
                 value={sector}
                 onChange={(e) => { setSector(e.target.value); setPage(1); }}
-                className="min-w-[10rem] rounded-full border border-border-soft bg-white px-3 py-2 text-sm text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+                className="min-w-[10rem] rounded-2xl border border-border-soft bg-cream/60 px-3.5 py-2.5 text-sm text-ink-warm transition focus:border-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring"
               >
                 <option value="all">Tous</option>
                 {sectorOptions.map((s) => (
@@ -886,14 +897,14 @@ export default function ProspectsClient({
             </label>
 
             {/* Ville */}
-            <label className="flex flex-col gap-1">
-              <span className="font-inter text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-warm">
+            <label className="flex flex-col gap-1.5">
+              <span className="font-inter text-[10px] font-semibold uppercase tracking-[0.15em] text-brand-burnt">
                 Ville
               </span>
               <select
                 value={city}
                 onChange={(e) => { setCity(e.target.value); setPage(1); }}
-                className="min-w-[10rem] rounded-full border border-border-soft bg-white px-3 py-2 text-sm text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+                className="min-w-[10rem] rounded-2xl border border-border-soft bg-cream/60 px-3.5 py-2.5 text-sm text-ink-warm transition focus:border-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring"
               >
                 <option value="all">Toutes</option>
                 {cityOptions.map((c) => (
@@ -904,14 +915,14 @@ export default function ProspectsClient({
 
             {/* Classification */}
             {classifOptions.length > 0 && (
-              <label className="flex flex-col gap-1">
-                <span className="font-inter text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-warm">
+              <label className="flex flex-col gap-1.5">
+                <span className="font-inter text-[10px] font-semibold uppercase tracking-[0.15em] text-brand-burnt">
                   Classification
                 </span>
                 <select
                   value={classif}
                   onChange={(e) => { setClassif(e.target.value); setPage(1); }}
-                  className="min-w-[10rem] rounded-full border border-border-soft bg-white px-3 py-2 text-sm text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+                  className="min-w-[10rem] rounded-2xl border border-border-soft bg-cream/60 px-3.5 py-2.5 text-sm text-ink-warm transition focus:border-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring"
                 >
                   <option value="all">Toutes</option>
                   {classifOptions.map((c) => (
@@ -922,14 +933,14 @@ export default function ProspectsClient({
             )}
 
             {/* Relance */}
-            <div className="flex flex-col gap-1">
-              <span className="font-inter text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-warm">
+            <div className="flex flex-col gap-1.5">
+              <span className="font-inter text-[10px] font-semibold uppercase tracking-[0.15em] text-brand-burnt">
                 Relance
               </span>
               <div
                 role="group"
                 aria-label="Filtre de relance"
-                className="inline-flex flex-wrap items-center gap-1 rounded-full border border-border-soft bg-white p-1"
+                className="inline-flex flex-wrap items-center gap-1 rounded-full border border-border-soft bg-white p-1 shadow-soft"
               >
                 {(
                   [
@@ -945,9 +956,9 @@ export default function ProspectsClient({
                     type="button"
                     onClick={() => { setRelance(val); setPage(1); }}
                     aria-pressed={relance === val}
-                    className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
+                    className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
                       relance === val
-                        ? 'bg-brand text-choco'
+                        ? 'bg-brand text-[#2A1810] shadow-soft'
                         : 'text-muted-warm hover:bg-cream-deep'
                     }`}
                   >
@@ -961,7 +972,7 @@ export default function ProspectsClient({
               <button
                 type="button"
                 onClick={resetAdvanced}
-                className="inline-flex items-center gap-1.5 rounded-full border border-border-soft bg-white px-3 py-2 text-xs font-semibold text-muted-warm transition-colors hover:bg-cream-deep"
+                className="inline-flex items-center gap-1.5 rounded-full border border-border-soft bg-white px-3.5 py-2.5 text-xs font-semibold text-muted-warm transition hover:bg-cream-deep"
               >
                 <X className="h-3.5 w-3.5" aria-hidden />
                 Réinitialiser
@@ -970,8 +981,8 @@ export default function ProspectsClient({
           </div>
 
           {/* Vues sauvegardées */}
-          <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-border-soft pt-4">
-            <span className="font-inter text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-warm">
+          <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-[rgba(74,36,26,0.10)] pt-5">
+            <span className="font-inter text-[10px] font-semibold uppercase tracking-[0.15em] text-brand-burnt">
               Vues
             </span>
             {savedViews.length === 0 && (
@@ -1004,7 +1015,7 @@ export default function ProspectsClient({
             <button
               type="button"
               onClick={saveCurrentView}
-              className="inline-flex items-center gap-1.5 rounded-full border border-border-soft bg-white px-3 py-1 text-xs font-semibold text-brand-dark transition-colors hover:bg-brand-soft"
+              className="inline-flex items-center gap-1.5 rounded-full border border-border-soft bg-white px-3.5 py-1.5 text-xs font-semibold text-brand-dark transition hover:bg-brand-soft"
             >
               <Bookmark className="h-3.5 w-3.5" aria-hidden />
               Sauvegarder la vue
@@ -1078,9 +1089,12 @@ export default function ProspectsClient({
       {/* ==================================================================== */}
       {view === 'kanban' ? (
         filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-3xl border border-border-soft bg-cream p-16 text-center shadow-soft">
+          <div className="surface-ceramic flex flex-col items-center justify-center rounded-3xl p-16 text-center">
+            <span className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-pale text-brand-dark">
+              <FolderOpen className="h-6 w-6" aria-hidden />
+            </span>
             <p className="font-marcellus text-xl text-choco">Aucun prospect trouvé.</p>
-            <p className="mt-2 text-sm text-muted-warm">Ajuste tes filtres ou crée ton premier prospect.</p>
+            <p className="mt-2 text-sm text-[#6F5A50]">Ajuste tes filtres ou crée ton premier prospect.</p>
           </div>
         ) : (
           <ProspectKanban
@@ -1093,9 +1107,12 @@ export default function ProspectsClient({
         <>
           {/* Prospect cards (vue Liste) */}
           {paginated.length === 0 ? (
-            <div className="flex flex-col items-center justify-center rounded-3xl border border-border-soft bg-cream p-16 text-center shadow-soft">
+            <div className="surface-ceramic flex flex-col items-center justify-center rounded-3xl p-16 text-center">
+              <span className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-pale text-brand-dark">
+                <FolderOpen className="h-6 w-6" aria-hidden />
+              </span>
               <p className="font-marcellus text-xl text-choco">Aucun prospect trouvé.</p>
-              <p className="mt-2 text-sm text-muted-warm">Ajuste tes filtres ou crée ton premier prospect.</p>
+              <p className="mt-2 text-sm text-[#6F5A50]">Ajuste tes filtres ou crée ton premier prospect.</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -1117,15 +1134,15 @@ export default function ProspectsClient({
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="mt-8 flex items-center justify-between rounded-2xl border border-border-soft bg-cream px-4 py-3 shadow-soft sm:px-6">
-              <p className="font-inter text-[11px] uppercase tracking-[0.15em] text-muted-warm">
+            <div className="surface-glass mt-8 flex items-center justify-between rounded-2xl px-4 py-3 sm:px-6">
+              <p className="font-inter text-[11px] uppercase tracking-[0.15em] text-brand-burnt">
                 Page <span className="font-semibold text-choco">{safePage}</span> sur <span className="text-choco">{totalPages}</span>
               </p>
               <div className="flex items-center gap-1">
                 <button
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={safePage === 1}
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-full text-ink-warm transition-colors hover:bg-brand-soft disabled:cursor-not-allowed disabled:opacity-30"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-full text-ink-warm transition hover:bg-brand-soft disabled:cursor-not-allowed disabled:opacity-30"
                   aria-label="Page précédente"
                 >
                   <ChevronLeft className="h-4 w-4" aria-hidden />
@@ -1137,8 +1154,8 @@ export default function ProspectsClient({
                     <button
                       key={n}
                       onClick={() => setPage(n as number)}
-                      className={`inline-flex h-9 min-w-[2.25rem] items-center justify-center rounded-full px-2 text-sm font-semibold transition-colors ${
-                        n === safePage ? 'bg-brand text-choco' : 'text-ink-warm hover:bg-brand-soft'
+                      className={`inline-flex h-9 min-w-[2.25rem] items-center justify-center rounded-full px-2 text-sm font-semibold transition ${
+                        n === safePage ? 'bg-brand text-[#2A1810] shadow-soft' : 'text-ink-warm hover:bg-brand-soft'
                       }`}
                     >
                       {n}
@@ -1148,7 +1165,7 @@ export default function ProspectsClient({
                 <button
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                   disabled={safePage === totalPages}
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-full text-ink-warm transition-colors hover:bg-brand-soft disabled:cursor-not-allowed disabled:opacity-30"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-full text-ink-warm transition hover:bg-brand-soft disabled:cursor-not-allowed disabled:opacity-30"
                   aria-label="Page suivante"
                 >
                   <ChevronRight className="h-4 w-4" aria-hidden />
@@ -1270,7 +1287,7 @@ function ProspectRow({ prospect: p, index, onView, onEdit, onDelete, onNotes, on
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: Math.min(index * 0.03, 0.4), ease: 'easeOut' }}
-      className="group flex flex-col gap-4 rounded-2xl border border-border-soft bg-white p-5 shadow-soft transition-all hover:-translate-y-0.5 hover:border-brand/40 hover:shadow-soft-md sm:p-6 lg:flex-row lg:items-center"
+      className="surface-ceramic card-hover group flex flex-col gap-4 rounded-2xl p-5 hover:border-brand/40 sm:p-6 lg:flex-row lg:items-center"
     >
       <div className="flex flex-1 items-start gap-4 lg:max-w-[28%]">
         <Avatar name={p.company_name} size="lg" tone="choco" className="rounded-2xl" />
@@ -1291,7 +1308,7 @@ function ProspectRow({ prospect: p, index, onView, onEdit, onDelete, onNotes, on
             )}
           </div>
           {p.contact_name && (
-            <p className="mt-0.5 text-sm text-muted-warm">
+            <p className="mt-0.5 text-sm text-[#6F5A50]">
               {p.contact_name}
               {p.role_contact && <span className="text-muted-warm/70"> · {p.role_contact}</span>}
             </p>
@@ -1315,7 +1332,7 @@ function ProspectRow({ prospect: p, index, onView, onEdit, onDelete, onNotes, on
         <select
           value={p.status}
           onChange={(e) => onStatusChange(e.target.value)}
-          className={`rounded-full border px-3 py-1 text-xs font-semibold ${statusTone}`}
+          className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring ${statusTone}`}
           aria-label={`Statut de ${p.company_name}`}
         >
           {!STATUS_OPTIONS.some((o) => o.value === p.status) && (
