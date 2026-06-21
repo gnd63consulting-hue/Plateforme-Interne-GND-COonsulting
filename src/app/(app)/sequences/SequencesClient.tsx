@@ -95,7 +95,7 @@ export default function SequencesClient({
       {error && (
         <div
           role="alert"
-          className="mb-6 rounded-2xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800"
+          className="mb-6 rounded-2xl border border-danger-fg/20 bg-danger-bg p-3.5 text-sm font-medium text-danger-fg shadow-soft"
         >
           {error}
         </div>
@@ -116,11 +116,14 @@ export default function SequencesClient({
 
       {/* Liste */}
       {initialSequences.length === 0 ? (
-        <div className="rounded-3xl border border-border-soft/70 bg-surface-soft p-12 text-center shadow-soft">
-          <p className="font-marcellus text-lg text-choco">
+        <div className="surface-ceramic flex flex-col items-center rounded-3xl p-12 text-center">
+          <span className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-pale text-brand-dark shadow-soft">
+            <Clock className="h-6 w-6" aria-hidden />
+          </span>
+          <p className="font-marcellus text-xl text-choco">
             Aucune séquence pour l&apos;instant.
           </p>
-          <p className="mt-2 text-sm text-muted-warm">
+          <p className="mt-2 max-w-sm text-sm text-[#6F5A50]">
             {canEdit
               ? 'Crée ta première cadence de relance ci-dessus.'
               : 'Un administrateur doit en créer une.'}
@@ -160,13 +163,13 @@ function CreateSequenceForm({
   const [description, setDescription] = useState('');
 
   return (
-    <div className="mb-6 rounded-3xl border border-brand/20 bg-white p-5 shadow-soft">
-      <h2 className="mb-3 font-inter text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-dark">
+    <div className="surface-ceramic mb-6 rounded-3xl p-6">
+      <h2 className="label-eyebrow mb-4">
         Nouvelle séquence
       </h2>
-      <div className="space-y-3">
+      <div className="space-y-4">
         <label className="block">
-          <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-muted-warm/70">
+          <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-burnt">
             Nom
           </span>
           <input
@@ -175,11 +178,11 @@ function CreateSequenceForm({
             onChange={(e) => setName(e.target.value)}
             placeholder="Ex. Relance restaurateur froid — 4 touches"
             autoFocus
-            className="w-full rounded-lg border border-border-soft bg-white px-3 py-2 text-sm text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+            className="w-full rounded-2xl border border-border-soft bg-cream/60 px-3.5 py-2.5 text-sm text-ink-warm transition focus:border-brand focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring"
           />
         </label>
         <label className="block">
-          <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-muted-warm/70">
+          <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-burnt">
             Description (facultatif)
           </span>
           <textarea
@@ -187,14 +190,14 @@ function CreateSequenceForm({
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="À qui s'adresse cette cadence, dans quel contexte…"
-            className="w-full resize-y rounded-lg border border-border-soft bg-white px-3 py-2 text-sm text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+            className="w-full resize-y rounded-2xl border border-border-soft bg-cream/60 px-3.5 py-2.5 text-sm text-ink-warm transition focus:border-brand focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring"
           />
         </label>
         <div className="flex items-center justify-end gap-2">
           <button
             type="button"
             onClick={onCancel}
-            className="rounded-lg px-3 py-1.5 text-xs font-semibold text-muted-warm transition-colors hover:bg-cream-deep hover:text-ink-warm"
+            className="rounded-full px-4 py-2 text-xs font-semibold text-[#6F5A50] transition-colors hover:bg-cream-deep hover:text-ink-warm"
           >
             Annuler
           </button>
@@ -202,7 +205,7 @@ function CreateSequenceForm({
             type="button"
             disabled={pending || !name.trim()}
             onClick={() => onCreate(name, description || null)}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-brand px-3.5 py-1.5 text-xs font-semibold text-choco transition-colors hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-full bg-brand px-5 py-2 text-xs font-semibold text-[#2A1810] transition-colors hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-50"
           >
             {pending ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
@@ -235,16 +238,16 @@ function SequenceCard({
   const [open, setOpen] = useState(false);
 
   return (
-    <section className="overflow-hidden rounded-3xl border border-border-soft bg-white shadow-soft">
+    <section className="surface-ceramic card-hover overflow-hidden rounded-3xl">
       {/* Bandeau */}
-      <div className="flex flex-wrap items-center justify-between gap-3 p-5">
+      <div className="flex flex-wrap items-center justify-between gap-3 p-6">
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
           className="flex min-w-0 flex-1 items-center gap-3 text-left"
           aria-expanded={open}
         >
-          <span className="text-muted-warm/70">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-pale text-brand-dark transition-colors">
             {open ? (
               <ChevronUp className="h-4 w-4" aria-hidden />
             ) : (
@@ -257,21 +260,21 @@ function SequenceCard({
                 {sequence.name}
               </h2>
               {sequence.active ? (
-                <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-700">
+                <span className="inline-flex items-center rounded-full bg-ok-bg px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-ok-fg">
                   Active
                 </span>
               ) : (
-                <span className="inline-flex items-center rounded-full bg-zinc-200 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#6F5A50]">
+                <span className="inline-flex items-center rounded-full bg-cream-deep px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6F5A50]">
                   Inactive
                 </span>
               )}
             </div>
-            <p className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-warm">
+            <p className="mt-1 flex items-center gap-1.5 text-xs text-[#6F5A50]">
               <Clock className="h-3 w-3 text-brand-dark" aria-hidden />
               {cadenceSummary(sequence.steps)}
             </p>
             {sequence.description && (
-              <p className="mt-1 truncate text-xs text-muted-warm/70">
+              <p className="mt-1 truncate text-xs text-muted-warm">
                 {sequence.description}
               </p>
             )}
@@ -286,7 +289,7 @@ function SequenceCard({
               onClick={() =>
                 run(() => toggleSequenceActive(sequence.id, !sequence.active))
               }
-              className="rounded-lg border border-border-soft bg-white px-2.5 py-1.5 text-xs font-semibold text-muted-warm transition-colors hover:bg-cream-deep hover:text-ink-warm disabled:opacity-50"
+              className="rounded-full border border-border-soft bg-white px-3.5 py-1.5 text-xs font-semibold text-choco transition-colors hover:bg-cream-deep disabled:opacity-50"
             >
               {sequence.active ? 'Désactiver' : 'Activer'}
             </button>
@@ -303,7 +306,7 @@ function SequenceCard({
                 }
               }}
               aria-label="Supprimer la séquence"
-              className="rounded-lg border border-rose-200 bg-white p-1.5 text-rose-600 transition-colors hover:bg-rose-50 disabled:opacity-50"
+              className="rounded-full border border-danger-fg/20 bg-white p-2 text-danger-fg transition-colors hover:bg-danger-bg disabled:opacity-50"
             >
               <Trash2 className="h-3.5 w-3.5" aria-hidden />
             </button>
@@ -319,7 +322,7 @@ function SequenceCard({
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2, ease: 'easeOut' }}
-            className="overflow-hidden border-t border-border-soft"
+            className="overflow-hidden border-t border-[rgba(74,36,26,0.10)]"
           >
             <StepsEditor
               sequence={sequence}
@@ -362,9 +365,9 @@ function StepsEditor({
   }
 
   return (
-    <div className="space-y-3 bg-cream/40 p-5">
+    <div className="space-y-3 bg-cream/50 p-6">
       {steps.length === 0 && !adding && (
-        <p className="text-xs italic text-muted-warm/70">
+        <p className="text-xs italic text-muted-warm">
           Aucune étape. {canEdit ? 'Ajoute la première touche ci-dessous.' : ''}
         </p>
       )}
@@ -421,7 +424,7 @@ function StepsEditor({
             <button
               type="button"
               onClick={() => setAdding(true)}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-border-soft bg-white px-3 py-2 text-xs font-semibold text-muted-warm transition-colors hover:border-brand/40 hover:text-ink-warm"
+              className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-border-soft bg-white px-4 py-2 text-xs font-semibold text-[#6F5A50] transition-colors hover:border-brand/40 hover:bg-cream-deep hover:text-ink-warm"
             >
               <Plus className="h-3.5 w-3.5" aria-hidden />
               Ajouter une étape
@@ -454,29 +457,29 @@ function StepRow({
   onMove: (dir: -1 | 1) => void;
 }) {
   return (
-    <div className="flex items-start gap-3 rounded-xl border border-border-soft bg-white p-3">
+    <div className="flex items-start gap-3 rounded-2xl border border-[rgba(74,36,26,0.10)] bg-white p-3.5 shadow-soft transition hover:border-brand/30">
       <span
-        className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-cream text-sm ring-1 ring-border-soft"
+        className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-brand-pale text-sm text-brand-dark"
         aria-hidden
       >
         {kindIcon(step.kind)}
       </span>
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-warm">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-burnt">
             {kindLabel(step.kind)}
           </span>
-          <span className="rounded-full bg-brand-soft px-2 py-0.5 font-inter text-[10px] font-semibold text-muted-warm">
+          <span className="rounded-full bg-brand-soft px-2.5 py-0.5 font-inter text-[10px] font-semibold text-brand-burnt">
             {step.delay_days === 0
               ? 'immédiat'
               : `+${step.delay_days} j`}
           </span>
         </div>
-        <p className="mt-0.5 break-words text-sm font-medium text-ink-warm">
+        <p className="mt-1 break-words text-sm font-medium text-ink-warm">
           {step.title}
         </p>
         {step.template_body && (
-          <p className="mt-1 whitespace-pre-wrap break-words text-xs text-muted-warm">
+          <p className="mt-1 whitespace-pre-wrap break-words text-xs text-[#6F5A50]">
             {step.template_body}
           </p>
         )}
@@ -488,7 +491,7 @@ function StepRow({
             disabled={pending || index === 0}
             onClick={() => onMove(-1)}
             aria-label="Monter l'étape"
-            className="rounded p-1 text-muted-warm/70 transition-colors hover:bg-cream hover:text-ink-warm disabled:opacity-30"
+            className="rounded-full p-1.5 text-muted-warm transition-colors hover:bg-cream hover:text-ink-warm disabled:opacity-30"
           >
             <ChevronUp className="h-3.5 w-3.5" aria-hidden />
           </button>
@@ -497,7 +500,7 @@ function StepRow({
             disabled={pending || index === total - 1}
             onClick={() => onMove(1)}
             aria-label="Descendre l'étape"
-            className="rounded p-1 text-muted-warm/70 transition-colors hover:bg-cream hover:text-ink-warm disabled:opacity-30"
+            className="rounded-full p-1.5 text-muted-warm transition-colors hover:bg-cream hover:text-ink-warm disabled:opacity-30"
           >
             <ChevronDown className="h-3.5 w-3.5" aria-hidden />
           </button>
@@ -506,7 +509,7 @@ function StepRow({
             disabled={pending}
             onClick={onEdit}
             aria-label="Modifier l'étape"
-            className="rounded p-1 text-muted-warm/70 transition-colors hover:bg-cream hover:text-ink-warm disabled:opacity-50"
+            className="rounded-full p-1.5 text-muted-warm transition-colors hover:bg-cream hover:text-ink-warm disabled:opacity-50"
           >
             <Pencil className="h-3.5 w-3.5" aria-hidden />
           </button>
@@ -515,7 +518,7 @@ function StepRow({
             disabled={pending}
             onClick={onDelete}
             aria-label="Supprimer l'étape"
-            className="rounded p-1 text-rose-500 transition-colors hover:bg-rose-50 disabled:opacity-50"
+            className="rounded-full p-1.5 text-danger-fg transition-colors hover:bg-danger-bg disabled:opacity-50"
           >
             <Trash2 className="h-3.5 w-3.5" aria-hidden />
           </button>
@@ -558,16 +561,16 @@ function StepForm({
   }
 
   return (
-    <div className="rounded-xl border border-brand/25 bg-white p-3">
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-[1fr_auto]">
+    <div className="rounded-2xl border border-brand/25 bg-white p-4 shadow-soft">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-[1fr_auto]">
         <label className="block">
-          <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-muted-warm/70">
+          <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-burnt">
             Type
           </span>
           <select
             value={kind}
             onChange={(e) => setKind(e.target.value)}
-            className="w-full rounded-lg border border-border-soft bg-white px-2.5 py-1.5 text-sm font-semibold text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+            className="w-full rounded-2xl border border-border-soft bg-cream/60 px-3 py-2 text-sm font-semibold text-ink-warm transition focus:border-brand focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring"
           >
             {STEP_KIND_OPTIONS.map((o) => (
               <option key={o.value} value={o.value}>
@@ -577,7 +580,7 @@ function StepForm({
           </select>
         </label>
         <label className="block">
-          <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-muted-warm/70">
+          <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-burnt">
             Délai (jours depuis l&apos;étape précédente)
           </span>
           <input
@@ -585,12 +588,12 @@ function StepForm({
             min={0}
             value={delay}
             onChange={(e) => setDelay(e.target.value)}
-            className="w-full rounded-lg border border-border-soft bg-white px-2.5 py-1.5 text-sm text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+            className="w-full rounded-2xl border border-border-soft bg-cream/60 px-3 py-2 text-sm text-ink-warm transition focus:border-brand focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring"
           />
         </label>
       </div>
-      <label className="mt-2 block">
-        <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-muted-warm/70">
+      <label className="mt-3 block">
+        <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-burnt">
           Intitulé de la tâche
         </span>
         <input
@@ -598,11 +601,11 @@ function StepForm({
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Ex. Premier appel de prise de contact"
-          className="w-full rounded-lg border border-border-soft bg-white px-2.5 py-1.5 text-sm text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+          className="w-full rounded-2xl border border-border-soft bg-cream/60 px-3 py-2 text-sm text-ink-warm transition focus:border-brand focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring"
         />
       </label>
-      <label className="mt-2 block">
-        <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-muted-warm/70">
+      <label className="mt-3 block">
+        <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-burnt">
           Script / modèle (facultatif)
         </span>
         <textarea
@@ -610,14 +613,14 @@ function StepForm({
           value={body}
           onChange={(e) => setBody(e.target.value)}
           placeholder="Trame d'appel, modèle d'email, points à aborder…"
-          className="w-full resize-y rounded-lg border border-border-soft bg-white px-2.5 py-1.5 text-sm text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+          className="w-full resize-y rounded-2xl border border-border-soft bg-cream/60 px-3 py-2 text-sm text-ink-warm transition focus:border-brand focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring"
         />
       </label>
-      <div className="mt-2 flex items-center justify-end gap-2">
+      <div className="mt-3 flex items-center justify-end gap-2">
         <button
           type="button"
           onClick={onCancel}
-          className="inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-semibold text-muted-warm transition-colors hover:bg-cream-deep hover:text-ink-warm"
+          className="inline-flex items-center gap-1 rounded-full px-4 py-2 text-xs font-semibold text-[#6F5A50] transition-colors hover:bg-cream-deep hover:text-ink-warm"
         >
           <X className="h-3.5 w-3.5" aria-hidden />
           Annuler
@@ -626,7 +629,7 @@ function StepForm({
           type="button"
           disabled={pending || !title.trim()}
           onClick={submit}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-brand px-3.5 py-1.5 text-xs font-semibold text-choco transition-colors hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-full bg-brand px-5 py-2 text-xs font-semibold text-[#2A1810] transition-colors hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-50"
         >
           {pending ? (
             <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
