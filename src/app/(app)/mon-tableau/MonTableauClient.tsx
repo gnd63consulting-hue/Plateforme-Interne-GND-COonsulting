@@ -172,31 +172,31 @@ export default function MonTableauClient({ data }: { data: MonTableauData }) {
       className="space-y-5"
     >
       {/* ============================================================== */}
-      {/* HERO editorial — airy creme, grand nom Marcellus + filigrane    */}
+      {/* HERO cockpit — surface-chocolate texturee, nom Marcellus creme  */}
       {/* ============================================================== */}
       <motion.header
         variants={item}
-        className="relative overflow-hidden rounded-[28px] hairline bg-white px-6 py-7 sm:px-10 sm:py-9"
+        className="surface-chocolate relative overflow-hidden rounded-[16px] p-5 sm:p-6"
       >
         <span
           aria-hidden
-          className="watermark pointer-events-none absolute -right-3 -top-10 select-none font-marcellus text-[120px] leading-none sm:text-[160px]"
+          className="pointer-events-none absolute -right-3 -top-10 select-none font-marcellus text-[110px] leading-none text-cream/[0.08] sm:text-[140px]"
         >
           {prenom}
         </span>
-        <div className="relative z-10 flex flex-wrap items-end justify-between gap-5">
+        <div className="relative z-10 flex flex-wrap items-end justify-between gap-4">
           <div className="min-w-0">
-            <Eyebrow index="01">Mon tableau de bord</Eyebrow>
-            <h1 className="mt-3 font-marcellus text-[2.6rem] leading-[0.95] text-choco sm:text-6xl">
+            <Eyebrow index="01" tone="cream">Mon tableau de bord</Eyebrow>
+            <h1 className="mt-3 font-marcellus text-[2.4rem] leading-[0.95] text-cream sm:text-5xl">
               Bonjour <span className="italic text-brand">{prenom}</span>
             </h1>
-            <p className="mt-3 max-w-md font-grotesk text-sm leading-relaxed text-[#6F5A50]">
+            <p className="mt-3 max-w-md font-grotesk text-sm leading-relaxed text-cream/55">
               Ton activité commerciale en un coup d&apos;œil — pipeline,
               relances et commission.
             </p>
           </div>
-          <span className="inline-flex shrink-0 items-center gap-2 rounded-full hairline bg-cream/70 px-4 py-2 font-grotesk text-xs font-medium text-ink-warm">
-            <CalendarDays className="h-3.5 w-3.5 text-brand-dark" aria-hidden />
+          <span className="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-full bg-cream/10 px-4 py-2 font-num text-xs font-medium tabular-nums text-cream/80">
+            <CalendarDays className="h-3.5 w-3.5 text-brand" aria-hidden />
             {todayLabel()}
           </span>
         </div>
@@ -205,10 +205,10 @@ export default function MonTableauClient({ data }: { data: MonTableauData }) {
       {/* ============================================================== */}
       {/* BENTO STATS — tuiles asymetriques (jamais 5 cartes egales)      */}
       {/* ============================================================== */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-6 lg:auto-rows-[152px]">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-6 lg:auto-rows-[148px]">
         {/* CA potentiel — tuile focale 2x2 */}
         <motion.div variants={item} className="lg:col-span-2 lg:row-span-2">
-          <div className="card-hover relative flex h-full min-h-[208px] flex-col justify-between overflow-hidden rounded-[26px] hairline bg-white p-6">
+          <div className="panel card-hover relative flex h-full min-h-[200px] flex-col justify-between overflow-hidden p-4">
             <div aria-hidden className="absolute inset-0 opacity-70" style={DOTS} />
             <div className="relative flex items-start justify-between">
               <Eyebrow>CA potentiel</Eyebrow>
@@ -217,11 +217,11 @@ export default function MonTableauClient({ data }: { data: MonTableauData }) {
               </span>
             </div>
             <div className="relative">
-              <div className="font-num text-[2.7rem] font-semibold leading-none tabular-nums tracking-tight text-choco">
+              <div className="whitespace-nowrap font-num text-[2.7rem] font-semibold leading-none tabular-nums tracking-tight text-choco">
                 {formatEur(caPotentiel)}
               </div>
               {commissionPotentielle > 0 && (
-                <p className="mt-2 font-grotesk text-xs text-[#6F5A50]">
+                <p className="mt-2 whitespace-nowrap font-grotesk text-xs text-[#6F5A50]">
                   ≈ {formatEur(commissionPotentielle)} de commission
                 </p>
               )}
@@ -234,7 +234,7 @@ export default function MonTableauClient({ data }: { data: MonTableauData }) {
 
         {/* Ma commission — accent chocolat 2x2 (l'unique surface sombre) */}
         <motion.div variants={item} className="lg:col-span-2 lg:row-span-2">
-          <div className="surface-chocolate card-hover relative flex h-full min-h-[208px] flex-col justify-between overflow-hidden rounded-[26px] p-6">
+          <div className="surface-chocolate card-hover relative flex h-full min-h-[200px] flex-col justify-between overflow-hidden rounded-[14px] p-4">
             <div className="flex items-start justify-between">
               <Eyebrow tone="cream">Ma commission</Eyebrow>
               <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-cream/10 text-brand">
@@ -243,10 +243,10 @@ export default function MonTableauClient({ data }: { data: MonTableauData }) {
             </div>
             <div className="flex items-end justify-between gap-3">
               <div className="min-w-0">
-                <div className="font-num text-[2.7rem] font-semibold leading-none tabular-nums tracking-tight text-cream">
+                <div className="whitespace-nowrap font-num text-[2.7rem] font-semibold leading-none tabular-nums tracking-tight text-cream">
                   {formatEur(commissionReelleTotale)}
                 </div>
-                <p className="mt-2 font-grotesk text-xs text-cream/60">
+                <p className="mt-2 whitespace-nowrap font-grotesk text-xs text-cream/60">
                   {commissionReelleAPayer > 0
                     ? `${formatEur(commissionReelleAPayer)} à payer`
                     : 'Estimation pipeline'}
@@ -262,14 +262,14 @@ export default function MonTableauClient({ data }: { data: MonTableauData }) {
 
         {/* Prospects actifs — large 2x1 */}
         <motion.div variants={item} className="lg:col-span-2">
-          <div className="card-hover flex h-full min-h-[152px] items-center justify-between gap-4 overflow-hidden rounded-[26px] hairline bg-white p-6">
+          <div className="panel card-hover flex h-full min-h-[148px] items-center justify-between gap-4 overflow-hidden p-4">
             <div className="min-w-0">
               <Eyebrow>Prospects actifs</Eyebrow>
-              <div className="mt-2.5 flex items-baseline gap-2">
+              <div className="mt-2.5 flex items-baseline gap-2 whitespace-nowrap">
                 <span className="font-num text-4xl font-semibold leading-none tabular-nums text-choco">
                   {pipelineActifCount}
                 </span>
-                <span className="font-grotesk text-xs text-[#6F5A50]">
+                <span className="font-num text-xs tabular-nums text-[#6F5A50]">
                   / {prospectsTotal}
                 </span>
               </div>
@@ -282,14 +282,14 @@ export default function MonTableauClient({ data }: { data: MonTableauData }) {
 
         {/* Relances du jour — petite 1x1 */}
         <motion.div variants={item} className="lg:col-span-1">
-          <div className="card-hover flex h-full min-h-[152px] flex-col justify-between rounded-[26px] hairline bg-white p-5">
+          <div className="panel card-hover flex h-full min-h-[148px] flex-col justify-between p-4">
             <Eyebrow>Relances</Eyebrow>
             <div>
               <span className="font-num text-4xl font-semibold leading-none tabular-nums text-choco">
                 {relancesAujourdhui}
               </span>
               {relancesEnRetard > 0 ? (
-                <p className="mt-1.5 font-grotesk text-[11px] font-semibold text-danger-fg">
+                <p className="mt-1.5 whitespace-nowrap font-num text-[11px] font-semibold tabular-nums text-danger-fg">
                   {relancesEnRetard} en retard
                 </p>
               ) : (
@@ -303,13 +303,13 @@ export default function MonTableauClient({ data }: { data: MonTableauData }) {
 
         {/* Signatures — petite 1x1 */}
         <motion.div variants={item} className="lg:col-span-1">
-          <div className="card-hover flex h-full min-h-[152px] flex-col justify-between rounded-[26px] hairline bg-white p-5">
+          <div className="panel card-hover flex h-full min-h-[148px] flex-col justify-between p-4">
             <Eyebrow>Signé</Eyebrow>
             <div>
               <span className="font-num text-4xl font-semibold leading-none tabular-nums text-choco">
                 {signatures}
               </span>
-              <p className="mt-1.5 font-grotesk text-[11px] text-[#6F5A50]">
+              <p className="mt-1.5 whitespace-nowrap font-grotesk text-[11px] text-[#6F5A50]">
                 ce mois-ci
               </p>
             </div>
@@ -322,7 +322,7 @@ export default function MonTableauClient({ data }: { data: MonTableauData }) {
       {/* ============================================================== */}
       <motion.section
         variants={item}
-        className="rounded-[26px] hairline bg-white p-6 sm:p-7"
+        className="panel p-4 sm:p-5"
       >
         <div className="flex items-center justify-between gap-3">
           <Eyebrow index="02">Mon pipeline</Eyebrow>
@@ -336,14 +336,14 @@ export default function MonTableauClient({ data }: { data: MonTableauData }) {
         </div>
 
         {pipelineEmpty ? (
-          <div className="mt-6 flex flex-col items-center justify-center rounded-[22px] border border-dashed border-[rgba(74,36,26,0.14)] bg-cream/50 px-6 py-12 text-center">
+          <div className="mt-4 flex items-center gap-3 rounded-2xl bg-cream/50 px-4 py-3">
             <span
               aria-hidden
-              className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-pale text-brand-dark"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-brand-pale text-brand-burnt"
             >
-              <TrendingUp className="h-6 w-6" />
+              <TrendingUp className="h-5 w-5" />
             </span>
-            <p className="max-w-sm font-grotesk text-sm text-[#6F5A50]">
+            <p className="font-grotesk text-sm text-[#6F5A50]">
               Aucun prospect dans le pipeline pour l&apos;instant. Dès que tu
               avances une fiche, elle apparaît ici.
             </p>
@@ -391,10 +391,10 @@ export default function MonTableauClient({ data }: { data: MonTableauData }) {
                         {col.label}
                       </span>
                     </div>
-                    <div className="mt-1.5 font-num text-2xl font-semibold tabular-nums text-choco">
+                    <div className="mt-1.5 whitespace-nowrap font-num text-2xl font-semibold tabular-nums text-choco">
                       {col.count}
                     </div>
-                    <div className="font-grotesk text-[11px] tabular-nums text-[#6F5A50]">
+                    <div className="whitespace-nowrap font-num text-[11px] tabular-nums text-[#6F5A50]">
                       {formatEur(col.valeur)}
                     </div>
                   </Link>
@@ -419,7 +419,7 @@ export default function MonTableauClient({ data }: { data: MonTableauData }) {
                       {card.company}
                     </span>
                     {card.caEstime && (
-                      <span className="font-num text-[10px] font-semibold tabular-nums text-brand-dark">
+                      <span className="whitespace-nowrap font-num text-[10px] font-semibold tabular-nums text-brand-dark">
                         {card.caEstime}
                       </span>
                     )}
@@ -434,20 +434,20 @@ export default function MonTableauClient({ data }: { data: MonTableauData }) {
       {/* ============================================================== */}
       {/* RAIL ASYMETRIQUE — Activite (2/3) + colonne droite (1/3)         */}
       {/* ============================================================== */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
         {/* Activite recente — timeline, prend 2 colonnes */}
         <motion.div variants={item} className="lg:col-span-2">
-          <div className="h-full rounded-[26px] hairline bg-white p-6">
+          <div className="panel h-full p-4">
             <Eyebrow index="03">Activité récente</Eyebrow>
             {activites.length === 0 ? (
-              <div className="mt-5 flex flex-col items-center justify-center rounded-[22px] border border-dashed border-[rgba(74,36,26,0.14)] bg-cream/50 px-5 py-12 text-center">
+              <div className="mt-4 flex items-center gap-3 rounded-2xl bg-cream/50 px-4 py-3">
                 <span
                   aria-hidden
-                  className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-pale text-brand-dark"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-brand-pale text-brand-burnt"
                 >
                   <CalendarDays className="h-5 w-5" />
                 </span>
-                <p className="max-w-xs font-grotesk text-sm text-[#6F5A50]">
+                <p className="font-grotesk text-sm text-[#6F5A50]">
                   Aucune activité enregistrée. Tes appels, emails et notes
                   apparaîtront ici.
                 </p>
@@ -488,16 +488,16 @@ export default function MonTableauClient({ data }: { data: MonTableauData }) {
         </motion.div>
 
         {/* Colonne droite : Relances detaillees + Objectif (empilees) */}
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3">
           <motion.div variants={item}>
-            <div className="rounded-[26px] hairline bg-white p-6">
+            <div className="panel p-4">
               <Eyebrow>Relances</Eyebrow>
               <div className="mt-4 space-y-2" aria-live="polite">
                 <div className="flex items-center justify-between rounded-2xl border border-danger-fg/20 bg-danger-bg px-3.5 py-2.5">
                   <span className="font-grotesk text-xs font-medium text-danger-fg">
                     En retard
                   </span>
-                  <span className="font-num text-lg font-semibold tabular-nums text-danger-fg">
+                  <span className="whitespace-nowrap font-num text-lg font-semibold tabular-nums text-danger-fg">
                     {relancesEnRetard}
                   </span>
                 </div>
@@ -505,15 +505,15 @@ export default function MonTableauClient({ data }: { data: MonTableauData }) {
                   <span className="font-grotesk text-xs font-medium text-choco">
                     Aujourd&apos;hui
                   </span>
-                  <span className="font-num text-lg font-semibold tabular-nums text-brand-dark">
+                  <span className="whitespace-nowrap font-num text-lg font-semibold tabular-nums text-brand-dark">
                     {relancesAujourdhui}
                   </span>
                 </div>
                 <div className="flex items-center justify-between rounded-2xl border border-ok-fg/20 bg-ok-bg px-3.5 py-2.5">
-                  <span className="font-grotesk text-xs font-medium text-ok-fg">
+                  <span className="whitespace-nowrap font-grotesk text-xs font-medium text-ok-fg">
                     À venir · 7j
                   </span>
-                  <span className="font-num text-lg font-semibold tabular-nums text-ok-fg">
+                  <span className="whitespace-nowrap font-num text-lg font-semibold tabular-nums text-ok-fg">
                     {relancesAVenir}
                   </span>
                 </div>
@@ -529,13 +529,13 @@ export default function MonTableauClient({ data }: { data: MonTableauData }) {
           </motion.div>
 
           <motion.div variants={item}>
-            <div className="rounded-[26px] hairline bg-white p-6">
+            <div className="panel-accent p-4">
               <Eyebrow>Objectif du mois</Eyebrow>
               <div className="mt-3 flex items-baseline justify-between">
-                <span className="font-num text-3xl font-semibold tabular-nums text-brand-dark">
+                <span className="whitespace-nowrap font-num text-3xl font-semibold tabular-nums text-brand-dark">
                   {objectifPct}%
                 </span>
-                <span className="font-grotesk text-[11px] text-muted-warm">
+                <span className="whitespace-nowrap font-num text-[11px] tabular-nums text-muted-warm">
                   {nf.format(objectifMensuel)} € HT
                 </span>
               </div>
