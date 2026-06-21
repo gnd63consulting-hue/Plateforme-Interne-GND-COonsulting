@@ -37,13 +37,15 @@ const HERMES_CONSOLE_URL =
 type Me = { id: string; role: string };
 
 // Design System crème/orange — texte FONCÉ sur fond clair (contraste AA).
-const INK = '#2A2320';
-const SOFT = '#7B665C';
+const INK = '#3A2A22';
+const SOFT = '#6F5A50';
 const FAINT = '#9A8A80';
-const AMBER = '#B5601C';
+const AMBER = '#C96A2B';
+const BRAND = '#F39253';
 const CHOCO = '#532418';
 const CARD = '#FFFFFF';
-const BORDER = '1px solid #E2D5C3';
+const HAIRLINE = 'rgba(74,36,26,0.10)';
+const BORDER = '1px solid rgba(74,36,26,0.10)';
 const SERIF = 'var(--font-marcellus), Georgia, serif';
 const MONO = 'var(--font-inter), ui-monospace, monospace';
 const SANS = 'var(--font-inter), system-ui, sans-serif';
@@ -92,18 +94,31 @@ export default async function AdminAgentsPage() {
         color: INK,
       }}
     >
-      <header style={{ marginBottom: 28 }}>
+      <header style={{ marginBottom: 28, position: 'relative' }}>
         <div
           style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 10,
             fontFamily: MONO,
-            fontSize: 10,
+            fontSize: 11,
             fontWeight: 600,
             textTransform: 'uppercase',
-            letterSpacing: '0.22em',
+            letterSpacing: '0.14em',
             color: AMBER,
-            marginBottom: 10,
+            marginBottom: 12,
           }}
         >
+          <span
+            aria-hidden
+            style={{
+              width: 22,
+              height: 2,
+              borderRadius: 2,
+              background: BRAND,
+              display: 'inline-block',
+            }}
+          />
           ADMIN · ARMÉE HERMÈS
         </div>
         <h1
@@ -143,17 +158,18 @@ export default async function AdminAgentsPage() {
               display: 'inline-flex',
               alignItems: 'center',
               gap: 8,
-              background: AMBER,
-              border: `1px solid ${CHOCO}`,
+              background: BRAND,
+              border: `1px solid rgba(83,36,24,0.18)`,
               borderRadius: 999,
-              padding: '9px 18px',
+              padding: '10px 20px',
               fontFamily: SANS,
               fontSize: 13,
               fontWeight: 600,
               letterSpacing: '0.01em',
-              color: '#FFF8F0',
+              color: '#2A1810',
               textDecoration: 'none',
               whiteSpace: 'nowrap',
+              boxShadow: '0 8px 22px -10px rgba(243,146,83,0.65)',
             }}
           >
             Ouvrir la console Hermès ↗
@@ -188,10 +204,51 @@ export default async function AdminAgentsPage() {
       </div>
 
       {agents.length === 0 ? (
-        <p style={{ fontSize: 14, color: SOFT }}>
-          Aucun agent enregistré pour l&apos;instant. Les agents apparaîtront ici
-          une fois le socle Hermès provisionné (migration 0025).
-        </p>
+        <div
+          style={{
+            background: CARD,
+            border: BORDER,
+            borderRadius: 24,
+            padding: '48px 32px',
+            textAlign: 'center',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 14,
+            boxShadow: '0 1px 2px rgba(74,36,26,0.04), 0 14px 38px -26px rgba(74,36,26,0.30)',
+          }}
+        >
+          <span
+            aria-hidden
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: 52,
+              height: 52,
+              borderRadius: 16,
+              background: 'rgba(243,146,83,0.12)',
+              fontSize: 24,
+            }}
+          >
+            🤖
+          </span>
+          <p
+            style={{
+              fontFamily: SERIF,
+              fontSize: 20,
+              fontWeight: 500,
+              color: CHOCO,
+              margin: 0,
+            }}
+          >
+            Aucun agent enregistré
+          </p>
+          <p style={{ fontSize: 13.5, lineHeight: 1.55, color: SOFT, margin: 0, maxWidth: 420 }}>
+            Aucun agent enregistré pour l&apos;instant. Les agents apparaîtront ici
+            une fois le socle Hermès provisionné (migration 0025).
+          </p>
+        </div>
       ) : (
         [...groups.entries()].map(([dbRole, list]) => (
           <section key={dbRole} style={{ marginBottom: 30 }}>
@@ -248,18 +305,19 @@ function Stat({
         minWidth: 150,
         background: CARD,
         border: BORDER,
-        borderRadius: 16,
-        padding: '16px 18px',
+        borderRadius: 22,
+        padding: '18px 20px',
+        boxShadow: '0 1px 2px rgba(74,36,26,0.04), 0 10px 30px -22px rgba(74,36,26,0.30)',
       }}
     >
       <div
         style={{
           fontFamily: MONO,
-          fontSize: 9,
+          fontSize: 10,
           fontWeight: 600,
           textTransform: 'uppercase',
-          letterSpacing: '0.16em',
-          color: FAINT,
+          letterSpacing: '0.14em',
+          color: AMBER,
           marginBottom: 8,
         }}
       >
@@ -339,14 +397,16 @@ function Field({ label, value }: { label: string; value: string }) {
 function AgentCard({ agent }: { agent: Agent }) {
   return (
     <article
+      className="card-hover"
       style={{
         background: CARD,
         border: BORDER,
-        borderRadius: 18,
-        padding: 20,
+        borderRadius: 24,
+        padding: 22,
         display: 'flex',
         flexDirection: 'column',
         gap: 14,
+        boxShadow: '0 1px 2px rgba(74,36,26,0.04), 0 14px 38px -26px rgba(74,36,26,0.32)',
       }}
     >
       {/* Titre + statut */}
@@ -417,7 +477,7 @@ function AgentCard({ agent }: { agent: Agent }) {
           flexWrap: 'wrap',
           gap: 16,
           paddingTop: 12,
-          borderTop: '1px solid rgba(83,36,24,0.08)',
+          borderTop: `1px solid ${HAIRLINE}`,
         }}
       >
         <Field label="Rôle DB" value={agent.db_role ?? '—'} />
@@ -436,10 +496,10 @@ function AgentCard({ agent }: { agent: Agent }) {
           alignSelf: 'flex-start',
           alignItems: 'center',
           gap: 6,
-          background: 'rgba(83,36,24,0.05)',
-          border: '1px solid rgba(83,36,24,0.14)',
+          background: 'rgba(243,146,83,0.10)',
+          border: '1px solid rgba(243,146,83,0.28)',
           borderRadius: 999,
-          padding: '5px 11px',
+          padding: '5px 12px',
           fontFamily: MONO,
           fontSize: 10,
           fontWeight: 600,
