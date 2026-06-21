@@ -242,3 +242,66 @@ export function tierTone(tier?: string | null): string {
       return 'bg-slate-100 text-slate-600';
   }
 }
+
+
+/* -------------------------------------------------------------------------- */
+/* Pitch d'appel Nyx (script tel pret-a-dire)                                 */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Script d'appel ecrit par l'agent Nyx dans `public.prospect_intel` avec
+ * intel_type='signal' et source='nyx.call_pitch'. Append-only -> on lit le plus
+ * recent par prospect. Le payload JSONB porte :
+ *   - hook_oral    (text) accroche orale a dire en decrochant
+ *   - raison_appel (text) pourquoi on appelle
+ *   - angle        (text) angle de valeur (propriete/portabilite)
+ *   - objection    (text) reponse prete au "ca me suffit"
+ * Aucune donnee financiere (cloisonnement respecte).
+ */
+export type CallPitchPayload = {
+  hook_oral?: string | null;
+  raison_appel?: string | null;
+  angle?: string | null;
+  objection?: string | null;
+  version?: string | null;
+  created_for?: string | null;
+};
+
+export type CallPitch = {
+  hookOral: string | null;
+  raisonAppel: string | null;
+  angle: string | null;
+  objection: string | null;
+};
+
+export const CALL_PITCH_SOURCE = 'nyx.call_pitch';
+
+/** Parse un payload brut en CallPitch ; null si aucun champ utile. */
+export function parseCallPitch(payload: unknown): CallPitch | null {
+  if (!payload || typeof payload !== 'object') return null;
+  const p = payload as CallPitchPayload;
+  const cp: CallPitch = {
+    hookOral: cleanStr(p.hook_oral),
+    raisonAppel: cleanStr(p.raison_appel),
+    angle: cleanStr(p.angle),
+    objection: cleanStr(p.objection),
+  };
+  return cp.hookOral || cp.raisonAppel || cp.angle || cp.objection ? cp : null;
+}
+
+/**
+ * Reduit une liste de lignes prospect_intel (pitchs Nyx, triees created_at DESC
+ * en amont) au pitch le PLUS RECENT par prospect. Append-only -> 1ere vue gardee.
+ */
+export function latestCallPitchByProspect(
+  rows: ProspectIntelRow[]
+): Map<string, CallPitch> {
+  const map = new Map<string, CallPitch>();
+  for (const r of rows) {
+    if (!r.payload) continue;
+    if (map.has(r.prospect_id)) continue;
+    const cp = parseCallPitch(r.payload);
+    if (cp) map.set(r.prospect_id, cp);
+  }
+  return map;
+}
