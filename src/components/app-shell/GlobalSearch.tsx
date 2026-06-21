@@ -137,7 +137,7 @@ export default function GlobalSearch() {
   return (
     <div ref={boxRef} className="relative hidden max-w-xl flex-1 sm:block">
       <Search
-        className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-warm"
+        className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-brand-burnt/70"
         aria-hidden
       />
       <input
@@ -156,11 +156,11 @@ export default function GlobalSearch() {
         aria-expanded={showPanel}
         aria-controls="global-search-results"
         autoComplete="off"
-        className="h-10 w-full rounded-full bg-cream-deep pl-10 pr-16 text-sm text-ink-warm placeholder:text-muted-warm/70 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-ring"
+        className="h-11 w-full rounded-full border border-[rgba(74,36,26,0.10)] bg-cream/60 pl-11 pr-16 text-sm text-ink-warm placeholder:text-muted-warm/70 transition-all focus:border-brand focus:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring"
       />
       <kbd
         aria-hidden
-        className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 rounded-md border border-border-soft bg-surface-soft px-1.5 py-0.5 font-inter text-[10px] font-semibold text-muted-warm"
+        className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 rounded-lg border border-[rgba(74,36,26,0.10)] bg-white px-1.5 py-0.5 font-inter text-[10px] font-semibold text-brand-burnt shadow-soft"
       >
         ⌘K
       </kbd>
@@ -169,7 +169,7 @@ export default function GlobalSearch() {
         <div
           id="global-search-results"
           role="listbox"
-          className="absolute left-0 right-0 top-12 z-50 overflow-hidden rounded-2xl border border-border-soft/70 bg-surface-soft shadow-soft-lg"
+          className="surface-ceramic absolute left-0 right-0 top-[3.25rem] z-50 overflow-hidden rounded-2xl border border-[rgba(74,36,26,0.10)] shadow-soft-lg"
         >
           {loading && hits.length === 0 ? (
             <div className="flex items-center gap-2 px-4 py-3 text-sm text-muted-warm">
@@ -191,7 +191,7 @@ export default function GlobalSearch() {
                     onMouseEnter={() => setActive(i)}
                     onClick={() => go(h.id)}
                     className={`flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors ${
-                      i === active ? 'bg-cream' : 'hover:bg-cream'
+                      i === active ? 'bg-brand-pale' : 'hover:bg-cream'
                     }`}
                   >
                     <div className="min-w-0 flex-1">
@@ -215,7 +215,7 @@ export default function GlobalSearch() {
                   </button>
                 </li>
               ))}
-              <li className="flex items-center justify-end gap-1.5 border-t border-border-soft/60 px-4 py-1.5 text-[10px] text-muted-warm">
+              <li className="flex items-center justify-end gap-1.5 border-t border-[rgba(74,36,26,0.10)] px-4 py-1.5 text-[10px] text-muted-warm">
                 <CornerDownLeft className="h-3 w-3" aria-hidden /> ouvrir · ↑↓
                 naviguer · Échap fermer
               </li>
