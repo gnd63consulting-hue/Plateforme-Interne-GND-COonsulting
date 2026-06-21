@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { GeistSans } from 'geist/font/sans';
 import { GeistMono } from 'geist/font/mono';
-import { Fraunces, Marcellus, Inter } from 'next/font/google';
+import { Fraunces, Marcellus, Inter, Space_Grotesk, JetBrains_Mono } from 'next/font/google';
 import SmoothScroll from '@/components/SmoothScroll';
 import './globals.css';
 
@@ -31,6 +31,24 @@ const inter = Inter({
   display: 'swap',
 });
 
+/**
+ * DS v3 (refonte premium juin 2026) — typographie à caractère pour le CRM.
+ * `Space Grotesk` = grotesque géométrique distinctif pour labels/eyebrows UI
+ * (remplace Inter générique sur le chrome). `JetBrains Mono` = chiffres
+ * tabulaires des KPI/metrics (signal "produit designé", pas admin Bootstrap).
+ */
+const spaceGrotesk = Space_Grotesk({
+  subsets: ['latin'],
+  variable: '--font-grotesk',
+  display: 'swap',
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-num',
+  display: 'swap',
+});
+
 export const metadata: Metadata = {
   title: 'GND Formation',
   description:
@@ -45,7 +63,7 @@ export default function RootLayout({
   return (
     <html
       lang="fr"
-      className={`${GeistSans.variable} ${GeistMono.variable} ${fraunces.variable} ${marcellus.variable} ${inter.variable}`}
+      className={`${GeistSans.variable} ${GeistMono.variable} ${fraunces.variable} ${marcellus.variable} ${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}
     >
       <head>
         <link
