@@ -187,18 +187,18 @@ export default function ProspectKanban({
                 const p = prospects.find((x) => x.id === id);
                 if (p) move(p, col.id);
               }}
-              className={`flex h-full w-[320px] shrink-0 flex-col overflow-hidden rounded-2xl border bg-cream transition-colors ${
+              className={`panel flex h-full w-[320px] shrink-0 flex-col overflow-hidden !rounded-2xl transition-colors ${
                 isOver
-                  ? 'border-brand bg-brand-pale ring-2 ring-brand-ring'
-                  : 'border-border-soft/60'
+                  ? '!bg-brand-pale ring-2 ring-brand-ring'
+                  : ''
               }`}
             >
               {/* Entête colonne — sticky en tête du corps scrollable */}
-              <header className="sticky top-0 z-10 flex shrink-0 items-center justify-between gap-2 border-b border-border-soft/60 bg-cream/95 px-4 py-3 backdrop-blur">
+              <header className="sticky top-0 z-10 flex shrink-0 items-center justify-between gap-2 border-b border-[rgba(74,36,26,0.08)] bg-cream/90 px-4 py-3 backdrop-blur">
                 <div className="flex min-w-0 items-center gap-2">
                   <span className={`h-2 w-2 shrink-0 rounded-full ${col.accent}`} aria-hidden />
                   <h3
-                    className="truncate font-marcellus text-sm text-choco"
+                    className="truncate font-grotesk text-[11px] font-semibold uppercase tracking-[0.13em] text-choco"
                     title={col.hint}
                   >
                     {col.label}
@@ -207,13 +207,13 @@ export default function ProspectKanban({
                 <div className="flex shrink-0 items-center gap-2">
                   {total > 0 && (
                     <span
-                      className="font-inter text-[10px] font-semibold text-brand-dark"
+                      className="whitespace-nowrap font-num tabular-nums text-[10px] font-semibold text-brand-burnt"
                       title="CA estimé cumulé (borne basse)"
                     >
                       {eurFmt.format(total)}
                     </span>
                   )}
-                  <span className="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-surface-soft px-1.5 font-inter text-[10px] font-semibold text-muted-warm">
+                  <span className="inline-flex h-5 min-w-[1.25rem] items-center justify-center whitespace-nowrap rounded-full bg-brand-pale px-1.5 font-num tabular-nums text-[10px] font-semibold text-brand-burnt">
                     {cards.length}
                   </span>
                 </div>
@@ -225,7 +225,8 @@ export default function ProspectKanban({
                 className="flex flex-1 flex-col gap-2.5 overflow-y-auto p-2.5"
               >
                 {cards.length === 0 ? (
-                  <li className="rounded-xl border border-dashed border-border-soft/70 px-3 py-6 text-center font-inter text-[10px] uppercase tracking-[0.15em] text-muted-warm/70">
+                  <li className="flex items-center justify-center gap-2 rounded-2xl border border-dashed border-[rgba(74,36,26,0.12)] px-3 py-5 text-center font-grotesk text-[10px] uppercase tracking-[0.15em] text-muted-warm/70">
+                    <span className="inline-flex h-5 w-5 items-center justify-center rounded-2xl bg-brand-pale text-brand-burnt" aria-hidden>·</span>
                     Vide
                   </li>
                 ) : (
@@ -253,9 +254,9 @@ export default function ProspectKanban({
                         <button
                           type="button"
                           onClick={() => showMore(col.id)}
-                          className="w-full rounded-xl border border-dashed border-border-soft/70 px-3 py-2 text-center font-inter text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-warm transition-colors hover:bg-cream-deep hover:text-ink-warm"
+                          className="w-full rounded-2xl border border-dashed border-[rgba(74,36,26,0.14)] px-3 py-2 text-center font-grotesk text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-warm transition-colors hover:bg-cream-deep hover:text-ink-warm"
                         >
-                          Afficher plus ({remaining} restant{remaining > 1 ? 's' : ''})
+                          Afficher plus (<span className="font-num tabular-nums whitespace-nowrap">{remaining}</span> restant{remaining > 1 ? 's' : ''})
                         </button>
                       </li>
                     )}
@@ -288,10 +289,10 @@ export default function ProspectKanban({
           const p = prospects.find((x) => x.id === id);
           if (p) move(p, deadColumn.id);
         }}
-        className={`mt-4 rounded-2xl border transition-colors ${
+        className={`panel mt-4 !rounded-2xl transition-colors ${
           dragOverCol === deadColumn.id
-            ? 'border-rose-300 bg-rose-50/60 ring-2 ring-rose-200'
-            : 'border-border-soft/60 bg-cream'
+            ? '!bg-danger-bg ring-2 ring-danger-fg/30'
+            : ''
         }`}
       >
         <h3>
@@ -303,13 +304,13 @@ export default function ProspectKanban({
           >
             <span className="flex items-center gap-2">
               <span className={`h-2 w-2 shrink-0 rounded-full ${deadColumn.accent}`} aria-hidden />
-              <span className="font-marcellus text-sm text-choco">
+              <span className="font-grotesk text-[11px] font-semibold uppercase tracking-[0.13em] text-choco">
                 {deadColumn.label}
               </span>
-              <span className="font-inter text-[10px] text-muted-warm/80">{deadColumn.hint}</span>
+              <span className="font-grotesk text-[10px] text-muted-warm/80">{deadColumn.hint}</span>
             </span>
             <span className="flex items-center gap-2">
-              <span className="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-surface-soft px-1.5 font-inter text-[10px] font-semibold text-muted-warm">
+              <span className="inline-flex h-5 min-w-[1.25rem] items-center justify-center whitespace-nowrap rounded-full bg-brand-pale px-1.5 font-num tabular-nums text-[10px] font-semibold text-brand-burnt">
                 {deadCards.length}
               </span>
               <ChevronDown
@@ -374,7 +375,8 @@ function DeadColumnBody({
     <>
       <ul className="grid grid-cols-1 gap-2.5 p-2.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {cards.length === 0 ? (
-          <li className="col-span-full rounded-xl border border-dashed border-border-soft/70 px-3 py-6 text-center font-inter text-[10px] uppercase tracking-[0.15em] text-muted-warm/70">
+          <li className="col-span-full flex items-center justify-center gap-2 rounded-2xl border border-dashed border-[rgba(74,36,26,0.12)] px-3 py-5 text-center font-grotesk text-[10px] uppercase tracking-[0.15em] text-muted-warm/70">
+            <span className="inline-flex h-5 w-5 items-center justify-center rounded-2xl bg-brand-pale text-brand-burnt" aria-hidden>·</span>
             Aucune sortie
           </li>
         ) : (
@@ -396,9 +398,9 @@ function DeadColumnBody({
           <button
             type="button"
             onClick={onShowMore}
-            className="w-full rounded-xl border border-dashed border-border-soft/70 px-3 py-2 text-center font-inter text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-warm transition-colors hover:bg-cream-deep hover:text-ink-warm"
+            className="w-full rounded-2xl border border-dashed border-[rgba(74,36,26,0.14)] px-3 py-2 text-center font-grotesk text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-warm transition-colors hover:bg-cream-deep hover:text-ink-warm"
           >
-            Afficher plus ({remaining} restant{remaining > 1 ? 's' : ''})
+            Afficher plus (<span className="font-num tabular-nums whitespace-nowrap">{remaining}</span> restant{remaining > 1 ? 's' : ''})
           </button>
         </div>
       )}
@@ -452,8 +454,8 @@ const KanbanCard = memo(function KanbanCard({
             onOpenNotes(p);
           }
         }}
-        className={`group relative w-full cursor-grab rounded-xl border bg-surface-soft p-3 shadow-soft outline-none transition-shadow hover:shadow-soft-md focus-visible:ring-2 focus-visible:ring-brand-ring active:cursor-grabbing ${
-          rot.rotten ? 'border-l-[3px] border-l-brand border-border-soft/60' : 'border-border-soft/60'
+        className={`panel card-hover group relative w-full cursor-grab !rounded-xl p-4 outline-none focus-visible:ring-2 focus-visible:ring-brand-ring active:cursor-grabbing ${
+          rot.rotten ? 'border-l-[3px] border-l-brand' : ''
         }`}
       >
         {/* Liseré rotting : point orange + tooltip */}
@@ -465,22 +467,28 @@ const KanbanCard = memo(function KanbanCard({
           />
         )}
 
-        <div className="flex items-start gap-2">
+        <div className="flex items-start gap-2.5">
           <GripVertical
-            className="mt-0.5 h-4 w-4 shrink-0 cursor-grab text-muted-warm/60 opacity-0 transition-opacity group-hover:opacity-100"
+            className="mt-1 h-4 w-4 shrink-0 cursor-grab text-muted-warm/50 opacity-0 transition-opacity group-hover:opacity-100"
             aria-hidden
           />
+          <span
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-pale font-grotesk text-xs font-semibold uppercase text-brand-burnt"
+            aria-hidden
+          >
+            {p.company_name?.trim().slice(0, 2) || '··'}
+          </span>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5">
               {isHot && (
                 <Flame className="h-3.5 w-3.5 shrink-0 text-brand" aria-label="Prospect prioritaire" />
               )}
-              <p className="truncate font-marcellus text-sm text-choco">
+              <p className="truncate font-medium text-choco">
                 {p.company_name}
               </p>
             </div>
             {(p.contact_name || p.role_contact || p.city) && (
-              <p className="mt-0.5 truncate text-xs text-muted-warm">
+              <p className="mt-0.5 truncate text-xs text-[#6F5A50]">
                 {p.contact_name}
                 {p.contact_name && p.city && ' · '}
                 {p.city}
@@ -493,44 +501,44 @@ const KanbanCard = memo(function KanbanCard({
         </div>
 
         {/* Badge statut + valeur */}
-        <div className="mt-2 flex flex-wrap items-center gap-1.5">
+        <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
           <StatusBadge status={p.status} size="sm" />
           {p.ca_estime && (
-            <span className="truncate font-inter text-[10px] font-semibold text-brand-dark" title="CA estimé">
+            <span className="truncate whitespace-nowrap font-num tabular-nums text-[10px] font-semibold text-brand-burnt" title="CA estimé">
               {p.ca_estime}
             </span>
           )}
         </div>
 
         {/* Méta : téléphone, adresse, relance */}
-        <div className="mt-2 flex flex-col gap-1">
+        <div className="mt-2.5 flex flex-col gap-1.5">
           {p.phone && (
-            <span className="inline-flex items-center gap-1 truncate text-[11px] text-muted-warm">
+            <span className="inline-flex items-center gap-1.5 truncate text-[11px] text-[#6F5A50]">
               <Phone className="h-3 w-3 shrink-0 text-muted-warm/70" aria-hidden />
-              <span className="truncate">{p.phone}</span>
+              <span className="truncate whitespace-nowrap font-num tabular-nums">{p.phone}</span>
             </span>
           )}
           {(p.address || p.city) && (
-            <span className="inline-flex items-center gap-1 truncate text-[11px] text-muted-warm">
+            <span className="inline-flex items-center gap-1.5 truncate text-[11px] text-[#6F5A50]">
               <MapPin className="h-3 w-3 shrink-0 text-muted-warm/70" aria-hidden />
               <span className="truncate">{p.address ?? p.city}</span>
             </span>
           )}
           {p.next_action_at && (
             <span
-              className={`inline-flex w-fit items-center gap-1 rounded-full px-2 py-0.5 font-inter text-[9px] font-semibold uppercase tracking-[0.1em] ${
+              className={`inline-flex w-fit items-center gap-1 whitespace-nowrap rounded-full px-2 py-0.5 font-grotesk text-[9px] font-semibold uppercase tracking-[0.1em] ${
                 rot.overdue
-                  ? 'bg-[#F7D7D7] text-[#A04A4A]'
-                  : 'bg-brand-soft text-brand-dark'
+                  ? 'bg-danger-bg text-danger-fg'
+                  : 'bg-brand-soft text-brand-burnt'
               }`}
             >
-              ⏰ Relance {formatDate(p.next_action_at)}
+              ⏰ Relance <span className="font-num tabular-nums">{formatDate(p.next_action_at)}</span>
             </span>
           )}
         </div>
 
         {/* Actions : notes + ouvrir la fiche + déplacer (alternatif au drag) */}
-        <div className="mt-2.5 flex items-center justify-between border-t border-border-soft/50 pt-2">
+        <div className="mt-2.5 flex items-center justify-between border-t border-[rgba(74,36,26,0.08)] pt-2.5">
           <div className="flex items-center gap-1">
             <button
               type="button"
@@ -573,7 +581,7 @@ const KanbanCard = memo(function KanbanCard({
               <div
                 role="menu"
                 onClick={(e) => e.stopPropagation()}
-                className="absolute bottom-full right-0 z-20 mb-1 w-48 overflow-hidden rounded-xl border border-border-soft/70 bg-surface-soft py-1 shadow-soft-lg"
+                className="panel absolute bottom-full right-0 z-20 mb-1 w-48 overflow-hidden !rounded-xl py-1 shadow-soft-lg"
               >
                 {ALL_COLUMN_IDS.map((cid) => {
                   const c = columnById(cid);
