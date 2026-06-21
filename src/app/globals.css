@@ -56,6 +56,28 @@
   .btn-secondary {
     @apply inline-flex items-center gap-2 rounded-full border border-gnd-bronze/15 bg-white px-5 py-2.5 text-sm font-semibold text-gnd-bronze transition-colors hover:bg-gnd-cream;
   }
+
+  /* Onglet actif sidebar - encoche concave (continuite menu <-> contenu) */
+  .sidebar-active-tab::before,
+  .sidebar-active-tab::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    width: 16px;
+    height: 16px;
+    background-color: #FFFFFF;
+    pointer-events: none;
+  }
+  .sidebar-active-tab::before {
+    top: -16px;
+    -webkit-mask: radial-gradient(16px at 0% 0%, #0000 98%, #000 100%);
+    mask: radial-gradient(16px at 0% 0%, #0000 98%, #000 100%);
+  }
+  .sidebar-active-tab::after {
+    bottom: -16px;
+    -webkit-mask: radial-gradient(16px at 0% 100%, #0000 98%, #000 100%);
+    mask: radial-gradient(16px at 0% 100%, #0000 98%, #000 100%);
+  }
 }
 
 @layer utilities {

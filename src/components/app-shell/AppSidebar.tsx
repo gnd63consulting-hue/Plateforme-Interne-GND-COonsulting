@@ -233,27 +233,13 @@ function NavLink({
       onClick={onNavigate}
       aria-current={active ? 'page' : undefined}
       className={cn(
-        'group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors',
+        'group relative flex items-center gap-3 py-2.5 text-sm font-medium transition-colors',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring',
         active
-          ? 'text-[#532418]'
-          : 'text-muted-warm hover:bg-cream-deep hover:text-ink-warm'
+          ? 'sidebar-active-tab z-10 -mr-5 rounded-l-2xl bg-white pl-3 pr-4 font-semibold text-[#532418] shadow-[-10px_0_24px_-14px_rgba(83,36,24,0.18)]'
+          : 'rounded-xl px-3 text-muted-warm hover:bg-cream-deep hover:text-ink-warm'
       )}
     >
-      {active && (
-        <>
-          <motion.span
-            layoutId="sidebar-active"
-            transition={{ type: 'spring', stiffness: 380, damping: 32 }}
-            className="absolute inset-0 -z-10 rounded-xl bg-brand/[0.12]"
-            aria-hidden
-          />
-          <span
-            aria-hidden
-            className="absolute left-0 top-1/2 h-5 w-1 -translate-y-1/2 rounded-full bg-brand"
-          />
-        </>
-      )}
       <Icon
         className={cn(
           'h-[18px] w-[18px] shrink-0 transition-colors',
@@ -385,7 +371,7 @@ export default function AppSidebar({
 
   return (
     <>
-      <aside className="hidden w-[264px] shrink-0 border-r border-border-soft/60 bg-surface-soft lg:block">
+      <aside className="hidden w-[264px] shrink-0 bg-cream lg:block">
         <SidebarInner user={user} isAdmin={isAdmin} />
       </aside>
 
@@ -401,7 +387,7 @@ export default function AppSidebar({
               aria-hidden
             />
             <motion.aside
-              className="fixed inset-y-0 left-0 z-50 w-[280px] max-w-[85vw] border-r border-border-soft/60 bg-surface-soft shadow-soft-lg lg:hidden"
+              className="fixed inset-y-0 left-0 z-50 w-[280px] max-w-[85vw] border-r border-border-soft/60 bg-cream shadow-soft-lg lg:hidden"
               initial={reduce ? false : { x: '-100%' }}
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
