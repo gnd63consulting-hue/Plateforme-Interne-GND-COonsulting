@@ -16,8 +16,6 @@ import {
   type EnrichmentPayload,
 } from '@/lib/prospect-intel';
 import { getMockupForProspect, getSiteBriefForProspect } from '@/lib/site-brief';
-import ProspectIntelPanel from './ProspectIntelPanel';
-import GenerateMockupButton from './GenerateMockupButton';
 import ProspectDetailClient from './ProspectDetailClient';
 
 export const dynamic = 'force-dynamic';
@@ -139,29 +137,19 @@ export default async function ProspectDetailPage({
   const intelDate = intelRow?.created_at ?? null;
 
   return (
-    <>
-      <ProspectIntelPanel intel={intel} createdAt={intelDate} />
-      <section className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-border-soft bg-white p-5 shadow-soft">
-        <div className="min-w-0">
-          <h2 className="font-inter text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-dark">
-            Maquette Studio
-          </h2>
-          <p className="mt-1 text-sm text-muted-warm">
-            Genere une maquette one-page a partir de ce prospect. Le Studio la
-            produit, elle apparaitra ici.
-          </p>
-        </div>
-        <GenerateMockupButton prospectId={id} mockup={mockup} brief={brief} />
-      </section>
-      <ProspectDetailClient
-        initialProspect={prospect}
-        initialActivities={initialActivities}
-        activeSequences={activeSequences}
-        initialEnrollment={activeEnrollment}
-        initialQuotes={initialQuotes}
-        initialDealAmount={initialDealAmount}
-        canViewFinance={isAdmin}
-      />
-    </>
+    <ProspectDetailClient
+      initialProspect={prospect}
+      initialActivities={initialActivities}
+      activeSequences={activeSequences}
+      initialEnrollment={activeEnrollment}
+      initialQuotes={initialQuotes}
+      initialDealAmount={initialDealAmount}
+      canViewFinance={isAdmin}
+      intel={intel}
+      intelCreatedAt={intelDate}
+      mockup={mockup}
+      brief={brief}
+      mockupProspectId={id}
+    />
   );
 }
