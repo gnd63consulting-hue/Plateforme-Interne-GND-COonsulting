@@ -62,6 +62,12 @@ export type IntelRowVM = {
   raisons: string[];
   persona: string | null;
   fenetreAchat: string | null;
+  // Pitch d'appel Nyx (script tel pret-a-dire) — tous optionnels.
+  callPitchHook: string | null;
+  callPitchRaison: string | null;
+  callPitchAngle: string | null;
+  callPitchObjection: string | null;
+  hasCallPitch: boolean;
 };
 
 type Filter = 'callable' | 'all' | 'enrichi' | 'with_email' | 'phone_only';
@@ -448,6 +454,65 @@ function PitchSelene({ r }: { r: IntelRowVM }) {
   );
 }
 
+/**
+ * Bloc "Accroche d'appel" : le script tel pret-a-dire ecrit par Nyx
+ * (prospect_intel, source='nyx.call_pitch'). Le hook oral est visible d'emblee
+ * (les mots a dire en decrochant) ; angle + objection sont replies. Distinct du
+ * Pitch Selene (scoring) : ici c'est le copy travaille par l'agent redacteur.
+ */
+function PitchAppel({ r }: { r: IntelRowVM }) {
+  const [open, setOpen] = useState(false);
+  if (!r.hasCallPitch || !r.callPitchHook) return null;
+  const hasMore = !!(r.callPitchRaison || r.callPitchAngle || r.callPitchObjection);
+  return (
+    <div className="panel-accent mt-3 p-3">
+      <p className="flex items-start gap-2 text-xs leading-relaxed text-ink-warm">
+        <PhoneCall className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-dark" aria-hidden />
+        <span className="min-w-0 flex-1">
+          <span className="font-semibold text-brand-burnt">Accroche d&apos;appel : </span>
+          <span className="text-choco">{r.callPitchHook}</span>
+        </span>
+      </p>
+      {hasMore && (
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          aria-expanded={open}
+          className="mt-1.5 inline-flex items-center gap-1 text-[11px] font-semibold text-brand-dark"
+        >
+          {open ? 'Masquer' : 'Voir angle + objection'}
+          <ChevronRight
+            className={`h-3 w-3 transition-transform ${open ? 'rotate-90' : ''}`}
+            aria-hidden
+          />
+        </button>
+      )}
+      {open && hasMore && (
+        <div className="mt-2 space-y-1.5 border-t border-border-soft pt-2 text-[11px] leading-relaxed text-ink-warm">
+          {r.callPitchRaison && (
+            <p>
+              <span className="font-semibold text-choco">Raison : </span>
+              {r.callPitchRaison}
+            </p>
+          )}
+          {r.callPitchAngle && (
+            <p>
+              <span className="font-semibold text-choco">Angle : </span>
+              {r.callPitchAngle}
+            </p>
+          )}
+          {r.callPitchObjection && (
+            <p>
+              <span className="font-semibold text-choco">Objection : </span>
+              {r.callPitchObjection}
+            </p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function IntelCard({ r }: { r: IntelRowVM }) {
   const href = telHref(r.tel);
   // Statut local : reflete immediatement l'issue d'un appel logue (optimiste),
@@ -533,6 +598,9 @@ function IntelCard({ r }: { r: IntelRowVM }) {
               </p>
             </div>
           )}
+
+          {/* Accroche d'appel Nyx = script tel pret-a-dire (le plus travaille) */}
+          <PitchAppel r={r} />
 
           {/* Pitch Selene = quoi dire (scoring Selene), complement de l'angle Atlas */}
           <PitchSelene r={r} />

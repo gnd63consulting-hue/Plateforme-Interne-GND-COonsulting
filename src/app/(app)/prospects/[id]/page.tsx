@@ -12,8 +12,11 @@ import {
 import { QUOTE_SELECT_COLUMNS, type Quote } from '@/lib/finance';
 import {
   INTEL_SELECT_COLUMNS,
+  CALL_PITCH_SOURCE,
+  parseCallPitch,
   type ProspectIntelRow,
   type EnrichmentPayload,
+  type CallPitch,
 } from '@/lib/prospect-intel';
 import { getMockupForProspect, getSiteBriefForProspect } from '@/lib/site-brief';
 import ProspectDetailClient from './ProspectDetailClient';
@@ -89,6 +92,7 @@ export default async function ProspectDetailPage({
     enrollmentRes,
     quotesRes,
     intelRes,
+    callPitchRes,
     mockup,
     brief,
   ] = await Promise.all([
@@ -120,6 +124,14 @@ export default async function ProspectDetailPage({
       .eq('intel_type', 'enrichment')
       .order('created_at', { ascending: false })
       .limit(1),
+    supabase
+      .from('prospect_intel')
+      .select(INTEL_SELECT_COLUMNS)
+      .eq('prospect_id', id)
+      .eq('intel_type', 'signal')
+      .eq('source', CALL_PITCH_SOURCE)
+      .order('created_at', { ascending: false })
+      .limit(1),
     getMockupForProspect(supabase, id),
     getSiteBriefForProspect(supabase, id),
   ]);
@@ -136,6 +148,9 @@ export default async function ProspectDetailPage({
   const intel: EnrichmentPayload | null = intelRow?.payload ?? null;
   const intelDate = intelRow?.created_at ?? null;
 
+  const callPitchRow = (callPitchRes.data?.[0] ?? null) as unknown as ProspectIntelRow | null;
+  const callPitch: CallPitch | null = parseCallPitch(callPitchRow?.payload ?? null);
+
   return (
     <ProspectDetailClient
       initialProspect={prospect}
@@ -147,6 +162,7 @@ export default async function ProspectDetailPage({
       canViewFinance={isAdmin}
       intel={intel}
       intelCreatedAt={intelDate}
+      callPitch={callPitch}
       mockup={mockup}
       brief={brief}
       mockupProspectId={id}
