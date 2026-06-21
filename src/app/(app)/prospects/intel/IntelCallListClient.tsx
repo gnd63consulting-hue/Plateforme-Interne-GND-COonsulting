@@ -213,20 +213,31 @@ export default function IntelCallListClient({ rows }: { rows: IntelRowVM[] }) {
   }, [rows, q, filter, allPipeline]);
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-6">
-      {/* En-tete */}
-      <header className="mb-5">
-        <div className="flex items-center gap-2">
-          <Phone className="h-5 w-5 text-brand-dark" aria-hidden />
-          <h1 className="font-marcellus text-2xl text-choco">Liste d&apos;appel</h1>
+    <div className="mx-auto max-w-5xl px-4 py-8">
+      {/* En-tete premium */}
+      <header className="relative mb-8 overflow-hidden">
+        <span
+          className="watermark pointer-events-none absolute -right-2 -top-10 select-none text-[120px] leading-none"
+          aria-hidden
+        >
+          Appels
+        </span>
+        <span className="label-eyebrow">Priorisation Selene</span>
+        <div className="mt-2 flex items-center gap-3">
+          <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-brand-pale text-brand-dark shadow-soft">
+            <Phone className="h-5 w-5" aria-hidden />
+          </span>
+          <h1 className="font-marcellus text-[2rem] leading-tight tracking-tight text-choco">
+            Liste d&apos;appel
+          </h1>
         </div>
-        <p className="mt-1 text-sm text-muted-warm">
+        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[#6F5A50]">
           Prospects priorises par Selene (score de chaleur) et enrichis par
           l&apos;IA (cascade FR). La liste se trie du plus chaud au plus froid et
           n&apos;affiche par defaut que les fiches encore a appeler : les
           prospects traites disparaissent tout seuls.
         </p>
-        <div className="mt-3 flex flex-wrap gap-2 text-xs">
+        <div className="mt-5 flex flex-wrap gap-2 text-xs">
           <StatChip label="A appeler" value={stats.callable} tone="bronze" />
           <StatChip label="Prospects" value={stats.total} />
           <StatChip label="Avec tel" value={stats.withTel} tone="emerald" />
@@ -236,14 +247,14 @@ export default function IntelCallListClient({ rows }: { rows: IntelRowVM[] }) {
       </header>
 
       {/* Recherche + filtres */}
-      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+      <div className="surface-glass mb-4 flex flex-col gap-3 rounded-3xl p-4 sm:flex-row sm:items-center">
         <label className="relative flex-1">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-warm/60" aria-hidden />
+          <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-warm/60" aria-hidden />
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Rechercher une entreprise, un dirigeant, une ville..."
-            className="w-full rounded-xl border border-border-soft bg-white py-2 pl-9 pr-3 text-sm text-ink-warm placeholder:text-muted-warm/50 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+            className="w-full rounded-2xl border border-border-soft bg-cream/60 py-2.5 pl-11 pr-3 text-sm text-ink-warm placeholder:text-muted-warm/50 transition focus:border-brand focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring"
           />
         </label>
         <div className="flex flex-wrap gap-1.5">
@@ -252,9 +263,9 @@ export default function IntelCallListClient({ rows }: { rows: IntelRowVM[] }) {
               key={f.value}
               type="button"
               onClick={() => setFilter(f.value)}
-              className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition-colors ${
+              className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition ${
                 filter === f.value
-                  ? 'bg-brand text-choco'
+                  ? 'bg-brand text-[#2A1810] shadow-soft'
                   : 'border border-border-soft bg-white text-ink-warm hover:bg-cream-deep'
               }`}
             >
@@ -265,9 +276,9 @@ export default function IntelCallListClient({ rows }: { rows: IntelRowVM[] }) {
       </div>
 
       {/* Toggle "tout mon pipeline" + export CSV de la vue courante */}
-      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <label
-          className={`inline-flex cursor-pointer select-none items-center gap-2 rounded-xl border px-3 py-1.5 text-xs font-semibold transition-colors ${
+          className={`inline-flex cursor-pointer select-none items-center gap-2 rounded-full border px-3.5 py-1.5 text-xs font-semibold transition ${
             allPipeline
               ? 'border-brand bg-cream-deep text-brand-dark'
               : 'border-border-soft bg-white text-ink-warm hover:bg-cream-deep'
@@ -291,7 +302,7 @@ export default function IntelCallListClient({ rows }: { rows: IntelRowVM[] }) {
           type="button"
           onClick={() => downloadCsv(filtered)}
           disabled={filtered.length === 0}
-          className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-border-soft bg-white px-3 py-1.5 text-xs font-semibold text-ink-warm transition-colors hover:bg-cream-deep disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex items-center justify-center gap-1.5 rounded-full border border-border-soft bg-white px-3.5 py-1.5 text-xs font-semibold text-ink-warm transition hover:bg-cream-deep disabled:cursor-not-allowed disabled:opacity-50"
           title="Exporter la liste affichee (filtres + tri appliques) au format CSV"
         >
           <Download className="h-3.5 w-3.5" aria-hidden />
@@ -302,15 +313,20 @@ export default function IntelCallListClient({ rows }: { rows: IntelRowVM[] }) {
 
       {/* Liste — deja triee par score Selene cote serveur (la plus chaude en tete) */}
       {filtered.length === 0 ? (
-        <p className="rounded-3xl border border-border-soft bg-white p-8 text-center text-sm text-muted-warm shadow-soft">
-          {rows.length === 0
-            ? "Aucun prospect pour le moment. L'enrichissement Atlas remplira cette liste."
-            : filter === 'callable' && !allPipeline
-            ? 'Aucun prospect a appeler pour le moment. Les fiches traitees sont masquees (active "Voir tout mon pipeline" ou le filtre "Tous").'
-            : 'Aucun prospect ne correspond a ce filtre.'}
-        </p>
+        <div className="surface-ceramic flex flex-col items-center gap-3 rounded-3xl p-10 text-center">
+          <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-pale text-brand-dark">
+            <PhoneCall className="h-5 w-5" aria-hidden />
+          </span>
+          <p className="max-w-md text-sm leading-relaxed text-[#6F5A50]">
+            {rows.length === 0
+              ? "Aucun prospect pour le moment. L'enrichissement Atlas remplira cette liste."
+              : filter === 'callable' && !allPipeline
+              ? 'Aucun prospect a appeler pour le moment. Les fiches traitees sont masquees (active "Voir tout mon pipeline" ou le filtre "Tous").'
+              : 'Aucun prospect ne correspond a ce filtre.'}
+          </p>
+        </div>
       ) : (
-        <ul className="space-y-3">
+        <ul className="space-y-4">
           {filtered.map((r) => (
             <IntelCard key={r.id} r={r} />
           ))}
@@ -330,13 +346,13 @@ function StatChip({
   tone?: 'slate' | 'emerald' | 'amber' | 'bronze';
 }) {
   const tones: Record<string, string> = {
-    slate: 'bg-cream-deep text-ink-warm',
-    emerald: 'bg-emerald-100 text-emerald-700',
-    amber: 'bg-amber-100 text-amber-800',
-    bronze: 'bg-cream-deep text-brand-dark ring-1 ring-[rgba(74,36,26,0.12)]/15',
+    slate: 'bg-cream-deep text-ink-warm ring-1 ring-[rgba(74,36,26,0.08)]',
+    emerald: 'bg-ok-bg text-ok-fg',
+    amber: 'bg-warn-bg text-warn-fg',
+    bronze: 'bg-brand-pale text-brand-burnt ring-1 ring-[rgba(74,36,26,0.12)]',
   };
   return (
-    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-semibold ${tones[tone]}`}>
+    <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 font-semibold shadow-soft ${tones[tone]}`}>
       {label}
       <span className="tabular-nums">{value}</span>
     </span>
@@ -446,14 +462,14 @@ function IntelCard({ r }: { r: IntelRowVM }) {
   }
 
   return (
-    <li className="rounded-3xl border border-border-soft bg-white p-4 shadow-soft">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+    <li className="surface-ceramic card-hover rounded-3xl p-5">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         {/* Infos */}
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <Link
               href={`/prospects/${r.id}`}
-              className="font-marcellus text-lg text-choco underline-offset-2 hover:underline"
+              className="font-marcellus text-xl text-choco underline-offset-4 transition hover:text-brand-dark hover:underline"
             >
               {r.company}
             </Link>
@@ -497,11 +513,11 @@ function IntelCard({ r }: { r: IntelRowVM }) {
 
           {/* Angle GND = le pitch pret a l'emploi (enrichissement Atlas) */}
           {r.angle && (
-            <div className="mt-2 rounded-2xl bg-cream-deep/60 p-2.5 ring-1 ring-[rgba(74,36,26,0.12)]/8">
-              <p className="flex items-start gap-1.5 text-xs text-ink-warm">
+            <div className="surface-accent mt-3 rounded-2xl p-3">
+              <p className="flex items-start gap-2 text-xs leading-relaxed text-ink-warm">
                 <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-dark" aria-hidden />
                 <span>
-                  <span className="font-semibold">Angle : </span>
+                  <span className="font-semibold text-brand-burnt">Angle : </span>
                   {r.angle}
                   {r.signal ? <span className="text-muted-warm"> &mdash; {r.signal}</span> : null}
                 </span>
@@ -547,40 +563,42 @@ function IntelCard({ r }: { r: IntelRowVM }) {
         </div>
 
         {/* Action phone-first */}
-        <div className="flex shrink-0 items-center gap-2 sm:flex-col sm:items-stretch">
+        <div className="flex shrink-0 items-center gap-2 sm:w-44 sm:flex-col sm:items-stretch">
           {href ? (
             <a
               href={href}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand px-4 py-2.5 text-sm font-semibold text-choco transition-colors hover:bg-brand-dark"
+              className="orange-glow inline-flex items-center justify-center gap-2 rounded-full bg-brand px-5 py-3 text-base font-semibold text-[#2A1810] shadow-soft-md transition hover:bg-brand-dark hover:-translate-y-0.5"
             >
-              <Phone className="h-4 w-4" aria-hidden />
+              <Phone className="h-5 w-5" aria-hidden />
               {r.tel}
             </a>
           ) : (
-            <span className="inline-flex items-center justify-center gap-2 rounded-xl bg-cream-deep px-4 py-2.5 text-sm font-medium text-muted-warm">
-              <Phone className="h-4 w-4" aria-hidden />
+            <span className="inline-flex items-center justify-center gap-2 rounded-full bg-cream-deep px-5 py-3 text-sm font-medium text-muted-warm">
+              <Phone className="h-5 w-5" aria-hidden />
               Pas de tel
             </span>
           )}
-          <button
-            type="button"
-            onClick={() => setLogOpen((v) => !v)}
-            className={`inline-flex items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold transition-colors ${
-              logOpen
-                ? 'bg-brand text-choco'
-                : 'border border-border-soft bg-white text-ink-warm hover:bg-cream-deep'
-            }`}
-          >
-            <PhoneCall className="h-3.5 w-3.5" aria-hidden />
-            Loguer l&apos;appel
-          </button>
-          <Link
-            href={`/prospects/${r.id}`}
-            className="inline-flex items-center justify-center gap-1 rounded-xl border border-border-soft bg-white px-3 py-2 text-xs font-semibold text-ink-warm hover:bg-cream-deep"
-          >
-            Fiche
-            <ChevronRight className="h-3.5 w-3.5" aria-hidden />
-          </Link>
+          <div className="flex items-center gap-2 sm:gap-1.5">
+            <button
+              type="button"
+              onClick={() => setLogOpen((v) => !v)}
+              className={`inline-flex flex-1 items-center justify-center gap-1.5 rounded-full px-3 py-2 text-xs font-semibold transition ${
+                logOpen
+                  ? 'bg-brand-pale text-brand-burnt ring-1 ring-[rgba(74,36,26,0.12)]'
+                  : 'border border-border-soft bg-white text-[#6F5A50] hover:bg-cream-deep hover:text-choco'
+              }`}
+            >
+              <PhoneCall className="h-3.5 w-3.5" aria-hidden />
+              Loguer l&apos;appel
+            </button>
+            <Link
+              href={`/prospects/${r.id}`}
+              className="inline-flex items-center justify-center gap-1 rounded-full border border-border-soft bg-white px-3 py-2 text-xs font-semibold text-[#6F5A50] transition hover:bg-cream-deep hover:text-choco"
+            >
+              Fiche
+              <ChevronRight className="h-3.5 w-3.5" aria-hidden />
+            </Link>
+          </div>
         </div>
       </div>
 
