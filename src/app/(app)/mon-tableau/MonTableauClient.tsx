@@ -127,7 +127,7 @@ function StageCard({
       tone="cream"
       as="section"
       aria-label={`${col.label} — ${col.count} prospect${col.count > 1 ? 's' : ''}, ${formatEur(col.valeur)}`}
-      className="flex flex-col p-4"
+      className="surface-ceramic card-hover flex flex-col rounded-2xl p-4"
     >
       {/* En-tête : libellé + point d'accent · compteur */}
       <div className="flex items-center justify-between gap-2">
@@ -168,7 +168,7 @@ function StageCard({
       {/* Aperçu : au plus 2 prospects (nom + montant), liens fiches */}
       <div className="mt-3 flex flex-1 flex-col gap-1.5">
         {col.cards.length === 0 ? (
-          <p className="rounded-lg border border-dashed border-border-soft/70 px-2.5 py-3 text-center font-inter text-[10px] uppercase tracking-[0.12em] text-muted-warm/70">
+          <p className="rounded-xl border border-dashed border-[rgba(74,36,26,0.10)] px-2.5 py-3 text-center font-inter text-[10px] uppercase tracking-[0.12em] text-muted-warm/70">
             Vide
           </p>
         ) : (
@@ -176,7 +176,7 @@ function StageCard({
             <Link
               key={card.id}
               href={`/prospects/${card.id}`}
-              className="group flex items-center gap-1.5 rounded-lg border border-transparent px-1.5 py-1 transition-colors hover:border-border-soft/70 hover:bg-surface-soft focus-visible:border-border-soft focus-visible:bg-surface-soft focus-visible:outline-none"
+              className="group flex items-center gap-1.5 rounded-xl border border-transparent px-1.5 py-1 transition-colors hover:border-[rgba(74,36,26,0.10)] hover:bg-cream-deep focus-visible:border-[rgba(74,36,26,0.10)] focus-visible:bg-cream-deep focus-visible:outline-none"
             >
               {card.hot && (
                 <Flame
@@ -271,31 +271,44 @@ export default function MonTableauClient({ data }: { data: MonTableauData }) {
       {/* En-tête : eyebrow + « Bonjour <prénom> » + date / Export          */}
       {/* ---------------------------------------------------------------- */}
       <motion.div variants={item}>
-        <SectionHeader
-          as="h1"
-          eyebrow="Mon tableau de bord"
-          title={
-            <>
-              Bonjour <span className="italic text-brand-dark">{prenom}</span>
-            </>
-          }
-          subtitle="Ton activité commerciale en un coup d'œil — pipeline, relances et commission."
-          action={
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-border-soft bg-surface-soft px-3.5 py-1.5 text-sm font-medium text-ink-warm">
-                <CalendarDays
-                  className="h-3.5 w-3.5 text-muted-warm"
-                  aria-hidden
-                />
-                {todayLabel()}
-              </span>
-              <Button href="/prospects" variant="outline" size="sm">
-                <Upload className="h-3.5 w-3.5" aria-hidden />
-                Exporter
-              </Button>
-            </div>
-          }
-        />
+        <div className="surface-chocolate orange-glow relative overflow-hidden rounded-3xl px-7 py-7 sm:px-9 sm:py-8">
+          {/* Filigrane éditorial Marcellus en fond de hero */}
+          <span
+            aria-hidden
+            className="watermark pointer-events-none absolute -right-4 -top-6 select-none font-marcellus text-[120px] leading-none text-cream/10"
+          >
+            {prenom}
+          </span>
+
+          <div className="relative z-10">
+            <SectionHeader
+              as="h1"
+              eyebrow="Mon tableau de bord"
+              title={
+                <>
+                  Bonjour <span className="italic text-brand">{prenom}</span>
+                </>
+              }
+              subtitle="Ton activité commerciale en un coup d'œil — pipeline, relances et commission."
+              className="[&_h1]:text-cream [&_p]:text-cream/70"
+              action={
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-cream/20 bg-cream/10 px-3.5 py-1.5 text-sm font-medium text-cream">
+                    <CalendarDays
+                      className="h-3.5 w-3.5 text-cream/70"
+                      aria-hidden
+                    />
+                    {todayLabel()}
+                  </span>
+                  <Button href="/prospects" variant="outline" size="sm">
+                    <Upload className="h-3.5 w-3.5" aria-hidden />
+                    Exporter
+                  </Button>
+                </div>
+              }
+            />
+          </div>
+        </div>
       </motion.div>
 
       {/* ---------------------------------------------------------------- */}
@@ -305,6 +318,7 @@ export default function MonTableauClient({ data }: { data: MonTableauData }) {
         {/* 1 — Prospects actifs + mini barres */}
         <motion.div variants={item}>
           <StatCard
+            className="surface-ceramic card-hover rounded-3xl"
             icon={<Users className="h-5 w-5" aria-hidden />}
             label="Prospects actifs"
             value={String(pipelineActifCount)}
@@ -322,6 +336,7 @@ export default function MonTableauClient({ data }: { data: MonTableauData }) {
         {/* 2 — Relances du jour + mini donut + « X en retard » rouge */}
         <motion.div variants={item}>
           <StatCard
+            className="surface-ceramic card-hover rounded-3xl"
             icon={<AlarmClock className="h-5 w-5" aria-hidden />}
             label="Relances du jour"
             value={String(relancesAujourdhui)}
@@ -335,7 +350,7 @@ export default function MonTableauClient({ data }: { data: MonTableauData }) {
             }
             sub={
               relancesEnRetard > 0 ? (
-                <span className="font-semibold text-rose-600">
+                <span className="font-semibold text-danger-fg">
                   {relancesEnRetard} en retard
                 </span>
               ) : (
@@ -348,6 +363,7 @@ export default function MonTableauClient({ data }: { data: MonTableauData }) {
         {/* 3 — CA potentiel + mini courbe (aire) */}
         <motion.div variants={item}>
           <StatCard
+            className="surface-ceramic card-hover rounded-3xl"
             icon={<TrendingUp className="h-5 w-5" aria-hidden />}
             label="CA potentiel"
             value={formatEur(caPotentiel)}
@@ -367,6 +383,7 @@ export default function MonTableauClient({ data }: { data: MonTableauData }) {
         <motion.div variants={item}>
           <StatCard
             accent
+            className="surface-chocolate orange-glow rounded-3xl"
             icon={<Wallet className="h-5 w-5" aria-hidden />}
             label="Ma commission"
             value={formatEur(commissionReelleTotale)}
@@ -391,6 +408,7 @@ export default function MonTableauClient({ data }: { data: MonTableauData }) {
         {/* 5 — Signatures + mini courbe verte */}
         <motion.div variants={item}>
           <StatCard
+            className="surface-ceramic card-hover rounded-3xl"
             icon={<Award className="h-5 w-5" aria-hidden />}
             label="Signatures"
             value={String(signatures)}
@@ -413,7 +431,7 @@ export default function MonTableauClient({ data }: { data: MonTableauData }) {
       {/* contenue. Le Kanban complet vit sur /prospects.                   */}
       {/* ---------------------------------------------------------------- */}
       <motion.div variants={item}>
-        <Card className="p-6">
+        <Card className="surface-ceramic rounded-3xl p-6">
           <SectionHeader
             icon={<TrendingUp className="h-4 w-4" aria-hidden />}
             title="Mon pipeline"
@@ -426,10 +444,18 @@ export default function MonTableauClient({ data }: { data: MonTableauData }) {
           />
 
           {pipelineEmpty ? (
-            <p className="mt-6 text-sm text-muted-warm">
-              Aucun prospect dans le pipeline pour l&apos;instant. Dès que tu
-              avances une fiche, elle apparaît ici.
-            </p>
+            <div className="mt-6 flex flex-col items-center justify-center rounded-3xl border border-[rgba(74,36,26,0.10)] bg-cream/60 px-6 py-12 text-center">
+              <span
+                aria-hidden
+                className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-pale text-brand-dark"
+              >
+                <TrendingUp className="h-6 w-6" />
+              </span>
+              <p className="max-w-sm text-sm text-[#6F5A50]">
+                Aucun prospect dans le pipeline pour l&apos;instant. Dès que tu
+                avances une fiche, elle apparaît ici.
+              </p>
+            </div>
           ) : (
             <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
               {pipelineSnapshot.map((col) => (
@@ -453,21 +479,21 @@ export default function MonTableauClient({ data }: { data: MonTableauData }) {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Relances */}
         <motion.div variants={item}>
-          <Card className="h-full p-6">
+          <Card className="surface-ceramic card-hover h-full rounded-3xl p-6">
             <SectionHeader
               icon={<AlarmClock className="h-4 w-4" aria-hidden />}
               title="Relances"
             />
             <div className="mt-5 space-y-2.5" aria-live="polite">
-              <div className="flex items-center justify-between rounded-xl border border-[#EFBFBF] bg-[#F7D7D7]/50 px-3.5 py-2.5">
-                <span className="text-sm font-medium text-[#A04A4A]">
+              <div className="flex items-center justify-between rounded-2xl border border-danger-fg/20 bg-danger-bg px-3.5 py-2.5">
+                <span className="text-sm font-medium text-danger-fg">
                   En retard
                 </span>
-                <span className="font-marcellus text-xl tabular-nums text-[#A04A4A]">
+                <span className="font-marcellus text-xl tabular-nums text-danger-fg">
                   {relancesEnRetard}
                 </span>
               </div>
-              <div className="flex items-center justify-between rounded-xl border border-brand/25 bg-brand-soft px-3.5 py-2.5">
+              <div className="flex items-center justify-between rounded-2xl border border-brand/25 bg-brand-soft px-3.5 py-2.5">
                 <span className="text-sm font-medium text-choco">
                   Aujourd&apos;hui
                 </span>
@@ -475,11 +501,11 @@ export default function MonTableauClient({ data }: { data: MonTableauData }) {
                   {relancesAujourdhui}
                 </span>
               </div>
-              <div className="flex items-center justify-between rounded-xl border border-[#C4E7D1] bg-[#DDF2E4]/60 px-3.5 py-2.5">
-                <span className="text-sm font-medium text-[#3A7A52]">
+              <div className="flex items-center justify-between rounded-2xl border border-ok-fg/20 bg-ok-bg px-3.5 py-2.5">
+                <span className="text-sm font-medium text-ok-fg">
                   À venir (7j)
                 </span>
-                <span className="font-marcellus text-xl tabular-nums text-[#3A7A52]">
+                <span className="font-marcellus text-xl tabular-nums text-ok-fg">
                   {relancesAVenir}
                 </span>
               </div>
@@ -496,20 +522,31 @@ export default function MonTableauClient({ data }: { data: MonTableauData }) {
 
         {/* Activité récente */}
         <motion.div variants={item}>
-          <Card className="h-full p-6">
+          <Card className="surface-ceramic card-hover h-full rounded-3xl p-6">
             <SectionHeader
               icon={<AlarmClock className="h-4 w-4" aria-hidden />}
               title="Activité récente"
             />
             {activites.length === 0 ? (
-              <p className="mt-5 text-sm text-muted-warm">
-                Aucune activité enregistrée. Tes appels, emails et notes
-                apparaîtront ici.
-              </p>
+              <div className="mt-5 flex flex-col items-center justify-center rounded-3xl border border-[rgba(74,36,26,0.10)] bg-cream/60 px-5 py-10 text-center">
+                <span
+                  aria-hidden
+                  className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-pale text-brand-dark"
+                >
+                  <AlarmClock className="h-5 w-5" />
+                </span>
+                <p className="max-w-xs text-sm text-[#6F5A50]">
+                  Aucune activité enregistrée. Tes appels, emails et notes
+                  apparaîtront ici.
+                </p>
+              </div>
             ) : (
               <ul className="mt-5 space-y-3">
                 {activites.slice(0, 5).map((a) => (
-                  <li key={a.id} className="flex items-start gap-3">
+                  <li
+                    key={a.id}
+                    className="flex items-start gap-3 rounded-2xl px-1.5 py-1.5 transition-colors hover:bg-cream-deep/60"
+                  >
                     <span
                       aria-hidden
                       className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-soft text-sm"
@@ -543,7 +580,7 @@ export default function MonTableauClient({ data }: { data: MonTableauData }) {
 
         {/* Ma commission — objectif mensuel + barre */}
         <motion.div variants={item}>
-          <Card className="h-full p-6">
+          <Card className="surface-ceramic card-hover h-full rounded-3xl p-6">
             <SectionHeader
               icon={<Wallet className="h-4 w-4" aria-hidden />}
               title="Ma commission"
