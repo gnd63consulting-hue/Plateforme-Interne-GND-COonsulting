@@ -107,41 +107,65 @@ export default function ReportingClient({ data }: { data: ReportingPageData }) {
   }
 
   return (
-    <div style={{ maxWidth: 1040, margin: '0 auto', padding: '40px 28px 64px', color: INK }}>
+    <div style={{ maxWidth: 1040, margin: '0 auto', padding: '40px 28px 72px', color: INK }}>
       {/* Header */}
-      <header style={{ marginBottom: 30 }}>
+      <header style={{ position: 'relative', marginBottom: 36 }}>
+        <span
+          aria-hidden
+          style={{
+            position: 'absolute',
+            top: -28,
+            right: -8,
+            fontFamily: SERIF,
+            fontSize: 116,
+            fontWeight: 500,
+            letterSpacing: '-0.02em',
+            lineHeight: 1,
+            color: CHOCO,
+            opacity: 0.045,
+            pointerEvents: 'none',
+            userSelect: 'none',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          Reporting
+        </span>
         <div
           style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 8,
             fontFamily: SANS,
             fontSize: 10,
             fontWeight: 600,
             textTransform: 'uppercase',
             letterSpacing: '0.22em',
             color: BRAND_DARK,
-            marginBottom: 10,
+            marginBottom: 12,
           }}
         >
+          <span style={{ width: 18, height: 1.5, borderRadius: 2, background: BRAND }} />
           ADMIN · REPORTING AVANCÉ
         </div>
         <h1
           style={{
             fontFamily: SERIF,
-            fontSize: 32,
+            fontSize: 34,
             fontWeight: 500,
-            letterSpacing: '-0.01em',
+            letterSpacing: '-0.015em',
             color: CHOCO,
             margin: 0,
-            lineHeight: 1.1,
+            lineHeight: 1.08,
           }}
         >
           Reporting avancé
         </h1>
-        <p style={{ fontSize: 14, lineHeight: 1.55, color: INK_SOFT, marginTop: 12, maxWidth: 660 }}>
+        <p style={{ fontSize: 14, lineHeight: 1.6, color: INK_SOFT, marginTop: 14, maxWidth: 660 }}>
           Funnel de conversion, prévision de chiffre d&apos;affaires pondérée par le
           pipeline, comparaison de périodes et export du carnet de prospects.
           Les montants sont réservés à cette console admin.
         </p>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginTop: 22 }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14, marginTop: 26 }}>
           <Stat label="Prospects" value={String(totals.prospects)} color={CHOCO} />
           <Stat label="Deals ouverts" value={String(totals.openDeals)} color={BRAND_DARK} />
           <Stat label="Avec montant" value={String(totals.withAmount)} color={GREEN} />
@@ -155,11 +179,11 @@ export default function ReportingClient({ data }: { data: ReportingPageData }) {
           étape à la suivante. Les sorties (perdu / ne plus démarcher) sont
           exclues.
         </p>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           {funnel.map((stage) => {
             const widthPct = Math.max(2, Math.round((stage.count / maxFunnel) * 100));
             return (
-              <div key={stage.columnId} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+              <div key={stage.columnId} style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                 <div
                   style={{
                     width: 168,
@@ -172,13 +196,14 @@ export default function ReportingClient({ data }: { data: ReportingPageData }) {
                 >
                   {stage.label}
                 </div>
-                <div style={{ flex: 1, position: 'relative', height: 30 }}>
+                <div style={{ flex: 1, position: 'relative', height: 34 }}>
                   <div
                     style={{
                       position: 'absolute',
                       inset: 0,
-                      borderRadius: 8,
-                      background: '#F3EADF',
+                      borderRadius: 999,
+                      background: '#F4ECE1',
+                      boxShadow: 'inset 0 1px 2px rgba(83,36,24,0.05)',
                     }}
                   />
                   <div
@@ -188,13 +213,14 @@ export default function ReportingClient({ data }: { data: ReportingPageData }) {
                       left: 0,
                       bottom: 0,
                       width: `${widthPct}%`,
-                      borderRadius: 8,
+                      borderRadius: 999,
                       background: `linear-gradient(90deg, ${BRAND}, ${BRAND_DARK})`,
+                      boxShadow: '0 1px 4px rgba(181,96,28,0.28)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'flex-end',
-                      paddingRight: 10,
-                      minWidth: 34,
+                      paddingRight: 12,
+                      minWidth: 38,
                       transition: 'width 0.4s ease',
                     }}
                   >
@@ -255,11 +281,12 @@ export default function ReportingClient({ data }: { data: ReportingPageData }) {
             flexWrap: 'wrap',
             gap: 16,
             alignItems: 'baseline',
-            marginBottom: 22,
-            padding: '16px 18px',
-            background: CREAM_HEAD,
-            border: `1px solid ${BORDER}`,
-            borderRadius: 14,
+            marginBottom: 24,
+            padding: '20px 22px',
+            background: 'linear-gradient(135deg, #FCF6EE, #F9EFE2)',
+            border: '1px solid rgba(243,146,83,0.30)',
+            borderRadius: 18,
+            boxShadow: '0 1px 3px rgba(83,36,24,0.05)',
           }}
         >
           <div>
@@ -267,7 +294,7 @@ export default function ReportingClient({ data }: { data: ReportingPageData }) {
             <div
               style={{
                 fontFamily: SERIF,
-                fontSize: 30,
+                fontSize: 32,
                 fontWeight: 500,
                 color: BRAND_DARK,
                 lineHeight: 1,
@@ -282,11 +309,11 @@ export default function ReportingClient({ data }: { data: ReportingPageData }) {
           </div>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           {forecast.breakdown.map((b) => {
             const widthPct = Math.max(2, Math.round((b.weightedAmount / maxForecast) * 100));
             return (
-              <div key={b.columnId} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+              <div key={b.columnId} style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                 <div
                   style={{
                     width: 168,
@@ -302,8 +329,16 @@ export default function ReportingClient({ data }: { data: ReportingPageData }) {
                     {' '}· {Math.round(b.probability * 100)}%
                   </span>
                 </div>
-                <div style={{ flex: 1, position: 'relative', height: 30 }}>
-                  <div style={{ position: 'absolute', inset: 0, borderRadius: 8, background: '#F3EADF' }} />
+                <div style={{ flex: 1, position: 'relative', height: 34 }}>
+                  <div
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      borderRadius: 999,
+                      background: '#F4ECE1',
+                      boxShadow: 'inset 0 1px 2px rgba(83,36,24,0.05)',
+                    }}
+                  />
                   <div
                     style={{
                       position: 'absolute',
@@ -311,9 +346,10 @@ export default function ReportingClient({ data }: { data: ReportingPageData }) {
                       left: 0,
                       bottom: 0,
                       width: `${widthPct}%`,
-                      borderRadius: 8,
+                      borderRadius: 999,
                       background: `linear-gradient(90deg, ${BRAND}, ${BRAND_DARK})`,
-                      minWidth: 4,
+                      boxShadow: '0 1px 4px rgba(181,96,28,0.28)',
+                      minWidth: 6,
                       transition: 'width 0.4s ease',
                     }}
                   />
@@ -403,8 +439,8 @@ export default function ReportingClient({ data }: { data: ReportingPageData }) {
               display: 'inline-flex',
               alignItems: 'center',
               gap: 9,
-              padding: '11px 18px',
-              borderRadius: 12,
+              padding: '12px 22px',
+              borderRadius: 999,
               border: 'none',
               cursor: exportRows.length === 0 ? 'not-allowed' : 'pointer',
               background: `linear-gradient(135deg, ${BRAND}, ${BRAND_DARK})`,
@@ -413,7 +449,8 @@ export default function ReportingClient({ data }: { data: ReportingPageData }) {
               fontSize: 13,
               fontWeight: 600,
               opacity: exporting || exportRows.length === 0 ? 0.6 : 1,
-              boxShadow: '0 1px 3px rgba(83,36,24,0.10)',
+              boxShadow: '0 6px 18px rgba(243,146,83,0.30), 0 1px 3px rgba(83,36,24,0.10)',
+              transition: 'transform 0.15s ease, box-shadow 0.15s ease',
             }}
           >
             <Download size={16} strokeWidth={2} />
@@ -453,20 +490,47 @@ function Section({
   return (
     <section
       style={{
+        position: 'relative',
         background: CARD_BG,
         border: `1px solid ${BORDER}`,
-        borderRadius: 18,
-        padding: '24px 26px',
-        marginBottom: 22,
-        boxShadow: '0 1px 3px rgba(83,36,24,0.06)',
+        borderRadius: 26,
+        padding: '26px 28px',
+        marginBottom: 26,
+        boxShadow: '0 10px 30px -18px rgba(83,36,24,0.18), 0 1px 2px rgba(83,36,24,0.05)',
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 11, marginBottom: 6 }}>
+      <span
+        aria-hidden
+        style={{
+          position: 'absolute',
+          top: 22,
+          right: 26,
+          fontFamily: SERIF,
+          fontSize: 13,
+          fontWeight: 500,
+          letterSpacing: '0.04em',
+          color: BRAND_DARK,
+          opacity: 0.45,
+          fontVariantNumeric: 'tabular-nums',
+        }}
+      >
+        {eyebrow}
+      </span>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 13,
+          marginBottom: 4,
+          paddingBottom: 16,
+          borderBottom: '1px solid rgba(74,36,26,0.08)',
+        }}
+      >
         <div
           style={{
-            width: 30,
-            height: 30,
-            borderRadius: 9,
+            width: 38,
+            height: 38,
+            borderRadius: 13,
             background: 'rgba(243,146,83,0.14)',
             border: '1px solid rgba(243,146,83,0.30)',
             display: 'flex',
@@ -474,16 +538,17 @@ function Section({
             justifyContent: 'center',
             color: BRAND_DARK,
             flexShrink: 0,
+            boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.5)',
           }}
         >
-          <Icon size={16} strokeWidth={1.8} />
+          <Icon size={18} strokeWidth={1.8} />
         </div>
         <div>
-          <div style={eyebrowStyle}>{eyebrow}</div>
+          <div style={{ ...eyebrowStyle, color: BRAND_DARK, marginBottom: 4 }}>{eyebrow}</div>
           <h2
             style={{
               fontFamily: SERIF,
-              fontSize: 20,
+              fontSize: 21,
               fontWeight: 500,
               color: CHOCO,
               margin: 0,
@@ -494,7 +559,7 @@ function Section({
           </h2>
         </div>
       </div>
-      <div style={{ marginTop: 16 }}>{children}</div>
+      <div style={{ marginTop: 18 }}>{children}</div>
     </section>
   );
 }
@@ -505,18 +570,33 @@ function Stat({ label, value, color }: { label: string; value: string; color: st
       style={{
         flex: 1,
         minWidth: 150,
+        position: 'relative',
         background: CARD_BG,
         border: `1px solid ${BORDER}`,
-        borderRadius: 16,
-        padding: '14px 18px',
-        boxShadow: '0 1px 3px rgba(83,36,24,0.06)',
+        borderRadius: 20,
+        padding: '16px 20px',
+        boxShadow: '0 10px 26px -20px rgba(83,36,24,0.20), 0 1px 2px rgba(83,36,24,0.05)',
+        overflow: 'hidden',
       }}
     >
-      <div style={eyebrowStyle}>{label}</div>
+      <span
+        aria-hidden
+        style={{
+          position: 'absolute',
+          top: 16,
+          left: 0,
+          width: 3,
+          height: 22,
+          borderRadius: 2,
+          background: BRAND,
+        }}
+      />
+      <div style={{ ...eyebrowStyle, paddingLeft: 12 }}>{label}</div>
       <div
         style={{
+          paddingLeft: 12,
           fontFamily: SERIF,
-          fontSize: 26,
+          fontSize: 27,
           fontWeight: 500,
           color,
           lineHeight: 1,
@@ -546,10 +626,11 @@ function CompareCard({
   return (
     <div
       style={{
-        background: CREAM_HEAD,
+        background: 'linear-gradient(135deg, #FCF8F2, #F8F1E8)',
         border: `1px solid ${BORDER}`,
-        borderRadius: 14,
-        padding: '16px 18px',
+        borderRadius: 18,
+        padding: '17px 20px',
+        boxShadow: '0 1px 2px rgba(83,36,24,0.04)',
       }}
     >
       <div style={eyebrowStyle}>{label}</div>
