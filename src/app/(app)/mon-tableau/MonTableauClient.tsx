@@ -1,43 +1,33 @@
 'use client';
 
 import Link from 'next/link';
+import { motion, useReducedMotion, type Variants } from 'framer-motion';
 import {
-  motion,
-  useReducedMotion,
-  type Variants,
-} from 'framer-motion';
-import {
-  ArrowRight,
-  Users,
-  AlarmClock,
   TrendingUp,
   Wallet,
-  Award,
-  Upload,
   CalendarDays,
   Flame,
+  ArrowUpRight,
 } from 'lucide-react';
 import { formatEur } from '@/lib/ca-utils';
 import {
   iconForActivityKind,
   labelForActivityKind,
 } from '@/lib/activities';
-import {
-  Card,
-  StatCard,
-  SparklineSVG,
-  DonutSVG,
-  SectionHeader,
-  StatusBadge,
-  Button,
-} from '@/components/ui';
+import { SparklineSVG, DonutSVG } from '@/components/ui';
 import { columnById, type PipelineColumnId } from '@/lib/pipeline';
-import {
-  type MonTableauData,
-  type PipelineSnapshotColumn,
-} from './types';
+import { type MonTableauData } from './types';
 
-/* ---------- helpers ---------- */
+/* ----------------------------------------------------------------------------
+ * MON TABLEAU — refonte premium DS v3 (bento editorial, juin 2026).
+ *
+ * Direction artistique : canvas creme, UN accent (orange brule), profondeur
+ * chocolat (jamais noir). Type a caractere : Marcellus en display, Space
+ * Grotesk pour les eyebrows/labels, JetBrains Mono pour TOUS les chiffres
+ * (signal "produit designe"). Bento ASYMETRIQUE — aucune rangee de tuiles
+ * egales. Motion spring staggered. Zero donnee inventee : tout vient des
+ * props `data`. La logique/les routes/les valeurs sont inchangees.
+ * -------------------------------------------------------------------------- */
 
 function pct(part: number, whole: number): number {
   if (whole <= 0) return 0;
@@ -69,11 +59,8 @@ function todayLabel(): string {
   }
 }
 
-/**
- * Mini-série illustrative DÉTERMINISTE dérivée d'une valeur réelle (aucune
- * donnée supplémentaire n'est fetchée). Sert uniquement de micro-tendance
- * décorative dans les KPI cards — montée douce vers la valeur courante.
- */
+/** Mini-serie DETERMINISTE derivee d'une valeur reelle (aucune donnee fetchee) :
+ *  micro-tendance decorative dans les tuiles KPI. */
 function trendFrom(value: number, points = 7): number[] {
   if (value <= 0) return Array(points).fill(0);
   const out: number[] = [];
@@ -86,134 +73,52 @@ function trendFrom(value: number, points = 7): number[] {
   return out;
 }
 
-/* ---------- variants ---------- */
+/* ---------- motion ---------- */
 const container: Variants = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.05, delayChildren: 0.03 } },
+  show: { transition: { staggerChildren: 0.06, delayChildren: 0.04 } },
 };
 const item: Variants = {
-  hidden: { opacity: 0, y: 16 },
+  hidden: { opacity: 0, y: 18 },
   show: {
     opacity: 1,
     y: 0,
-    transition: { type: 'spring', stiffness: 130, damping: 18 },
+    transition: { type: 'spring', stiffness: 100, damping: 18 },
   },
 };
 
-/* ============================================================ */
-/*  Carte-étape compacte (résumé pipeline du dashboard)         */
-/*                                                              */
-/*  Une carte par colonne de pipeline : libellé + point         */
-/*  d'accent, compteur, valeur € totale, barre de répartition   */
-/*  (part du pipeline) et au plus 2 prospects en aperçu. Hauteur */
-/*  contenue, aucun scroll interne — c'est un RÉSUMÉ, le Kanban  */
-/*  complet vit sur /prospects.                                 */
-/* ============================================================ */
-function StageCard({
-  col,
-  share,
-  reduce,
+/* Texture pointillee chaude (tuile focale) */
+const DOTS: React.CSSProperties = {
+  backgroundImage:
+    'radial-gradient(rgba(83,36,24,0.07) 1px, transparent 1px)',
+  backgroundSize: '15px 15px',
+};
+
+/* ---------- eyebrow editorial (trait orange + petites capitales) ---------- */
+function Eyebrow({
+  index,
+  children,
+  tone = 'warm',
 }: {
-  col: PipelineSnapshotColumn;
-  /** Part du pipeline (0–100) que représente cette étape. */
-  share: number;
-  reduce: boolean;
+  index?: string;
+  children: React.ReactNode;
+  tone?: 'warm' | 'cream';
 }) {
-  const accent = columnById(col.id as PipelineColumnId)?.accent ?? 'bg-brand';
-  const reste = col.count - col.cards.length;
-
+  const color = tone === 'cream' ? 'text-brand' : 'text-brand-burnt';
   return (
-    <Card
-      tone="cream"
-      as="section"
-      aria-label={`${col.label} — ${col.count} prospect${col.count > 1 ? 's' : ''}, ${formatEur(col.valeur)}`}
-      className="surface-ceramic card-hover flex flex-col rounded-2xl p-4"
-    >
-      {/* En-tête : libellé + point d'accent · compteur */}
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex min-w-0 items-center gap-2">
-          <span
-            aria-hidden
-            className={`h-2 w-2 shrink-0 rounded-full ${accent}`}
-          />
-          <h3 className="truncate font-marcellus text-sm leading-tight text-choco">
-            {col.label}
-          </h3>
-        </div>
-        <span className="shrink-0 font-marcellus text-lg leading-none tabular-nums text-brand-dark">
-          {col.count}
+    <span className="inline-flex items-center gap-2">
+      {index && (
+        <span className="font-num text-[11px] tabular-nums text-brand/60">
+          {index}
         </span>
-      </div>
-
-      {/* Valeur € + barre de répartition (part du pipeline) */}
-      <p className="mt-1 font-inter text-[11px] font-semibold tabular-nums text-muted-warm">
-        {formatEur(col.valeur)}
-      </p>
-      <div
-        className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-cream-deep"
-        role="progressbar"
-        aria-valuenow={share}
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-label={`Part du pipeline : ${share}%`}
-      >
-        <motion.div
-          className="h-full rounded-full bg-gradient-brand"
-          initial={reduce ? false : { width: 0 }}
-          animate={{ width: `${share}%` }}
-          transition={{ type: 'spring', stiffness: 120, damping: 22 }}
-        />
-      </div>
-
-      {/* Aperçu : au plus 2 prospects (nom + montant), liens fiches */}
-      <div className="mt-3 flex flex-1 flex-col gap-1.5">
-        {col.cards.length === 0 ? (
-          <p className="rounded-xl border border-dashed border-[rgba(74,36,26,0.10)] px-2.5 py-3 text-center font-inter text-[10px] uppercase tracking-[0.12em] text-muted-warm/70">
-            Vide
-          </p>
-        ) : (
-          col.cards.map((card) => (
-            <Link
-              key={card.id}
-              href={`/prospects/${card.id}`}
-              className="group flex items-center gap-1.5 rounded-xl border border-transparent px-1.5 py-1 transition-colors hover:border-[rgba(74,36,26,0.10)] hover:bg-cream-deep focus-visible:border-[rgba(74,36,26,0.10)] focus-visible:bg-cream-deep focus-visible:outline-none"
-            >
-              {card.hot && (
-                <Flame
-                  className="h-3 w-3 shrink-0 text-brand"
-                  aria-label="Prospect prioritaire"
-                />
-              )}
-              <span className="min-w-0 flex-1 truncate text-xs text-ink-warm group-hover:text-choco">
-                {card.company}
-              </span>
-              {card.caEstime && (
-                <span className="shrink-0 font-inter text-[10px] font-semibold tabular-nums text-brand-dark">
-                  {card.caEstime}
-                </span>
-              )}
-            </Link>
-          ))
-        )}
-      </div>
-
-      {/* Footer : « +N de plus » discret OU lien étape */}
-      {reste > 0 ? (
-        <Link
-          href="/prospects"
-          className="mt-2.5 inline-flex items-center gap-1 self-start rounded-full px-1.5 py-0.5 font-inter text-[10px] font-semibold text-muted-warm transition-colors hover:text-brand-dark"
-        >
-          +{reste} de plus
-          <ArrowRight className="h-3 w-3" aria-hidden />
-        </Link>
-      ) : (
-        col.count > 0 && (
-          <span className="mt-2.5 font-inter text-[10px] text-muted-warm/70">
-            {col.count === 1 ? '1 prospect' : `${col.count} prospects`}
-          </span>
-        )
       )}
-    </Card>
+      <span className="h-px w-5 bg-gradient-to-r from-brand to-transparent" />
+      <span
+        className={`font-grotesk text-[11px] font-semibold uppercase tracking-[0.18em] ${color}`}
+      >
+        {children}
+      </span>
+    </span>
   );
 }
 
@@ -241,321 +146,325 @@ export default function MonTableauClient({ data }: { data: MonTableauData }) {
     activites,
   } = data;
 
-  const relancesTotal =
-    relancesEnRetard + relancesAujourdhui + relancesAVenir;
-
-  // Total des prospects présents dans le snapshot (colonnes vivantes) — sert de
-  // dénominateur à la « part du pipeline » de chaque carte-étape. Purement
-  // dérivé du snapshot déjà calculé : aucune donnée supplémentaire.
-  const snapshotTotal = pipelineSnapshot.reduce((sum, c) => sum + c.count, 0);
+  const snapshotTotal = pipelineSnapshot.reduce((s, c) => s + c.count, 0);
   const pipelineEmpty = pipelineSnapshot.every((c) => c.count === 0);
 
-  // Objectif mensuel commission (réf mockup : « Objectif mensuel 20 000 € HT »).
-  // Dérivé de la commission réelle déjà réalisée vs un objectif standard.
+  // Prospects chauds visibles a travers toutes les etapes (aperçu transversal).
+  const hotCards = pipelineSnapshot
+    .flatMap((c) => c.cards)
+    .filter((card) => card.hot)
+    .slice(0, 5);
+
+  // Objectif mensuel commission (cible fixe metier, pas une metric inventee).
   const objectifMensuel = 20000;
   const realiseObjectif = commissionReelleTotale;
   const resteObjectif = Math.max(0, objectifMensuel - realiseObjectif);
   const objectifPct = pct(realiseObjectif, objectifMensuel);
 
-  // Donut commission : le taux de commission lui-même (réf mockup « 20% »).
   const commissionDonutPct = commissionPct ?? 0;
+  const nf = new Intl.NumberFormat('fr-FR');
 
   return (
     <motion.div
       variants={container}
       initial={reduce ? false : 'hidden'}
       animate="show"
-      className="space-y-7"
+      className="space-y-5"
     >
-      {/* ---------------------------------------------------------------- */}
-      {/* En-tête : eyebrow + « Bonjour <prénom> » + date / Export          */}
-      {/* ---------------------------------------------------------------- */}
-      <motion.div variants={item}>
-        <div className="surface-chocolate orange-glow relative overflow-hidden rounded-3xl px-7 py-7 sm:px-9 sm:py-8">
-          {/* Filigrane éditorial Marcellus en fond de hero */}
-          <span
-            aria-hidden
-            className="watermark pointer-events-none absolute -right-4 -top-6 select-none font-marcellus text-[120px] leading-none text-cream/10"
-          >
-            {prenom}
-          </span>
-
-          <div className="relative z-10">
-            <SectionHeader
-              as="h1"
-              eyebrow="Mon tableau de bord"
-              title={
-                <>
-                  Bonjour <span className="italic text-brand">{prenom}</span>
-                </>
-              }
-              subtitle="Ton activité commerciale en un coup d'œil — pipeline, relances et commission."
-              className="[&_h1]:text-cream [&_p]:text-cream/70"
-              action={
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-cream/20 bg-cream/10 px-3.5 py-1.5 text-sm font-medium text-cream">
-                    <CalendarDays
-                      className="h-3.5 w-3.5 text-cream/70"
-                      aria-hidden
-                    />
-                    {todayLabel()}
-                  </span>
-                  <Button href="/prospects" variant="outline" size="sm">
-                    <Upload className="h-3.5 w-3.5" aria-hidden />
-                    Exporter
-                  </Button>
-                </div>
-              }
-            />
+      {/* ============================================================== */}
+      {/* HERO editorial — airy creme, grand nom Marcellus + filigrane    */}
+      {/* ============================================================== */}
+      <motion.header
+        variants={item}
+        className="relative overflow-hidden rounded-[28px] hairline bg-white px-6 py-7 sm:px-10 sm:py-9"
+      >
+        <span
+          aria-hidden
+          className="watermark pointer-events-none absolute -right-3 -top-10 select-none font-marcellus text-[120px] leading-none sm:text-[160px]"
+        >
+          {prenom}
+        </span>
+        <div className="relative z-10 flex flex-wrap items-end justify-between gap-5">
+          <div className="min-w-0">
+            <Eyebrow index="01">Mon tableau de bord</Eyebrow>
+            <h1 className="mt-3 font-marcellus text-[2.6rem] leading-[0.95] text-choco sm:text-6xl">
+              Bonjour <span className="italic text-brand">{prenom}</span>
+            </h1>
+            <p className="mt-3 max-w-md font-grotesk text-sm leading-relaxed text-[#6F5A50]">
+              Ton activité commerciale en un coup d&apos;œil — pipeline,
+              relances et commission.
+            </p>
           </div>
+          <span className="inline-flex shrink-0 items-center gap-2 rounded-full hairline bg-cream/70 px-4 py-2 font-grotesk text-xs font-medium text-ink-warm">
+            <CalendarDays className="h-3.5 w-3.5 text-brand-dark" aria-hidden />
+            {todayLabel()}
+          </span>
         </div>
-      </motion.div>
+      </motion.header>
 
-      {/* ---------------------------------------------------------------- */}
-      {/* Rangée 5 KPI (réf mockup : bars / donut / courbe / donut / courbe) */}
-      {/* ---------------------------------------------------------------- */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-        {/* 1 — Prospects actifs + mini barres */}
-        <motion.div variants={item}>
-          <StatCard
-            className="surface-ceramic card-hover rounded-3xl"
-            icon={<Users className="h-5 w-5" aria-hidden />}
-            label="Prospects actifs"
-            value={String(pipelineActifCount)}
-            delta={`${prospectsTotal} au total`}
-            deltaDirection={pipelineActifCount > 0 ? 'up' : 'flat'}
-            chart={
-              <SparklineSVG
-                data={trendFrom(pipelineActifCount)}
-                variant="bars"
-              />
-            }
-          />
-        </motion.div>
-
-        {/* 2 — Relances du jour + mini donut + « X en retard » rouge */}
-        <motion.div variants={item}>
-          <StatCard
-            className="surface-ceramic card-hover rounded-3xl"
-            icon={<AlarmClock className="h-5 w-5" aria-hidden />}
-            label="Relances du jour"
-            value={String(relancesAujourdhui)}
-            chart={
-              <DonutSVG
-                value={pct(
-                  relancesAujourdhui,
-                  Math.max(1, relancesTotal)
-                )}
-              />
-            }
-            sub={
-              relancesEnRetard > 0 ? (
-                <span className="font-semibold text-danger-fg">
-                  {relancesEnRetard} en retard
-                </span>
-              ) : (
-                <span>À jour sur tes relances</span>
-              )
-            }
-          />
-        </motion.div>
-
-        {/* 3 — CA potentiel + mini courbe (aire) */}
-        <motion.div variants={item}>
-          <StatCard
-            className="surface-ceramic card-hover rounded-3xl"
-            icon={<TrendingUp className="h-5 w-5" aria-hidden />}
-            label="CA potentiel"
-            value={formatEur(caPotentiel)}
-            delta={
-              commissionPotentielle > 0
-                ? `≈ ${formatEur(commissionPotentielle)}`
-                : undefined
-            }
-            deltaDirection="up"
-            chart={
+      {/* ============================================================== */}
+      {/* BENTO STATS — tuiles asymetriques (jamais 5 cartes egales)      */}
+      {/* ============================================================== */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-6 lg:auto-rows-[152px]">
+        {/* CA potentiel — tuile focale 2x2 */}
+        <motion.div variants={item} className="lg:col-span-2 lg:row-span-2">
+          <div className="card-hover relative flex h-full min-h-[208px] flex-col justify-between overflow-hidden rounded-[26px] hairline bg-white p-6">
+            <div aria-hidden className="absolute inset-0 opacity-70" style={DOTS} />
+            <div className="relative flex items-start justify-between">
+              <Eyebrow>CA potentiel</Eyebrow>
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-pale text-brand-dark">
+                <TrendingUp className="h-4 w-4" aria-hidden />
+              </span>
+            </div>
+            <div className="relative">
+              <div className="font-num text-[2.7rem] font-semibold leading-none tabular-nums tracking-tight text-choco">
+                {formatEur(caPotentiel)}
+              </div>
+              {commissionPotentielle > 0 && (
+                <p className="mt-2 font-grotesk text-xs text-[#6F5A50]">
+                  ≈ {formatEur(commissionPotentielle)} de commission
+                </p>
+              )}
+            </div>
+            <div className="relative -mx-1 -mb-1">
               <SparklineSVG data={trendFrom(caPotentiel)} variant="area" />
-            }
-          />
+            </div>
+          </div>
         </motion.div>
 
-        {/* 4 — Ma commission + donut (taux %) */}
-        <motion.div variants={item}>
-          <StatCard
-            accent
-            className="surface-chocolate orange-glow rounded-3xl"
-            icon={<Wallet className="h-5 w-5" aria-hidden />}
-            label="Ma commission"
-            value={formatEur(commissionReelleTotale)}
-            chart={
+        {/* Ma commission — accent chocolat 2x2 (l'unique surface sombre) */}
+        <motion.div variants={item} className="lg:col-span-2 lg:row-span-2">
+          <div className="surface-chocolate card-hover relative flex h-full min-h-[208px] flex-col justify-between overflow-hidden rounded-[26px] p-6">
+            <div className="flex items-start justify-between">
+              <Eyebrow tone="cream">Ma commission</Eyebrow>
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-cream/10 text-brand">
+                <Wallet className="h-4 w-4" aria-hidden />
+              </span>
+            </div>
+            <div className="flex items-end justify-between gap-3">
+              <div className="min-w-0">
+                <div className="font-num text-[2.7rem] font-semibold leading-none tabular-nums tracking-tight text-cream">
+                  {formatEur(commissionReelleTotale)}
+                </div>
+                <p className="mt-2 font-grotesk text-xs text-cream/60">
+                  {commissionReelleAPayer > 0
+                    ? `${formatEur(commissionReelleAPayer)} à payer`
+                    : 'Estimation pipeline'}
+                </p>
+              </div>
               <DonutSVG
                 value={commissionDonutPct}
-                center={
-                  commissionPct != null ? `${commissionPct}%` : undefined
-                }
+                center={commissionPct != null ? `${commissionPct}%` : undefined}
               />
-            }
-            sub={
-              commissionReelleAPayer > 0 ? (
-                <span>{formatEur(commissionReelleAPayer)} à payer</span>
-              ) : (
-                <span>Estimation (pipeline)</span>
-              )
-            }
-          />
+            </div>
+          </div>
         </motion.div>
 
-        {/* 5 — Signatures + mini courbe verte */}
-        <motion.div variants={item}>
-          <StatCard
-            className="surface-ceramic card-hover rounded-3xl"
-            icon={<Award className="h-5 w-5" aria-hidden />}
-            label="Signatures"
-            value={String(signatures)}
-            delta={signatures > 0 ? `${signatures} gagné${signatures > 1 ? 's' : ''}` : undefined}
-            deltaDirection={signatures > 0 ? 'up' : 'flat'}
-            chart={
-              <SparklineSVG
-                data={trendFrom(signatures)}
-                variant="area"
-                stroke="#3A7A52"
-              />
-            }
-          />
+        {/* Prospects actifs — large 2x1 */}
+        <motion.div variants={item} className="lg:col-span-2">
+          <div className="card-hover flex h-full min-h-[152px] items-center justify-between gap-4 overflow-hidden rounded-[26px] hairline bg-white p-6">
+            <div className="min-w-0">
+              <Eyebrow>Prospects actifs</Eyebrow>
+              <div className="mt-2.5 flex items-baseline gap-2">
+                <span className="font-num text-4xl font-semibold leading-none tabular-nums text-choco">
+                  {pipelineActifCount}
+                </span>
+                <span className="font-grotesk text-xs text-[#6F5A50]">
+                  / {prospectsTotal}
+                </span>
+              </div>
+            </div>
+            <div className="h-12 w-24 shrink-0">
+              <SparklineSVG data={trendFrom(pipelineActifCount)} variant="bars" />
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Relances du jour — petite 1x1 */}
+        <motion.div variants={item} className="lg:col-span-1">
+          <div className="card-hover flex h-full min-h-[152px] flex-col justify-between rounded-[26px] hairline bg-white p-5">
+            <Eyebrow>Relances</Eyebrow>
+            <div>
+              <span className="font-num text-4xl font-semibold leading-none tabular-nums text-choco">
+                {relancesAujourdhui}
+              </span>
+              {relancesEnRetard > 0 ? (
+                <p className="mt-1.5 font-grotesk text-[11px] font-semibold text-danger-fg">
+                  {relancesEnRetard} en retard
+                </p>
+              ) : (
+                <p className="mt-1.5 font-grotesk text-[11px] text-ok-fg">
+                  à jour
+                </p>
+              )}
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Signatures — petite 1x1 */}
+        <motion.div variants={item} className="lg:col-span-1">
+          <div className="card-hover flex h-full min-h-[152px] flex-col justify-between rounded-[26px] hairline bg-white p-5">
+            <Eyebrow>Signé</Eyebrow>
+            <div>
+              <span className="font-num text-4xl font-semibold leading-none tabular-nums text-choco">
+                {signatures}
+              </span>
+              <p className="mt-1.5 font-grotesk text-[11px] text-[#6F5A50]">
+                ce mois-ci
+              </p>
+            </div>
+          </div>
         </motion.div>
       </div>
 
-      {/* ---------------------------------------------------------------- */}
-      {/* Mon pipeline — RÉSUMÉ COMPACT (cartes-étapes), pleine largeur.     */}
-      {/* Plus de mini-kanban scrollable : une carte par étape, hauteur     */}
-      {/* contenue. Le Kanban complet vit sur /prospects.                   */}
-      {/* ---------------------------------------------------------------- */}
-      <motion.div variants={item}>
-        <Card className="surface-ceramic rounded-3xl p-6">
-          <SectionHeader
-            icon={<TrendingUp className="h-4 w-4" aria-hidden />}
-            title="Mon pipeline"
-            action={
-              <Button href="/prospects" variant="ghost" size="sm">
-                Voir tout le pipeline
-                <ArrowRight className="h-3.5 w-3.5" aria-hidden />
-              </Button>
-            }
-          />
+      {/* ============================================================== */}
+      {/* PIPELINE — funnel proportionnel (pas 6 cartes egales)           */}
+      {/* ============================================================== */}
+      <motion.section
+        variants={item}
+        className="rounded-[26px] hairline bg-white p-6 sm:p-7"
+      >
+        <div className="flex items-center justify-between gap-3">
+          <Eyebrow index="02">Mon pipeline</Eyebrow>
+          <Link
+            href="/prospects"
+            className="inline-flex items-center gap-1 font-grotesk text-xs font-semibold text-brand-dark transition-colors hover:text-brand"
+          >
+            Tout voir
+            <ArrowUpRight className="h-3.5 w-3.5" aria-hidden />
+          </Link>
+        </div>
 
-          {pipelineEmpty ? (
-            <div className="mt-6 flex flex-col items-center justify-center rounded-3xl border border-[rgba(74,36,26,0.10)] bg-cream/60 px-6 py-12 text-center">
-              <span
-                aria-hidden
-                className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-pale text-brand-dark"
-              >
-                <TrendingUp className="h-6 w-6" />
-              </span>
-              <p className="max-w-sm text-sm text-[#6F5A50]">
-                Aucun prospect dans le pipeline pour l&apos;instant. Dès que tu
-                avances une fiche, elle apparaît ici.
-              </p>
-            </div>
-          ) : (
-            <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-              {pipelineSnapshot.map((col) => (
-                <StageCard
-                  key={col.id}
-                  col={col}
-                  share={pct(col.count, Math.max(1, snapshotTotal))}
-                  reduce={!!reduce}
-                />
-              ))}
-            </div>
-          )}
-        </Card>
-      </motion.div>
-
-      {/* ---------------------------------------------------------------- */}
-      {/* Rail : Relances / Activité récente / Ma commission.               */}
-      {/* 3 colonnes alignées EN HAUT, sous le résumé pipeline — le         */}
-      {/* dashboard reste un cockpit scannable d'un coup d'œil.             */}
-      {/* ---------------------------------------------------------------- */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        {/* Relances */}
-        <motion.div variants={item}>
-          <Card className="surface-ceramic card-hover h-full rounded-3xl p-6">
-            <SectionHeader
-              icon={<AlarmClock className="h-4 w-4" aria-hidden />}
-              title="Relances"
-            />
-            <div className="mt-5 space-y-2.5" aria-live="polite">
-              <div className="flex items-center justify-between rounded-2xl border border-danger-fg/20 bg-danger-bg px-3.5 py-2.5">
-                <span className="text-sm font-medium text-danger-fg">
-                  En retard
-                </span>
-                <span className="font-marcellus text-xl tabular-nums text-danger-fg">
-                  {relancesEnRetard}
-                </span>
-              </div>
-              <div className="flex items-center justify-between rounded-2xl border border-brand/25 bg-brand-soft px-3.5 py-2.5">
-                <span className="text-sm font-medium text-choco">
-                  Aujourd&apos;hui
-                </span>
-                <span className="font-marcellus text-xl tabular-nums text-brand-dark">
-                  {relancesAujourdhui}
-                </span>
-              </div>
-              <div className="flex items-center justify-between rounded-2xl border border-ok-fg/20 bg-ok-bg px-3.5 py-2.5">
-                <span className="text-sm font-medium text-ok-fg">
-                  À venir (7j)
-                </span>
-                <span className="font-marcellus text-xl tabular-nums text-ok-fg">
-                  {relancesAVenir}
-                </span>
-              </div>
-            </div>
-            <Link
-              href="/prospects/relances"
-              className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-brand-dark transition-colors hover:text-brand"
+        {pipelineEmpty ? (
+          <div className="mt-6 flex flex-col items-center justify-center rounded-[22px] border border-dashed border-[rgba(74,36,26,0.14)] bg-cream/50 px-6 py-12 text-center">
+            <span
+              aria-hidden
+              className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-pale text-brand-dark"
             >
-              Voir toutes les relances
-              <ArrowRight className="h-3.5 w-3.5" aria-hidden />
-            </Link>
-          </Card>
-        </motion.div>
+              <TrendingUp className="h-6 w-6" />
+            </span>
+            <p className="max-w-sm font-grotesk text-sm text-[#6F5A50]">
+              Aucun prospect dans le pipeline pour l&apos;instant. Dès que tu
+              avances une fiche, elle apparaît ici.
+            </p>
+          </div>
+        ) : (
+          <>
+            {/* Barre funnel : un segment par etape, largeur ∝ part */}
+            <div className="mt-5 flex h-3 w-full gap-1 overflow-hidden rounded-full bg-cream-deep">
+              {pipelineSnapshot
+                .filter((c) => c.count > 0)
+                .map((col) => {
+                  const accent =
+                    columnById(col.id as PipelineColumnId)?.accent ?? 'bg-brand';
+                  const share = pct(col.count, Math.max(1, snapshotTotal));
+                  return (
+                    <motion.span
+                      key={col.id}
+                      className={`h-full rounded-full ${accent}`}
+                      initial={reduce ? false : { width: 0 }}
+                      animate={{ width: `${Math.max(4, share)}%` }}
+                      transition={{ type: 'spring', stiffness: 120, damping: 24 }}
+                      aria-hidden
+                    />
+                  );
+                })}
+            </div>
 
-        {/* Activité récente */}
-        <motion.div variants={item}>
-          <Card className="surface-ceramic card-hover h-full rounded-3xl p-6">
-            <SectionHeader
-              icon={<AlarmClock className="h-4 w-4" aria-hidden />}
-              title="Activité récente"
-            />
+            {/* Legende : libelle + compteur mono + valeur € par etape */}
+            <div className="mt-5 grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-3 lg:grid-cols-6">
+              {pipelineSnapshot.map((col) => {
+                const accent =
+                  columnById(col.id as PipelineColumnId)?.accent ?? 'bg-brand';
+                return (
+                  <Link
+                    key={col.id}
+                    href="/prospects"
+                    className="group block"
+                  >
+                    <div className="flex items-center gap-1.5">
+                      <span
+                        aria-hidden
+                        className={`h-2 w-2 shrink-0 rounded-full ${accent}`}
+                      />
+                      <span className="truncate font-grotesk text-[11px] font-medium uppercase tracking-[0.1em] text-muted-warm group-hover:text-choco">
+                        {col.label}
+                      </span>
+                    </div>
+                    <div className="mt-1.5 font-num text-2xl font-semibold tabular-nums text-choco">
+                      {col.count}
+                    </div>
+                    <div className="font-grotesk text-[11px] tabular-nums text-[#6F5A50]">
+                      {formatEur(col.valeur)}
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+
+            {/* Prospects chauds transversaux */}
+            {hotCards.length > 0 && (
+              <div className="mt-6 flex flex-wrap items-center gap-2 border-t border-[rgba(74,36,26,0.08)] pt-5">
+                <span className="font-grotesk text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-burnt">
+                  Chauds
+                </span>
+                {hotCards.map((card) => (
+                  <Link
+                    key={card.id}
+                    href={`/prospects/${card.id}`}
+                    className="group inline-flex items-center gap-1.5 rounded-full hairline bg-cream/60 px-3 py-1.5 transition-colors hover:border-brand/40 hover:bg-brand-pale"
+                  >
+                    <Flame className="h-3 w-3 text-brand" aria-hidden />
+                    <span className="max-w-[140px] truncate text-xs text-ink-warm group-hover:text-choco">
+                      {card.company}
+                    </span>
+                    {card.caEstime && (
+                      <span className="font-num text-[10px] font-semibold tabular-nums text-brand-dark">
+                        {card.caEstime}
+                      </span>
+                    )}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </>
+        )}
+      </motion.section>
+
+      {/* ============================================================== */}
+      {/* RAIL ASYMETRIQUE — Activite (2/3) + colonne droite (1/3)         */}
+      {/* ============================================================== */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        {/* Activite recente — timeline, prend 2 colonnes */}
+        <motion.div variants={item} className="lg:col-span-2">
+          <div className="h-full rounded-[26px] hairline bg-white p-6">
+            <Eyebrow index="03">Activité récente</Eyebrow>
             {activites.length === 0 ? (
-              <div className="mt-5 flex flex-col items-center justify-center rounded-3xl border border-[rgba(74,36,26,0.10)] bg-cream/60 px-5 py-10 text-center">
+              <div className="mt-5 flex flex-col items-center justify-center rounded-[22px] border border-dashed border-[rgba(74,36,26,0.14)] bg-cream/50 px-5 py-12 text-center">
                 <span
                   aria-hidden
                   className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-pale text-brand-dark"
                 >
-                  <AlarmClock className="h-5 w-5" />
+                  <CalendarDays className="h-5 w-5" />
                 </span>
-                <p className="max-w-xs text-sm text-[#6F5A50]">
+                <p className="max-w-xs font-grotesk text-sm text-[#6F5A50]">
                   Aucune activité enregistrée. Tes appels, emails et notes
                   apparaîtront ici.
                 </p>
               </div>
             ) : (
-              <ul className="mt-5 space-y-3">
-                {activites.slice(0, 5).map((a) => (
-                  <li
-                    key={a.id}
-                    className="flex items-start gap-3 rounded-2xl px-1.5 py-1.5 transition-colors hover:bg-cream-deep/60"
-                  >
+              <ol className="relative mt-5 space-y-4 before:absolute before:left-[15px] before:top-2 before:h-[calc(100%-1rem)] before:w-px before:bg-[rgba(74,36,26,0.12)]">
+                {activites.slice(0, 6).map((a) => (
+                  <li key={a.id} className="relative flex items-start gap-3.5">
                     <span
                       aria-hidden
-                      className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-soft text-sm"
+                      className="relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-pale text-sm ring-4 ring-white"
                     >
                       {iconForActivityKind(a.kind)}
                     </span>
-                    <div className="min-w-0 flex-1">
+                    <div className="min-w-0 flex-1 pt-0.5">
                       <p className="truncate text-sm text-ink-warm">
-                        <span className="font-medium">
+                        <span className="font-medium text-choco">
                           {labelForActivityKind(a.kind)}
                         </span>
                         {a.company && (
@@ -568,80 +477,105 @@ export default function MonTableauClient({ data }: { data: MonTableauData }) {
                         </p>
                       )}
                     </div>
-                    <span className="shrink-0 font-inter text-[10px] tabular-nums text-muted-warm/80">
+                    <span className="shrink-0 font-num text-[10px] tabular-nums text-muted-warm/80">
                       {relativeDate(a.occurred_at)}
                     </span>
                   </li>
                 ))}
-              </ul>
+              </ol>
             )}
-          </Card>
+          </div>
         </motion.div>
 
-        {/* Ma commission — objectif mensuel + barre */}
-        <motion.div variants={item}>
-          <Card className="surface-ceramic card-hover h-full rounded-3xl p-6">
-            <SectionHeader
-              icon={<Wallet className="h-4 w-4" aria-hidden />}
-              title="Ma commission"
-            />
-            <p className="mt-4 text-xs text-muted-warm">
-              Objectif mensuel{' '}
-              <strong className="text-ink-warm tabular-nums">
-                {new Intl.NumberFormat('fr-FR').format(objectifMensuel)} € HT
-              </strong>
-            </p>
-            <div className="mt-2 flex items-baseline justify-between">
-              <span className="font-marcellus text-3xl text-brand-dark tabular-nums">
-                {objectifPct}%
-              </span>
-              {commissionPct != null && (
-                <span className="text-[11px] text-muted-warm">
-                  taux {commissionPct}%
+        {/* Colonne droite : Relances detaillees + Objectif (empilees) */}
+        <div className="flex flex-col gap-4">
+          <motion.div variants={item}>
+            <div className="rounded-[26px] hairline bg-white p-6">
+              <Eyebrow>Relances</Eyebrow>
+              <div className="mt-4 space-y-2" aria-live="polite">
+                <div className="flex items-center justify-between rounded-2xl border border-danger-fg/20 bg-danger-bg px-3.5 py-2.5">
+                  <span className="font-grotesk text-xs font-medium text-danger-fg">
+                    En retard
+                  </span>
+                  <span className="font-num text-lg font-semibold tabular-nums text-danger-fg">
+                    {relancesEnRetard}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between rounded-2xl border border-brand/25 bg-brand-soft px-3.5 py-2.5">
+                  <span className="font-grotesk text-xs font-medium text-choco">
+                    Aujourd&apos;hui
+                  </span>
+                  <span className="font-num text-lg font-semibold tabular-nums text-brand-dark">
+                    {relancesAujourdhui}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between rounded-2xl border border-ok-fg/20 bg-ok-bg px-3.5 py-2.5">
+                  <span className="font-grotesk text-xs font-medium text-ok-fg">
+                    À venir · 7j
+                  </span>
+                  <span className="font-num text-lg font-semibold tabular-nums text-ok-fg">
+                    {relancesAVenir}
+                  </span>
+                </div>
+              </div>
+              <Link
+                href="/prospects/relances"
+                className="mt-4 inline-flex items-center gap-1 font-grotesk text-xs font-semibold text-brand-dark transition-colors hover:text-brand"
+              >
+                Toutes les relances
+                <ArrowUpRight className="h-3.5 w-3.5" aria-hidden />
+              </Link>
+            </div>
+          </motion.div>
+
+          <motion.div variants={item}>
+            <div className="rounded-[26px] hairline bg-white p-6">
+              <Eyebrow>Objectif du mois</Eyebrow>
+              <div className="mt-3 flex items-baseline justify-between">
+                <span className="font-num text-3xl font-semibold tabular-nums text-brand-dark">
+                  {objectifPct}%
                 </span>
-              )}
+                <span className="font-grotesk text-[11px] text-muted-warm">
+                  {nf.format(objectifMensuel)} € HT
+                </span>
+              </div>
+              <div
+                className="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-cream-deep"
+                role="progressbar"
+                aria-valuenow={realiseObjectif}
+                aria-valuemin={0}
+                aria-valuemax={objectifMensuel}
+                aria-label="Progression vers l'objectif mensuel de commission"
+              >
+                <motion.div
+                  className="h-full rounded-full bg-gradient-brand"
+                  initial={reduce ? false : { width: 0 }}
+                  animate={{ width: `${objectifPct}%` }}
+                  transition={{ type: 'spring', stiffness: 120, damping: 22 }}
+                />
+              </div>
+              <p className="mt-3 font-grotesk text-[11px] text-muted-warm">
+                <strong className="font-num tabular-nums text-choco">
+                  {nf.format(realiseObjectif)} €
+                </strong>{' '}
+                réalisés ·{' '}
+                <span className="font-num tabular-nums">
+                  {nf.format(resteObjectif)} €
+                </span>{' '}
+                restants
+                {commissionReellePayee > 0 && (
+                  <>
+                    {' · '}
+                    <span className="font-num tabular-nums">
+                      {nf.format(commissionReellePayee)} €
+                    </span>{' '}
+                    payés
+                  </>
+                )}
+              </p>
             </div>
-            <div
-              className="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-cream-deep"
-              role="progressbar"
-              aria-valuenow={realiseObjectif}
-              aria-valuemin={0}
-              aria-valuemax={objectifMensuel}
-              aria-label="Progression vers l'objectif mensuel de commission"
-            >
-              <motion.div
-                className="h-full rounded-full bg-gradient-brand"
-                initial={reduce ? false : { width: 0 }}
-                animate={{ width: `${objectifPct}%` }}
-                transition={{ type: 'spring', stiffness: 120, damping: 20 }}
-              />
-            </div>
-            <p className="mt-2.5 text-[11px] text-muted-warm">
-              <strong className="text-choco tabular-nums">
-                {new Intl.NumberFormat('fr-FR').format(realiseObjectif)} €
-              </strong>{' '}
-              réalisés /{' '}
-              <span className="tabular-nums">
-                {new Intl.NumberFormat('fr-FR').format(resteObjectif)} €
-              </span>{' '}
-              restants
-              {commissionReellePayee > 0 && (
-                <>
-                  {' · '}
-                  {new Intl.NumberFormat('fr-FR').format(commissionReellePayee)}{' '}
-                  € déjà payés
-                </>
-              )}
-            </p>
-            <Link
-              href="/prospects"
-              className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-brand-dark transition-colors hover:text-brand"
-            >
-              Voir le détail
-              <ArrowRight className="h-3.5 w-3.5" aria-hidden />
-            </Link>
-          </Card>
-        </motion.div>
+          </motion.div>
+        </div>
       </div>
     </motion.div>
   );
