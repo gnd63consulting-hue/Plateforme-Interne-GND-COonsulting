@@ -51,13 +51,13 @@ export default function RessourcesHeroVisual() {
         aria-hidden
         animate={{ scale: [1, 1.08, 1], opacity: [0.55, 0.75, 0.55] }}
         transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
-        className="pointer-events-none absolute left-1/2 top-1/2 h-[70%] w-[70%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gnd-amber/30 blur-3xl"
+        className="pointer-events-none absolute left-1/2 top-1/2 h-[70%] w-[70%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand/30 blur-3xl"
       />
       <motion.div
         aria-hidden
         animate={{ scale: [1.05, 0.95, 1.05], opacity: [0.3, 0.5, 0.3] }}
         transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut', delay: 0.8 }}
-        className="pointer-events-none absolute left-1/2 top-1/2 h-[55%] w-[55%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gnd-amber-glow/40 blur-2xl"
+        className="pointer-events-none absolute left-1/2 top-1/2 h-[55%] w-[55%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand/40 blur-2xl"
       />
 
       {/* Floating particles */}
@@ -78,7 +78,7 @@ export default function RessourcesHeroVisual() {
               delay: p.delay,
               ease: 'easeOut',
             }}
-            className="pointer-events-none absolute h-1.5 w-1.5 rounded-full bg-gnd-amber"
+            className="pointer-events-none absolute h-1.5 w-1.5 rounded-full bg-brand"
             style={{ left: `${p.left}%`, top: `${p.top}%` }}
           />
         ))}
@@ -100,23 +100,23 @@ export default function RessourcesHeroVisual() {
               opacity: { duration: 0.8, delay: 0.1 },
               y: { duration: 6, repeat: Infinity, ease: 'easeInOut', delay: 1.2 },
             }}
-            className="relative h-full w-full rounded-3xl border border-gnd-bronze/10 bg-gnd-paper p-5 shadow-warm-lg"
+            className="relative h-full w-full rounded-3xl border border-[rgba(74,36,26,0.12)] bg-cream p-5 shadow-warm-lg"
           >
             <div className="flex items-center justify-between">
-              <span className="font-mono text-[9px] font-semibold uppercase tracking-[0.18em] text-gnd-bronze-faded">
+              <span className="font-mono text-[9px] font-semibold uppercase tracking-[0.18em] text-muted-warm">
                 T02 · Email 1
               </span>
-              <Mail className="h-3.5 w-3.5 text-gnd-bronze-faded" aria-hidden />
+              <Mail className="h-3.5 w-3.5 text-muted-warm" aria-hidden />
             </div>
-            <p className="mt-4 font-display text-sm font-medium leading-tight text-gnd-bronze-soft">
+            <p className="mt-4 font-display text-sm font-medium leading-tight text-[#6F5A50]">
               Bonjour,
             </p>
             <div className="mt-3 space-y-1.5">
-              <span className="block h-1 w-full rounded-full bg-gnd-bronze/8" />
-              <span className="block h-1 w-[88%] rounded-full bg-gnd-bronze/8" />
-              <span className="block h-1 w-[72%] rounded-full bg-gnd-bronze/8" />
+              <span className="block h-1 w-full rounded-full bg-choco/8" />
+              <span className="block h-1 w-[88%] rounded-full bg-choco/8" />
+              <span className="block h-1 w-[72%] rounded-full bg-choco/8" />
             </div>
-            <span className="mt-3 inline-block font-mono text-[9px] text-gnd-amber-dim">
+            <span className="mt-3 inline-block font-mono text-[9px] text-brand-dark">
               opapapoulet.fr
             </span>
           </motion.div>
@@ -135,35 +135,35 @@ export default function RessourcesHeroVisual() {
               scale: { duration: 0.9, delay: 0.25, ease: [0.22, 1, 0.36, 1] },
               y: { duration: 7, repeat: Infinity, ease: 'easeInOut', delay: 0.4 },
             }}
-            className="relative h-full w-full overflow-hidden rounded-3xl border border-gnd-bronze/15 bg-gradient-to-br from-gnd-bronze via-gnd-bronze to-gnd-ink p-6 text-gnd-cream shadow-warm-xl"
+            className="relative h-full w-full overflow-hidden rounded-3xl border border-[rgba(74,36,26,0.12)] bg-gradient-to-br from-choco via-choco to-[#2A1510] p-6 text-cream shadow-warm-xl"
           >
             <div
               aria-hidden
-              className="pointer-events-none absolute -right-12 -top-12 h-32 w-32 rounded-full bg-gnd-amber/30 blur-2xl"
+              className="pointer-events-none absolute -right-12 -top-12 h-32 w-32 rounded-full bg-brand/30 blur-2xl"
             />
             <div className="relative flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Sparkles className="h-3.5 w-3.5 text-gnd-amber" aria-hidden />
-                <span className="font-mono text-[9px] font-semibold uppercase tracking-[0.2em] text-gnd-amber">
+                <Sparkles className="h-3.5 w-3.5 text-brand" aria-hidden />
+                <span className="font-mono text-[9px] font-semibold uppercase tracking-[0.2em] text-brand">
                   Pack 02
                 </span>
               </div>
-              <span className="rounded-full bg-gnd-amber/15 px-2 py-0.5 font-mono text-[8px] font-semibold uppercase tracking-[0.18em] text-gnd-amber">
+              <span className="rounded-full bg-brand/15 px-2 py-0.5 font-mono text-[8px] font-semibold uppercase tracking-[0.18em] text-brand">
                 Recommandé
               </span>
             </div>
 
-            <p className="mt-5 font-display text-xl font-medium leading-tight text-gnd-cream">
+            <p className="mt-5 font-display text-xl font-medium leading-tight text-cream">
               Vitrine + Réservation
             </p>
-            <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.18em] text-gnd-cream/50">
+            <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.18em] text-cream/50">
               À partir de
             </p>
             <div className="mt-1 flex items-baseline gap-1">
-              <span className="font-display text-2xl font-medium text-gnd-cream">
+              <span className="font-display text-2xl font-medium text-cream">
                 1 200 – 1 500
               </span>
-              <span className="font-display text-base text-gnd-amber">€</span>
+              <span className="font-display text-base text-brand">€</span>
             </div>
 
             <div className="mt-5 space-y-1.5">
@@ -174,7 +174,7 @@ export default function RessourcesHeroVisual() {
 
             <span
               aria-hidden
-              className="absolute -bottom-3 right-4 font-display text-7xl font-medium italic leading-none text-gnd-amber/15"
+              className="absolute -bottom-3 right-4 font-display text-7xl font-medium italic leading-none text-brand/15"
             >
               02
             </span>
@@ -193,25 +193,25 @@ export default function RessourcesHeroVisual() {
               opacity: { duration: 0.8, delay: 0.4 },
               y: { duration: 8, repeat: Infinity, ease: 'easeInOut', delay: 0.2 },
             }}
-            className="relative h-full w-full rounded-3xl border border-gnd-bronze/10 bg-gnd-cream/95 p-5 backdrop-blur-sm shadow-warm-lg"
+            className="relative h-full w-full rounded-3xl border border-[rgba(74,36,26,0.12)] bg-cream/95 p-5 backdrop-blur-sm shadow-warm-lg"
           >
             <div className="flex items-center justify-between">
-              <span className="font-mono text-[9px] font-semibold uppercase tracking-[0.18em] text-gnd-bronze-faded">
+              <span className="font-mono text-[9px] font-semibold uppercase tracking-[0.18em] text-muted-warm">
                 T01 · Script
               </span>
-              <Phone className="h-3.5 w-3.5 text-gnd-amber" aria-hidden />
+              <Phone className="h-3.5 w-3.5 text-brand" aria-hidden />
             </div>
-            <p className="mt-3 font-display text-sm font-medium leading-tight text-gnd-bronze">
+            <p className="mt-3 font-display text-sm font-medium leading-tight text-ink-warm">
               Appel 1
             </p>
-            <p className="mt-1 font-mono text-[9px] uppercase tracking-[0.15em] text-gnd-bronze-soft">
+            <p className="mt-1 font-mono text-[9px] uppercase tracking-[0.15em] text-[#6F5A50]">
               2 min max
             </p>
             <div className="mt-3 flex items-center gap-1">
-              <span className="h-0.5 w-3 rounded-full bg-gnd-amber" />
-              <span className="h-0.5 w-3 rounded-full bg-gnd-amber" />
-              <span className="h-0.5 w-3 rounded-full bg-gnd-amber/40" />
-              <span className="h-0.5 w-3 rounded-full bg-gnd-amber/40" />
+              <span className="h-0.5 w-3 rounded-full bg-brand" />
+              <span className="h-0.5 w-3 rounded-full bg-brand" />
+              <span className="h-0.5 w-3 rounded-full bg-brand/40" />
+              <span className="h-0.5 w-3 rounded-full bg-brand/40" />
             </div>
           </motion.div>
         </div>
@@ -222,15 +222,15 @@ export default function RessourcesHeroVisual() {
         initial={{ opacity: 0, scale: 0.8, y: -8 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.55, ease: [0.22, 1, 0.36, 1] }}
-        className="absolute -right-2 -top-2 z-10 flex flex-col items-center justify-center rounded-2xl border border-gnd-bronze/10 bg-white/85 px-4 py-3 shadow-warm-lg backdrop-blur-md"
+        className="absolute -right-2 -top-2 z-10 flex flex-col items-center justify-center rounded-2xl border border-[rgba(74,36,26,0.12)] bg-white/85 px-4 py-3 shadow-warm-lg backdrop-blur-md"
       >
-        <span className="font-mono text-[9px] font-semibold uppercase tracking-[0.2em] text-gnd-bronze-soft">
+        <span className="font-mono text-[9px] font-semibold uppercase tracking-[0.2em] text-[#6F5A50]">
           Toolkit
         </span>
-        <span className="mt-0.5 font-display text-3xl font-medium leading-none text-gnd-bronze">
+        <span className="mt-0.5 font-display text-3xl font-medium leading-none text-ink-warm">
           3
         </span>
-        <span className="mt-1 font-mono text-[8px] uppercase tracking-[0.18em] text-gnd-bronze-faded">
+        <span className="mt-1 font-mono text-[8px] uppercase tracking-[0.18em] text-muted-warm">
           packs
         </span>
       </motion.div>
@@ -241,8 +241,8 @@ export default function RessourcesHeroVisual() {
 function FeatureRow({ label }: { label: string }) {
   return (
     <div className="flex items-center gap-2">
-      <span aria-hidden className="h-1 w-1 shrink-0 rounded-full bg-gnd-amber" />
-      <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-gnd-cream/70">
+      <span aria-hidden className="h-1 w-1 shrink-0 rounded-full bg-brand" />
+      <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-cream/70">
         {label}
       </span>
     </div>

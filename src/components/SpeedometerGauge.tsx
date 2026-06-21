@@ -253,11 +253,11 @@ export default function SpeedometerGauge({
 
         {/* Central digital readout */}
         <div className="pointer-events-none absolute left-1/2 top-[38%] -translate-x-1/2 -translate-y-1/2 text-center">
-          <motion.span className="font-display text-4xl font-medium leading-none text-gnd-cream md:text-5xl">
+          <motion.span className="font-display text-4xl font-medium leading-none text-cream md:text-5xl">
             {displayValue}
           </motion.span>
           {subtitle && (
-            <p className="mt-1.5 font-mono text-[9px] uppercase tracking-[0.18em] text-gnd-amber">
+            <p className="mt-1.5 font-mono text-[9px] uppercase tracking-[0.18em] text-brand">
               {subtitle}
             </p>
           )}
@@ -276,7 +276,7 @@ export default function SpeedometerGauge({
         </div>
       </div>
 
-      <p className="mt-3 font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-gnd-amber">
+      <p className="mt-3 font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-brand">
         · {label} ·
       </p>
     </div>
@@ -323,8 +323,8 @@ function Led({ on }: { on: boolean }) {
       transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
       className={`block h-2 w-2 rounded-full ${
         on
-          ? 'bg-gnd-amber shadow-[0_0_8px_rgba(232,133,61,0.8)]'
-          : 'bg-gnd-bronze/40'
+          ? 'bg-brand shadow-[0_0_8px_rgba(232,133,61,0.8)]'
+          : 'bg-choco/40'
       }`}
     />
   );
