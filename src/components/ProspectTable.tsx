@@ -213,7 +213,7 @@ export default function ProspectTable({
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm"
+            className="rounded-lg border border-border-soft bg-white px-3 py-2 text-sm"
           >
             <option value="all">Tous les statuts</option>
             {STATUS_OPTIONS.map((opt) => (
@@ -224,7 +224,7 @@ export default function ProspectTable({
           </select>
         </div>
 
-        <div className="text-sm text-gnd-muted">
+        <div className="text-sm text-muted-warm">
           {filtered.length} prospect{filtered.length > 1 ? 's' : ''}
           {filter !== 'all' ? ` (${prospects.length} au total)` : ''}
         </div>
@@ -236,9 +236,9 @@ export default function ProspectTable({
         </div>
       )}
 
-      <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white">
-        <table className="min-w-full divide-y divide-slate-200 text-sm">
-          <thead className="bg-slate-50 text-xs uppercase tracking-wide text-gnd-muted">
+      <div className="overflow-x-auto rounded-2xl border border-[rgba(74,36,26,0.10)] bg-white">
+        <table className="min-w-full divide-y divide-border-soft text-sm">
+          <thead className="bg-cream text-xs uppercase tracking-wide text-muted-warm">
             <tr>
               <th className="px-4 py-3 text-left">Entreprise</th>
               <th className="px-4 py-3 text-left">Contact</th>
@@ -252,42 +252,42 @@ export default function ProspectTable({
               <th className="px-4 py-3 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody className="divide-y divide-[rgba(74,36,26,0.08)]">
             {filtered.length === 0 ? (
               <tr>
-                <td colSpan={10} className="px-4 py-10 text-center text-gnd-muted">
+                <td colSpan={10} className="px-4 py-10 text-center text-muted-warm">
                   Aucun prospect pour le moment.
                 </td>
               </tr>
             ) : (
               filtered.map((p) => (
-                <tr key={p.id} className="hover:bg-slate-50">
-                  <td className="px-4 py-3 font-medium text-gnd-primary">
+                <tr key={p.id} className="hover:bg-cream">
+                  <td className="px-4 py-3 font-medium text-ink-warm">
                     <div className="flex items-center gap-2">
                       <span>{p.company_name}</span>
                       {p.notion_page_id && (
                         <span
                           title="Prospect synchronisé depuis Notion"
-                          className="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-blue-700"
+                          className="inline-flex items-center rounded-full bg-info-bg px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-info-fg"
                         >
                           Notion
                         </span>
                       )}
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-slate-600">
+                  <td className="px-4 py-3 text-[#6F5A50]">
                     <div>{p.contact_name ?? '—'}</div>
                     {p.role_contact && (
-                      <div className="text-xs text-gnd-muted">
+                      <div className="text-xs text-muted-warm">
                         {p.role_contact}
                       </div>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-slate-600">
+                  <td className="px-4 py-3 text-[#6F5A50]">
                     {p.phone ? (
                       <a
                         href={`tel:${p.phone}`}
-                        className="text-gnd-primary hover:underline"
+                        className="text-ink-warm hover:underline"
                       >
                         {p.phone}
                       </a>
@@ -295,11 +295,11 @@ export default function ProspectTable({
                       '—'
                     )}
                   </td>
-                  <td className="px-4 py-3 text-slate-600">
+                  <td className="px-4 py-3 text-[#6F5A50]">
                     {p.email ? (
                       <a
                         href={`mailto:${p.email}`}
-                        className="text-gnd-primary hover:underline"
+                        className="text-ink-warm hover:underline"
                       >
                         {p.email}
                       </a>
@@ -307,8 +307,8 @@ export default function ProspectTable({
                       '—'
                     )}
                   </td>
-                  <td className="px-4 py-3 text-slate-600">{p.city ?? '—'}</td>
-                  <td className="px-4 py-3 text-slate-600">
+                  <td className="px-4 py-3 text-[#6F5A50]">{p.city ?? '—'}</td>
+                  <td className="px-4 py-3 text-[#6F5A50]">
                     {p.sector ?? '—'}
                   </td>
                   <td className="px-4 py-3">
@@ -334,7 +334,7 @@ export default function ProspectTable({
                       ))}
                     </select>
                   </td>
-                  <td className="px-4 py-3 text-gnd-muted">
+                  <td className="px-4 py-3 text-muted-warm">
                     {formatDate(p.updated_at)}
                   </td>
                   <td className="px-4 py-3">
@@ -343,7 +343,7 @@ export default function ProspectTable({
                         setNotesFor(p);
                         setNotesDraft(p.notes ?? '');
                       }}
-                      className="text-xs text-gnd-accent hover:underline"
+                      className="text-xs text-brand hover:underline"
                     >
                       {p.notes ? 'Voir' : 'Ajouter'}
                     </button>
@@ -353,7 +353,7 @@ export default function ProspectTable({
                       {hasEnrichment(p) && (
                         <button
                           onClick={() => setViewing(p)}
-                          className="rounded p-1 text-blue-600 hover:bg-blue-50"
+                          className="rounded p-1 text-info-fg hover:bg-info-bg"
                           aria-label="Voir l'analyse complète"
                           title="Voir l'analyse complète (gérant, social, recommandation, arguments…)"
                         >
@@ -362,7 +362,7 @@ export default function ProspectTable({
                       )}
                       <button
                         onClick={() => setEditing(p)}
-                        className="rounded p-1 text-gnd-muted hover:bg-slate-100 hover:text-gnd-primary"
+                        className="rounded p-1 text-muted-warm hover:bg-cream-deep hover:text-ink-warm"
                         aria-label="Modifier"
                         title="Modifier"
                       >
@@ -425,12 +425,12 @@ export default function ProspectTable({
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gnd-primary">
+              <h3 className="text-lg font-semibold text-ink-warm">
                 Notes · {notesFor.company_name}
               </h3>
               <button
                 onClick={() => setNotesFor(null)}
-                className="text-gnd-muted hover:text-gnd-primary"
+                className="text-muted-warm hover:text-ink-warm"
               >
                 ×
               </button>
@@ -440,7 +440,7 @@ export default function ProspectTable({
               rows={8}
               value={notesDraft}
               onChange={(e) => setNotesDraft(e.target.value)}
-              className="mt-4 w-full rounded-lg border border-slate-300 p-3 text-sm"
+              className="mt-4 w-full rounded-lg border border-border-soft p-3 text-sm"
               placeholder="Contexte, historique, prochaines actions…"
             />
 
