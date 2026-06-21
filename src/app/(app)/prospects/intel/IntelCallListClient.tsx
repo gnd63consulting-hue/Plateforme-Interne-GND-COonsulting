@@ -330,10 +330,10 @@ function StatChip({
   tone?: 'slate' | 'emerald' | 'amber' | 'bronze';
 }) {
   const tones: Record<string, string> = {
-    slate: 'bg-slate-100 text-slate-700',
+    slate: 'bg-cream-deep text-ink-warm',
     emerald: 'bg-emerald-100 text-emerald-700',
     amber: 'bg-amber-100 text-amber-800',
-    bronze: 'bg-cream-deep text-brand-dark ring-1 ring-gnd-bronze/15',
+    bronze: 'bg-cream-deep text-brand-dark ring-1 ring-[rgba(74,36,26,0.12)]/15',
   };
   return (
     <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-semibold ${tones[tone]}`}>
@@ -400,7 +400,7 @@ function PitchSelene({ r }: { r: IntelRowVM }) {
               {raisons.map((raison, i) => (
                 <li
                   key={i}
-                  className="inline-flex items-center rounded-full bg-white px-2 py-0.5 text-[11px] font-medium text-ink-warm ring-1 ring-gnd-bronze/12"
+                  className="inline-flex items-center rounded-full bg-white px-2 py-0.5 text-[11px] font-medium text-ink-warm ring-1 ring-[rgba(74,36,26,0.12)]/12"
                 >
                   {raison}
                 </li>
@@ -459,7 +459,7 @@ function IntelCard({ r }: { r: IntelRowVM }) {
             </Link>
             <ScoreBadge r={r} />
             {r.scoreLabel && (
-              <span className="inline-flex items-center rounded-full bg-cream-deep px-2 py-0.5 text-[11px] font-medium text-brand-dark ring-1 ring-gnd-bronze/12">
+              <span className="inline-flex items-center rounded-full bg-cream-deep px-2 py-0.5 text-[11px] font-medium text-brand-dark ring-1 ring-[rgba(74,36,26,0.12)]/12">
                 {r.scoreLabel}
               </span>
             )}
@@ -497,7 +497,7 @@ function IntelCard({ r }: { r: IntelRowVM }) {
 
           {/* Angle GND = le pitch pret a l'emploi (enrichissement Atlas) */}
           {r.angle && (
-            <div className="mt-2 rounded-2xl bg-cream-deep/60 p-2.5 ring-1 ring-gnd-bronze/8">
+            <div className="mt-2 rounded-2xl bg-cream-deep/60 p-2.5 ring-1 ring-[rgba(74,36,26,0.12)]/8">
               <p className="flex items-start gap-1.5 text-xs text-ink-warm">
                 <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-dark" aria-hidden />
                 <span>
@@ -531,7 +531,7 @@ function IntelCard({ r }: { r: IntelRowVM }) {
             {presenceChips.map((c) => (
               <span
                 key={c}
-                className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 font-medium text-slate-600"
+                className="inline-flex items-center gap-1 rounded-full bg-cream-deep px-2 py-0.5 font-medium text-[#6F5A50]"
               >
                 <Globe className="h-3 w-3" aria-hidden />
                 {c}
@@ -557,7 +557,7 @@ function IntelCard({ r }: { r: IntelRowVM }) {
               {r.tel}
             </a>
           ) : (
-            <span className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-100 px-4 py-2.5 text-sm font-medium text-slate-500">
+            <span className="inline-flex items-center justify-center gap-2 rounded-xl bg-cream-deep px-4 py-2.5 text-sm font-medium text-muted-warm">
               <Phone className="h-4 w-4" aria-hidden />
               Pas de tel
             </span>
