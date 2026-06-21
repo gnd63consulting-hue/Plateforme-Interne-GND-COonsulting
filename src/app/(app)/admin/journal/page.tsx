@@ -27,9 +27,7 @@ const BRAND = '#F39253';
 const GREEN = '#4F7A38';
 const RED = '#A04A4A';
 const BLUE = '#7C6A8F';
-const CARD_BG = '#FFFFFF';
 const HAIRLINE = 'rgba(74,36,26,0.10)';
-const BORDER = '1px solid rgba(74,36,26,0.10)';
 const SERIF = 'var(--font-marcellus), Georgia, serif';
 const MONO = 'var(--font-inter), ui-monospace, monospace';
 
@@ -206,19 +204,41 @@ export default async function JournalPage({
 
   return (
     <div style={{ maxWidth: 1040, margin: '0 auto', padding: '40px 28px 64px', color: CREAM }}>
-      <header style={{ marginBottom: 24 }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, fontFamily: MONO, fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.14em', color: AMBER, marginBottom: 12 }}>
-          <span aria-hidden style={{ width: 22, height: 2, borderRadius: 2, background: BRAND, display: 'inline-block' }} />
-          ADMIN · TRACABILITE
+      {/* En-tête cockpit chocolat (traçabilité admin) */}
+      <header
+        className="surface-chocolate"
+        style={{ position: 'relative', overflow: 'hidden', borderRadius: 16, padding: '24px 26px', marginBottom: 18 }}
+      >
+        <span
+          aria-hidden
+          style={{
+            position: 'absolute',
+            right: 18,
+            bottom: -36,
+            fontFamily: SERIF,
+            fontSize: 110,
+            lineHeight: 1,
+            color: 'rgba(251,247,241,0.08)',
+            pointerEvents: 'none',
+            userSelect: 'none',
+          }}
+        >
+          Journal
+        </span>
+        <div style={{ position: 'relative' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, fontFamily: MONO, fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.14em', color: '#E0A572', marginBottom: 12 }}>
+            <span aria-hidden style={{ width: 22, height: 2, borderRadius: 2, background: BRAND, display: 'inline-block' }} />
+            ADMIN · TRACABILITE
+          </div>
+          <h1 style={{ fontFamily: SERIF, fontSize: 32, fontWeight: 500, letterSpacing: '-0.01em', color: '#FBF7F1', margin: 0, lineHeight: 1.1 }}>
+            Journal d&apos;activite
+          </h1>
+          <p style={{ fontSize: 13.5, lineHeight: 1.55, color: 'rgba(251,247,241,0.58)', marginTop: 10, maxWidth: 620 }}>
+            Qui a fait quoi, quand. Chaque creation, modification et suppression sur
+            les prospects, devis, taches, activites, commissions et sequences est
+            tracee automatiquement (200 dernieres entrees).
+          </p>
         </div>
-        <h1 style={{ fontFamily: SERIF, fontSize: 32, fontWeight: 500, letterSpacing: '-0.01em', color: CHOCO, margin: 0, lineHeight: 1.1 }}>
-          Journal d&apos;activite
-        </h1>
-        <p style={{ fontSize: 14, lineHeight: 1.55, color: CREAM_SOFT, marginTop: 12, maxWidth: 660 }}>
-          Qui a fait quoi, quand. Chaque creation, modification et suppression sur
-          les prospects, devis, taches, activites, commissions et sequences est
-          tracee automatiquement (200 dernieres entrees).
-        </p>
       </header>
 
       {/* Filtres par table */}
@@ -236,17 +256,12 @@ export default async function JournalPage({
 
       {rows.length === 0 ? (
         <div
+          className="panel"
           style={{
-            background: CARD_BG,
-            border: BORDER,
-            borderRadius: 22,
-            padding: '48px 32px',
-            textAlign: 'center',
             display: 'flex',
-            flexDirection: 'column',
             alignItems: 'center',
             gap: 14,
-            boxShadow: '0 1px 2px rgba(74,36,26,0.04), 0 14px 38px -26px rgba(74,36,26,0.30)',
+            padding: 16,
           }}
         >
           <span
@@ -255,24 +270,28 @@ export default async function JournalPage({
               display: 'inline-flex',
               alignItems: 'center',
               justifyContent: 'center',
-              width: 52,
-              height: 52,
+              width: 44,
+              height: 44,
               borderRadius: 16,
               background: 'rgba(243,146,83,0.12)',
-              fontSize: 24,
+              color: AMBER,
+              fontSize: 22,
+              flexShrink: 0,
             }}
           >
             🗂️
           </span>
-          <p style={{ fontFamily: SERIF, fontSize: 20, fontWeight: 500, color: CHOCO, margin: 0 }}>
-            Aucune entree pour ce filtre
-          </p>
-          <p style={{ fontSize: 13.5, lineHeight: 1.55, color: CREAM_SOFT, margin: 0, maxWidth: 420 }}>
-            Aucune entree pour ce filtre.
-          </p>
+          <div style={{ minWidth: 0 }}>
+            <p style={{ fontFamily: SERIF, fontSize: 16, fontWeight: 500, color: CHOCO, margin: 0 }}>
+              Aucune entree pour ce filtre
+            </p>
+            <p style={{ fontSize: 12.5, lineHeight: 1.5, color: CREAM_SOFT, margin: '3px 0 0' }}>
+              Aucune activite tracee ne correspond a ce filtre pour l&apos;instant.
+            </p>
+          </div>
         </div>
       ) : (
-        <div style={{ background: CARD_BG, border: BORDER, borderRadius: 22, overflow: 'hidden', boxShadow: '0 1px 2px rgba(74,36,26,0.04), 0 14px 38px -26px rgba(74,36,26,0.30)' }}>
+        <div className="panel" style={{ padding: 0, overflow: 'hidden' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
               <tr style={{ background: 'rgba(243,146,83,0.05)' }}>
@@ -289,20 +308,20 @@ export default async function JournalPage({
                 const diffs =
                   r.action === 'UPDATE' ? diffFields(r.old_data, r.new_data) : [];
                 return (
-                  <tr key={r.id} style={{ borderBottom: `1px solid ${HAIRLINE}`, verticalAlign: 'top' }}>
-                    <td style={{ padding: '13px 16px', fontFamily: MONO, fontSize: 11, color: CREAM_SOFT, whiteSpace: 'nowrap' }}>
+                  <tr key={r.id} className="divider-warm" style={{ borderBottom: `1px solid ${HAIRLINE}`, verticalAlign: 'top' }}>
+                    <td className="font-num" style={{ padding: '11px 16px', fontFamily: MONO, fontSize: 11, color: CREAM_SOFT, whiteSpace: 'nowrap' }}>
                       {fmtWhen(r.changed_at)}
                     </td>
-                    <td style={{ padding: '13px 16px', color: CREAM }}>
+                    <td style={{ padding: '11px 16px', color: CREAM }}>
                       {r.actor_id ? actorName.get(r.actor_id) ?? 'Inconnu' : '— systeme'}
                     </td>
-                    <td style={{ padding: '13px 16px', whiteSpace: 'nowrap' }}>
+                    <td style={{ padding: '11px 16px', whiteSpace: 'nowrap' }}>
                       <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 11px', borderRadius: 999, fontFamily: MONO, fontSize: 10, fontWeight: 600, color: meta.color, background: `${meta.color}14`, border: `1px solid ${meta.color}33` }}>
                         <span aria-hidden style={{ width: 6, height: 6, borderRadius: 999, background: meta.color, flexShrink: 0 }} />
                         {meta.label}
                       </span>
                     </td>
-                    <td style={{ padding: '13px 16px', color: CREAM }}>
+                    <td style={{ padding: '11px 16px', color: CREAM }}>
                       <span style={{ color: AMBER, fontFamily: MONO, fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
                         {TABLE_LABELS[r.table_name ?? ''] ?? r.table_name}
                       </span>
@@ -312,7 +331,7 @@ export default async function JournalPage({
                         </span>
                       )}
                     </td>
-                    <td style={{ padding: '13px 16px', color: CREAM_SOFT, fontSize: 12.5 }}>
+                    <td style={{ padding: '11px 16px', color: CREAM_SOFT, fontSize: 12.5 }}>
                       {r.action === 'INSERT' && 'Creation de l’element.'}
                       {r.action === 'DELETE' && 'Suppression de l’element.'}
                       {r.action === 'UPDATE' &&
@@ -323,9 +342,9 @@ export default async function JournalPage({
                             {diffs.slice(0, 6).map((d) => (
                               <div key={d.key} style={{ display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'baseline' }}>
                                 <span style={{ fontFamily: MONO, fontSize: 10, color: AMBER }}>{d.key}</span>
-                                <span style={{ color: CREAM_FAINT, textDecoration: 'line-through' }}>{d.from}</span>
+                                <span className="font-num" style={{ color: CREAM_FAINT, textDecoration: 'line-through' }}>{d.from}</span>
                                 <span style={{ color: CREAM_FAINT }}>→</span>
-                                <span style={{ color: GREEN }}>{d.to}</span>
+                                <span className="font-num" style={{ color: GREEN }}>{d.to}</span>
                               </div>
                             ))}
                             {diffs.length > 6 && (
