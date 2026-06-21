@@ -11,8 +11,11 @@ export const dynamic = 'force-dynamic';
 const CREAM = '#2A2320';
 const CREAM_SOFT = '#7B665C';
 const AMBER = '#B5601C';
-const CARD_BG = '#FFFFFF';
-const CARD_BORDER = '1px solid #E2D5C3';
+const BRAND = '#F39253';
+const CARD_BG = 'linear-gradient(180deg, #FFFFFF 0%, #FDFAF6 100%)';
+const CARD_BORDER = '1px solid rgba(74,36,26,0.10)';
+const HAIRLINE = '1px solid rgba(74,36,26,0.10)';
+const CARD_SHADOW = '0 1px 2px rgba(83,36,24,0.04), 0 8px 24px -16px rgba(83,36,24,0.18)';
 const SERIF = 'var(--font-marcellus), Georgia, serif';
 const MONO = 'var(--font-inter), ui-monospace, monospace';
 
@@ -81,11 +84,34 @@ export default async function InvitationsPage() {
   }));
 
   return (
-    <div style={{ maxWidth: 920, margin: '0 auto', padding: '40px 28px 64px', color: CREAM }}>
+    <div style={{ maxWidth: 920, margin: '0 auto', padding: '40px 28px 64px', color: CREAM, position: 'relative' }}>
       {/* Header */}
-      <header style={{ marginBottom: 32 }}>
+      <header style={{ marginBottom: 32, position: 'relative' }}>
+        <div
+          aria-hidden
+          style={{
+            position: 'absolute',
+            top: -28,
+            right: -8,
+            fontFamily: SERIF,
+            fontSize: 116,
+            lineHeight: 1,
+            fontWeight: 500,
+            color: 'rgba(243,146,83,0.06)',
+            letterSpacing: '-0.02em',
+            pointerEvents: 'none',
+            userSelect: 'none',
+            zIndex: 0,
+          }}
+        >
+          Équipe
+        </div>
         <div
           style={{
+            position: 'relative',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 8,
             fontFamily: MONO,
             fontSize: 10,
             fontWeight: 600,
@@ -95,10 +121,12 @@ export default async function InvitationsPage() {
             marginBottom: 10,
           }}
         >
+          <span style={{ width: 18, height: 1.5, background: BRAND, borderRadius: 999 }} />
           ADMIN · ÉQUIPE
         </div>
         <h1
           style={{
+            position: 'relative',
             fontFamily: SERIF,
             fontSize: 32,
             fontWeight: 500,
@@ -110,7 +138,7 @@ export default async function InvitationsPage() {
         >
           Équipe &amp; invitations
         </h1>
-        <p style={{ fontSize: 14, lineHeight: 1.55, color: CREAM_SOFT, marginTop: 12, maxWidth: 560 }}>
+        <p style={{ position: 'relative', fontSize: 14, lineHeight: 1.55, color: CREAM_SOFT, marginTop: 12, maxWidth: 560 }}>
           Gère tes membres (rôle, autorisations, commission, prospects) et invite de nouvelles personnes.
           Login Google uniquement — tu ajoutes un email, la personne se connecte.
         </p>
@@ -138,9 +166,9 @@ export default async function InvitationsPage() {
           <h2 style={{ fontFamily: MONO, fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.18em', color: '#9A8A80', margin: '0 0 16px' }}>
             Membres archivés ({archivedMembers.length})
           </h2>
-          <div style={{ background: CARD_BG, border: CARD_BORDER, borderRadius: 16, overflow: 'hidden' }}>
+          <div style={{ background: CARD_BG, border: CARD_BORDER, borderRadius: 24, overflow: 'hidden', boxShadow: CARD_SHADOW }}>
             {archivedMembers.map((u) => (
-              <div key={u.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid rgba(83,36,24,0.06)' }}>
+              <div key={u.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 18px', borderBottom: HAIRLINE }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontFamily: 'var(--font-inter), system-ui, sans-serif', fontSize: 14, fontWeight: 600, color: CREAM }}>
                     {u.full_name ?? u.email.split('@')[0]}
@@ -149,7 +177,7 @@ export default async function InvitationsPage() {
                 </div>
                 <form action={reactivateMemberAction}>
                   <input type="hidden" name="id" value={u.id} />
-                  <button type="submit" style={{ padding: '6px 14px', borderRadius: 999, border: '1px solid rgba(79,122,56,0.40)', background: 'transparent', color: '#4F7A38', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+                  <button type="submit" style={{ padding: '7px 16px', borderRadius: 999, border: '1px solid rgba(79,122,56,0.35)', background: 'rgba(79,122,56,0.08)', color: '#4F7A38', fontSize: 12, fontWeight: 600, cursor: 'pointer', transition: 'all 0.18s ease' }}>
                     Réactiver
                   </button>
                 </form>
@@ -167,12 +195,14 @@ export default async function InvitationsPage() {
         style={{
           background: CARD_BG,
           border: CARD_BORDER,
-          borderRadius: 18,
+          borderRadius: 24,
           padding: 28,
           marginBottom: 36,
+          boxShadow: CARD_SHADOW,
         }}
       >
-        <h2 style={{ fontFamily: SERIF, fontSize: 19, fontWeight: 500, color: '#532418', margin: '0 0 18px' }}>
+        <h2 style={{ fontFamily: SERIF, fontSize: 19, fontWeight: 500, color: '#532418', margin: '0 0 18px', display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span style={{ width: 22, height: 1.5, background: BRAND, borderRadius: 999 }} />
           Inviter quelqu&apos;un
         </h2>
         <InviteForm />
@@ -194,19 +224,25 @@ export default async function InvitationsPage() {
           Invitations en attente ({pending.length})
         </h2>
         {pending.length === 0 ? (
-          <p style={{ fontSize: 13, color: CREAM_SOFT }}>Aucune invitation en attente.</p>
+          <div style={{ background: 'linear-gradient(180deg, rgba(243,146,83,0.05) 0%, rgba(253,250,246,0.6) 100%)', border: HAIRLINE, borderRadius: 24, padding: '32px 24px', textAlign: 'center' }}>
+            <div style={{ width: 44, height: 44, margin: '0 auto 12px', borderRadius: 16, background: 'rgba(243,146,83,0.14)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: AMBER, fontFamily: SERIF, fontSize: 22 }}>
+              ✦
+            </div>
+            <p style={{ fontSize: 13, color: CREAM_SOFT, margin: 0 }}>Aucune invitation en attente.</p>
+          </div>
         ) : (
           <div
             style={{
               background: CARD_BG,
               border: CARD_BORDER,
-              borderRadius: 16,
+              borderRadius: 24,
               overflow: 'hidden',
+              boxShadow: CARD_SHADOW,
             }}
           >
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
               <thead>
-                <tr>
+                <tr style={{ background: 'rgba(243,146,83,0.05)' }}>
                   {['Email', 'Rôle', 'Envoyée le', 'Expire le', ''].map((h) => (
                     <th
                       key={h}
@@ -219,7 +255,7 @@ export default async function InvitationsPage() {
                         textTransform: 'uppercase',
                         letterSpacing: '0.16em',
                         color: '#9A8A80',
-                        borderBottom: '1px solid #E2D5C3',
+                        borderBottom: HAIRLINE,
                       }}
                     >
                       {h}
@@ -229,7 +265,7 @@ export default async function InvitationsPage() {
               </thead>
               <tbody>
                 {pending.map((inv) => (
-                  <tr key={inv.id} style={{ borderBottom: '1px solid rgba(83,36,24,0.06)' }}>
+                  <tr key={inv.id} style={{ borderBottom: HAIRLINE }}>
                     <td style={{ padding: '13px 16px', color: CREAM, fontFamily: MONO, fontSize: 12 }}>
                       {inv.email}
                     </td>
@@ -299,7 +335,9 @@ export default async function InvitationsPage() {
           Membres déjà entrés ({consumed.length})
         </h2>
         {consumed.length === 0 ? (
-          <p style={{ fontSize: 13, color: CREAM_SOFT }}>Aucun.</p>
+          <div style={{ background: 'linear-gradient(180deg, rgba(243,146,83,0.05) 0%, rgba(253,250,246,0.6) 100%)', border: HAIRLINE, borderRadius: 24, padding: '28px 24px', textAlign: 'center' }}>
+            <p style={{ fontSize: 13, color: CREAM_SOFT, margin: 0 }}>Aucun.</p>
+          </div>
         ) : (
           <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
             {consumed.slice(0, 20).map((inv) => (
