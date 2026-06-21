@@ -69,8 +69,8 @@ export default function ImportClient() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
-      <h1 className="text-2xl font-semibold text-slate-800">Import de prospects (CSV)</h1>
-      <p className="mt-2 text-sm text-slate-500">
+      <h1 className="text-2xl font-semibold text-choco">Import de prospects (CSV)</h1>
+      <p className="mt-2 text-sm text-muted-warm">
         Colle un tableau ou charge un fichier .csv. Les colonnes sont reconnues
         automatiquement (entreprise, telephone, email, ville, secteur...). Les
         doublons avec la base et dans le fichier sont ecartes. Les prospects
@@ -78,12 +78,12 @@ export default function ImportClient() {
       </p>
 
       {/* Etape 1 : source */}
-      <section className="mt-6 rounded-xl border border-slate-200 bg-white p-5">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+      <section className="mt-6 rounded-xl border border-[rgba(74,36,26,0.10)] bg-white p-5">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-warm">
           1. Charger les donnees
         </h2>
         <div className="mt-3 flex flex-wrap items-center gap-3">
-          <label className="inline-flex cursor-pointer items-center rounded-lg bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700">
+          <label className="inline-flex cursor-pointer items-center rounded-lg bg-choco px-4 py-2 text-sm font-medium text-white hover:bg-choco">
             Choisir un fichier .csv
             <input
               type="file"
@@ -92,7 +92,7 @@ export default function ImportClient() {
               onChange={onFile}
             />
           </label>
-          {fileName && <span className="text-sm text-slate-500">{fileName}</span>}
+          {fileName && <span className="text-sm text-muted-warm">{fileName}</span>}
         </div>
         <div className="mt-3">
           <textarea
@@ -100,13 +100,13 @@ export default function ImportClient() {
             onChange={(e) => setRaw(e.target.value)}
             placeholder="...ou colle ici (1re ligne = en-tetes : Entreprise;Telephone;Email;Ville...)"
             rows={6}
-            className="w-full rounded-lg border border-slate-200 p-3 font-mono text-xs text-slate-700 focus:border-slate-400 focus:outline-none"
+            className="w-full rounded-lg border border-[rgba(74,36,26,0.10)] p-3 font-mono text-xs text-ink-warm focus:border-border-soft focus:outline-none"
           />
           <button
             type="button"
             onClick={() => doMap(raw)}
             disabled={!raw.trim()}
-            className="mt-2 rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+            className="mt-2 rounded-lg border border-border-soft px-3 py-1.5 text-sm font-medium text-ink-warm hover:bg-cream disabled:opacity-40"
           >
             Analyser le texte colle
           </button>
@@ -115,8 +115,8 @@ export default function ImportClient() {
 
       {/* Etape 2 : mapping + apercu */}
       {map && (
-        <section className="mt-5 rounded-xl border border-slate-200 bg-white p-5">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+        <section className="mt-5 rounded-xl border border-[rgba(74,36,26,0.10)] bg-white p-5">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-warm">
             2. Colonnes reconnues
           </h2>
           {rowCount === 0 ? (
@@ -138,7 +138,7 @@ export default function ImportClient() {
                 {map.ignored.map((h) => (
                   <span
                     key={h}
-                    className="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-500 line-through"
+                    className="rounded-full bg-cream-deep px-3 py-1 text-xs text-muted-warm line-through"
                     title="Colonne ignoree (non reconnue)"
                   >
                     {h || '(vide)'}
@@ -153,14 +153,14 @@ export default function ImportClient() {
                 </p>
               )}
 
-              <p className="mt-3 text-sm text-slate-600">
+              <p className="mt-3 text-sm text-[#6F5A50]">
                 <strong>{rowCount}</strong> ligne{rowCount > 1 ? 's' : ''} de donnees detectee
                 {rowCount > 1 ? 's' : ''}.
               </p>
 
               <div className="mt-3 overflow-x-auto">
                 <table className="min-w-full text-left text-xs">
-                  <thead className="text-slate-400">
+                  <thead className="text-muted-warm">
                     <tr>
                       <th className="py-1 pr-4">Entreprise</th>
                       <th className="py-1 pr-4">Contact</th>
@@ -170,9 +170,9 @@ export default function ImportClient() {
                       <th className="py-1 pr-4">Secteur</th>
                     </tr>
                   </thead>
-                  <tbody className="text-slate-700">
+                  <tbody className="text-ink-warm">
                     {map.rows.slice(0, 10).map((p, i) => (
-                      <tr key={i} className="border-t border-slate-100">
+                      <tr key={i} className="border-t border-[rgba(74,36,26,0.08)]">
                         <td className="py-1 pr-4">{p.company_name ?? '--'}</td>
                         <td className="py-1 pr-4">{p.contact_name ?? '--'}</td>
                         <td className="py-1 pr-4">{p.phone ?? '--'}</td>
@@ -184,7 +184,7 @@ export default function ImportClient() {
                   </tbody>
                 </table>
                 {rowCount > 10 && (
-                  <p className="mt-2 text-xs text-slate-400">
+                  <p className="mt-2 text-xs text-muted-warm">
                     ...et {rowCount - 10} autre{rowCount - 10 > 1 ? 's' : ''}.
                   </p>
                 )}
@@ -194,7 +194,7 @@ export default function ImportClient() {
                 type="button"
                 onClick={runAnalyze}
                 disabled={!canProceed || pending}
-                className="mt-4 rounded-lg bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-40"
+                className="mt-4 rounded-lg bg-choco px-4 py-2 text-sm font-medium text-white hover:bg-choco disabled:opacity-40"
               >
                 {pending ? 'Analyse...' : 'Verifier les doublons'}
               </button>
@@ -205,8 +205,8 @@ export default function ImportClient() {
 
       {/* Etape 3 : analyse + import */}
       {analysis && (
-        <section className="mt-5 rounded-xl border border-slate-200 bg-white p-5">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+        <section className="mt-5 rounded-xl border border-[rgba(74,36,26,0.10)] bg-white p-5">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-warm">
             3. Resultat de l'analyse
           </h2>
           {analysis.error ? (
@@ -219,7 +219,7 @@ export default function ImportClient() {
                 <Stat label="Doublons fichier" value={analysis.duplicatesInFile} tone="slate" />
                 <Stat label="Invalides" value={analysis.invalid} tone="rose" />
               </div>
-              <p className="mt-3 text-xs text-slate-500">
+              <p className="mt-3 text-xs text-muted-warm">
                 Sur {analysis.total} lignes, {analysis.toInsert} nouveaux prospects
                 seront crees (statut "A contacter", non assignes). Les doublons et
                 lignes sans entreprise sont ignores.
@@ -273,7 +273,7 @@ function Stat({
   const tones: Record<string, string> = {
     emerald: 'bg-emerald-50 text-emerald-700',
     amber: 'bg-amber-50 text-amber-700',
-    slate: 'bg-slate-50 text-slate-600',
+    slate: 'bg-cream text-[#6F5A50]',
     rose: 'bg-rose-50 text-rose-700',
   };
   return (
