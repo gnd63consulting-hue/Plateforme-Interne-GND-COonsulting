@@ -117,50 +117,74 @@ export default async function CommercialDetailPage({
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">
-      <Link href="/admin/suivi-equipe" className="text-sm text-muted-warm hover:text-ink-warm">
+      <Link
+        href="/admin/suivi-equipe"
+        className="font-grotesk text-[11px] font-semibold uppercase tracking-[0.13em] text-muted-warm hover:text-brand-burnt"
+      >
         &larr; Suivi equipe
       </Link>
 
-      <div className="mt-3 flex flex-wrap items-center gap-3">
-        <h1 className="text-2xl font-semibold text-choco">{name}</h1>
-        <span className="rounded-full bg-cream-deep px-3 py-1 text-xs font-medium text-[#6F5A50]">
-          {commercial.role}
+      {/* En-tete cockpit chocolat */}
+      <div className="surface-chocolate relative mt-3 overflow-hidden rounded-[16px] p-5 sm:p-6">
+        <span className="font-marcellus pointer-events-none absolute -right-4 top-1/2 -translate-y-1/2 select-none text-[110px] leading-none text-cream/[0.08]">
+          {name.charAt(0).toUpperCase()}
         </span>
-        <span
-          className={`rounded-full px-3 py-1 text-xs font-medium ${
-            commercial.active === false
-              ? 'bg-rose-100 text-rose-700'
-              : 'bg-emerald-100 text-emerald-700'
-          }`}
-        >
-          {commercial.active === false ? 'Inactif' : 'Actif'}
-        </span>
+        <div className="relative">
+          <span className="inline-flex items-center gap-2">
+            <span className="h-px w-4 bg-gradient-to-r from-brand to-transparent" />
+            <span className="font-grotesk text-[11px] font-semibold uppercase tracking-[0.13em] text-[#E0A572]">
+              Suivi d&apos;activite
+            </span>
+          </span>
+          <h1 className="font-marcellus mt-2 text-3xl text-cream">{name}</h1>
+          <p className="font-num mt-1 text-sm text-cream/55">{commercial.email}</p>
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-cream/10 px-3 py-1 font-grotesk text-[10px] font-semibold uppercase tracking-[0.1em] text-cream/75">
+              {commercial.role}
+            </span>
+            <span
+              className={`rounded-full px-3 py-1 text-xs font-medium ${
+                commercial.active === false
+                  ? 'bg-danger-bg text-danger-fg'
+                  : 'bg-ok-bg text-ok-fg'
+              }`}
+            >
+              {commercial.active === false ? 'Inactif' : 'Actif'}
+            </span>
+          </div>
+        </div>
       </div>
-      <p className="mt-1 text-sm text-muted-warm">{commercial.email}</p>
 
       {/* KPIs */}
-      <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <Kpi label="Prospects assignes" value={total} tone="slate" />
-        <Kpi label="Rappels en retard" value={overdue.length} tone="rose" />
-        <Kpi label="Rappels a venir" value={upcoming.length} tone="amber" />
-        <Kpi label="Actions (20 dern.)" value={acts.length} tone="emerald" />
+      <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <Kpi label="Prospects assignes" value={total} tone="neutral" />
+        <Kpi label="Rappels en retard" value={overdue.length} tone="danger" />
+        <Kpi label="Rappels a venir" value={upcoming.length} tone="warn" />
+        <Kpi label="Actions (20 dern.)" value={acts.length} tone="ok" />
       </div>
 
       {/* Repartition par statut */}
-      <section className="mt-6 rounded-xl border border-[rgba(74,36,26,0.10)] bg-white p-5">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-warm">
-          Repartition par statut
-        </h2>
+      <section className="panel mt-5 p-4">
+        <span className="inline-flex items-center gap-2">
+          <span className="h-px w-4 bg-gradient-to-r from-brand to-transparent" />
+          <span className="font-grotesk text-[11px] font-semibold uppercase tracking-[0.13em] text-brand-burnt">
+            Repartition par statut
+          </span>
+        </span>
         {byStatus.length === 0 ? (
-          <p className="mt-3 text-sm text-muted-warm">Aucun prospect assigne.</p>
+          <div className="mt-3 flex items-center gap-3">
+            <span className="flex h-9 w-9 items-center justify-center rounded-2xl bg-brand-pale text-brand-burnt">&#9737;</span>
+            <p className="text-sm text-muted-warm">Aucun prospect assigne.</p>
+          </div>
         ) : (
           <div className="mt-3 flex flex-wrap gap-2">
             {byStatus.map(([status, n]) => (
               <span
                 key={status || 'none'}
-                className={`rounded-full px-3 py-1 text-xs font-medium ${toneForStatus(status)}`}
+                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${toneForStatus(status)}`}
               >
-                {labelForStatus(status)} : {n}
+                {labelForStatus(status)}
+                <span className="font-num tabular-nums font-semibold">{n}</span>
               </span>
             ))}
           </div>
@@ -168,34 +192,43 @@ export default async function CommercialDetailPage({
       </section>
 
       {/* Rappels */}
-      <section className="mt-5 grid gap-5 md:grid-cols-2">
+      <section className="mt-5 grid gap-3 md:grid-cols-2">
         <RecallList title="En retard" rows={overdue} tone="rose" />
         <RecallList title="A venir" rows={upcoming.slice(0, 12)} tone="amber" />
       </section>
 
       {/* Dernieres activites */}
-      <section className="mt-5 rounded-xl border border-[rgba(74,36,26,0.10)] bg-white p-5">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-warm">
-          Dernieres actions
-        </h2>
+      <section className="panel mt-5 p-4">
+        <span className="inline-flex items-center gap-2">
+          <span className="h-px w-4 bg-gradient-to-r from-brand to-transparent" />
+          <span className="font-grotesk text-[11px] font-semibold uppercase tracking-[0.13em] text-brand-burnt">
+            Dernieres actions
+          </span>
+        </span>
         {acts.length === 0 ? (
-          <p className="mt-3 text-sm text-muted-warm">Aucune activite enregistree.</p>
+          <div className="mt-3 flex items-center gap-3">
+            <span className="flex h-9 w-9 items-center justify-center rounded-2xl bg-brand-pale text-brand-burnt">&#9737;</span>
+            <p className="text-sm text-muted-warm">Aucune activite enregistree.</p>
+          </div>
         ) : (
-          <ul className="mt-3 space-y-2">
+          <ul className="mt-2">
             {acts.map((a) => (
-              <li key={a.id} className="flex items-start gap-3 text-sm">
-                <span className="mt-0.5 rounded bg-cream-deep px-2 py-0.5 text-xs font-medium text-[#6F5A50]">
+              <li
+                key={a.id}
+                className="divider-warm card-hover flex items-start gap-3 rounded-lg px-2 py-2.5 text-sm"
+              >
+                <span className="mt-0.5 shrink-0 rounded-md bg-cream-deep px-2 py-0.5 font-grotesk text-[10px] font-semibold uppercase tracking-[0.06em] text-[#6F5A50]">
                   {KIND_LABEL[a.kind ?? ''] ?? a.kind ?? '--'}
                 </span>
                 <div className="min-w-0">
                   <Link
                     href={`/prospects/${a.prospect_id}`}
-                    className="font-medium text-ink-warm hover:underline"
+                    className="font-medium text-choco hover:underline"
                   >
                     {(a.prospect_id && companyById.get(a.prospect_id)) || 'Prospect'}
                   </Link>
                   {a.body && <span className="text-muted-warm"> &mdash; {a.body}</span>}
-                  <div className="text-xs text-muted-warm">{formatDate(a.occurred_at)}</div>
+                  <div className="font-num mt-0.5 text-xs text-muted-warm">{formatDate(a.occurred_at)}</div>
                 </div>
               </li>
             ))}
@@ -213,18 +246,18 @@ function Kpi({
 }: {
   label: string;
   value: number;
-  tone: 'slate' | 'rose' | 'amber' | 'emerald';
+  tone: 'neutral' | 'danger' | 'warn' | 'ok';
 }) {
   const tones: Record<string, string> = {
-    slate: 'bg-cream text-ink-warm',
-    rose: 'bg-rose-50 text-rose-700',
-    amber: 'bg-amber-50 text-amber-700',
-    emerald: 'bg-emerald-50 text-emerald-700',
+    neutral: 'text-choco',
+    danger: 'text-danger-fg',
+    warn: 'text-warn-fg',
+    ok: 'text-ok-fg',
   };
   return (
-    <div className={`rounded-lg p-3 text-center ${tones[tone]}`}>
-      <div className="text-2xl font-semibold">{value}</div>
-      <div className="text-xs">{label}</div>
+    <div className="panel p-4">
+      <div className={`font-num tabular-nums text-2xl font-semibold ${tones[tone]}`}>{value}</div>
+      <div className="font-grotesk mt-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-warm">{label}</div>
     </div>
   );
 }
@@ -238,25 +271,37 @@ function RecallList({
   rows: ProspectLite[];
   tone: 'rose' | 'amber';
 }) {
-  const dot = tone === 'rose' ? 'text-rose-500' : 'text-amber-500';
+  const dot = tone === 'rose' ? 'text-danger-fg' : 'text-warn-fg';
   return (
-    <div className="rounded-xl border border-[rgba(74,36,26,0.10)] bg-white p-5">
-      <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-warm">
-        Rappels {title} ({rows.length})
-      </h2>
+    <div className="panel p-4">
+      <div className="flex items-center justify-between gap-2">
+        <span className="inline-flex items-center gap-2">
+          <span className="h-px w-4 bg-gradient-to-r from-brand to-transparent" />
+          <span className="font-grotesk text-[11px] font-semibold uppercase tracking-[0.13em] text-brand-burnt">
+            Rappels {title}
+          </span>
+        </span>
+        <span className="font-num tabular-nums text-xs font-semibold text-muted-warm">{rows.length}</span>
+      </div>
       {rows.length === 0 ? (
-        <p className="mt-3 text-sm text-muted-warm">Aucun.</p>
+        <div className="mt-3 flex items-center gap-3">
+          <span className="flex h-9 w-9 items-center justify-center rounded-2xl bg-brand-pale text-brand-burnt">&#9737;</span>
+          <p className="text-sm text-muted-warm">Aucun.</p>
+        </div>
       ) : (
-        <ul className="mt-3 space-y-1.5">
+        <ul className="mt-2">
           {rows.map((p) => (
-            <li key={p.id} className="flex items-center justify-between gap-2 text-sm">
+            <li
+              key={p.id}
+              className="divider-warm card-hover flex items-center justify-between gap-2 rounded-lg px-2 py-2.5 text-sm"
+            >
               <Link
                 href={`/prospects/${p.id}`}
-                className="truncate font-medium text-ink-warm hover:underline"
+                className="truncate font-medium text-choco hover:underline"
               >
                 {p.company_name ?? '--'}
               </Link>
-              <span className={`shrink-0 text-xs ${dot}`}>
+              <span className={`font-num tabular-nums shrink-0 text-xs ${dot}`}>
                 {formatDate(p.next_action_at)}
               </span>
             </li>
