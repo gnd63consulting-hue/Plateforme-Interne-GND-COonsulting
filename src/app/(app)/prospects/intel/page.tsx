@@ -3,11 +3,14 @@ import { createClient } from '@/lib/supabase-server';
 import {
   INTEL_SELECT_COLUMNS,
   SCORING_SOURCE,
+  CALL_PITCH_SOURCE,
   latestEnrichmentByProspect,
   latestScoringByProspect,
+  latestCallPitchByProspect,
   type ProspectIntelRow,
   type LatestEnrichment,
   type SeleneScore,
+  type CallPitch,
 } from '@/lib/prospect-intel';
 import IntelCallListClient, { type IntelRowVM } from './IntelCallListClient';
 
@@ -73,6 +76,7 @@ export default async function ProspectIntelPage() {
 
   let intelMap = new Map<string, LatestEnrichment>();
   let scoreMap = new Map<string, SeleneScore>();
+  let callPitchMap = new Map<string, CallPitch>();
   if (ids.length) {
     const { data: intelRaw } = await supabase
       .from('prospect_intel')
@@ -96,11 +100,24 @@ export default async function ProspectIntelPage() {
     scoreMap = latestScoringByProspect(
       (scoreRaw ?? []) as unknown as ProspectIntelRow[]
     );
+
+    // Pitch d'appel Nyx : meme table, intel_type='signal' + source='nyx.call_pitch'.
+    const { data: pitchRaw } = await supabase
+      .from('prospect_intel')
+      .select(INTEL_SELECT_COLUMNS)
+      .eq('intel_type', 'signal')
+      .eq('source', CALL_PITCH_SOURCE)
+      .in('prospect_id', ids)
+      .order('created_at', { ascending: false });
+    callPitchMap = latestCallPitchByProspect(
+      (pitchRaw ?? []) as unknown as ProspectIntelRow[]
+    );
   }
 
   const rows: IntelRowVM[] = prospects.map((p) => {
     const e = intelMap.get(p.id);
     const s = scoreMap.get(p.id);
+    const cp = callPitchMap.get(p.id);
     const dirigeant =
       e?.dirigeant_nom ??
       p.contact_name ??
@@ -135,6 +152,12 @@ export default async function ProspectIntelPage() {
       raisons: s?.raisons ?? [],
       persona: s?.persona ?? null,
       fenetreAchat: s?.fenetreAchat ?? null,
+      // Pitch d'appel Nyx (script tel pret-a-dire)
+      callPitchHook: cp?.hookOral ?? null,
+      callPitchRaison: cp?.raisonAppel ?? null,
+      callPitchAngle: cp?.angle ?? null,
+      callPitchObjection: cp?.objection ?? null,
+      hasCallPitch: !!cp,
     };
   });
 
