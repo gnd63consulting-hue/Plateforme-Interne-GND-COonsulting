@@ -70,7 +70,7 @@ export default async function DevisPrintPage({
       <div className="mb-6 flex items-center justify-between print:hidden">
         <Link
           href={`/prospects/${id}`}
-          className="inline-flex items-center gap-2 rounded-full border border-gnd-bronze/10 bg-white px-4 py-2 text-sm font-semibold text-gnd-bronze transition-colors hover:bg-gnd-cream"
+          className="inline-flex items-center gap-2 rounded-full border border-[rgba(74,36,26,0.12)] bg-white px-4 py-2 text-sm font-semibold text-ink-warm transition-colors hover:bg-cream"
         >
           <ArrowLeft className="h-4 w-4" aria-hidden />
           Retour à la fiche
@@ -79,28 +79,28 @@ export default async function DevisPrintPage({
       </div>
 
       {/* Document A4 */}
-      <article className="rounded-xl border border-gnd-bronze/10 bg-white p-10 text-gnd-ink shadow-warm print:rounded-none print:border-0 print:p-0 print:shadow-none">
+      <article className="rounded-xl border border-[rgba(74,36,26,0.12)] bg-white p-10 text-gnd-ink shadow-warm print:rounded-none print:border-0 print:p-0 print:shadow-none">
         {/* En-tête GND */}
-        <header className="mb-8 flex items-start justify-between border-b border-gnd-bronze/15 pb-6">
+        <header className="mb-8 flex items-start justify-between border-b border-[rgba(74,36,26,0.12)] pb-6">
           <div>
-            <p className="font-display text-2xl font-semibold tracking-tight text-gnd-bronze">
-              GND <span className="italic text-gnd-amber">Consulting</span>
+            <p className="font-display text-2xl font-semibold tracking-tight text-ink-warm">
+              GND <span className="italic text-brand">Consulting</span>
             </p>
-            <p className="mt-1 text-xs text-gnd-bronze-soft">
+            <p className="mt-1 text-xs text-[#6F5A50]">
               Studio créatif hybride · Sites web, identité &amp; contenu
             </p>
           </div>
           <div className="text-right">
-            <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-gnd-amber">
+            <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-brand">
               Devis
             </p>
-            <p className="mt-1 font-mono text-sm font-semibold text-gnd-bronze">
+            <p className="mt-1 font-mono text-sm font-semibold text-ink-warm">
               {quote.numero ?? '—'}
             </p>
-            <p className="mt-1 text-xs text-gnd-bronze-soft">
+            <p className="mt-1 text-xs text-[#6F5A50]">
               Émis le {formatDateLong(quote.created_at)}
             </p>
-            <p className="mt-0.5 text-xs text-gnd-bronze-soft">
+            <p className="mt-0.5 text-xs text-[#6F5A50]">
               Statut : {labelForQuoteStatut(quote.statut)}
             </p>
           </div>
@@ -108,42 +108,42 @@ export default async function DevisPrintPage({
 
         {/* Destinataire */}
         <section className="mb-8">
-          <p className="mb-1 font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-gnd-bronze-faded">
+          <p className="mb-1 font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-warm">
             Destinataire
           </p>
-          <p className="text-lg font-semibold text-gnd-bronze">
+          <p className="text-lg font-semibold text-ink-warm">
             {prospect?.company_name ?? '—'}
           </p>
           {prospect?.contact_name && (
-            <p className="text-sm text-gnd-bronze-soft">
+            <p className="text-sm text-[#6F5A50]">
               {prospect.contact_name}
               {prospect.role_contact ? ` · ${prospect.role_contact}` : ''}
             </p>
           )}
           {(prospect?.address || prospect?.city) && (
-            <p className="text-sm text-gnd-bronze-soft">
+            <p className="text-sm text-[#6F5A50]">
               {[prospect?.address, prospect?.city].filter(Boolean).join(', ')}
             </p>
           )}
           {prospect?.email && (
-            <p className="text-sm text-gnd-bronze-soft">{prospect.email}</p>
+            <p className="text-sm text-[#6F5A50]">{prospect.email}</p>
           )}
         </section>
 
         {/* Tableau des lignes */}
         <table className="mb-6 w-full border-collapse text-sm">
           <thead>
-            <tr className="border-b-2 border-gnd-bronze/20 text-left">
-              <th className="py-2 font-mono text-[10px] font-semibold uppercase tracking-wide text-gnd-bronze-faded">
+            <tr className="border-b-2 border-[rgba(74,36,26,0.12)]/20 text-left">
+              <th className="py-2 font-mono text-[10px] font-semibold uppercase tracking-wide text-muted-warm">
                 Désignation
               </th>
-              <th className="py-2 text-right font-mono text-[10px] font-semibold uppercase tracking-wide text-gnd-bronze-faded">
+              <th className="py-2 text-right font-mono text-[10px] font-semibold uppercase tracking-wide text-muted-warm">
                 Qté
               </th>
-              <th className="py-2 text-right font-mono text-[10px] font-semibold uppercase tracking-wide text-gnd-bronze-faded">
+              <th className="py-2 text-right font-mono text-[10px] font-semibold uppercase tracking-wide text-muted-warm">
                 PU HT
               </th>
-              <th className="py-2 text-right font-mono text-[10px] font-semibold uppercase tracking-wide text-gnd-bronze-faded">
+              <th className="py-2 text-right font-mono text-[10px] font-semibold uppercase tracking-wide text-muted-warm">
                 Total HT
               </th>
             </tr>
@@ -153,19 +153,19 @@ export default async function DevisPrintPage({
               <tr>
                 <td
                   colSpan={4}
-                  className="py-4 text-center text-sm italic text-gnd-bronze-faded"
+                  className="py-4 text-center text-sm italic text-muted-warm"
                 >
                   Aucune ligne sur ce devis.
                 </td>
               </tr>
             ) : (
               lines.map((l) => (
-                <tr key={l.id} className="border-b border-gnd-bronze/8">
+                <tr key={l.id} className="border-b border-[rgba(74,36,26,0.10)]">
                   <td className="py-2.5 pr-4 text-gnd-ink">{l.designation}</td>
-                  <td className="py-2.5 text-right tabular-nums text-gnd-bronze-soft">
+                  <td className="py-2.5 text-right tabular-nums text-[#6F5A50]">
                     {l.quantite}
                   </td>
-                  <td className="py-2.5 text-right tabular-nums text-gnd-bronze-soft">
+                  <td className="py-2.5 text-right tabular-nums text-[#6F5A50]">
                     {formatEurExact(l.prix_unitaire_ht)}
                   </td>
                   <td className="py-2.5 text-right font-semibold tabular-nums text-gnd-ink">
@@ -181,22 +181,22 @@ export default async function DevisPrintPage({
         <div className="mb-8 flex justify-end">
           <div className="w-full max-w-xs space-y-1.5 text-sm">
             <div className="flex items-center justify-between">
-              <span className="text-gnd-bronze-soft">Total HT</span>
+              <span className="text-[#6F5A50]">Total HT</span>
               <span className="font-semibold tabular-nums text-gnd-ink">
                 {formatEurExact(quote.montant_ht)}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-gnd-bronze-soft">
+              <span className="text-[#6F5A50]">
                 TVA ({quote.tva_rate}%)
               </span>
               <span className="font-semibold tabular-nums text-gnd-ink">
                 {formatEurExact(quote.montant_tva)}
               </span>
             </div>
-            <div className="flex items-center justify-between border-t-2 border-gnd-bronze/20 pt-2">
-              <span className="font-semibold text-gnd-bronze">Total TTC</span>
-              <span className="font-display text-xl font-semibold tabular-nums text-gnd-amber">
+            <div className="flex items-center justify-between border-t-2 border-[rgba(74,36,26,0.12)]/20 pt-2">
+              <span className="font-semibold text-ink-warm">Total TTC</span>
+              <span className="font-display text-xl font-semibold tabular-nums text-brand">
                 {formatEurExact(quote.montant_ttc)}
               </span>
             </div>
@@ -204,16 +204,16 @@ export default async function DevisPrintPage({
         </div>
 
         {/* Mentions / notes */}
-        <footer className="space-y-3 border-t border-gnd-bronze/15 pt-6 text-xs leading-relaxed text-gnd-bronze-soft">
+        <footer className="space-y-3 border-t border-[rgba(74,36,26,0.12)] pt-6 text-xs leading-relaxed text-[#6F5A50]">
           {quote.valid_until && (
             <p>
-              <span className="font-semibold text-gnd-bronze">Validité :</span>{' '}
+              <span className="font-semibold text-ink-warm">Validité :</span>{' '}
               devis valable jusqu&apos;au {formatDateLong(quote.valid_until)}.
             </p>
           )}
           {quote.notes && (
             <p className="whitespace-pre-wrap">
-              <span className="font-semibold text-gnd-bronze">Conditions :</span>{' '}
+              <span className="font-semibold text-ink-warm">Conditions :</span>{' '}
               {quote.notes}
             </p>
           )}
