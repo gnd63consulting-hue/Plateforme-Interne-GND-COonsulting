@@ -17,17 +17,21 @@ export const dynamic = 'force-dynamic';
  * Suppression. Aucune migration : audit_log + RLS existent deja (0012 / 0016).
  */
 
-const CREAM = '#FDF6EE';
-const CREAM_SOFT = 'rgba(253,246,238,0.6)';
-const CREAM_FAINT = 'rgba(253,246,238,0.4)';
-const AMBER = '#E8853D';
-const GREEN = '#7FC9A3';
-const RED = '#E08A8A';
-const BLUE = '#8FB3E0';
-const CARD_BG = 'rgba(253,246,238,0.04)';
-const BORDER = '1px solid rgba(232,133,61,0.14)';
-const SERIF = 'var(--font-fraunces), Georgia, serif';
-const MONO = 'var(--font-geist-mono), ui-monospace, monospace';
+// Design System crème/orange — texte FONCÉ sur fond clair, bordures chaudes.
+const CREAM = '#3A2A22';
+const CREAM_SOFT = '#6F5A50';
+const CREAM_FAINT = '#9A8A80';
+const CHOCO = '#532418';
+const AMBER = '#C96A2B';
+const BRAND = '#F39253';
+const GREEN = '#4F7A38';
+const RED = '#A04A4A';
+const BLUE = '#7C6A8F';
+const CARD_BG = '#FFFFFF';
+const HAIRLINE = 'rgba(74,36,26,0.10)';
+const BORDER = '1px solid rgba(74,36,26,0.10)';
+const SERIF = 'var(--font-marcellus), Georgia, serif';
+const MONO = 'var(--font-inter), ui-monospace, monospace';
 
 const ADMIN_ROLES = new Set(['admin', 'admin_limited']);
 
@@ -203,10 +207,11 @@ export default async function JournalPage({
   return (
     <div style={{ maxWidth: 1040, margin: '0 auto', padding: '40px 28px 64px', color: CREAM }}>
       <header style={{ marginBottom: 24 }}>
-        <div style={{ fontFamily: MONO, fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.22em', color: AMBER, marginBottom: 10 }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, fontFamily: MONO, fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.14em', color: AMBER, marginBottom: 12 }}>
+          <span aria-hidden style={{ width: 22, height: 2, borderRadius: 2, background: BRAND, display: 'inline-block' }} />
           ADMIN · TRACABILITE
         </div>
-        <h1 style={{ fontFamily: SERIF, fontSize: 32, fontWeight: 500, letterSpacing: '-0.01em', color: CREAM, margin: 0, lineHeight: 1.1 }}>
+        <h1 style={{ fontFamily: SERIF, fontSize: 32, fontWeight: 500, letterSpacing: '-0.01em', color: CHOCO, margin: 0, lineHeight: 1.1 }}>
           Journal d&apos;activite
         </h1>
         <p style={{ fontSize: 14, lineHeight: 1.55, color: CREAM_SOFT, marginTop: 12, maxWidth: 660 }}>
@@ -230,16 +235,49 @@ export default async function JournalPage({
       </div>
 
       {rows.length === 0 ? (
-        <p style={{ fontSize: 14, color: CREAM_SOFT }}>
-          Aucune entree pour ce filtre.
-        </p>
+        <div
+          style={{
+            background: CARD_BG,
+            border: BORDER,
+            borderRadius: 22,
+            padding: '48px 32px',
+            textAlign: 'center',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 14,
+            boxShadow: '0 1px 2px rgba(74,36,26,0.04), 0 14px 38px -26px rgba(74,36,26,0.30)',
+          }}
+        >
+          <span
+            aria-hidden
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: 52,
+              height: 52,
+              borderRadius: 16,
+              background: 'rgba(243,146,83,0.12)',
+              fontSize: 24,
+            }}
+          >
+            🗂️
+          </span>
+          <p style={{ fontFamily: SERIF, fontSize: 20, fontWeight: 500, color: CHOCO, margin: 0 }}>
+            Aucune entree pour ce filtre
+          </p>
+          <p style={{ fontSize: 13.5, lineHeight: 1.55, color: CREAM_SOFT, margin: 0, maxWidth: 420 }}>
+            Aucune entree pour ce filtre.
+          </p>
+        </div>
       ) : (
-        <div style={{ background: CARD_BG, border: BORDER, borderRadius: 16, overflow: 'hidden' }}>
+        <div style={{ background: CARD_BG, border: BORDER, borderRadius: 22, overflow: 'hidden', boxShadow: '0 1px 2px rgba(74,36,26,0.04), 0 14px 38px -26px rgba(74,36,26,0.30)' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
-              <tr>
+              <tr style={{ background: 'rgba(243,146,83,0.05)' }}>
                 {['Quand', 'Qui', 'Action', 'Objet', 'Details'].map((h) => (
-                  <th key={h} style={{ textAlign: 'left', padding: '11px 16px', fontFamily: MONO, fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.14em', color: CREAM_FAINT, borderBottom: '1px solid rgba(232,133,61,0.12)' }}>{h}</th>
+                  <th key={h} style={{ textAlign: 'left', padding: '13px 16px', fontFamily: MONO, fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.14em', color: AMBER, borderBottom: `1px solid ${HAIRLINE}` }}>{h}</th>
                 ))}
               </tr>
             </thead>
@@ -251,29 +289,30 @@ export default async function JournalPage({
                 const diffs =
                   r.action === 'UPDATE' ? diffFields(r.old_data, r.new_data) : [];
                 return (
-                  <tr key={r.id} style={{ borderBottom: '1px solid rgba(232,133,61,0.07)', verticalAlign: 'top' }}>
-                    <td style={{ padding: '12px 16px', fontFamily: MONO, fontSize: 11, color: CREAM_SOFT, whiteSpace: 'nowrap' }}>
+                  <tr key={r.id} style={{ borderBottom: `1px solid ${HAIRLINE}`, verticalAlign: 'top' }}>
+                    <td style={{ padding: '13px 16px', fontFamily: MONO, fontSize: 11, color: CREAM_SOFT, whiteSpace: 'nowrap' }}>
                       {fmtWhen(r.changed_at)}
                     </td>
-                    <td style={{ padding: '12px 16px', color: CREAM }}>
+                    <td style={{ padding: '13px 16px', color: CREAM }}>
                       {r.actor_id ? actorName.get(r.actor_id) ?? 'Inconnu' : '— systeme'}
                     </td>
-                    <td style={{ padding: '12px 16px', whiteSpace: 'nowrap' }}>
-                      <span style={{ display: 'inline-block', padding: '3px 9px', borderRadius: 999, fontFamily: MONO, fontSize: 10, fontWeight: 600, color: meta.color, background: 'rgba(253,246,238,0.06)', border: `1px solid ${meta.color}33` }}>
+                    <td style={{ padding: '13px 16px', whiteSpace: 'nowrap' }}>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 11px', borderRadius: 999, fontFamily: MONO, fontSize: 10, fontWeight: 600, color: meta.color, background: `${meta.color}14`, border: `1px solid ${meta.color}33` }}>
+                        <span aria-hidden style={{ width: 6, height: 6, borderRadius: 999, background: meta.color, flexShrink: 0 }} />
                         {meta.label}
                       </span>
                     </td>
-                    <td style={{ padding: '12px 16px', color: CREAM }}>
-                      <span style={{ color: CREAM_FAINT, fontFamily: MONO, fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                    <td style={{ padding: '13px 16px', color: CREAM }}>
+                      <span style={{ color: AMBER, fontFamily: MONO, fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
                         {TABLE_LABELS[r.table_name ?? ''] ?? r.table_name}
                       </span>
                       {objLabel && (
-                        <span style={{ display: 'block', fontFamily: SERIF, fontSize: 14, color: CREAM, marginTop: 2 }}>
+                        <span style={{ display: 'block', fontFamily: SERIF, fontSize: 15, color: CHOCO, marginTop: 3 }}>
                           {objLabel}
                         </span>
                       )}
                     </td>
-                    <td style={{ padding: '12px 16px', color: CREAM_SOFT, fontSize: 12.5 }}>
+                    <td style={{ padding: '13px 16px', color: CREAM_SOFT, fontSize: 12.5 }}>
                       {r.action === 'INSERT' && 'Creation de l’element.'}
                       {r.action === 'DELETE' && 'Suppression de l’element.'}
                       {r.action === 'UPDATE' &&
@@ -320,17 +359,19 @@ function FilterChip({
   return (
     <a
       href={href}
+      className="card-hover"
       style={{
         display: 'inline-block',
-        padding: '6px 14px',
+        padding: '7px 15px',
         borderRadius: 999,
         fontFamily: MONO,
         fontSize: 11,
         fontWeight: 600,
         textDecoration: 'none',
         color: active ? '#2A1810' : CREAM_SOFT,
-        background: active ? AMBER : 'rgba(253,246,238,0.05)',
-        border: active ? `1px solid ${AMBER}` : '1px solid rgba(232,133,61,0.18)',
+        background: active ? BRAND : '#FFFFFF',
+        border: active ? `1px solid rgba(83,36,24,0.18)` : `1px solid ${HAIRLINE}`,
+        boxShadow: active ? '0 8px 22px -12px rgba(243,146,83,0.65)' : 'none',
       }}
     >
       {label}
