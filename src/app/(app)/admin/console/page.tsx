@@ -58,50 +58,65 @@ export default async function AdminConsolePage() {
   if (!me || !ADMIN_ROLES.has(me.role)) redirect('/dashboard');
 
   return (
-    <div className="relative flex min-h-[80vh] flex-col items-center justify-center overflow-hidden px-7 py-10">
-      <span
-        aria-hidden
-        className="watermark pointer-events-none absolute inset-x-0 top-8 text-center text-[120px] leading-none"
-      >
-        Hermès
-      </span>
+    <div className="mx-auto max-w-3xl px-4 py-8">
+      <header className="surface-chocolate relative overflow-hidden rounded-[16px] p-5 sm:p-6">
+        <span
+          aria-hidden
+          className="pointer-events-none absolute -right-4 top-1/2 -translate-y-1/2 select-none font-marcellus text-[110px] leading-none text-cream/[0.08]"
+        >
+          Hermès
+        </span>
+        <div className="relative">
+          <span className="inline-flex items-center gap-2">
+            <span className="h-px w-4 bg-gradient-to-r from-brand to-transparent" />
+            <span className="font-grotesk text-[11px] font-semibold uppercase tracking-[0.13em] text-[#E0A572]">
+              Admin · Armée Hermès
+            </span>
+          </span>
+          <h1 className="mt-3 font-marcellus text-3xl tracking-[-0.01em] text-cream">
+            Console des agents
+          </h1>
+          <p className="mt-2 max-w-[460px] font-inter text-sm leading-relaxed text-cream/55">
+            Pilotez l&apos;armée Hermès — chat, Kanban, dispatch.
+          </p>
+        </div>
+      </header>
 
-      <div className="surface-ceramic orange-glow relative w-full max-w-[560px] rounded-3xl p-10 text-center">
-        <div className="mb-5 flex justify-center">
-          <span className="inline-flex items-center justify-center rounded-2xl bg-brand-pale p-2.5 text-brand-dark shadow-soft">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <div className="panel panel-accent card-hover mt-4 flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-start gap-3">
+          <span className="inline-flex shrink-0 items-center justify-center rounded-2xl bg-brand-pale p-2.5 text-brand-burnt shadow-soft">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
               <rect x="3" y="4" width="18" height="14" rx="2" />
               <path d="M7 9l3 2-3 2" />
               <path d="M13 13h4" />
               <path d="M8 22h8" />
             </svg>
           </span>
+          <div>
+            <p className="font-marcellus text-lg text-choco">Lancer la console</p>
+            <p className="mt-1 max-w-[420px] font-inter text-sm leading-relaxed text-[#6F5A50]">
+              Le dashboard Hermès s&apos;ouvre dans un nouvel onglet.
+            </p>
+          </div>
         </div>
+        <a
+          href={HERMES_CONSOLE_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="orange-glow inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-brand px-5 py-2.5 font-inter text-sm font-semibold text-[#2A1810] transition hover:bg-brand-dark"
+        >
+          Ouvrir Hermès ↗
+        </a>
+      </div>
 
-        <div className="label-eyebrow justify-center">
-          Admin · Armée Hermès
-        </div>
-
-        <h1 className="mt-3 font-marcellus text-[32px] leading-[1.1] tracking-[-0.01em] text-choco">
-          Console des agents
-        </h1>
-
-        <p className="mx-auto mt-3 max-w-[420px] font-inter text-sm leading-relaxed text-[#6F5A50]">
-          Pilotez l&apos;armée Hermès — chat, Kanban, dispatch.
-        </p>
-
-        <div className="mt-8">
-          <a
-            href={HERMES_CONSOLE_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="orange-glow inline-flex items-center gap-2.5 rounded-full bg-brand px-7 py-3.5 font-inter text-[15px] font-semibold text-[#2A1810] transition hover:bg-brand-dark"
-          >
-            Ouvrir la console Hermès ↗
-          </a>
-        </div>
-
-        <p className="mx-auto mt-6 max-w-[420px] font-inter text-xs leading-relaxed text-muted-warm">
+      <div className="panel mt-3 flex items-start gap-3 p-4">
+        <span className="inline-flex shrink-0 items-center justify-center rounded-2xl bg-brand-pale p-2 text-brand-burnt">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <rect x="3" y="11" width="18" height="11" rx="2" />
+            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+          </svg>
+        </span>
+        <p className="font-inter text-xs leading-relaxed text-muted-warm">
           Connexion avec le mot de passe Hermès (demandez-le à
           l&apos;administrateur).
         </p>
