@@ -181,7 +181,7 @@ export default async function MonTableauPage() {
       return {
         status: statusValue,
         label: opt?.label ?? statusValue,
-        tone: opt?.tone ?? 'bg-slate-100 text-slate-700',
+        tone: opt?.tone ?? 'bg-cream-deep text-ink-warm',
         count: ofStatus.length,
         valeur: sumCaMidpointGndPriceEur(ofStatus),
       };
