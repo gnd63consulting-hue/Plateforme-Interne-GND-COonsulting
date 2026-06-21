@@ -70,20 +70,25 @@ export default function PipelinesClient({ initialPipelines, counts }: Props) {
 
   return (
     <div className="mx-auto max-w-[920px] px-6 pb-20 pt-10 font-inter text-ink-warm">
-      {/* En-tete premium */}
-      <header className="relative mb-8 overflow-hidden">
+      {/* En-tete cockpit chocolat */}
+      <header className="surface-chocolate relative mb-6 overflow-hidden rounded-[16px] p-5 sm:p-6">
         <span
           aria-hidden
-          className="watermark pointer-events-none absolute -right-4 -top-10 select-none font-marcellus text-[120px] leading-none"
+          className="pointer-events-none absolute -right-4 -top-8 select-none font-marcellus text-[110px] leading-none text-cream/[0.08]"
         >
           Lignes
         </span>
         <div className="relative">
-          <span className="label-eyebrow">Admin · Pipelines</span>
-          <h1 className="mt-3 font-marcellus text-[34px] font-medium leading-tight tracking-[-0.01em] text-choco">
+          <span className="inline-flex items-center gap-2">
+            <span className="h-px w-4 bg-gradient-to-r from-brand to-transparent" />
+            <span className="font-grotesk text-[11px] font-semibold uppercase tracking-[0.13em] text-[#E0A572]">
+              Admin · Pipelines
+            </span>
+          </span>
+          <h1 className="mt-3 font-marcellus text-3xl font-medium leading-tight tracking-[-0.01em] text-cream">
             Lignes de metier
           </h1>
-          <p className="mt-3 max-w-[620px] text-sm leading-relaxed text-[#6F5A50]">
+          <p className="mt-2 max-w-[620px] text-sm leading-relaxed text-cream/55">
             Cree et organise tes pipelines commerciaux (Sites web, Mariage,
             Audiovisuel…). Les etapes du Kanban restent identiques pour chaque
             pipeline. Le pipeline par defaut recoit les nouveaux prospects.
@@ -101,9 +106,14 @@ export default function PipelinesClient({ initialPipelines, counts }: Props) {
       )}
 
       {/* Creation */}
-      <section className="surface-ceramic mb-8 rounded-3xl p-6">
-        <span className="label-eyebrow">Nouveau pipeline</span>
-        <div className="mt-4 flex flex-wrap items-center gap-3">
+      <section className="panel-accent mb-6 rounded-[14px] p-4">
+        <span className="inline-flex items-center gap-2">
+          <span className="h-px w-4 bg-gradient-to-r from-brand to-transparent" />
+          <span className="font-grotesk text-[11px] font-semibold uppercase tracking-[0.13em] text-brand-burnt">
+            Nouveau pipeline
+          </span>
+        </span>
+        <div className="mt-3 flex flex-wrap items-center gap-3">
           <input
             type="text"
             value={newName}
@@ -143,14 +153,14 @@ export default function PipelinesClient({ initialPipelines, counts }: Props) {
       </section>
 
       {/* Liste */}
-      <div className="surface-ceramic overflow-hidden rounded-3xl">
+      <div className="panel overflow-hidden rounded-[14px]">
         <table className="w-full border-collapse text-sm">
           <thead>
             <tr className="bg-cream-deep/50">
               {['Ordre', 'Pipeline', 'Prospects', 'Defaut', ''].map((h) => (
                 <th
                   key={h}
-                  className="border-b border-[rgba(74,36,26,0.10)] px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-burnt"
+                  className="border-b border-[rgba(74,36,26,0.10)] px-5 py-2.5 text-left font-grotesk text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-burnt"
                 >
                   {h}
                 </th>
@@ -160,10 +170,10 @@ export default function PipelinesClient({ initialPipelines, counts }: Props) {
           <tbody>
             {pipelines.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-6 py-12">
-                  <div className="flex flex-col items-center gap-3 text-center">
-                    <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-pale text-brand-dark">
-                      <Layers size={20} />
+                <td colSpan={5} className="px-5 py-5">
+                  <div className="flex items-center gap-3">
+                    <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl bg-brand-pale text-brand-burnt">
+                      <Layers size={18} />
                     </span>
                     <p className="text-sm text-[#6F5A50]">
                       Aucun pipeline. Cree le premier ci-dessus.
@@ -178,10 +188,10 @@ export default function PipelinesClient({ initialPipelines, counts }: Props) {
                 return (
                   <tr
                     key={p.id}
-                    className="border-b border-[rgba(74,36,26,0.08)] transition last:border-b-0 hover:bg-cream/50"
+                    className="divider-warm border-b transition last:border-b-0 hover:bg-cream/50"
                   >
                     {/* Ordre */}
-                    <td className="whitespace-nowrap px-5 py-3">
+                    <td className="whitespace-nowrap px-5 py-2.5">
                       <div className="inline-flex gap-1.5">
                         <IconBtn
                           label="Monter"
@@ -201,7 +211,7 @@ export default function PipelinesClient({ initialPipelines, counts }: Props) {
                     </td>
 
                     {/* Nom (+ couleur) */}
-                    <td className="px-5 py-3">
+                    <td className="px-5 py-2.5">
                       {isEditing ? (
                         <div className="flex items-center gap-2">
                           <input
@@ -232,12 +242,12 @@ export default function PipelinesClient({ initialPipelines, counts }: Props) {
                     </td>
 
                     {/* Compteur */}
-                    <td className="px-5 py-3 tabular-nums text-[#6F5A50]">
+                    <td className="px-5 py-2.5 font-num tabular-nums text-[#6F5A50]">
                       {count}
                     </td>
 
                     {/* Defaut */}
-                    <td className="px-5 py-3">
+                    <td className="px-5 py-2.5">
                       {p.is_default ? (
                         <span className="inline-flex items-center gap-1.5 rounded-full bg-ok-bg px-2.5 py-1 text-[11px] font-semibold text-ok-fg">
                           <Star size={13} className="fill-current" />
@@ -257,7 +267,7 @@ export default function PipelinesClient({ initialPipelines, counts }: Props) {
                     </td>
 
                     {/* Actions */}
-                    <td className="whitespace-nowrap px-5 py-3 text-right">
+                    <td className="whitespace-nowrap px-5 py-2.5 text-right">
                       {isEditing ? (
                         <div className="inline-flex gap-1.5">
                           <IconBtn
