@@ -1068,7 +1068,7 @@ function NextActionBanner({
                 ? `Relance dépassée (${formatDate(relanceIso)}). Pose une nouvelle date.`
                 : 'Aucune relance prévue sur ce prospect actif.'}
             </p>
-            <div className="mt-2 space-y-2 rounded-xl bg-white/75 p-3">
+            <div className="mt-2.5 space-y-2.5">
               <RecallDatePicker value={value} onChange={setValue} />
               <button
                 type="button"
@@ -1989,4 +1989,3 @@ function Field({
     </label>
   );
 }
-
