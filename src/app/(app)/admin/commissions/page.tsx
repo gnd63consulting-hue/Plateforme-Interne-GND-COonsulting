@@ -115,19 +115,30 @@ export default async function CommissionsPage() {
   );
 
   return (
-    <div style={{ maxWidth: 1040, margin: '0 auto', padding: '40px 28px 64px', color: INK, position: 'relative' }}>
-      <header style={{ marginBottom: 28, position: 'relative' }}>
+    <div style={{ maxWidth: 1040, margin: '0 auto', padding: '32px 28px 56px', color: INK, position: 'relative' }}>
+      {/* Header — bandeau chocolat finance */}
+      <header
+        style={{
+          position: 'relative',
+          overflow: 'hidden',
+          borderRadius: 16,
+          padding: '22px 26px',
+          marginBottom: 24,
+          background: 'linear-gradient(155deg, #4A2719 0%, #2A1510 100%)',
+          boxShadow: '0 1px 2px rgba(42,21,16,0.18), 0 18px 44px -28px rgba(42,21,16,0.55)',
+        }}
+      >
         <div
           aria-hidden
           style={{
             position: 'absolute',
-            top: -28,
-            right: -8,
+            top: -34,
+            right: -6,
             fontFamily: SERIF,
-            fontSize: 116,
+            fontSize: 110,
             lineHeight: 1,
             fontWeight: 500,
-            color: 'rgba(243,146,83,0.06)',
+            color: 'rgba(255,247,240,0.08)',
             letterSpacing: '-0.02em',
             pointerEvents: 'none',
             userSelect: 'none',
@@ -136,58 +147,66 @@ export default async function CommissionsPage() {
         >
           Finance
         </div>
-        <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', gap: 8, fontFamily: MONO, fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.22em', color: AMBER, marginBottom: 10 }}>
-          <span style={{ width: 18, height: 1.5, background: BRAND, borderRadius: 999 }} />
-          ADMIN · FINANCE
+        <div style={{ position: 'relative', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontFamily: MONO, fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.22em', color: '#E0A572', marginBottom: 10 }}>
+              <span style={{ width: 18, height: 1.5, background: BRAND, borderRadius: 999 }} />
+              ADMIN · FINANCE
+            </div>
+            <h1 style={{ fontFamily: SERIF, fontSize: 32, fontWeight: 500, letterSpacing: '-0.01em', color: '#FBF7F1', margin: 0, lineHeight: 1.1 }}>
+              Commissions
+            </h1>
+            <p style={{ fontSize: 13.5, lineHeight: 1.55, color: 'rgba(255,247,240,0.58)', marginTop: 10, maxWidth: 640 }}>
+              Commission RÉELLE générée à chaque contrat signé (montant HT × taux du commercial figé au moment du gain).
+              Marque « payé » quand le règlement est effectué.
+            </p>
+          </div>
+          <div style={{ textAlign: 'right', flexShrink: 0 }}>
+            <div style={{ fontFamily: MONO, fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.16em', color: 'rgba(255,247,240,0.42)' }}>À payer</div>
+            <div style={{ fontFamily: SERIF, fontSize: 28, color: '#F4C79A', lineHeight: 1.1, marginTop: 4, fontVariantNumeric: 'tabular-nums' }}>{formatEurExact(globalAPayer)}</div>
+          </div>
         </div>
-        <h1 style={{ position: 'relative', fontFamily: SERIF, fontSize: 32, fontWeight: 500, letterSpacing: '-0.01em', color: CHOCO, margin: 0, lineHeight: 1.1 }}>
-          Commissions
-        </h1>
-        <p style={{ position: 'relative', fontSize: 14, lineHeight: 1.55, color: INK_SOFT, marginTop: 12, maxWidth: 640 }}>
-          Commission RÉELLE générée à chaque contrat signé (montant HT × taux du commercial figé au moment du gain).
-          Marque « payé » quand le règlement est effectué.
-        </p>
       </header>
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginBottom: 32 }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginBottom: 26 }}>
         <Stat label="À payer (total)" value={formatEurExact(globalAPayer)} color={AMBER} />
         <Stat label="Déjà payé (total)" value={formatEurExact(globalPaye)} color={GREEN} />
         <Stat label="Commissions" value={String(commissions.length)} color={CHOCO} />
       </div>
 
       {groups.length === 0 ? (
-        <div style={{ background: 'linear-gradient(180deg, rgba(243,146,83,0.05) 0%, rgba(253,250,246,0.6) 100%)', border: HAIRLINE, borderRadius: 24, padding: '36px 28px', textAlign: 'center', boxShadow: CARD_SHADOW }}>
-          <div style={{ width: 48, height: 48, margin: '0 auto 14px', borderRadius: 18, background: 'rgba(243,146,83,0.14)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: AMBER, fontFamily: SERIF, fontSize: 24 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, background: 'linear-gradient(180deg, rgba(243,146,83,0.05) 0%, rgba(253,250,246,0.6) 100%)', border: HAIRLINE, borderRadius: 14, padding: '14px 18px', boxShadow: CARD_SHADOW }}>
+          <div style={{ width: 38, height: 38, flexShrink: 0, borderRadius: 13, background: 'rgba(243,146,83,0.14)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: AMBER, fontFamily: SERIF, fontSize: 19 }}>
             ✦
           </div>
-          <p style={{ fontSize: 14, color: INK_SOFT, margin: 0, maxWidth: 480, marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.6 }}>
+          <p style={{ fontSize: 13.5, color: INK_SOFT, margin: 0, lineHeight: 1.5 }}>
             Aucune commission pour l&apos;instant. Dès qu&apos;un prospect passe en « Devis signé » avec un montant, la commission apparaît ici.
           </p>
         </div>
       ) : (
         groups.map((g) => (
-          <section key={g.id} style={{ marginBottom: 30 }}>
-            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, margin: '0 0 14px' }}>
+          <section key={g.id} style={{ marginBottom: 24 }}>
+            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, margin: '0 0 12px' }}>
               <div style={{ fontFamily: SERIF, fontSize: 18, fontWeight: 500, color: CHOCO, display: 'flex', alignItems: 'center', gap: 10 }}>
                 <span style={{ width: 20, height: 1.5, background: BRAND, borderRadius: 999 }} />
                 {g.name}
               </div>
               <div style={{ display: 'flex', gap: 16, fontFamily: MONO, fontSize: 11, fontWeight: 600 }}>
-                <span style={{ color: AMBER }}>
+                <span style={{ color: AMBER, fontVariantNumeric: 'tabular-nums' }}>
                   À payer : {formatEurExact(g.totalAPayer)}
                 </span>
-                <span style={{ color: GREEN }}>
+                <span style={{ color: GREEN, fontVariantNumeric: 'tabular-nums' }}>
                   Payé : {formatEurExact(g.totalPaye)}
                 </span>
               </div>
             </div>
 
-            <div style={{ background: CARD_BG, border: BORDER, borderRadius: 24, overflow: 'hidden', boxShadow: CARD_SHADOW }}>
+            <div style={{ background: CARD_BG, border: BORDER, borderRadius: 14, overflow: 'hidden', boxShadow: CARD_SHADOW }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
                 <thead>
                   <tr style={{ background: 'rgba(243,146,83,0.05)' }}>
                     {['Date', 'Prospect', 'Base HT', 'Taux', 'Commission', 'Statut', ''].map((h) => (
-                      <th key={h} style={{ textAlign: 'left', padding: '11px 16px', fontFamily: MONO, fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.14em', color: INK_FAINT, borderBottom: HAIRLINE }}>{h}</th>
+                      <th key={h} style={{ textAlign: 'left', padding: '10px 16px', fontFamily: MONO, fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.14em', color: INK_FAINT, borderBottom: HAIRLINE }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -217,9 +236,9 @@ export default async function CommissionsPage() {
 
 function Stat({ label, value, color }: { label: string; value: string; color: string }) {
   return (
-    <div style={{ flex: 1, minWidth: 170, position: 'relative', background: CARD_BG, border: BORDER, borderRadius: 24, padding: '20px 22px', boxShadow: CARD_SHADOW, overflow: 'hidden' }}>
+    <div style={{ flex: 1, minWidth: 170, position: 'relative', background: CARD_BG, border: BORDER, borderRadius: 14, padding: '16px 18px', boxShadow: CARD_SHADOW, overflow: 'hidden' }}>
       <div aria-hidden style={{ position: 'absolute', top: 0, left: 0, width: 36, height: 3, background: color, borderRadius: 999, opacity: 0.5 }} />
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
         <span style={{ width: 16, height: 1.5, background: '#F39253', borderRadius: 999 }} />
         <div style={{ fontFamily: MONO, fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.16em', color: INK_FAINT }}>{label}</div>
       </div>
