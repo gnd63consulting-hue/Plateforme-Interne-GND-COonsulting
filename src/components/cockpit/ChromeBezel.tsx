@@ -24,7 +24,7 @@ export default function ChromeBezel({
       }}
     >
       <div
-        className="relative rounded-full p-3 ring-1 ring-inset ring-gnd-amber-glow/20"
+        className="relative rounded-full p-3 ring-1 ring-inset ring-brand/20"
         style={{
           background: 'radial-gradient(circle at 50% 30%, #3D1F1E 0%, #1A0F0E 80%)',
         }}

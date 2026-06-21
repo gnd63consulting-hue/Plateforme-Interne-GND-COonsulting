@@ -17,8 +17,8 @@ type RocketProgressProps = {
 const DEFAULT_TIERS: Tier[] = [
   { threshold: 5, bonus: '+200 €', label: 'Bronze' },
   { threshold: 10, bonus: '+500 €', label: 'Argent' },
-  { threshold: 15, bonus: '+1 000 €', label: 'Or' },
-  { threshold: 20, bonus: '+2 500 €', label: 'Platine' },
+  { threshold: 15, bonus: '+1 000 €', label: 'Or' },
+  { threshold: 20, bonus: '+2 500 €', label: 'Platine' },
 ];
 
 export default function RocketProgress({
@@ -60,14 +60,14 @@ export default function RocketProgress({
         </div>
 
         {/* Background pipeline (vertical bar) */}
-        <div className="absolute left-1/2 top-7 h-[calc(100%-3.5rem)] w-2 -translate-x-1/2 rounded-full bg-gnd-bronze/30 ring-1 ring-gnd-bronze/40" />
+        <div className="absolute left-1/2 top-7 h-[calc(100%-3.5rem)] w-2 -translate-x-1/2 rounded-full bg-choco/30 ring-1 ring-[rgba(74,36,26,0.12)]/40" />
 
         {/* Filled progress (amber gradient) */}
         <motion.div
           initial={{ height: 0 }}
           animate={{ height: `calc((100% - 3.5rem) * ${rocketProgress / 100})` }}
           transition={{ duration: 1.6, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
-          className="absolute bottom-12 left-1/2 w-2 -translate-x-1/2 rounded-full bg-gradient-to-t from-gnd-amber-dim via-gnd-amber to-gnd-amber-glow shadow-[0_0_12px_rgba(232,133,61,0.6)]"
+          className="absolute bottom-12 left-1/2 w-2 -translate-x-1/2 rounded-full bg-gradient-to-t from-brand-dark via-brand to-brand shadow-[0_0_12px_rgba(232,133,61,0.6)]"
         />
 
         {/* Tier hex markers */}
@@ -148,7 +148,7 @@ export default function RocketProgress({
         >
           <div
             aria-hidden
-            className="pointer-events-none absolute left-1/2 top-full h-16 w-4 -translate-x-1/2 bg-gradient-to-b from-gnd-amber/60 via-gnd-amber-glow/30 to-transparent blur-md"
+            className="pointer-events-none absolute left-1/2 top-full h-16 w-4 -translate-x-1/2 bg-gradient-to-b from-brand/60 via-brand/30 to-transparent blur-md"
           />
           <DetailedRocket />
         </motion.div>
@@ -170,25 +170,25 @@ export default function RocketProgress({
                 delay: 0.5 + tiers.indexOf(tier) * 0.1,
               }}
               className={`flex items-center gap-2 ${
-                reached ? 'text-gnd-cream' : 'text-gnd-bronze-faded'
+                reached ? 'text-cream' : 'text-muted-warm'
               }`}
             >
               <span
                 className={`font-mono text-[9px] font-semibold uppercase tracking-[0.18em] ${
-                  reached ? 'text-gnd-amber' : 'text-gnd-bronze-faded'
+                  reached ? 'text-brand' : 'text-muted-warm'
                 }`}
               >
                 {tier.threshold} · {tier.label}
               </span>
               <span
                 className={`font-display text-sm font-medium italic ${
-                  reached ? 'text-gnd-amber-glow' : 'text-gnd-bronze-faded'
+                  reached ? 'text-brand' : 'text-muted-warm'
                 }`}
               >
                 {tier.bonus}
               </span>
               {reached && (
-                <Trophy className="h-3 w-3 text-gnd-amber" aria-hidden />
+                <Trophy className="h-3 w-3 text-brand" aria-hidden />
               )}
             </motion.div>
           );
@@ -240,19 +240,19 @@ function DetailedRocket() {
           animate={{ scaleY: [1, 1.3, 0.9, 1.2, 1], opacity: [0.9, 1, 0.85, 1, 0.9] }}
           transition={{ duration: 0.4, repeat: Infinity, ease: 'easeInOut' }}
           style={{ originY: 0 }}
-          className="absolute left-1/2 top-0 h-3 w-2.5 -translate-x-1/2 rounded-b-full bg-gradient-to-b from-gnd-amber-glow via-gnd-amber to-gnd-amber-dim"
+          className="absolute left-1/2 top-0 h-3 w-2.5 -translate-x-1/2 rounded-b-full bg-gradient-to-b from-brand via-brand to-brand-dark"
         />
         <motion.div
           animate={{ scaleY: [0.8, 1.1, 1.3, 0.9, 0.8], opacity: [0.7, 0.9, 0.75, 1, 0.7] }}
           transition={{ duration: 0.5, repeat: Infinity, ease: 'easeInOut', delay: 0.1 }}
           style={{ originY: 0 }}
-          className="absolute left-1/2 top-0.5 h-4 w-1.5 -translate-x-1/2 rounded-b-full bg-gradient-to-b from-yellow-100 via-gnd-amber-glow to-transparent"
+          className="absolute left-1/2 top-0.5 h-4 w-1.5 -translate-x-1/2 rounded-b-full bg-gradient-to-b from-yellow-100 via-brand to-transparent"
         />
         <motion.div
           animate={{ scaleY: [1, 0.85, 1.4, 0.95, 1], opacity: [0.6, 0.8, 1, 0.7, 0.6] }}
           transition={{ duration: 0.45, repeat: Infinity, ease: 'easeInOut', delay: 0.2 }}
           style={{ originY: 0 }}
-          className="absolute left-1/2 top-1 h-5 w-1 -translate-x-1/2 rounded-b-full bg-gradient-to-b from-white via-gnd-amber-glow to-transparent"
+          className="absolute left-1/2 top-1 h-5 w-1 -translate-x-1/2 rounded-b-full bg-gradient-to-b from-white via-brand to-transparent"
         />
       </div>
     </div>

@@ -21,16 +21,16 @@ const ROLE_CONFIG: Record<
   },
   admin_limited: {
     label: 'Co-admin',
-    bg: 'bg-gradient-to-r from-sky-100 to-blue-100',
-    text: 'text-blue-700',
-    ring: 'ring-blue-200/80',
+    bg: 'bg-gradient-to-r from-info-bg to-info-bg',
+    text: 'text-info-fg',
+    ring: 'ring-[rgba(49,104,156,0.25)]/80',
     icon: Shield,
   },
   freelance: {
     label: 'Freelance',
-    bg: 'bg-slate-100',
-    text: 'text-slate-600',
-    ring: 'ring-slate-200',
+    bg: 'bg-cream-deep',
+    text: 'text-[#6F5A50]',
+    ring: 'ring-border-soft',
     icon: User,
   },
 };
