@@ -464,7 +464,7 @@ export default function ProspectDetailClient({
       </div>
 
       {/* Retour */}
-      <div className="mb-6">
+      <div className="mb-4">
         <Link
           href="/prospects"
           className="inline-flex items-center gap-2 rounded-full border border-border-soft bg-white px-4 py-2 text-sm font-semibold text-ink-warm transition hover:bg-cream-deep card-hover"
@@ -479,7 +479,7 @@ export default function ProspectDetailClient({
       {/* ================================================================= */}
       <motion.header
         {...motionProps}
-        className="surface-chocolate relative mb-8 overflow-hidden rounded-[22px] p-6 sm:p-7"
+        className="surface-chocolate relative mb-4 overflow-hidden rounded-[16px] p-5 sm:p-6"
       >
         <span
           aria-hidden
@@ -491,7 +491,7 @@ export default function ProspectDetailClient({
           <div className="flex min-w-0 items-center gap-4">
             <span
               aria-hidden
-              className="flex h-[60px] w-[60px] shrink-0 items-center justify-center rounded-2xl bg-brand font-marcellus text-2xl text-[#3A2017]"
+              className="flex h-[60px] w-[60px] shrink-0 items-center justify-center rounded-[15px] bg-brand font-marcellus text-2xl text-[#3A2017] shadow-[0_8px_22px_rgba(201,106,43,0.45)]"
             >
               {prospect.company_name
                 .split(/\s+/)
@@ -532,7 +532,7 @@ export default function ProspectDetailClient({
             {telHref && (
               <a
                 href={telHref}
-                className="inline-flex items-center gap-1.5 rounded-full bg-brand px-4 py-2.5 text-sm font-medium text-[#3A2017] transition hover:bg-brand-dark"
+                className="inline-flex items-center gap-1.5 rounded-full bg-brand px-4 py-2.5 text-sm font-medium text-[#3A2017] shadow-[0_8px_22px_rgba(201,106,43,0.4)] transition hover:bg-brand-dark"
               >
                 <Phone className="h-4 w-4" aria-hidden />
                 Appeler
@@ -608,13 +608,13 @@ export default function ProspectDetailClient({
         </div>
       )}
 
-      <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-[1.55fr_1fr]">
+      <div className="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-[1.62fr_1fr]">
         {/* =============================================================== */}
         {/* COLONNE GAUCHE : infos + analyse + devis + timeline             */}
         {/* =============================================================== */}
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3">
           {/* B. BLOC INFOS */}
-          <section className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <section className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <ContactCard
               prospect={prospect}
               telHref={telHref}
@@ -634,17 +634,17 @@ export default function ProspectDetailClient({
           <QuotesPanel prospectId={prospect.id} initialQuotes={initialQuotes} />
 
           {/* E. TIMELINE */}
-          <section className="rounded-[14px] border border-[rgba(74,36,26,0.12)] bg-white p-5">
-            <div className="mb-5 flex items-center gap-2 font-grotesk text-[11px] uppercase tracking-[0.12em] text-brand-burnt">
+          <section className="panel p-4">
+            <div className="mb-3 flex items-center gap-2 font-grotesk text-[11px] uppercase tracking-[0.12em] text-brand-burnt">
               <span aria-hidden className="h-px w-4 bg-gradient-to-r from-brand to-transparent" />
               Historique d&apos;activité
             </div>
             {activities.length === 0 ? (
-              <div className="flex flex-col items-center gap-3 rounded-2xl bg-cream/50 px-6 py-10 text-center">
-                <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-pale text-brand-burnt">
-                  <Clock className="h-5 w-5" aria-hidden />
+              <div className="divider-warm flex items-center gap-2.5 pt-3 text-left">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-2xl bg-brand-pale text-brand-burnt">
+                  <Clock className="h-4 w-4" aria-hidden />
                 </span>
-                <p className="text-sm text-[#6F5A50]">
+                <p className="text-[13px] text-[#6F5A50]">
                   Aucune activité pour l&apos;instant. Utilise les actions rapides
                   pour commencer à tracer ce prospect.
                 </p>
@@ -673,9 +673,9 @@ export default function ProspectDetailClient({
         {/* =============================================================== */}
         {/* COLONNE DROITE : PANNEAU ACTIONS RAPIDES (sticky)               */}
         {/* =============================================================== */}
-        <aside className="self-start lg:sticky lg:top-4 space-y-4">
+        <aside className="self-start lg:sticky lg:top-4 flex flex-col gap-3">
           {prospect.note_google != null && (
-            <section className="rounded-[14px] border border-[rgba(74,36,26,0.12)] bg-white p-5">
+            <section className="panel p-4">
               <div className="flex items-center justify-between">
                 <span className="inline-flex items-center gap-1.5 font-grotesk text-xs text-muted-warm">
                   <Star className="h-3.5 w-3.5 text-brand" aria-hidden />
@@ -688,7 +688,7 @@ export default function ProspectDetailClient({
                   </span>
                 )}
               </div>
-              <p className="mt-1 font-num text-5xl font-medium tabular-nums text-[#3A2017]">
+              <p className="mt-1 font-num text-4xl font-medium tabular-nums text-[#3A2017]">
                 {prospect.note_google}
                 {prospect.nombre_avis != null && (
                   <span className="ml-2 align-middle text-sm text-muted-warm">
@@ -696,7 +696,7 @@ export default function ProspectDetailClient({
                   </span>
                 )}
               </p>
-              <div className="mt-3 h-1.5 rounded-full bg-cream-edge">
+              <div className="mt-3 h-1.5 rounded-full bg-cream-edge shadow-[inset_0_1px_2px_rgba(74,36,26,0.18)]">
                 <div
                   className="h-1.5 rounded-full bg-brand"
                   style={{
@@ -881,7 +881,7 @@ function ActionsPanel({
   onSaveNotes: (next: string) => Promise<boolean>;
 }) {
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-3">
       {/* D. PROCHAINE ACTION IMPOSÉE — bandeau */}
       <NextActionBanner
         relanceIso={relanceIso}
@@ -890,8 +890,8 @@ function ActionsPanel({
       />
 
       {/* Panneau actions */}
-      <section className="rounded-[14px] border border-[rgba(74,36,26,0.12)] bg-white p-5">
-        <div className="mb-4 flex items-center gap-2">
+      <section className="panel p-4">
+        <div className="mb-3 flex items-center gap-2">
           <span aria-hidden className="h-px w-4 bg-gradient-to-r from-brand to-transparent" />
           <span className="font-grotesk text-[11px] uppercase tracking-[0.12em] text-brand-burnt">
             Actions rapides
@@ -932,12 +932,12 @@ function ActionsPanel({
         )}
 
         {/* Planifier une relance */}
-        <div className="mt-5 border-t border-[rgba(74,36,26,0.10)] pt-5">
+        <div className="divider-warm mt-3 pt-3">
           <RelancePlanner relanceIso={relanceIso} onPlanRelance={onPlanRelance} />
         </div>
 
         {/* Changer le statut */}
-        <div className="mt-5 border-t border-[rgba(74,36,26,0.10)] pt-5">
+        <div className="divider-warm mt-3 pt-3">
           <label
             htmlFor="fiche-status"
             className="mb-1.5 block font-inter text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-burnt"
@@ -962,7 +962,7 @@ function ActionsPanel({
         </div>
 
         {/* Édition rapide des notes */}
-        <div className="mt-5 border-t border-[rgba(74,36,26,0.10)] pt-5">
+        <div className="divider-warm mt-3 pt-3">
           <NotesEditor notes={notes} onSave={onSaveNotes} />
         </div>
       </section>
@@ -997,7 +997,7 @@ function NextActionBanner({
   if (overdueOrMissing) {
     return (
       <section
-        className="surface-accent orange-glow rounded-3xl p-5"
+        className="panel-accent p-4"
         aria-label="Prochaine action requise"
       >
         <div className="flex items-start gap-3">
@@ -1037,7 +1037,7 @@ function NextActionBanner({
 
   return (
     <section
-      className="rounded-[14px] border border-[rgba(74,36,26,0.12)] bg-white p-5"
+      className="panel-accent p-4"
       aria-label="Prochaine relance"
     >
       <div className="flex items-center gap-3">
@@ -1400,7 +1400,7 @@ function ContactCard({
           </div>
         </div>
       ) : (
-        <div className="space-y-2.5">
+        <div>
           <KVLine
             icon={<Phone className="h-3.5 w-3.5" />}
             label="Téléphone"
@@ -1487,22 +1487,20 @@ function SocialCard({ prospect }: { prospect: Prospect }) {
           Aucune présence sociale renseignée.
         </p>
       ) : (
-        <div className="space-y-1">
+        <div>
           {socials.map((s) => (
             <a
               key={s.label}
               href={s.href(s.value as string)}
               target="_blank"
               rel="noopener noreferrer"
-              className="-mx-1.5 flex items-center gap-2.5 rounded-2xl px-1.5 py-1.5 transition hover:bg-cream-deep"
+              className="divider-warm flex items-center gap-2 py-1.5 transition first:border-t-0 first:pt-0 hover:bg-cream-deep"
             >
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-2xl bg-brand-pale text-brand-burnt">{s.icon}</span>
-              <div className="min-w-0 flex-1">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-burnt">
-                  {s.label}
-                </p>
-                <p className="truncate text-sm text-ink-warm">{s.value}</p>
-              </div>
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-brand-pale text-brand-burnt">{s.icon}</span>
+              <p className="shrink-0 font-grotesk text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-burnt">
+                {s.label}
+              </p>
+              <p className="min-w-0 flex-1 truncate text-right text-sm text-ink-warm">{s.value}</p>
               <ExternalLink className="h-3.5 w-3.5 shrink-0 text-muted-warm/70" aria-hidden />
             </a>
           ))}
@@ -1521,7 +1519,7 @@ function QualificationCard({ prospect }: { prospect: Prospect }) {
       : null;
   return (
     <InfoCard icon={<TrendingUp className="h-4 w-4" />} title="Qualification">
-      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+      <div className="flex flex-wrap gap-x-0 gap-y-2">
         <Stat
           icon={<Banknote className="h-3.5 w-3.5" />}
           label="CA estimé"
@@ -1553,8 +1551,8 @@ function QualificationCard({ prospect }: { prospect: Prospect }) {
 
 function AnalysisSection({ prospect }: { prospect: Prospect }) {
   return (
-    <section className="rounded-[14px] border border-[rgba(74,36,26,0.12)] bg-white p-5">
-      <div className="mb-5 flex items-center gap-2 font-grotesk text-[11px] uppercase tracking-[0.12em] text-brand-burnt">
+    <section className="panel p-4">
+      <div className="mb-3 flex items-center gap-2 font-grotesk text-[11px] uppercase tracking-[0.12em] text-brand-burnt">
         <span aria-hidden className="h-px w-4 bg-gradient-to-r from-brand to-transparent" />
         Analyse &amp; approche
       </div>
@@ -1562,7 +1560,7 @@ function AnalysisSection({ prospect }: { prospect: Prospect }) {
       {/* Tags : besoins + arguments */}
       {((prospect.besoins_detectes && prospect.besoins_detectes.length > 0) ||
         (prospect.arguments_cles && prospect.arguments_cles.length > 0)) && (
-        <div className="mb-5 space-y-3">
+        <div className="mb-3 space-y-2.5">
           {prospect.besoins_detectes && prospect.besoins_detectes.length > 0 && (
             <TagGroup
               icon={<Tag className="h-3.5 w-3.5" />}
@@ -1760,8 +1758,8 @@ function InfoCard({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-[14px] border border-[rgba(74,36,26,0.12)] bg-white p-5">
-      <header className="mb-3.5 flex items-center justify-between">
+    <section className="panel p-4">
+      <header className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2 font-grotesk text-[11px] uppercase tracking-[0.12em] text-brand-burnt">
           <span aria-hidden className="h-px w-4 bg-gradient-to-r from-brand to-transparent" />
           <span aria-hidden className="text-brand-burnt">{icon}</span>
@@ -1792,27 +1790,27 @@ function KVLine({
   numeric?: boolean;
 }) {
   if (!value) return null;
-  const valueClass = `text-sm text-ink-warm ${numeric ? 'font-num tabular-nums' : ''} ${truncate ? 'truncate' : 'break-words'}`;
+  const valueClass = `text-sm text-ink-warm ${numeric ? 'font-num tabular-nums' : ''} ${truncate ? 'truncate' : 'break-words'} text-right`;
   return (
-    <div className="flex items-start gap-2">
-      <span className="mt-0.5 shrink-0 text-brand-burnt" aria-hidden>
+    <div className="divider-warm flex items-center gap-2 py-1.5 first:border-t-0 first:pt-0">
+      <span className="shrink-0 text-brand-burnt" aria-hidden>
         {icon}
       </span>
-      <div className="min-w-0 flex-1">
-        <p className="font-grotesk text-[10px] uppercase tracking-[0.14em] text-brand-burnt">
-          {label}
-        </p>
+      <p className="shrink-0 font-grotesk text-[10px] uppercase tracking-[0.14em] text-brand-burnt">
+        {label}
+      </p>
+      <div className="min-w-0 flex-1 text-right">
         {href ? (
           <a
             href={href}
             target={external ? '_blank' : undefined}
             rel={external ? 'noopener noreferrer' : undefined}
-            className={`${valueClass} text-brand-dark hover:underline`}
+            className={`${valueClass} block text-brand-dark hover:underline`}
           >
             {value}
           </a>
         ) : (
-          <p className={valueClass}>{value}</p>
+          <p className={`${valueClass} block`}>{value}</p>
         )}
       </div>
     </div>
@@ -1829,12 +1827,12 @@ function Stat({
   value: string | null | undefined;
 }) {
   return (
-    <div className="rounded-[10px] border border-[rgba(201,106,43,0.2)] bg-[#FBF1E8] p-2.5">
-      <div className="flex items-center gap-1 font-grotesk text-[10px] uppercase tracking-[0.12em] text-brand-burnt">
+    <div className="min-w-[5.5rem] flex-1 border-l border-[rgba(74,36,26,0.07)] px-3 first:border-l-0 first:pl-0">
+      <div className="flex items-center gap-1 font-grotesk text-[10px] uppercase tracking-wide text-muted-warm">
         <span className="text-brand-burnt">{icon}</span>
         {label}
       </div>
-      <p className="mt-1 break-words font-num text-sm font-medium tabular-nums text-[#3A2017]">
+      <p className="mt-0.5 break-words font-num text-sm font-medium tabular-nums text-[#3A2017]">
         {value ?? '—'}
       </p>
     </div>
