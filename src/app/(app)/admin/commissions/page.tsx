@@ -17,8 +17,11 @@ const INK_FAINT = '#9B8A7E';     // texte tertiaire (ex CREAM_FAINT)
 const CHOCO = '#532418';         // titres serif
 const AMBER = '#B5601C';         // accent texte lisible sur clair (ex AMBER)
 const GREEN = '#4F7A38';         // vert lisible sur clair (ex GREEN)
-const CARD_BG = '#FFFFFF';       // cartes (ex CARD_BG)
-const BORDER = '1px solid #E2D5C3';
+const CARD_BG = 'linear-gradient(180deg, #FFFFFF 0%, #FDFAF6 100%)';       // cartes (ex CARD_BG)
+const BRAND = '#F39253';
+const BORDER = '1px solid rgba(74,36,26,0.10)';
+const HAIRLINE = '1px solid rgba(74,36,26,0.10)';
+const CARD_SHADOW = '0 1px 2px rgba(83,36,24,0.04), 0 8px 24px -16px rgba(83,36,24,0.18)';
 const SERIF = 'var(--font-marcellus), Georgia, serif';
 const MONO = 'var(--font-inter), ui-sans-serif, system-ui, sans-serif';
 
@@ -112,15 +115,35 @@ export default async function CommissionsPage() {
   );
 
   return (
-    <div style={{ maxWidth: 1040, margin: '0 auto', padding: '40px 28px 64px', color: INK }}>
-      <header style={{ marginBottom: 28 }}>
-        <div style={{ fontFamily: MONO, fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.22em', color: AMBER, marginBottom: 10 }}>
+    <div style={{ maxWidth: 1040, margin: '0 auto', padding: '40px 28px 64px', color: INK, position: 'relative' }}>
+      <header style={{ marginBottom: 28, position: 'relative' }}>
+        <div
+          aria-hidden
+          style={{
+            position: 'absolute',
+            top: -28,
+            right: -8,
+            fontFamily: SERIF,
+            fontSize: 116,
+            lineHeight: 1,
+            fontWeight: 500,
+            color: 'rgba(243,146,83,0.06)',
+            letterSpacing: '-0.02em',
+            pointerEvents: 'none',
+            userSelect: 'none',
+            zIndex: 0,
+          }}
+        >
+          Finance
+        </div>
+        <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', gap: 8, fontFamily: MONO, fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.22em', color: AMBER, marginBottom: 10 }}>
+          <span style={{ width: 18, height: 1.5, background: BRAND, borderRadius: 999 }} />
           ADMIN · FINANCE
         </div>
-        <h1 style={{ fontFamily: SERIF, fontSize: 32, fontWeight: 500, letterSpacing: '-0.01em', color: CHOCO, margin: 0, lineHeight: 1.1 }}>
+        <h1 style={{ position: 'relative', fontFamily: SERIF, fontSize: 32, fontWeight: 500, letterSpacing: '-0.01em', color: CHOCO, margin: 0, lineHeight: 1.1 }}>
           Commissions
         </h1>
-        <p style={{ fontSize: 14, lineHeight: 1.55, color: INK_SOFT, marginTop: 12, maxWidth: 640 }}>
+        <p style={{ position: 'relative', fontSize: 14, lineHeight: 1.55, color: INK_SOFT, marginTop: 12, maxWidth: 640 }}>
           Commission RÉELLE générée à chaque contrat signé (montant HT × taux du commercial figé au moment du gain).
           Marque « payé » quand le règlement est effectué.
         </p>
@@ -133,14 +156,20 @@ export default async function CommissionsPage() {
       </div>
 
       {groups.length === 0 ? (
-        <p style={{ fontSize: 14, color: INK_SOFT }}>
-          Aucune commission pour l&apos;instant. Dès qu&apos;un prospect passe en « Devis signé » avec un montant, la commission apparaît ici.
-        </p>
+        <div style={{ background: 'linear-gradient(180deg, rgba(243,146,83,0.05) 0%, rgba(253,250,246,0.6) 100%)', border: HAIRLINE, borderRadius: 24, padding: '36px 28px', textAlign: 'center', boxShadow: CARD_SHADOW }}>
+          <div style={{ width: 48, height: 48, margin: '0 auto 14px', borderRadius: 18, background: 'rgba(243,146,83,0.14)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: AMBER, fontFamily: SERIF, fontSize: 24 }}>
+            ✦
+          </div>
+          <p style={{ fontSize: 14, color: INK_SOFT, margin: 0, maxWidth: 480, marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.6 }}>
+            Aucune commission pour l&apos;instant. Dès qu&apos;un prospect passe en « Devis signé » avec un montant, la commission apparaît ici.
+          </p>
+        </div>
       ) : (
         groups.map((g) => (
           <section key={g.id} style={{ marginBottom: 30 }}>
             <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, margin: '0 0 14px' }}>
-              <div style={{ fontFamily: SERIF, fontSize: 18, fontWeight: 500, color: CHOCO }}>
+              <div style={{ fontFamily: SERIF, fontSize: 18, fontWeight: 500, color: CHOCO, display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span style={{ width: 20, height: 1.5, background: BRAND, borderRadius: 999 }} />
                 {g.name}
               </div>
               <div style={{ display: 'flex', gap: 16, fontFamily: MONO, fontSize: 11, fontWeight: 600 }}>
@@ -153,12 +182,12 @@ export default async function CommissionsPage() {
               </div>
             </div>
 
-            <div style={{ background: CARD_BG, border: BORDER, borderRadius: 16, overflow: 'hidden', boxShadow: '0 1px 3px rgba(83,36,24,0.06)' }}>
+            <div style={{ background: CARD_BG, border: BORDER, borderRadius: 24, overflow: 'hidden', boxShadow: CARD_SHADOW }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
                 <thead>
-                  <tr style={{ background: '#FBF7F2' }}>
+                  <tr style={{ background: 'rgba(243,146,83,0.05)' }}>
                     {['Date', 'Prospect', 'Base HT', 'Taux', 'Commission', 'Statut', ''].map((h) => (
-                      <th key={h} style={{ textAlign: 'left', padding: '11px 16px', fontFamily: MONO, fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.14em', color: INK_FAINT, borderBottom: '1px solid #E2D5C3' }}>{h}</th>
+                      <th key={h} style={{ textAlign: 'left', padding: '11px 16px', fontFamily: MONO, fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.14em', color: INK_FAINT, borderBottom: HAIRLINE }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -188,9 +217,13 @@ export default async function CommissionsPage() {
 
 function Stat({ label, value, color }: { label: string; value: string; color: string }) {
   return (
-    <div style={{ flex: 1, minWidth: 170, background: CARD_BG, border: BORDER, borderRadius: 16, padding: '16px 18px', boxShadow: '0 1px 3px rgba(83,36,24,0.06)' }}>
-      <div style={{ fontFamily: MONO, fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.16em', color: INK_FAINT, marginBottom: 8 }}>{label}</div>
-      <div style={{ fontFamily: SERIF, fontSize: 26, fontWeight: 500, color, lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>{value}</div>
+    <div style={{ flex: 1, minWidth: 170, position: 'relative', background: CARD_BG, border: BORDER, borderRadius: 24, padding: '20px 22px', boxShadow: CARD_SHADOW, overflow: 'hidden' }}>
+      <div aria-hidden style={{ position: 'absolute', top: 0, left: 0, width: 36, height: 3, background: color, borderRadius: 999, opacity: 0.5 }} />
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+        <span style={{ width: 16, height: 1.5, background: '#F39253', borderRadius: 999 }} />
+        <div style={{ fontFamily: MONO, fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.16em', color: INK_FAINT }}>{label}</div>
+      </div>
+      <div style={{ fontFamily: SERIF, fontSize: 28, fontWeight: 500, color, lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>{value}</div>
     </div>
   );
 }
