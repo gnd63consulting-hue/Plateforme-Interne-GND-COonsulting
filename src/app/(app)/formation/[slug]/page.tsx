@@ -107,14 +107,14 @@ export default async function ModulePage({
           style={{ animationDelay: '120ms', animationFillMode: 'forwards' }}
         >
           <div className="mb-5 flex flex-wrap items-center gap-3">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-brand/12 px-3 py-1 font-inter text-[10px] font-semibold uppercase tracking-[0.18em] text-brand-dark">
+            <span className="label-eyebrow inline-flex items-center gap-1.5 rounded-full bg-brand-pale px-3 py-1 text-[10px] font-semibold tracking-[0.18em] text-brand-burnt">
               E-learning path
             </span>
-            <span className="font-inter text-[10px] uppercase tracking-[0.15em] text-muted-warm">
+            <span className="inline-flex items-center rounded-full bg-cream-deep px-3 py-1 font-inter text-[10px] uppercase tracking-[0.15em] text-muted-warm">
               Lecture — {loaded.meta.duration} min
             </span>
             {isValidated && (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-choco/8 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-choco">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-ok-bg px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-ok-fg">
                 <CheckCircle2 className="h-3 w-3" aria-hidden />
                 Validé
               </span>
@@ -135,14 +135,14 @@ export default async function ModulePage({
         {/* ====================================================== */}
         {lastAttempt && (
           <section
-            className="mb-12 flex animate-fade-in-up flex-col gap-4 rounded-3xl border border-border-soft bg-white p-6 opacity-0 shadow-soft sm:flex-row sm:items-center sm:justify-between"
+            className="surface-ceramic mb-12 flex animate-fade-in-up flex-col gap-4 rounded-3xl p-6 opacity-0 sm:flex-row sm:items-center sm:justify-between"
             style={{ animationDelay: '240ms', animationFillMode: 'forwards' }}
           >
             <div>
-              <p className="font-inter text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-warm">
+              <p className="label-eyebrow text-[10px] font-semibold tracking-[0.18em] text-brand-burnt">
                 Dernière tentative
               </p>
-              <p className="mt-1 font-marcellus text-2xl font-medium text-choco">
+              <p className="mt-1 font-marcellus text-2xl font-medium tabular-nums text-choco">
                 {lastAttempt.score}
                 <span className="text-muted-warm">/{lastAttempt.total}</span>
                 <span className="ml-3 text-base text-muted-warm">
@@ -157,7 +157,7 @@ export default async function ModulePage({
             </div>
             <Link
               href={`/formation/${slug}/quiz`}
-              className="inline-flex items-center gap-2 rounded-full bg-choco px-5 py-2.5 text-xs font-semibold text-cream transition-all hover:bg-ink-warm hover:gap-3"
+              className="inline-flex items-center gap-2 rounded-full border border-border-soft bg-white px-5 py-2.5 text-xs font-semibold text-choco transition-all hover:gap-3 hover:bg-cream-deep"
             >
               <RefreshCw className="h-3.5 w-3.5" aria-hidden />
               {isValidated ? 'Refaire le quiz' : 'Retenter le quiz'}
@@ -170,13 +170,15 @@ export default async function ModulePage({
         {/* ====================================================== */}
         {videoFileId && (
           <div
-            className="mb-14 animate-fade-in-up overflow-hidden rounded-3xl border border-border-soft bg-white opacity-0 shadow-soft"
+            className="surface-ceramic mb-14 animate-fade-in-up overflow-hidden rounded-3xl p-1.5 opacity-0"
             style={{ animationDelay: '320ms', animationFillMode: 'forwards' }}
           >
-            <DriveVideoPlayer
-              fileId={videoFileId}
-              title={`Module ${orderLabel} : ${loaded.meta.title}`}
-            />
+            <div className="overflow-hidden rounded-[1.35rem]">
+              <DriveVideoPlayer
+                fileId={videoFileId}
+                title={`Module ${orderLabel} : ${loaded.meta.title}`}
+              />
+            </div>
           </div>
         )}
 
@@ -184,7 +186,7 @@ export default async function ModulePage({
         {/* MDX content — styled via prose-gnd                        */}
         {/* ====================================================== */}
         <section
-          className="prose prose-gnd prose-lg max-w-none animate-fade-in-up opacity-0"
+          className="prose prose-gnd prose-lg max-w-none animate-fade-in-up font-inter opacity-0"
           style={{ animationDelay: '420ms', animationFillMode: 'forwards' }}
         >
           <MDXRemote source={loaded.body} options={mdxOptions} />
@@ -193,26 +195,26 @@ export default async function ModulePage({
         {/* ====================================================== */}
         {/* Quiz CTA                                                  */}
         {/* ====================================================== */}
-        <section className="relative mt-20 overflow-hidden rounded-3xl border border-border-soft bg-gradient-to-br from-cream via-white to-cream-deep p-10">
+        <section className="surface-chocolate orange-glow relative mt-20 overflow-hidden rounded-3xl p-10">
           <div
             aria-hidden
-            className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-brand/15 blur-3xl"
+            className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-brand/20 blur-3xl"
           />
           <div
             aria-hidden
-            className="pointer-events-none absolute -bottom-20 -left-10 h-48 w-48 rounded-full bg-choco/8 blur-3xl"
+            className="pointer-events-none absolute -bottom-20 -left-10 h-48 w-48 rounded-full bg-brand/10 blur-3xl"
           />
           <div className="relative flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
             <div className="max-w-md">
-              <p className="mb-3 font-inter text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-dark">
+              <p className="label-eyebrow mb-3 text-[10px] font-semibold tracking-[0.2em] text-brand">
                 Quiz Module {orderLabel}
               </p>
-              <h3 className="font-marcellus text-2xl font-medium leading-tight text-choco">
+              <h3 className="font-marcellus text-2xl font-medium leading-tight text-cream">
                 {isValidated
                   ? 'Module déjà validé.'
                   : 'Prêt à valider tes acquis ?'}
               </h3>
-              <p className="mt-2 text-sm text-muted-warm">
+              <p className="mt-2 text-sm text-cream/75">
                 {isValidated
                   ? `Meilleur score : ${progression?.best_percentage ?? 0}%. Tu peux retenter le quiz à tout moment.`
                   : `Teste tes connaissances avant de passer à la suite. Seuil de validation : 70 %.`}
@@ -220,7 +222,7 @@ export default async function ModulePage({
             </div>
             <Link
               href={`/formation/${slug}/quiz`}
-              className="group inline-flex shrink-0 items-center gap-3 rounded-full bg-choco px-7 py-4 text-sm font-semibold text-cream shadow-soft-lg transition-all hover:bg-ink-warm hover:shadow-soft-lg"
+              className="group inline-flex shrink-0 items-center gap-3 rounded-full bg-brand px-7 py-4 text-sm font-semibold text-[#2A1810] shadow-glow-brand-lg transition-all hover:bg-brand-dark"
             >
               <span>{isValidated ? 'Refaire le quiz' : 'Passer au quiz'}</span>
               <ArrowRight
