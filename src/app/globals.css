@@ -78,19 +78,49 @@
     box-shadow: 0 1px 2px rgba(83, 36, 24, 0.04), 0 10px 30px rgba(83, 36, 24, 0.06);
   }
 
-  /* 4.3 Soft Ceramic Card — cartes KPI / fiches / blocs principaux */
-  .surface-ceramic {
-    background-color: #FFFCF8;
+  /* 4.3 Soft Ceramic Card — MATIERE (validee client) : micro-degrade creme
+     + ombre chaude douce + rehaut interne. Carte 2D qui "flotte". Toutes les
+     cartes existantes en surface-ceramic heritent de cette matiere. */
+  .surface-ceramic,
+  .panel {
+    background-image: linear-gradient(180deg, #FFFFFF 0%, #FDF8F2 100%);
     border: 1px solid rgba(74, 36, 26, 0.10);
-    box-shadow: 0 1px 2px rgba(83, 36, 24, 0.04), 0 8px 24px rgba(83, 36, 24, 0.05);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.9) inset,
+      0 1px 2px rgba(83, 36, 24, 0.05),
+      0 10px 26px -10px rgba(83, 36, 24, 0.18);
+  }
+  /* Carte panel : meme matiere + rayon serre par defaut (fiches denses) */
+  .panel {
+    border-radius: 14px;
+  }
+  /* Zone d'action accentuee (orange chaud, ressort du flux) */
+  .panel-accent {
+    background-image: linear-gradient(160deg, #FCEEDF 0%, #F7E2CC 100%);
+    border: 1px solid rgba(201, 106, 43, 0.28);
+    border-radius: 14px;
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.6) inset,
+      0 12px 28px -12px rgba(201, 106, 43, 0.42);
   }
 
-  /* 4.4 Chocolate Accent Panel — accent premium, a utiliser avec parcimonie */
+  /* 4.4 Chocolate Accent Panel — MATIERE : grain pointille chaud + relief
+     interne + ombre profonde. Sert d'ancre sombre (hero fiche, bloc accent). */
   .surface-chocolate {
-    background-image: linear-gradient(150deg, #532418 0%, #2A1510 100%);
+    background-image:
+      radial-gradient(rgba(243, 146, 83, 0.09) 1px, transparent 1px),
+      linear-gradient(135deg, #4A2719 0%, #2A1510 100%);
+    background-size: 14px 14px, auto;
     color: #FBF7F1;
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    box-shadow: 0 10px 40px rgba(42, 21, 16, 0.30);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.06) inset,
+      0 18px 44px -14px rgba(42, 21, 16, 0.55);
+  }
+
+  /* Separateur chaud fin (entre lignes denses d'une carte) */
+  .divider-warm {
+    border-top: 1px solid rgba(74, 36, 26, 0.07);
   }
 
   /* 4.5 Accent orange pale — blocs "focus" teintes */
