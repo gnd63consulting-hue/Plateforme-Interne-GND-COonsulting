@@ -238,7 +238,7 @@ export default function TachesClient({
         <div
           role="alert"
           aria-live="assertive"
-          className="mb-6 rounded-2xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800"
+          className="mb-6 rounded-2xl border border-danger-fg/20 bg-danger-bg p-3 text-sm text-danger-fg"
         >
           {error}
         </div>
@@ -262,11 +262,17 @@ export default function TachesClient({
         </div>
 
         {agenda.length === 0 ? (
-          <div className="rounded-3xl border border-border-soft bg-white p-10 text-center shadow-soft">
+          <div className="surface-ceramic rounded-3xl p-10 text-center">
+            <span
+              className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-pale text-brand-dark"
+              aria-hidden
+            >
+              <CheckSquare className="h-6 w-6" />
+            </span>
             <p className="font-marcellus text-lg text-choco">
               Rien d&apos;urgent aujourd&apos;hui. 👌
             </p>
-            <p className="mt-2 text-sm text-muted-warm">
+            <p className="mt-2 text-sm text-[#6F5A50]">
               Aucune tâche ni relance due. Profites-en pour en planifier une.
             </p>
           </div>
@@ -326,7 +332,7 @@ export default function TachesClient({
             type="button"
             onClick={() => setCreateOpen((v) => !v)}
             aria-expanded={createOpen}
-            className="inline-flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-choco transition-all hover:bg-brand-dark hover:shadow-soft-md"
+            className="orange-glow inline-flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-[#2A1810] transition-all hover:bg-brand-dark hover:shadow-soft-md"
           >
             <Plus className="h-4 w-4" aria-hidden />
             Nouvelle tâche
@@ -357,11 +363,17 @@ export default function TachesClient({
 
         {/* Liste groupée */}
         {activeTasks.length === 0 ? (
-          <div className="mt-4 rounded-3xl border border-border-soft bg-white p-10 text-center shadow-soft">
+          <div className="surface-ceramic mt-4 rounded-3xl p-10 text-center">
+            <span
+              className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-pale text-brand-dark"
+              aria-hidden
+            >
+              <Plus className="h-6 w-6" />
+            </span>
             <p className="font-marcellus text-lg text-choco">
               Aucune tâche active.
             </p>
-            <p className="mt-2 text-sm text-muted-warm">
+            <p className="mt-2 text-sm text-[#6F5A50]">
               Crée ta première tâche pour la voir apparaître ici.
             </p>
           </div>
@@ -370,7 +382,7 @@ export default function TachesClient({
             <TaskGroup
               title="En retard"
               bucket="overdue"
-              dotClass="bg-rose-500"
+              dotClass="bg-danger-fg"
               tasks={grouped.overdue}
               editingId={editing?.id ?? null}
               prospectName={prospectName}
@@ -398,7 +410,7 @@ export default function TachesClient({
             <TaskGroup
               title="À venir"
               bucket="upcoming"
-              dotClass="bg-emerald-500"
+              dotClass="bg-ok-fg"
               tasks={grouped.upcoming}
               editingId={editing?.id ?? null}
               prospectName={prospectName}
@@ -434,7 +446,7 @@ export default function TachesClient({
               onClick={() => setShowDone((v) => !v)}
               aria-expanded={showDone}
               aria-controls="done-tasks-panel"
-              className="inline-flex items-center gap-2 rounded-full border border-border-soft bg-white px-4 py-2 text-xs font-semibold text-muted-warm transition-colors hover:bg-cream-deep hover:text-ink-warm"
+              className="inline-flex items-center gap-2 rounded-full border border-border-soft bg-white px-4 py-2 text-xs font-semibold text-[#6F5A50] transition-colors hover:bg-cream-deep hover:text-ink-warm"
             >
               <ChevronDown
                 className={`h-3.5 w-3.5 transition-transform ${showDone ? 'rotate-180' : ''}`}
@@ -497,9 +509,9 @@ function Checkbox({
       aria-checked={checked}
       aria-label={label}
       onClick={onChange}
-      className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring ${
+      className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring ${
         checked
-          ? 'border-emerald-500 bg-emerald-500 text-white'
+          ? 'border-ok-fg bg-ok-fg text-white'
           : 'border-border-soft bg-white text-transparent hover:border-brand'
       }`}
     >
@@ -519,13 +531,13 @@ function AgendaTaskRow({
 }) {
   const due = effectiveDue(task);
   return (
-    <div className="flex items-center gap-4 rounded-2xl border border-border-soft bg-white p-4 shadow-soft transition-colors hover:border-brand/30">
+    <div className="surface-ceramic card-hover flex items-center gap-4 rounded-2xl p-4">
       <Checkbox
         checked={false}
         onChange={onToggle}
         label={`Marquer « ${task.title} » comme terminée`}
       />
-      <span className="shrink-0 font-inter text-xs font-semibold tabular-nums text-brand-dark">
+      <span className="shrink-0 font-inter text-xs font-semibold tabular-nums text-brand-burnt">
         {due ? formatTime(due) : '—'}
       </span>
       <div className="min-w-0 flex-1">
@@ -535,13 +547,13 @@ function AgendaTaskRow({
         {prospectName && task.prospect_id && (
           <Link
             href={`/prospects/${task.prospect_id}`}
-            className="truncate text-sm text-muted-warm underline-offset-2 hover:text-brand-dark hover:underline"
+            className="truncate text-sm text-[#6F5A50] underline-offset-2 hover:text-brand-dark hover:underline"
           >
             {prospectName}
           </Link>
         )}
       </div>
-      <span className="hidden shrink-0 items-center gap-1 rounded-full bg-cream-deep px-2.5 py-1 font-inter text-[9px] font-semibold uppercase tracking-[0.12em] text-muted-warm sm:inline-flex">
+      <span className="hidden shrink-0 items-center gap-1 rounded-full bg-cream-deep px-2.5 py-1 font-inter text-[9px] font-semibold uppercase tracking-[0.12em] text-brand-burnt sm:inline-flex">
         <CheckSquare className="h-3 w-3" aria-hidden />
         Tâche
       </span>
@@ -553,22 +565,22 @@ function AgendaRelanceRow({ relance }: { relance: RelanceLite }) {
   return (
     <Link
       href={`/prospects/${relance.id}`}
-      className="flex items-center gap-4 rounded-2xl border border-border-soft bg-white p-4 shadow-soft transition-all hover:-translate-y-0.5 hover:border-brand/30 hover:shadow-soft-md"
+      className="surface-ceramic card-hover flex items-center gap-4 rounded-2xl p-4"
     >
       <span
-        className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-brand-soft text-brand-dark"
+        className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-brand-pale text-brand-dark"
         aria-hidden
       >
         <Phone className="h-3.5 w-3.5" />
       </span>
-      <span className="shrink-0 font-inter text-xs font-semibold tabular-nums text-brand-dark">
+      <span className="shrink-0 font-inter text-xs font-semibold tabular-nums text-brand-burnt">
         {formatTime(relance.next_action_at)}
       </span>
       <div className="min-w-0 flex-1">
         <p className="truncate font-marcellus text-base font-medium text-choco">
           {relance.company_name}
         </p>
-        <p className="truncate text-sm text-muted-warm">
+        <p className="truncate text-sm text-[#6F5A50]">
           {relance.contact_name ?? labelForStatus(relance.status)}
         </p>
       </div>
@@ -616,7 +628,7 @@ function TaskGroup({
     <section>
       <div className="mb-3 flex items-center gap-2">
         <span className={`h-2 w-2 rounded-full ${dotClass}`} aria-hidden />
-        <h3 className="font-inter text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-warm">
+        <h3 className="font-inter text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-burnt">
           {title} ({tasks.length})
         </h3>
       </div>
@@ -675,10 +687,8 @@ function TaskRow({
   const due = effectiveDue(task);
   return (
     <div
-      className={`group flex items-center gap-4 rounded-2xl border bg-white p-4 shadow-soft transition-colors ${
-        danger
-          ? 'border-rose-200 hover:border-rose-300'
-          : 'border-border-soft hover:border-brand/30'
+      className={`surface-ceramic card-hover group flex items-center gap-4 rounded-2xl p-4 ${
+        danger ? 'ring-1 ring-danger-fg/20' : ''
       }`}
     >
       <Checkbox
@@ -690,11 +700,11 @@ function TaskRow({
         <p className="truncate font-marcellus text-base font-medium text-choco">
           {task.title}
         </p>
-        <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs">
+        <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
           {due && (
             <span
-              className={`inline-flex items-center gap-1 font-inter ${
-                danger ? 'text-rose-600' : 'text-muted-warm'
+              className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-inter font-semibold ${
+                danger ? 'bg-danger-bg text-danger-fg' : 'bg-cream-deep text-[#6F5A50]'
               }`}
             >
               <Clock className="h-3 w-3" aria-hidden />
@@ -715,7 +725,7 @@ function TaskRow({
         <button
           type="button"
           onClick={onEdit}
-          className="inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-warm transition-colors hover:bg-cream-deep hover:text-ink-warm"
+          className="inline-flex h-9 w-9 items-center justify-center rounded-full text-[#6F5A50] transition-colors hover:bg-cream-deep hover:text-ink-warm"
           aria-label={`Modifier « ${task.title} »`}
         >
           <Edit3 className="h-4 w-4" aria-hidden />
@@ -723,7 +733,7 @@ function TaskRow({
         <button
           type="button"
           onClick={onDelete}
-          className="inline-flex h-9 w-9 items-center justify-center rounded-full text-rose-500/70 transition-colors hover:bg-rose-50 hover:text-rose-600"
+          className="inline-flex h-9 w-9 items-center justify-center rounded-full text-danger-fg/70 transition-colors hover:bg-danger-bg hover:text-danger-fg"
           aria-label={`Supprimer « ${task.title} »`}
         >
           <Trash2 className="h-4 w-4" aria-hidden />
@@ -745,7 +755,7 @@ function DoneTaskRow({
   onDelete: () => void;
 }) {
   return (
-    <div className="flex items-center gap-4 rounded-2xl border border-border-soft bg-white/60 p-4">
+    <div className="flex items-center gap-4 rounded-2xl border border-[rgba(74,36,26,0.10)] bg-cream/60 p-4">
       <Checkbox
         checked
         onChange={onUncheck}
@@ -772,7 +782,7 @@ function DoneTaskRow({
       <button
         type="button"
         onClick={onDelete}
-        className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-rose-500/60 transition-colors hover:bg-rose-50 hover:text-rose-600"
+        className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-danger-fg/60 transition-colors hover:bg-danger-bg hover:text-danger-fg"
         aria-label={`Supprimer « ${task.title} »`}
       >
         <Trash2 className="h-4 w-4" aria-hidden />
@@ -843,7 +853,7 @@ function TaskForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="mt-4 rounded-3xl border border-border-soft bg-white p-6 shadow-soft"
+      className="surface-ceramic mt-4 rounded-3xl p-6"
     >
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="sm:col-span-2">
@@ -851,7 +861,7 @@ function TaskForm({
             htmlFor="task-title"
             className="mb-1.5 block font-inter text-[10px] font-semibold uppercase tracking-[0.15em] text-brand-dark"
           >
-            Titre <span className="text-rose-500">*</span>
+            Titre <span className="text-brand-burnt">*</span>
           </label>
           <input
             id="task-title"
@@ -860,7 +870,7 @@ function TaskForm({
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Rappeler le restaurant, préparer le devis…"
-            className="w-full rounded-2xl border border-border-soft bg-white px-4 py-2.5 text-sm text-ink-warm placeholder:text-muted-warm/70 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+            className="w-full rounded-2xl border border-border-soft bg-cream/60 px-4 py-2.5 text-sm text-ink-warm placeholder:text-muted-warm/70 focus:border-brand focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring"
           />
         </div>
 
@@ -876,7 +886,7 @@ function TaskForm({
             type="datetime-local"
             value={dueAt}
             onChange={(e) => setDueAt(e.target.value)}
-            className="w-full rounded-2xl border border-border-soft bg-white px-4 py-2.5 text-sm text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+            className="w-full rounded-2xl border border-border-soft bg-cream/60 px-4 py-2.5 text-sm text-ink-warm focus:border-brand focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring"
           />
         </div>
 
@@ -892,7 +902,7 @@ function TaskForm({
             type="datetime-local"
             value={remindAt}
             onChange={(e) => setRemindAt(e.target.value)}
-            className="w-full rounded-2xl border border-border-soft bg-white px-4 py-2.5 text-sm text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+            className="w-full rounded-2xl border border-border-soft bg-cream/60 px-4 py-2.5 text-sm text-ink-warm focus:border-brand focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring"
           />
         </div>
 
@@ -910,14 +920,14 @@ function TaskForm({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Filtrer la liste…"
-              className="mb-2 w-full rounded-2xl border border-border-soft bg-white px-4 py-2 text-sm text-ink-warm placeholder:text-muted-warm/70 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+              className="mb-2 w-full rounded-2xl border border-border-soft bg-cream/60 px-4 py-2 text-sm text-ink-warm placeholder:text-muted-warm/70 focus:border-brand focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring"
             />
           )}
           <select
             aria-label="Prospect rattaché"
             value={prospectId}
             onChange={(e) => setProspectId(e.target.value)}
-            className="w-full rounded-2xl border border-border-soft bg-white px-4 py-2.5 text-sm text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+            className="w-full rounded-2xl border border-border-soft bg-cream/60 px-4 py-2.5 text-sm text-ink-warm focus:border-brand focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring"
           >
             <option value="">— Aucun —</option>
             {filteredProspects.map((p) => (
@@ -941,7 +951,7 @@ function TaskForm({
         <button
           type="submit"
           disabled={!canSubmit}
-          className="inline-flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-choco transition-colors hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-40"
+          className="inline-flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-[#2A1810] transition-colors hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-40"
         >
           {submitting ? 'Création…' : 'Créer la tâche'}
         </button>
@@ -981,7 +991,7 @@ function InlineEdit({
   return (
     <form
       onSubmit={handleSave}
-      className="rounded-2xl border border-brand/30 bg-white p-4 shadow-soft"
+      className="surface-ceramic rounded-2xl p-4 ring-1 ring-brand/30"
     >
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div className="sm:col-span-2">
@@ -994,7 +1004,7 @@ function InlineEdit({
             required
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full rounded-xl border border-border-soft bg-white px-3 py-2 text-sm text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+            className="w-full rounded-xl border border-border-soft bg-cream/60 px-3 py-2 text-sm text-ink-warm focus:border-brand focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring"
           />
         </div>
         <div>
@@ -1009,7 +1019,7 @@ function InlineEdit({
             type="datetime-local"
             value={dueAt}
             onChange={(e) => setDueAt(e.target.value)}
-            className="w-full rounded-xl border border-border-soft bg-white px-3 py-2 text-sm text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+            className="w-full rounded-xl border border-border-soft bg-cream/60 px-3 py-2 text-sm text-ink-warm focus:border-brand focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring"
           />
         </div>
         <div>
@@ -1024,7 +1034,7 @@ function InlineEdit({
             type="datetime-local"
             value={remindAt}
             onChange={(e) => setRemindAt(e.target.value)}
-            className="w-full rounded-xl border border-border-soft bg-white px-3 py-2 text-sm text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+            className="w-full rounded-xl border border-border-soft bg-cream/60 px-3 py-2 text-sm text-ink-warm focus:border-brand focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring"
           />
         </div>
       </div>
@@ -1040,7 +1050,7 @@ function InlineEdit({
         <button
           type="submit"
           disabled={!title.trim()}
-          className="inline-flex items-center gap-1.5 rounded-full bg-brand px-4 py-2 text-xs font-semibold text-choco transition-colors hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-40"
+          className="inline-flex items-center gap-1.5 rounded-full bg-brand px-4 py-2 text-xs font-semibold text-[#2A1810] transition-colors hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-40"
         >
           <Check className="h-3.5 w-3.5" aria-hidden />
           Enregistrer
