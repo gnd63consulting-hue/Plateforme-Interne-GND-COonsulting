@@ -107,22 +107,24 @@ export default function ReportingClient({ data }: { data: ReportingPageData }) {
   }
 
   return (
-    <div style={{ maxWidth: 1040, margin: '0 auto', padding: '40px 28px 72px', color: INK }}>
-      {/* Header */}
-      <header style={{ position: 'relative', marginBottom: 36 }}>
+    <div style={{ maxWidth: 1040, margin: '0 auto', padding: '32px 24px 64px', color: INK }}>
+      {/* Header — ancre cockpit chocolat */}
+      <header
+        className="surface-chocolate relative overflow-hidden"
+        style={{ borderRadius: 16, padding: '22px 24px', marginBottom: 22 }}
+      >
         <span
           aria-hidden
+          className="font-marcellus"
           style={{
             position: 'absolute',
-            top: -28,
-            right: -8,
-            fontFamily: SERIF,
-            fontSize: 116,
+            top: -22,
+            right: -6,
+            fontSize: 110,
             fontWeight: 500,
             letterSpacing: '-0.02em',
             lineHeight: 1,
-            color: CHOCO,
-            opacity: 0.045,
+            color: 'rgba(251,247,241,0.08)',
             pointerEvents: 'none',
             userSelect: 'none',
             whiteSpace: 'nowrap',
@@ -130,45 +132,48 @@ export default function ReportingClient({ data }: { data: ReportingPageData }) {
         >
           Reporting
         </span>
-        <div
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 8,
-            fontFamily: SANS,
-            fontSize: 10,
-            fontWeight: 600,
-            textTransform: 'uppercase',
-            letterSpacing: '0.22em',
-            color: BRAND_DARK,
-            marginBottom: 12,
-          }}
-        >
-          <span style={{ width: 18, height: 1.5, borderRadius: 2, background: BRAND }} />
-          ADMIN · REPORTING AVANCÉ
-        </div>
-        <h1
-          style={{
-            fontFamily: SERIF,
-            fontSize: 34,
-            fontWeight: 500,
-            letterSpacing: '-0.015em',
-            color: CHOCO,
-            margin: 0,
-            lineHeight: 1.08,
-          }}
-        >
-          Reporting avancé
-        </h1>
-        <p style={{ fontSize: 14, lineHeight: 1.6, color: INK_SOFT, marginTop: 14, maxWidth: 660 }}>
-          Funnel de conversion, prévision de chiffre d&apos;affaires pondérée par le
-          pipeline, comparaison de périodes et export du carnet de prospects.
-          Les montants sont réservés à cette console admin.
-        </p>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14, marginTop: 26 }}>
-          <Stat label="Prospects" value={String(totals.prospects)} color={CHOCO} />
-          <Stat label="Deals ouverts" value={String(totals.openDeals)} color={BRAND_DARK} />
-          <Stat label="Avec montant" value={String(totals.withAmount)} color={GREEN} />
+        <div style={{ position: 'relative' }}>
+          <span className="inline-flex items-center gap-2" style={{ marginBottom: 10 }}>
+            <span
+              aria-hidden
+              style={{ width: 16, height: 1, background: 'linear-gradient(90deg, #F39253, transparent)', display: 'inline-block' }}
+            />
+            <span
+              className="font-grotesk"
+              style={{
+                fontSize: 11,
+                fontWeight: 600,
+                textTransform: 'uppercase',
+                letterSpacing: '0.13em',
+                color: '#E0A572',
+              }}
+            >
+              Admin · Reporting avancé
+            </span>
+          </span>
+          <h1
+            className="font-marcellus"
+            style={{
+              fontSize: 32,
+              fontWeight: 500,
+              letterSpacing: '-0.015em',
+              color: '#FBF7F1',
+              margin: 0,
+              lineHeight: 1.08,
+            }}
+          >
+            Reporting avancé
+          </h1>
+          <p style={{ fontSize: 13.5, lineHeight: 1.55, color: 'rgba(251,247,241,0.55)', marginTop: 10, maxWidth: 620 }}>
+            Funnel de conversion, prévision de chiffre d&apos;affaires pondérée par le
+            pipeline, comparaison de périodes et export du carnet de prospects.
+            Les montants sont réservés à cette console admin.
+          </p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 18 }}>
+            <Stat label="Prospects" value={String(totals.prospects)} />
+            <Stat label="Deals ouverts" value={String(totals.openDeals)} />
+            <Stat label="Avec montant" value={String(totals.withAmount)} />
+          </div>
         </div>
       </header>
 
@@ -225,12 +230,11 @@ export default function ReportingClient({ data }: { data: ReportingPageData }) {
                     }}
                   >
                     <span
+                      className="font-num tabular-nums"
                       style={{
-                        fontFamily: SANS,
                         fontSize: 12,
                         fontWeight: 700,
                         color: '#2A1810',
-                        fontVariantNumeric: 'tabular-nums',
                       }}
                     >
                       {stage.count}
@@ -238,11 +242,11 @@ export default function ReportingClient({ data }: { data: ReportingPageData }) {
                   </div>
                 </div>
                 <div
+                  className="font-num tabular-nums"
                   style={{
                     width: 64,
                     flexShrink: 0,
                     textAlign: 'right',
-                    fontFamily: SANS,
                     fontSize: 11.5,
                     fontWeight: 600,
                     color:
@@ -251,7 +255,6 @@ export default function ReportingClient({ data }: { data: ReportingPageData }) {
                         : stage.conversionFromPrev >= 0.5
                           ? GREEN
                           : BRAND_DARK,
-                    fontVariantNumeric: 'tabular-nums',
                   }}
                   title="Taux de conversion depuis l'étape précédente"
                 >
@@ -276,35 +279,44 @@ export default function ReportingClient({ data }: { data: ReportingPageData }) {
         </p>
 
         <div
+          className="panel-accent"
           style={{
             display: 'flex',
             flexWrap: 'wrap',
-            gap: 16,
+            gap: 14,
             alignItems: 'baseline',
-            marginBottom: 24,
-            padding: '20px 22px',
-            background: 'linear-gradient(135deg, #FCF6EE, #F9EFE2)',
-            border: '1px solid rgba(243,146,83,0.30)',
-            borderRadius: 18,
-            boxShadow: '0 1px 3px rgba(83,36,24,0.05)',
+            marginBottom: 18,
+            padding: 16,
+            borderRadius: 14,
           }}
         >
           <div>
-            <div style={eyebrowStyle}>CA PONDÉRÉ ATTENDU</div>
             <div
+              className="font-grotesk"
               style={{
-                fontFamily: SERIF,
-                fontSize: 32,
-                fontWeight: 500,
+                fontSize: 10,
+                fontWeight: 600,
+                textTransform: 'uppercase',
+                letterSpacing: '0.14em',
+                color: BRAND_DARK,
+                marginBottom: 6,
+              }}
+            >
+              CA pondéré attendu
+            </div>
+            <div
+              className="font-num tabular-nums"
+              style={{
+                fontSize: 31,
+                fontWeight: 600,
                 color: BRAND_DARK,
                 lineHeight: 1,
-                fontVariantNumeric: 'tabular-nums',
               }}
             >
               {formatEur(forecast.total)}
             </div>
           </div>
-          <div style={{ color: INK_FAINT, fontSize: 13 }}>
+          <div className="font-num tabular-nums" style={{ color: INK_SOFT, fontSize: 13 }}>
             sur {formatEur(forecast.totalRaw)} de pipeline brut ouvert
           </div>
         </div>
@@ -325,7 +337,7 @@ export default function ReportingClient({ data }: { data: ReportingPageData }) {
                   }}
                 >
                   {b.label}
-                  <span style={{ color: INK_FAINT, fontWeight: 500 }}>
+                  <span className="font-num tabular-nums" style={{ color: INK_FAINT, fontWeight: 500 }}>
                     {' '}· {Math.round(b.probability * 100)}%
                   </span>
                 </div>
@@ -355,15 +367,14 @@ export default function ReportingClient({ data }: { data: ReportingPageData }) {
                   />
                 </div>
                 <div
+                  className="font-num tabular-nums"
                   style={{
                     width: 150,
                     flexShrink: 0,
                     textAlign: 'right',
-                    fontFamily: SANS,
                     fontSize: 12,
                     fontWeight: 600,
                     color: INK,
-                    fontVariantNumeric: 'tabular-nums',
                   }}
                 >
                   {formatEur(b.weightedAmount)}
@@ -489,29 +500,25 @@ function Section({
 }) {
   return (
     <section
+      className="panel"
       style={{
         position: 'relative',
-        background: CARD_BG,
-        border: `1px solid ${BORDER}`,
-        borderRadius: 26,
-        padding: '26px 28px',
-        marginBottom: 26,
-        boxShadow: '0 10px 30px -18px rgba(83,36,24,0.18), 0 1px 2px rgba(83,36,24,0.05)',
+        padding: 16,
+        marginBottom: 16,
       }}
     >
       <span
         aria-hidden
+        className="font-num tabular-nums"
         style={{
           position: 'absolute',
-          top: 22,
-          right: 26,
-          fontFamily: SERIF,
-          fontSize: 13,
-          fontWeight: 500,
-          letterSpacing: '0.04em',
+          top: 16,
+          right: 18,
+          fontSize: 11,
+          fontWeight: 600,
+          letterSpacing: '0.08em',
           color: BRAND_DARK,
-          opacity: 0.45,
-          fontVariantNumeric: 'tabular-nums',
+          opacity: 0.4,
         }}
       >
         {eyebrow}
@@ -520,17 +527,16 @@ function Section({
         style={{
           display: 'flex',
           alignItems: 'center',
-          gap: 13,
-          marginBottom: 4,
-          paddingBottom: 16,
-          borderBottom: '1px solid rgba(74,36,26,0.08)',
+          gap: 11,
+          paddingBottom: 13,
+          borderBottom: '1px solid rgba(74,36,26,0.07)',
         }}
       >
         <div
           style={{
-            width: 38,
-            height: 38,
-            borderRadius: 13,
+            width: 34,
+            height: 34,
+            borderRadius: 11,
             background: 'rgba(243,146,83,0.14)',
             border: '1px solid rgba(243,146,83,0.30)',
             display: 'flex',
@@ -541,14 +547,31 @@ function Section({
             boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.5)',
           }}
         >
-          <Icon size={18} strokeWidth={1.8} />
+          <Icon size={17} strokeWidth={1.8} />
         </div>
         <div>
-          <div style={{ ...eyebrowStyle, color: BRAND_DARK, marginBottom: 4 }}>{eyebrow}</div>
+          <span className="inline-flex items-center gap-2" style={{ marginBottom: 3 }}>
+            <span
+              aria-hidden
+              style={{ width: 14, height: 1, background: 'linear-gradient(90deg, #F39253, transparent)', display: 'inline-block' }}
+            />
+            <span
+              className="font-grotesk"
+              style={{
+                fontSize: 10.5,
+                fontWeight: 600,
+                textTransform: 'uppercase',
+                letterSpacing: '0.13em',
+                color: BRAND_DARK,
+              }}
+            >
+              {eyebrow}
+            </span>
+          </span>
           <h2
+            className="font-marcellus"
             style={{
-              fontFamily: SERIF,
-              fontSize: 21,
+              fontSize: 20,
               fontWeight: 500,
               color: CHOCO,
               margin: 0,
@@ -559,23 +582,22 @@ function Section({
           </h2>
         </div>
       </div>
-      <div style={{ marginTop: 18 }}>{children}</div>
+      <div style={{ marginTop: 14 }}>{children}</div>
     </section>
   );
 }
 
-function Stat({ label, value, color }: { label: string; value: string; color: string }) {
+function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div
       style={{
         flex: 1,
-        minWidth: 150,
+        minWidth: 132,
         position: 'relative',
-        background: CARD_BG,
-        border: `1px solid ${BORDER}`,
-        borderRadius: 20,
-        padding: '16px 20px',
-        boxShadow: '0 10px 26px -20px rgba(83,36,24,0.20), 0 1px 2px rgba(83,36,24,0.05)',
+        background: 'rgba(251,247,241,0.06)',
+        border: '1px solid rgba(251,247,241,0.12)',
+        borderRadius: 13,
+        padding: '12px 16px',
         overflow: 'hidden',
       }}
     >
@@ -583,24 +605,36 @@ function Stat({ label, value, color }: { label: string; value: string; color: st
         aria-hidden
         style={{
           position: 'absolute',
-          top: 16,
+          top: 14,
           left: 0,
           width: 3,
-          height: 22,
+          height: 20,
           borderRadius: 2,
           background: BRAND,
         }}
       />
-      <div style={{ ...eyebrowStyle, paddingLeft: 12 }}>{label}</div>
       <div
+        className="font-grotesk"
         style={{
           paddingLeft: 12,
-          fontFamily: SERIF,
-          fontSize: 27,
-          fontWeight: 500,
-          color,
+          fontSize: 10,
+          fontWeight: 600,
+          textTransform: 'uppercase',
+          letterSpacing: '0.14em',
+          color: 'rgba(251,247,241,0.5)',
+          marginBottom: 6,
+        }}
+      >
+        {label}
+      </div>
+      <div
+        className="font-num tabular-nums"
+        style={{
+          paddingLeft: 12,
+          fontSize: 26,
+          fontWeight: 600,
+          color: '#FBF7F1',
           lineHeight: 1,
-          fontVariantNumeric: 'tabular-nums',
         }}
       >
         {value}
@@ -624,16 +658,20 @@ function CompareCard({
   const negative = deltaPct != null && deltaPct < 0;
   const deltaColor = positive ? GREEN : negative ? ROSE : INK_FAINT;
   return (
-    <div
-      style={{
-        background: 'linear-gradient(135deg, #FCF8F2, #F8F1E8)',
-        border: `1px solid ${BORDER}`,
-        borderRadius: 18,
-        padding: '17px 20px',
-        boxShadow: '0 1px 2px rgba(83,36,24,0.04)',
-      }}
-    >
-      <div style={eyebrowStyle}>{label}</div>
+    <div className="panel" style={{ padding: 16 }}>
+      <div
+        className="font-grotesk"
+        style={{
+          fontSize: 10,
+          fontWeight: 600,
+          textTransform: 'uppercase',
+          letterSpacing: '0.14em',
+          color: INK_SOFT,
+          marginBottom: 8,
+        }}
+      >
+        {label}
+      </div>
       <div
         style={{
           display: 'flex',
@@ -643,30 +681,28 @@ function CompareCard({
         }}
       >
         <span
+          className="font-num tabular-nums"
           style={{
-            fontFamily: SERIF,
             fontSize: 24,
-            fontWeight: 500,
+            fontWeight: 600,
             color: CHOCO,
             lineHeight: 1,
-            fontVariantNumeric: 'tabular-nums',
           }}
         >
           {current}
         </span>
         <span
+          className="font-num tabular-nums"
           style={{
-            fontFamily: SANS,
             fontSize: 12,
             fontWeight: 700,
             color: deltaColor,
-            fontVariantNumeric: 'tabular-nums',
           }}
         >
           {formatDeltaPct(deltaPct)}
         </span>
       </div>
-      <div style={{ fontFamily: SANS, fontSize: 11.5, color: INK_FAINT, marginTop: 6 }}>
+      <div className="font-num tabular-nums" style={{ fontSize: 11.5, color: INK_FAINT, marginTop: 6 }}>
         vs {previous} le mois dernier
       </div>
     </div>
