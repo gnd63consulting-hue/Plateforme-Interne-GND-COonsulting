@@ -57,62 +57,62 @@ type AnalysisTheme = {
 
 const RECOMMENDATION_THEME: AnalysisTheme = {
   cardClass:
-    'rounded-xl bg-gradient-to-br from-amber-50 to-amber-100/60 p-4 ring-1 ring-amber-200/70 shadow-soft',
-  headerColor: 'text-amber-800',
-  iconColor: 'text-amber-700',
-  bodyColor: 'text-amber-950',
-  sectionLabelColor: 'text-amber-700',
-  bulletColor: 'bg-amber-500/70',
-  boldColor: 'text-amber-950',
-  linkColor: 'text-amber-700',
-  phoneBg: 'bg-amber-100/60',
-  phoneText: 'text-amber-800',
-  handleColor: 'text-amber-700',
+    'rounded-3xl bg-gradient-to-br from-brand-pale/70 to-brand-soft/40 p-5 ring-1 ring-[rgba(243,146,83,0.28)] shadow-soft-md',
+  headerColor: 'text-brand-burnt',
+  iconColor: 'text-brand-dark',
+  bodyColor: 'text-ink-warm',
+  sectionLabelColor: 'text-brand-burnt',
+  bulletColor: 'bg-brand/70',
+  boldColor: 'text-choco',
+  linkColor: 'text-brand-burnt',
+  phoneBg: 'bg-brand-pale/70',
+  phoneText: 'text-brand-burnt',
+  handleColor: 'text-brand-burnt',
 };
 
 const BESOIN_THEME: AnalysisTheme = {
   cardClass:
-    'rounded-xl bg-gradient-to-br from-info-bg to-info-bg/60 p-4 ring-1 ring-[rgba(49,104,156,0.25)]/70 shadow-soft',
+    'rounded-3xl bg-gradient-to-br from-info-bg/70 to-info-bg/30 p-5 ring-1 ring-[rgba(49,104,156,0.22)] shadow-soft',
   headerColor: 'text-info-fg',
   iconColor: 'text-info-fg',
-  bodyColor: 'text-info-fg',
+  bodyColor: 'text-ink-warm',
   sectionLabelColor: 'text-info-fg',
-  bulletColor: 'bg-brand/70',
-  boldColor: 'text-info-fg',
+  bulletColor: 'bg-info-fg/60',
+  boldColor: 'text-choco',
   linkColor: 'text-info-fg',
-  phoneBg: 'bg-info-bg/60',
+  phoneBg: 'bg-info-bg/70',
   phoneText: 'text-info-fg',
   handleColor: 'text-info-fg',
 };
 
 const TIMING_THEME: AnalysisTheme = {
   cardClass:
-    'rounded-xl bg-gradient-to-br from-violet-50 to-violet-100/60 p-4 ring-1 ring-violet-200/70 shadow-soft',
-  headerColor: 'text-violet-800',
-  iconColor: 'text-violet-700',
-  bodyColor: 'text-violet-950',
-  sectionLabelColor: 'text-violet-700',
-  bulletColor: 'bg-violet-500/70',
-  boldColor: 'text-violet-950',
-  linkColor: 'text-violet-700',
-  phoneBg: 'bg-violet-100/60',
-  phoneText: 'text-violet-800',
-  handleColor: 'text-violet-700',
+    'rounded-3xl bg-gradient-to-br from-cream-sand/80 to-cream-deep/50 p-5 ring-1 ring-[rgba(74,36,26,0.10)] shadow-soft',
+  headerColor: 'text-choco',
+  iconColor: 'text-brand-dark',
+  bodyColor: 'text-ink-warm',
+  sectionLabelColor: 'text-brand-burnt',
+  bulletColor: 'bg-brand/60',
+  boldColor: 'text-choco',
+  linkColor: 'text-brand-burnt',
+  phoneBg: 'bg-cream-deep',
+  phoneText: 'text-choco',
+  handleColor: 'text-brand-burnt',
 };
 
 const BUDGET_THEME: AnalysisTheme = {
   cardClass:
-    'rounded-xl bg-gradient-to-br from-emerald-50 to-emerald-100/60 p-4 ring-1 ring-emerald-200/70 shadow-soft',
-  headerColor: 'text-emerald-800',
-  iconColor: 'text-emerald-700',
-  bodyColor: 'text-emerald-950',
-  sectionLabelColor: 'text-emerald-700',
-  bulletColor: 'bg-emerald-500/70',
-  boldColor: 'text-emerald-950',
-  linkColor: 'text-emerald-700',
-  phoneBg: 'bg-emerald-100/60',
-  phoneText: 'text-emerald-800',
-  handleColor: 'text-emerald-700',
+    'rounded-3xl bg-gradient-to-br from-ok-bg/80 to-ok-bg/40 p-5 ring-1 ring-[rgba(58,122,72,0.20)] shadow-soft',
+  headerColor: 'text-ok-fg',
+  iconColor: 'text-ok-fg',
+  bodyColor: 'text-ink-warm',
+  sectionLabelColor: 'text-ok-fg',
+  bulletColor: 'bg-ok-fg/55',
+  boldColor: 'text-choco',
+  linkColor: 'text-ok-fg',
+  phoneBg: 'bg-ok-bg/70',
+  phoneText: 'text-ok-fg',
+  handleColor: 'text-ok-fg',
 };
 
 /**
@@ -175,45 +175,54 @@ export default function ProspectDetailsModal({
       aria-label={`Détails du prospect ${prospect.company_name}`}
     >
       <div
-        className="relative flex h-[95vh] w-full flex-col overflow-hidden rounded-t-2xl bg-white shadow-2xl ring-1 ring-[rgba(83,36,24,0.06)] sm:h-auto sm:max-h-[90vh] sm:max-w-4xl sm:rounded-2xl"
+        className="relative flex h-[95vh] w-full flex-col overflow-hidden rounded-t-[28px] bg-cream shadow-2xl ring-1 ring-[rgba(83,36,24,0.08)] sm:h-auto sm:max-h-[90vh] sm:max-w-4xl sm:rounded-[28px]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* ============================================================== */}
-        {/* STICKY HEADER                                                   */}
+        {/* STICKY HEADER — carte d'identité business                       */}
         {/* ============================================================== */}
-        <header className="flex shrink-0 items-start gap-4 border-b border-[rgba(74,36,26,0.10)] bg-white px-5 py-4 sm:px-6">
-          {/* Hash-color avatar with initials */}
+        <header className="relative flex shrink-0 items-start gap-4 overflow-hidden border-b border-[rgba(74,36,26,0.10)] surface-glass px-5 py-5 sm:px-7 sm:py-6">
+          {/* Watermark décoratif (initiales géantes) */}
+          <span
+            aria-hidden
+            className="watermark pointer-events-none absolute -right-2 top-1/2 -translate-y-1/2 select-none font-marcellus text-[120px] leading-none"
+          >
+            {avatarInitials}
+          </span>
+
+          {/* Monogram / avatar */}
           <div
-            className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-xl text-lg font-bold text-white shadow-soft-md ring-2 ring-white ${avatarColor}`}
+            className={`relative flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl text-xl font-marcellus font-bold text-white shadow-soft-md ring-2 ring-white ${avatarColor}`}
             aria-hidden="true"
           >
             {avatarInitials}
           </div>
 
           {/* Title + meta + badges */}
-          <div className="min-w-0 flex-1">
-            <h2 className="text-xl font-bold leading-tight text-ink-warm sm:text-2xl">
+          <div className="relative min-w-0 flex-1">
+            <span className="label-eyebrow">Fiche prospect</span>
+            <h2 className="mt-1 font-marcellus text-2xl font-semibold leading-tight tracking-tight text-choco sm:text-[1.75rem]">
               {prospect.company_name}
             </h2>
 
             {/* Sector + Address */}
-            <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-warm sm:text-sm">
+            <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#6F5A50] sm:text-sm">
               {prospect.sector && (
-                <span className="inline-flex items-center gap-1">
-                  <Building2 className="h-3.5 w-3.5" aria-hidden />
+                <span className="inline-flex items-center gap-1.5">
+                  <Building2 className="h-3.5 w-3.5 text-brand-burnt" aria-hidden />
                   {prospect.sector}
                 </span>
               )}
               {adressePrecise && (
-                <span className="inline-flex min-w-0 items-center gap-1">
-                  <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                <span className="inline-flex min-w-0 items-center gap-1.5">
+                  <MapPin className="h-3.5 w-3.5 shrink-0 text-brand-burnt" aria-hidden />
                   <span className="truncate">{adressePrecise}</span>
                 </span>
               )}
             </div>
 
             {/* Badges row */}
-            <div className="mt-2 flex flex-wrap items-center gap-1.5">
+            <div className="mt-3 flex flex-wrap items-center gap-1.5">
               {prospect.classification && (
                 <span
                   title={
@@ -233,14 +242,14 @@ export default function ProspectDetailsModal({
               {prospect.branche && (
                 <span
                   title="Type de service GND : A = Agence Créative (sites web), B = Production Audiovisuelle, C = Solutions IA"
-                  className="inline-flex cursor-help items-center rounded-full bg-purple-50 px-2 py-0.5 text-[11px] font-medium text-purple-700 ring-1 ring-purple-200"
+                  className="inline-flex cursor-help items-center rounded-full bg-cream-deep px-2.5 py-0.5 text-[11px] font-medium text-choco ring-1 ring-[rgba(74,36,26,0.10)]"
                 >
                   {prospect.branche}
                 </span>
               )}
               {prospect.status && (
                 <span
-                  className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${toneForStatus(
+                  className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium ${toneForStatus(
                     prospect.status
                   )}`}
                 >
@@ -248,7 +257,7 @@ export default function ProspectDetailsModal({
                 </span>
               )}
               {prospect.notion_page_id && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-info-bg px-2 py-0.5 text-[11px] font-medium text-info-fg ring-1 ring-[rgba(49,104,156,0.25)]">
+                <span className="inline-flex items-center gap-1 rounded-full bg-info-bg px-2.5 py-0.5 text-[11px] font-medium text-info-fg ring-1 ring-[rgba(49,104,156,0.25)]">
                   <Sparkles className="h-3 w-3" aria-hidden />
                   Synchro Notion
                 </span>
@@ -259,7 +268,7 @@ export default function ProspectDetailsModal({
           {/* Close button */}
           <button
             onClick={onClose}
-            className="-m-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-muted-warm transition hover:bg-cream-deep hover:text-ink-warm focus:outline-none focus:ring-2 focus:ring-brand"
+            className="relative -m-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[#6F5A50] transition hover:bg-cream-deep hover:text-choco focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring"
             aria-label="Fermer la modale"
           >
             <X className="h-5 w-5" />
@@ -269,8 +278,8 @@ export default function ProspectDetailsModal({
         {/* ============================================================== */}
         {/* SCROLLABLE BODY                                                  */}
         {/* ============================================================== */}
-        <div className="flex-1 overflow-y-auto bg-cream/40 px-5 py-5 sm:px-6 sm:py-6">
-          <div className="space-y-4">
+        <div className="flex-1 overflow-y-auto bg-cream/60 px-5 py-5 sm:px-7 sm:py-6">
+          <div className="space-y-5">
             {/* Row 1 : Décisionnaire & canal | Présence digitale */}
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <Card
@@ -392,7 +401,7 @@ export default function ProspectDetailsModal({
                 {prospect.besoins_detectes &&
                   prospect.besoins_detectes.length > 0 && (
                     <div>
-                      <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-warm">
+                      <div className="label-eyebrow mb-2">
                         Besoins détectés
                       </div>
                       <div className="flex flex-wrap gap-1.5">
@@ -409,15 +418,15 @@ export default function ProspectDetailsModal({
                   )}
                 {prospect.arguments_cles &&
                   prospect.arguments_cles.length > 0 && (
-                    <div className="mt-3">
-                      <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-warm">
+                    <div className="mt-4">
+                      <div className="label-eyebrow mb-2">
                         Arguments clés
                       </div>
                       <div className="flex flex-wrap gap-1.5">
                         {prospect.arguments_cles.map((a) => (
                           <span
                             key={a}
-                            className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 ring-1 ring-emerald-200"
+                            className="inline-flex items-center rounded-full bg-ok-bg px-2.5 py-1 text-xs font-medium text-ok-fg ring-1 ring-[rgba(58,122,72,0.20)]"
                           >
                             {a}
                           </span>
@@ -484,7 +493,7 @@ export default function ProspectDetailsModal({
               </ThemedCard>
             )}
 
-            <p className="pt-1 text-center text-[11px] italic text-muted-warm">
+            <p className="pt-1 text-center text-[11px] italic text-[#6F5A50]">
               Données issues de Notion (Pipeline Prospects GND). Les notes et
               le statut saisis sur la plateforme sont préservés au sync.
             </p>
@@ -494,9 +503,9 @@ export default function ProspectDetailsModal({
         {/* ============================================================== */}
         {/* STICKY FOOTER ACTIONS                                            */}
         {/* ============================================================== */}
-        <footer className="flex shrink-0 flex-wrap items-center justify-end gap-2 border-t border-[rgba(74,36,26,0.10)] bg-white px-5 py-3 sm:px-6">
+        <footer className="flex shrink-0 flex-wrap items-center justify-end gap-2 border-t border-[rgba(74,36,26,0.10)] surface-glass px-5 py-3.5 sm:px-7">
           {telHref && (
-            <FooterAction href={telHref} icon={<Phone className="h-4 w-4" />}>
+            <FooterAction href={telHref} icon={<Phone className="h-4 w-4" />} primary>
               Appeler
             </FooterAction>
           )}
@@ -543,10 +552,15 @@ function Card({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-xl bg-white p-4 ring-1 ring-border-soft shadow-soft">
-      <header className="mb-3 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-warm">
-        <span aria-hidden>{icon}</span>
-        {title}
+    <section className="surface-ceramic rounded-3xl p-6">
+      <header className="mb-4 flex items-center gap-2.5">
+        <span
+          aria-hidden
+          className="flex h-9 w-9 items-center justify-center rounded-2xl bg-brand-pale text-brand-dark"
+        >
+          {icon}
+        </span>
+        <span className="label-eyebrow">{title}</span>
       </header>
       {children}
     </section>
@@ -567,9 +581,12 @@ function ThemedCard({
   return (
     <section className={theme.cardClass}>
       <header
-        className={`mb-3 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide ${theme.headerColor}`}
+        className={`mb-4 flex items-center gap-2.5 text-[11px] font-semibold uppercase tracking-[0.14em] ${theme.headerColor}`}
       >
-        <span aria-hidden className={theme.iconColor}>
+        <span
+          aria-hidden
+          className={`flex h-9 w-9 items-center justify-center rounded-2xl bg-white/60 ring-1 ring-[rgba(74,36,26,0.08)] ${theme.iconColor}`}
+        >
           {icon}
         </span>
         {title}
@@ -596,7 +613,7 @@ function KV({
       href={href}
       target={isExternal ? '_blank' : undefined}
       rel={isExternal ? 'noopener noreferrer' : undefined}
-      className="text-ink-warm hover:underline"
+      className="font-medium text-brand-burnt underline-offset-2 hover:underline"
     >
       {value}
     </a>
@@ -604,11 +621,11 @@ function KV({
     <span className="text-choco">{value}</span>
   );
   return (
-    <div className="mb-2 last:mb-0">
-      <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-warm">
+    <div className="mb-3 last:mb-0">
+      <div className="label-eyebrow">
         {label}
       </div>
-      <div className="mt-0.5 break-words text-sm">{content}</div>
+      <div className="mt-1 break-words text-sm text-ink-warm">{content}</div>
     </div>
   );
 }
@@ -631,16 +648,18 @@ function SocialLink({
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="-mx-1 mb-1 flex items-center gap-2 rounded-lg px-1.5 py-1 transition hover:bg-cream-deep last:mb-0"
+      className="-mx-1.5 mb-1 flex items-center gap-2.5 rounded-2xl px-2 py-1.5 transition hover:bg-cream-deep last:mb-0"
     >
-      <span className="shrink-0 text-muted-warm">{icon}</span>
+      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-brand-pale text-brand-dark">
+        {icon}
+      </span>
       <div className="min-w-0 flex-1">
-        <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-warm">
+        <div className="label-eyebrow">
           {label}
         </div>
-        <div className="truncate text-sm text-ink-warm">{value}</div>
+        <div className="mt-0.5 truncate text-sm text-ink-warm">{value}</div>
       </div>
-      <ExternalLink className="h-3.5 w-3.5 shrink-0 text-muted-warm" />
+      <ExternalLink className="h-3.5 w-3.5 shrink-0 text-brand-burnt" />
     </a>
   );
 }
@@ -655,12 +674,12 @@ function Stat({
   icon?: React.ReactNode;
 }) {
   return (
-    <div className="rounded-lg bg-cream p-2.5 ring-1 ring-border-soft">
-      <div className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-muted-warm">
-        {icon}
+    <div className="rounded-2xl bg-cream/70 p-3 ring-1 ring-[rgba(74,36,26,0.10)]">
+      <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-burnt">
+        {icon && <span className="text-brand-burnt">{icon}</span>}
         {label}
       </div>
-      <div className="mt-1 break-words text-sm font-semibold text-choco">
+      <div className="mt-1.5 break-words font-marcellus text-base font-semibold tabular-nums text-choco">
         {value ?? '—'}
       </div>
     </div>
@@ -671,11 +690,13 @@ function FooterAction({
   href,
   icon,
   external,
+  primary,
   children,
 }: {
   href: string;
   icon: React.ReactNode;
   external?: boolean;
+  primary?: boolean;
   children: React.ReactNode;
 }) {
   return (
@@ -683,7 +704,11 @@ function FooterAction({
       href={href}
       target={external ? '_blank' : undefined}
       rel={external ? 'noopener noreferrer' : undefined}
-      className="inline-flex items-center gap-1.5 rounded-lg border border-[rgba(74,36,26,0.10)] bg-white px-3 py-1.5 text-sm font-medium text-ink-warm transition hover:border-border-soft hover:bg-cream hover:text-ink-warm"
+      className={
+        primary
+          ? 'orange-glow inline-flex items-center gap-1.5 rounded-full bg-brand px-5 py-2 text-sm font-semibold text-[#2A1810] transition hover:bg-brand-dark'
+          : 'inline-flex items-center gap-1.5 rounded-full border border-border-soft bg-white px-4 py-2 text-sm font-medium text-choco transition hover:bg-cream-deep'
+      }
     >
       {icon}
       {children}
