@@ -109,7 +109,7 @@ const SECTIONS: {
     bucket: 'today',
     title: "Aujourd'hui",
     icon: CalendarCheck,
-    headerClass: 'bg-brand-pale text-brand-dark ring-1 ring-gnd-bronze/15',
+    headerClass: 'bg-brand-pale text-brand-dark ring-1 ring-[rgba(74,36,26,0.12)]/15',
     countClass: 'bg-cream-deep text-brand-dark',
     empty: "Aucun rappel prevu aujourd'hui.",
   },
@@ -247,9 +247,9 @@ function StatChip({
   tone?: 'slate' | 'rose' | 'bronze';
 }) {
   const tones: Record<string, string> = {
-    slate: 'bg-slate-100 text-slate-700',
+    slate: 'bg-cream-deep text-ink-warm',
     rose: 'bg-rose-100 text-rose-700',
-    bronze: 'bg-cream-deep text-brand-dark ring-1 ring-gnd-bronze/15',
+    bronze: 'bg-cream-deep text-brand-dark ring-1 ring-[rgba(74,36,26,0.12)]/15',
   };
   return (
     <span
@@ -314,7 +314,7 @@ function PitchSelene({ r }: { r: RappelRowVM }) {
               {raisons.map((raison, i) => (
                 <li
                   key={i}
-                  className="inline-flex items-center rounded-full bg-white px-2 py-0.5 text-[11px] font-medium text-ink-warm ring-1 ring-gnd-bronze/12"
+                  className="inline-flex items-center rounded-full bg-white px-2 py-0.5 text-[11px] font-medium text-ink-warm ring-1 ring-[rgba(74,36,26,0.12)]/12"
                 >
                   {raison}
                 </li>
@@ -368,7 +368,7 @@ function RappelCard({ r, overdue }: { r: RappelRowVM; overdue: boolean }) {
             </Link>
             <ScoreBadge r={r} />
             {r.scoreLabel && (
-              <span className="inline-flex items-center rounded-full bg-cream-deep px-2 py-0.5 text-[11px] font-medium text-brand-dark ring-1 ring-gnd-bronze/12">
+              <span className="inline-flex items-center rounded-full bg-cream-deep px-2 py-0.5 text-[11px] font-medium text-brand-dark ring-1 ring-[rgba(74,36,26,0.12)]/12">
                 {r.scoreLabel}
               </span>
             )}
@@ -399,7 +399,7 @@ function RappelCard({ r, overdue }: { r: RappelRowVM; overdue: boolean }) {
             className={`mt-2 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${
               overdue
                 ? 'bg-rose-50 text-rose-700 ring-1 ring-rose-200'
-                : 'bg-cream-deep/70 text-brand-dark ring-1 ring-gnd-bronze/10'
+                : 'bg-cream-deep/70 text-brand-dark ring-1 ring-[rgba(74,36,26,0.12)]/10'
             }`}
           >
             {overdue ? (
@@ -430,7 +430,7 @@ function RappelCard({ r, overdue }: { r: RappelRowVM; overdue: boolean }) {
               {r.tel}
             </a>
           ) : (
-            <span className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-100 px-4 py-2.5 text-sm font-medium text-slate-500">
+            <span className="inline-flex items-center justify-center gap-2 rounded-xl bg-cream-deep px-4 py-2.5 text-sm font-medium text-muted-warm">
               <Phone className="h-4 w-4" aria-hidden />
               Pas de tel
             </span>
