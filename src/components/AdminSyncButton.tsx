@@ -64,7 +64,7 @@ export default function AdminSyncButton({ options }: Props) {
 
   return (
     <div
-      className="relative overflow-hidden rounded-3xl border border-gnd-amber/15 p-6 shadow-warm-xl sm:p-7"
+      className="relative overflow-hidden rounded-3xl border border-brand/15 p-6 shadow-warm-xl sm:p-7"
       style={{
         backgroundImage: `
           radial-gradient(circle at 15% 0%, rgba(232, 133, 61, 0.10) 0%, transparent 55%),
@@ -74,7 +74,7 @@ export default function AdminSyncButton({ options }: Props) {
     >
       {/* Decorative Database icon top-right */}
       <div
-        className="pointer-events-none absolute -right-6 -top-6 flex h-32 w-32 items-center justify-center rounded-full bg-gnd-amber/8 text-gnd-amber/30"
+        className="pointer-events-none absolute -right-6 -top-6 flex h-32 w-32 items-center justify-center rounded-full bg-brand/8 text-brand/30"
         aria-hidden
       >
         <Database className="h-16 w-16" />
@@ -82,27 +82,27 @@ export default function AdminSyncButton({ options }: Props) {
 
       <div className="relative z-10">
         <div className="mb-5 flex items-center gap-2">
-          <Database className="h-4 w-4 text-gnd-amber" aria-hidden />
-          <h3 className="font-display text-base font-medium text-gnd-cream sm:text-lg">
+          <Database className="h-4 w-4 text-brand" aria-hidden />
+          <h3 className="font-display text-base font-medium text-cream sm:text-lg">
             Récupérer les enrichissements depuis Notion
           </h3>
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
           <label className="flex-1">
-            <span className="mb-1.5 flex items-center gap-1.5 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-gnd-amber">
+            <span className="mb-1.5 flex items-center gap-1.5 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-brand">
               <UserPlus className="h-3 w-3" />
               Assigner les nouveaux prospects à
             </span>
             <select
               value={targetUserId}
               onChange={(e) => setTargetUserId(e.target.value)}
-              className="w-full rounded-xl border border-gnd-amber/15 bg-gnd-ink/40 px-3 py-2.5 text-sm text-gnd-cream backdrop-blur-sm transition focus:border-gnd-amber focus:outline-none focus:ring-1 focus:ring-gnd-amber"
+              className="w-full rounded-xl border border-brand/15 bg-[#2A1510]/40 px-3 py-2.5 text-sm text-cream backdrop-blur-sm transition focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
               disabled={loading}
             >
               {options.length === 0 && <option value="">Aucun commercial</option>}
               {options.map((o) => (
-                <option key={o.id} value={o.id} className="bg-gnd-ink text-gnd-cream">
+                <option key={o.id} value={o.id} className="bg-[#2A1510] text-cream">
                   {o.label}
                 </option>
               ))}
@@ -112,7 +112,7 @@ export default function AdminSyncButton({ options }: Props) {
             type="button"
             onClick={handleSync}
             disabled={loading || !targetUserId}
-            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-gradient-to-r from-gnd-amber-dim via-gnd-amber to-gnd-amber-glow px-5 py-2.5 text-sm font-semibold text-gnd-bronze shadow-[0_0_20px_rgba(232,133,61,0.35)] transition hover:from-gnd-amber hover:to-gnd-amber-glow hover:shadow-[0_0_28px_rgba(232,133,61,0.55)] disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-gradient-to-r from-brand-dark via-brand to-brand px-5 py-2.5 text-sm font-semibold text-ink-warm shadow-[0_0_20px_rgba(232,133,61,0.35)] transition hover:from-brand hover:to-brand hover:shadow-[0_0_28px_rgba(232,133,61,0.55)] disabled:cursor-not-allowed disabled:opacity-50"
           >
             <RefreshCw
               className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`}
@@ -122,11 +122,11 @@ export default function AdminSyncButton({ options }: Props) {
           </button>
         </div>
 
-        <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.12em] text-gnd-cream/50">
+        <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.12em] text-cream/50">
           Les prospects déjà synchronisés sont mis à jour sur place (notes et
           assignation conservées). Les prospects retirés ou rejetés dans
           Notion sont marqués{' '}
-          <code className="rounded bg-gnd-amber/15 px-1.5 py-0.5 font-mono text-[10px] text-gnd-amber-glow normal-case tracking-normal">
+          <code className="rounded bg-brand/15 px-1.5 py-0.5 font-mono text-[10px] text-brand normal-case tracking-normal">
             archived
           </code>
           . Seuls les nouveaux prospects seront créés avec le commercial choisi.
@@ -140,8 +140,8 @@ export default function AdminSyncButton({ options }: Props) {
         )}
 
         {result && (
-          <div className="mt-4 rounded-2xl border border-gnd-amber/30 bg-gnd-amber/5 px-4 py-3 backdrop-blur-sm">
-            <div className="mb-2 flex items-center gap-1.5 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-gnd-amber-glow">
+          <div className="mt-4 rounded-2xl border border-brand/30 bg-brand/5 px-4 py-3 backdrop-blur-sm">
+            <div className="mb-2 flex items-center gap-1.5 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-brand">
               <CheckCircle2 className="h-3.5 w-3.5" aria-hidden />
               Sync terminée
             </div>
@@ -183,9 +183,9 @@ export default function AdminSyncButton({ options }: Props) {
 }
 
 const CHIP_TONES: Record<string, string> = {
-  neutral: 'bg-gnd-cream/8 text-gnd-cream/80 ring-gnd-cream/15',
-  amber: 'bg-gnd-amber/15 text-gnd-amber ring-gnd-amber/30',
-  amberglow: 'bg-gnd-amber/20 text-gnd-amber-glow ring-gnd-amber-glow/40',
+  neutral: 'bg-cream/8 text-cream/80 ring-cream/15',
+  amber: 'bg-brand/15 text-brand ring-brand/30',
+  amberglow: 'bg-brand/20 text-brand ring-brand/40',
   rose: 'bg-rose-500/15 text-rose-300 ring-rose-400/30',
 };
 

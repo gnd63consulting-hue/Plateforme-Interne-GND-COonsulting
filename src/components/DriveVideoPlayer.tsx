@@ -5,7 +5,7 @@ interface DriveVideoPlayerProps {
 
 export function DriveVideoPlayer({ fileId, title = 'Vidéo du module' }: DriveVideoPlayerProps) {
   return (
-    <div className="w-full rounded-xl overflow-hidden my-6 shadow-sm" style={{ background: '#000' }}>
+    <div className="w-full rounded-xl overflow-hidden my-6 shadow-soft" style={{ background: '#000' }}>
       <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
         <iframe
           src={`https://drive.google.com/file/d/${fileId}/preview`}

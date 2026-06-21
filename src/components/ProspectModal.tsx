@@ -79,10 +79,10 @@ export default function ProspectModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gnd-primary">{title}</h2>
+          <h2 className="text-lg font-semibold text-ink-warm">{title}</h2>
           <button
             onClick={onClose}
-            className="text-gnd-muted hover:text-gnd-primary"
+            className="text-muted-warm hover:text-ink-warm"
             aria-label="Fermer"
           >
             ×
@@ -223,7 +223,7 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-xs font-medium uppercase tracking-wide text-gnd-muted">
+      <span className="mb-1 block text-xs font-medium uppercase tracking-wide text-muted-warm">
         {label}
       </span>
       {children}
