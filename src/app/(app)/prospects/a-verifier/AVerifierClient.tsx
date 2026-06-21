@@ -88,7 +88,7 @@ export default function AVerifierClient({ rows }: { rows: AVerifierRowVM[] }) {
           valider la fiche, puis elle disparait de cette file.
         </p>
         <div className="mt-3 flex flex-wrap gap-2 text-xs">
-          <span className="inline-flex items-center gap-1 rounded-full bg-cream-deep px-2.5 py-1 font-semibold text-brand-dark ring-1 ring-gnd-bronze/15">
+          <span className="inline-flex items-center gap-1 rounded-full bg-cream-deep px-2.5 py-1 font-semibold text-brand-dark ring-1 ring-[rgba(74,36,26,0.12)]/15">
             A verifier
             <span className="tabular-nums">{rows.length}</span>
           </span>
@@ -196,7 +196,7 @@ function AVerifierCard({ r }: { r: AVerifierRowVM }) {
 
           {/* Donnees cles d'enrichissement */}
           {r.angle && (
-            <div className="mt-2 rounded-2xl bg-cream-deep/60 p-2.5 ring-1 ring-gnd-bronze/8">
+            <div className="mt-2 rounded-2xl bg-cream-deep/60 p-2.5 ring-1 ring-[rgba(74,36,26,0.12)]/8">
               <p className="flex items-start gap-1.5 text-xs text-ink-warm">
                 <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-dark" aria-hidden />
                 <span>
@@ -218,7 +218,7 @@ function AVerifierCard({ r }: { r: AVerifierRowVM }) {
                 {r.email}
               </a>
             ) : (
-              <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 font-medium text-slate-600">
+              <span className="inline-flex items-center gap-1 rounded-full bg-cream-deep px-2 py-0.5 font-medium text-[#6F5A50]">
                 <Mail className="h-3 w-3" aria-hidden />
                 Pas d&apos;email
               </span>
@@ -229,7 +229,7 @@ function AVerifierCard({ r }: { r: AVerifierRowVM }) {
               </span>
             )}
             {r.siret && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 font-medium text-slate-600">
+              <span className="inline-flex items-center gap-1 rounded-full bg-cream-deep px-2 py-0.5 font-medium text-[#6F5A50]">
                 <Building2 className="h-3 w-3" aria-hidden />
                 SIRET {r.siret}
               </span>
@@ -260,7 +260,7 @@ function AVerifierCard({ r }: { r: AVerifierRowVM }) {
               {r.tel}
             </a>
           ) : (
-            <span className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-100 px-4 py-2.5 text-sm font-medium text-slate-500">
+            <span className="inline-flex items-center justify-center gap-2 rounded-xl bg-cream-deep px-4 py-2.5 text-sm font-medium text-muted-warm">
               <Phone className="h-4 w-4" aria-hidden />
               Pas de tel
             </span>
