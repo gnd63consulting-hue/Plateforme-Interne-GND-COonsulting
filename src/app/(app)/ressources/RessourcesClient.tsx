@@ -58,7 +58,7 @@ export default function RessourcesClient() {
         >
           <div className="mb-4 flex items-center gap-2">
             <span className="h-px w-8 bg-brand" />
-            <span className="font-inter text-[10px] font-medium uppercase tracking-[0.2em] text-brand-dark">
+            <span className="font-inter text-[11px] font-medium uppercase tracking-[0.14em] text-brand-burnt">
               Sales toolkit
             </span>
           </div>
@@ -218,13 +218,13 @@ export default function RessourcesClient() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-50px' }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-            className="overflow-hidden rounded-3xl border border-border-soft bg-gradient-to-br from-white to-cream shadow-soft"
+            className="surface-ceramic overflow-hidden rounded-3xl"
           >
             <div className="h-px w-full bg-gradient-to-r from-transparent via-brand to-transparent" />
             <div className="p-7">
               <div className="mb-2 flex items-center gap-2">
                 <span className="h-px w-6 bg-brand" />
-                <span className="font-inter text-[10px] font-medium uppercase tracking-[0.2em] text-brand-dark">
+                <span className="font-inter text-[11px] font-medium uppercase tracking-[0.14em] text-brand-burnt">
                   Contacts
                 </span>
               </div>
@@ -252,7 +252,7 @@ export default function RessourcesClient() {
               </div>
               <a
                 href="mailto:contact@gndconsulting.fr"
-                className="mt-7 inline-flex w-full items-center justify-center gap-2 rounded-full bg-brand px-5 py-3 text-xs font-semibold text-choco transition-all hover:bg-brand-dark hover:shadow-soft-md"
+                className="orange-glow mt-7 inline-flex w-full items-center justify-center gap-2 rounded-full bg-brand px-5 py-3 text-xs font-semibold text-[#2A1810] transition-all hover:bg-brand-dark hover:shadow-soft-md"
               >
                 <Mail className="h-3.5 w-3.5" aria-hidden />
                 Contacter le support
@@ -266,7 +266,7 @@ export default function RessourcesClient() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-50px' }}
             transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-            className="relative overflow-hidden rounded-3xl border border-border-soft bg-cream-deep p-7 shadow-soft"
+            className="surface-ceramic card-hover relative overflow-hidden rounded-3xl bg-cream-deep p-7"
           >
             <div className="relative">
               <div className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-brand-soft px-2.5 py-1 font-inter text-[9px] font-semibold uppercase tracking-[0.18em] text-brand-dark">
@@ -282,7 +282,7 @@ export default function RessourcesClient() {
               </p>
               <Link
                 href="/formation/module-03-process-vente"
-                className="group mt-5 inline-flex items-center gap-2 rounded-full bg-brand px-4 py-2.5 text-xs font-semibold text-choco transition-all hover:bg-brand-dark hover:gap-3"
+                className="group mt-5 inline-flex items-center gap-2 rounded-full bg-brand px-4 py-2.5 text-xs font-semibold text-[#2A1810] transition-all hover:bg-brand-dark hover:gap-3"
               >
                 <BookOpen className="h-3.5 w-3.5" aria-hidden />
                 Ouvrir le module
@@ -310,7 +310,7 @@ export default function RessourcesClient() {
           <div>
             <div className="mb-3 flex items-center gap-2">
               <span className="h-px w-8 bg-brand" />
-              <span className="font-inter text-[10px] font-medium uppercase tracking-[0.2em] text-brand-dark">
+              <span className="font-inter text-[11px] font-medium uppercase tracking-[0.14em] text-brand-burnt">
                 Pricing 2026
               </span>
             </div>
@@ -343,7 +343,7 @@ export default function RessourcesClient() {
         <div className="mb-10">
           <div className="mb-3 flex items-center gap-2">
             <span className="h-px w-8 bg-brand" />
-            <span className="font-inter text-[10px] font-medium uppercase tracking-[0.2em] text-brand-dark">
+            <span className="font-inter text-[11px] font-medium uppercase tracking-[0.14em] text-brand-burnt">
               Modalités & engagement
             </span>
           </div>
@@ -382,7 +382,7 @@ export default function RessourcesClient() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-50px' }}
           transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-          className="relative mt-8 overflow-hidden rounded-3xl border border-border-soft bg-gradient-to-br from-white to-cream p-10 shadow-soft md:p-14"
+          className="surface-ceramic relative mt-8 overflow-hidden rounded-3xl p-10 md:p-14"
         >
           <div
             aria-hidden
@@ -390,7 +390,7 @@ export default function RessourcesClient() {
           />
           <div className="relative flex flex-col items-start gap-6 md:flex-row md:items-center md:justify-between">
             <div className="max-w-xl">
-              <p className="mb-3 font-inter text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-dark">
+              <p className="mb-3 font-inter text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-burnt">
                 Une question, un projet ?
               </p>
               <h3 className="font-marcellus text-3xl font-medium leading-tight text-choco md:text-4xl">
@@ -404,14 +404,14 @@ export default function RessourcesClient() {
             <div className="flex flex-col gap-3">
               <a
                 href="tel:+33759506322"
-                className="group inline-flex items-center gap-3 rounded-full bg-brand px-6 py-3.5 text-sm font-semibold text-choco transition-all hover:bg-brand-dark hover:shadow-soft-md"
+                className="orange-glow group inline-flex items-center gap-3 rounded-full bg-brand px-6 py-3.5 text-sm font-semibold text-[#2A1810] transition-all hover:bg-brand-dark hover:shadow-soft-md"
               >
                 <Phone className="h-4 w-4" aria-hidden />
                 07 59 50 63 22
               </a>
               <a
                 href="mailto:contact@gndconsulting.fr"
-                className="group inline-flex items-center gap-3 rounded-full border border-border-soft bg-white px-6 py-3.5 text-sm font-semibold text-ink-warm transition-all hover:bg-cream-deep"
+                className="group inline-flex items-center gap-3 rounded-full border border-border-soft bg-white px-6 py-3.5 text-sm font-semibold text-choco transition-all hover:bg-cream-deep"
               >
                 <Mail className="h-4 w-4" aria-hidden />
                 contact@gndconsulting.fr
@@ -443,15 +443,15 @@ function SectionCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-80px' }}
       transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-      className="group relative overflow-hidden rounded-3xl border border-border-soft bg-white p-8 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-soft-md sm:p-10"
+      className="surface-ceramic group card-hover relative overflow-hidden rounded-3xl p-8 sm:p-10"
     >
       <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex items-start gap-4">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-brand-soft text-brand-dark">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-brand-pale p-2.5 text-brand-dark">
             {icon}
           </span>
           <div>
-            <p className="mb-1 font-inter text-[10px] font-semibold uppercase tracking-[0.18em] text-brand-dark">
+            <p className="mb-1 font-inter text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-burnt">
               {label}
             </p>
             <h2 className="font-marcellus text-2xl font-medium leading-tight tracking-tight text-choco sm:text-3xl">
@@ -504,9 +504,9 @@ function DosDontsCard({
   items: { node: React.ReactNode }[];
 }) {
   const styles = {
-    do: { border: 'border-emerald-700/15', bg: 'bg-emerald-50/40', label: 'text-emerald-800', dot: 'bg-emerald-700/60', icon: <CheckCircle2 className="h-4 w-4" aria-hidden /> },
-    dont: { border: 'border-border-soft', bg: 'bg-cream', label: 'text-ink-warm', dot: 'bg-muted-warm/50', icon: <XCircle className="h-4 w-4" aria-hidden /> },
-    never: { border: 'border-rose-700/20', bg: 'bg-rose-50/40', label: 'text-rose-800', dot: 'bg-rose-700/60', icon: <AlertTriangle className="h-4 w-4" aria-hidden /> },
+    do: { border: 'border-ok-fg/15', bg: 'bg-ok-bg', label: 'text-ok-fg', dot: 'bg-ok-fg/60', icon: <CheckCircle2 className="h-4 w-4" aria-hidden /> },
+    dont: { border: 'border-[rgba(74,36,26,0.10)]', bg: 'bg-cream-deep', label: 'text-ink-warm', dot: 'bg-muted-warm/50', icon: <XCircle className="h-4 w-4" aria-hidden /> },
+    never: { border: 'border-danger-fg/20', bg: 'bg-danger-bg', label: 'text-danger-fg', dot: 'bg-danger-fg/60', icon: <AlertTriangle className="h-4 w-4" aria-hidden /> },
   } as const;
   const s = styles[tone];
   return (
@@ -548,7 +548,7 @@ function ObjectionCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-30px' }}
       transition={{ duration: 0.5, delay: index * 0.06, ease: [0.22, 1, 0.36, 1] }}
-      className="group flex flex-col rounded-2xl border border-border-soft bg-white/40 p-5 transition-all hover:border-brand/30 hover:bg-white"
+      className="surface-ceramic group card-hover flex flex-col rounded-2xl p-5"
     >
       <div className="mb-3 flex items-baseline gap-3">
         <span className="font-marcellus text-2xl font-medium italic leading-none text-brand-dark">
@@ -561,7 +561,7 @@ function ObjectionCard({
       <p className="mb-3 text-xs italic leading-relaxed text-muted-warm">
         « {prospect} »
       </p>
-      <div className="border-t border-border-soft pt-3 text-sm leading-relaxed text-muted-warm">
+      <div className="hairline border-t pt-3 text-sm leading-relaxed text-muted-warm">
         {response}
       </div>
     </motion.div>
@@ -575,9 +575,9 @@ function TemplateCard({ title, body, index }: { title: string; body: React.React
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5, delay: index * 0.08, ease: 'easeOut' }}
-      className="group flex gap-4 rounded-2xl border border-border-soft bg-white/40 p-5 transition-all hover:border-brand/30 hover:bg-white"
+      className="surface-ceramic group card-hover flex gap-4 rounded-2xl p-5"
     >
-      <span aria-hidden className="shrink-0 font-inter text-[10px] font-semibold uppercase tracking-[0.18em] text-brand-dark">
+      <span aria-hidden className="shrink-0 font-inter text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-burnt">
         T{String(index + 1).padStart(2, '0')}
       </span>
       <div>
@@ -716,10 +716,10 @@ function ModalityCard({ icon, title, lines, footnote }: { icon: React.ReactNode;
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-      className="flex flex-col gap-4 rounded-3xl border border-border-soft bg-white p-7 shadow-soft"
+      className="surface-ceramic flex flex-col gap-4 rounded-3xl p-7"
     >
       <div className="flex items-center gap-3">
-        <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-brand-soft text-brand-dark">{icon}</span>
+        <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-brand-pale p-2.5 text-brand-dark">{icon}</span>
         <h3 className="font-marcellus text-xl font-medium text-choco">{title}</h3>
       </div>
       <div className="space-y-1.5">
