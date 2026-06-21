@@ -6,19 +6,6 @@ import ProspectQuickEdit from './ProspectQuickEdit';
 
 export const dynamic = 'force-dynamic';
 
-// Design System crème/orange — texte FONCÉ sur fond clair (contraste AA).
-const CREAM = '#2A2320';        // texte principal
-const CREAM_SOFT = '#7B665C';   // texte secondaire
-const CREAM_FAINT = '#9A8A80';  // texte tertiaire
-const AMBER = '#B5601C';        // accent orange foncé (AA)
-const RED = '#A04A4A';
-const GREEN = '#4F7A38';
-const CARD_BG = '#FFFFFF';      // cartes blanches
-const BORDER = '1px solid #E2D5C3';
-const SERIF = 'var(--font-marcellus), Georgia, serif';
-const MONO = 'var(--font-inter), ui-monospace, monospace';
-const SANS = 'var(--font-inter), system-ui, sans-serif';
-
 
 type Row = {
   id: string;
@@ -86,35 +73,43 @@ export default async function RelancesPage() {
   const recap = [...perCommercial.entries()].sort((a, b) => b[1] - a[1]);
 
   return (
-    <div style={{ maxWidth: 1040, margin: '0 auto', padding: '40px 28px 64px', color: CREAM }}>
-      <header style={{ marginBottom: 28 }}>
-        <div style={{ fontFamily: MONO, fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.22em', color: AMBER, marginBottom: 10 }}>
-          ADMIN · PILOTAGE
-        </div>
-        <h1 style={{ fontFamily: SERIF, fontSize: 32, fontWeight: 500, letterSpacing: '-0.01em', color: '#532418', margin: 0, lineHeight: 1.1 }}>
+    <div className="mx-auto max-w-5xl px-7 pb-16 pt-10">
+      <header className="relative mb-9 overflow-hidden">
+        <span
+          aria-hidden
+          className="watermark pointer-events-none absolute -right-2 -top-10 select-none font-marcellus text-[120px] leading-none text-choco/[0.04]"
+        >
+          Relances
+        </span>
+        <span className="label-eyebrow">Admin · Pilotage</span>
+        <h1 className="mt-3 font-marcellus text-[34px] leading-[1.1] tracking-tight text-choco">
           Relances à venir
         </h1>
-        <p style={{ fontSize: 14, lineHeight: 1.55, color: CREAM_SOFT, marginTop: 12, maxWidth: 620 }}>
-          Qui doit rappeler quel prospect et quand — posé par les commerciaux sur leurs fiches.
-          Les retards sont en rouge. Mets à jour le statut ou reporte une relance via le bouton « Mettre à jour ».
+        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[#6F5A50]">
+          Qui doit rappeler quel prospect et quand, posé par les commerciaux sur
+          leurs fiches. Les retards sont signalés en rouge. Mets à jour le statut
+          ou reporte une relance via le bouton « Mettre à jour ».
         </p>
       </header>
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginBottom: 32 }}>
-        <Stat label="En retard" value={overdue.length} color={RED} />
-        <Stat label="Aujourd'hui" value={today.length} color={AMBER} />
-        <Stat label="À venir" value={upcoming.length} color={GREEN} />
-        <Stat label="Total relances" value={rows.length} color={CREAM} />
+      <div className="mb-9 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <Stat label="En retard" value={overdue.length} tone="danger" />
+        <Stat label="Aujourd'hui" value={today.length} tone="warn" />
+        <Stat label="À venir" value={upcoming.length} tone="ok" />
+        <Stat label="Total relances" value={rows.length} tone="ink" />
       </div>
 
       {recap.length > 0 && (
-        <section style={{ marginBottom: 32 }}>
+        <section className="mb-9">
           <SectionLabel>Par commercial</SectionLabel>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+          <div className="flex flex-wrap gap-2">
             {recap.map(([name, n]) => (
-              <span key={name} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: CARD_BG, border: BORDER, borderRadius: 999, padding: '6px 14px', fontSize: 13, color: CREAM }}>
+              <span
+                key={name}
+                className="inline-flex items-center gap-2 rounded-full border border-border-soft bg-white px-3.5 py-1.5 text-[13px] text-ink-warm shadow-soft"
+              >
                 {name}
-                <span style={{ fontFamily: MONO, fontSize: 11, fontWeight: 700, color: AMBER }}>{n}</span>
+                <span className="font-semibold tabular-nums text-brand-dark">{n}</span>
               </span>
             ))}
           </div>
@@ -122,53 +117,104 @@ export default async function RelancesPage() {
       )}
 
       {rows.length === 0 ? (
-        <p style={{ fontSize: 14, color: CREAM_SOFT }}>
-          Aucune relance planifiée pour l&apos;instant. Les dates posées par les commerciaux apparaîtront ici.
-        </p>
+        <div className="surface-ceramic flex flex-col items-center rounded-3xl p-12 text-center">
+          <span
+            aria-hidden
+            className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-pale text-brand-dark"
+          >
+            <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6" stroke="currentColor" strokeWidth={1.6}>
+              <path d="M8 2v4M16 2v4M3 10h18" strokeLinecap="round" strokeLinejoin="round" />
+              <rect x="3" y="4" width="18" height="18" rx="2" />
+            </svg>
+          </span>
+          <p className="font-marcellus text-xl text-choco">
+            Aucune relance planifiée pour l&apos;instant.
+          </p>
+          <p className="mt-2 max-w-sm text-sm text-muted-warm">
+            Les dates posées par les commerciaux apparaîtront ici, du plus urgent
+            au plus lointain.
+          </p>
+        </div>
       ) : (
         <>
-          <Group title="En retard" rows={overdue} color={RED} userName={userName} emptyText="Aucun retard. 👌" />
-          <Group title="Aujourd'hui" rows={today} color={AMBER} userName={userName} emptyText="Rien à rappeler aujourd'hui." />
-          <Group title="À venir" rows={upcoming} color={GREEN} userName={userName} emptyText="Rien de planifié à venir." />
+          <Group title="En retard" rows={overdue} tone="danger" userName={userName} emptyText="Aucun retard. 👌" />
+          <Group title="Aujourd'hui" rows={today} tone="warn" userName={userName} emptyText="Rien à rappeler aujourd'hui." />
+          <Group title="À venir" rows={upcoming} tone="ok" userName={userName} emptyText="Rien de planifié à venir." />
         </>
       )}
     </div>
   );
 }
 
-function Stat({ label, value, color }: { label: string; value: number; color: string }) {
+function Stat({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: number;
+  tone: 'danger' | 'warn' | 'ok' | 'ink';
+}) {
+  const valueClass =
+    tone === 'danger'
+      ? 'text-danger-fg'
+      : tone === 'warn'
+        ? 'text-brand-dark'
+        : tone === 'ok'
+          ? 'text-ok-fg'
+          : 'text-choco';
   return (
-    <div style={{ flex: 1, minWidth: 150, background: CARD_BG, border: BORDER, borderRadius: 16, padding: '16px 18px' }}>
-      <div style={{ fontFamily: MONO, fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.16em', color: CREAM_FAINT, marginBottom: 8 }}>{label}</div>
-      <div style={{ fontFamily: SERIF, fontSize: 30, fontWeight: 500, color, lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>{value}</div>
+    <div className="surface-ceramic rounded-3xl p-6">
+      <p className="label-eyebrow">{label}</p>
+      <p className={`mt-2 font-marcellus text-3xl tabular-nums leading-none ${valueClass}`}>
+        {value}
+      </p>
     </div>
   );
 }
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <div style={{ fontFamily: MONO, fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.18em', color: AMBER, margin: '0 0 14px' }}>
-      {children}
-    </div>
-  );
+  return <div className="label-eyebrow mb-3.5">{children}</div>;
 }
 
-function Group({ title, rows, color, userName, emptyText }: { title: string; rows: Row[]; color: string; userName: Map<string, string>; emptyText: string }) {
+function Group({
+  title,
+  rows,
+  tone,
+  userName,
+  emptyText,
+}: {
+  title: string;
+  rows: Row[];
+  tone: 'danger' | 'warn' | 'ok';
+  userName: Map<string, string>;
+  emptyText: string;
+}) {
+  const dotClass =
+    tone === 'danger' ? 'bg-danger-fg' : tone === 'warn' ? 'bg-brand' : 'bg-ok-fg';
+  const dateClass =
+    tone === 'danger' ? 'text-danger-fg' : tone === 'warn' ? 'text-brand-dark' : 'text-ok-fg';
   return (
-    <section style={{ marginBottom: 28 }}>
-      <SectionLabel>
-        <span style={{ color }}>● </span>
+    <section className="mb-7">
+      <div className="label-eyebrow mb-3.5 flex items-center gap-2">
+        <span className={`h-2 w-2 rounded-full ${dotClass}`} aria-hidden />
         {title} ({rows.length})
-      </SectionLabel>
+      </div>
       {rows.length === 0 ? (
-        <p style={{ fontSize: 13, color: CREAM_FAINT }}>{emptyText}</p>
+        <p className="pl-4 text-[13px] text-muted-warm">{emptyText}</p>
       ) : (
-        <div style={{ background: CARD_BG, border: BORDER, borderRadius: 16, overflow: 'hidden' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+        <div className="surface-ceramic overflow-hidden rounded-3xl">
+          <table className="w-full border-collapse text-[13px]">
             <thead>
               <tr>
                 {['Date', 'Commercial', 'Prospect', 'Contact', 'Statut', 'Action'].map((h) => (
-                  <th key={h} style={{ textAlign: 'left', padding: '11px 16px', fontFamily: MONO, fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.14em', color: CREAM_FAINT, borderBottom: '1px solid #E2D5C3' }}>{h}</th>
+                  <th
+                    key={h}
+                    className="px-4 py-3.5 text-left text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-burnt"
+                    style={{ borderBottom: '1px solid rgba(74,36,26,0.10)' }}
+                  >
+                    {h}
+                  </th>
                 ))}
               </tr>
             </thead>
@@ -176,22 +222,26 @@ function Group({ title, rows, color, userName, emptyText }: { title: string; row
               {rows.map((r) => {
                 const name = r.assigned_to ? userName.get(r.assigned_to) ?? '—' : 'Non assigné';
                 return (
-                  <tr key={r.id} style={{ borderBottom: '1px solid rgba(83,36,24,0.07)' }}>
-                    <td style={{ padding: '12px 16px', fontFamily: MONO, fontSize: 12, color, fontWeight: 600, whiteSpace: 'nowrap' }}>
+                  <tr
+                    key={r.id}
+                    className="transition-colors hover:bg-cream-deep/40"
+                    style={{ borderBottom: '1px solid rgba(83,36,24,0.07)' }}
+                  >
+                    <td className={`whitespace-nowrap px-4 py-3 text-xs font-semibold tabular-nums ${dateClass}`}>
                       {fmt(new Date(r.next_action_at))}
                     </td>
-                    <td style={{ padding: '12px 16px', color: CREAM }}>{name}</td>
-                    <td style={{ padding: '12px 16px', color: CREAM, fontFamily: SANS }}>{r.company_name}</td>
-                    <td style={{ padding: '12px 16px', color: CREAM_SOFT }}>
+                    <td className="px-4 py-3 text-ink-warm">{name}</td>
+                    <td className="px-4 py-3 font-marcellus text-ink-warm">{r.company_name}</td>
+                    <td className="px-4 py-3 text-[#6F5A50]">
                       {r.contact_name ?? '—'}
-                      {r.phone && <span style={{ display: 'block', fontFamily: MONO, fontSize: 11, color: AMBER }}>{r.phone}</span>}
+                      {r.phone && <span className="block text-[11px] text-brand-dark">{r.phone}</span>}
                     </td>
-                    <td style={{ padding: '12px 16px' }}>
-                      <span style={{ fontFamily: MONO, fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', color: CREAM_SOFT }}>
+                    <td className="px-4 py-3">
+                      <span className="inline-flex items-center rounded-full bg-info-bg px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-info-fg">
                         {labelForStatus(r.status)}
                       </span>
                     </td>
-                    <td style={{ padding: '12px 16px' }}>
+                    <td className="px-4 py-3">
                       <ProspectQuickEdit prospectId={r.id} currentStatus={r.status} />
                     </td>
                   </tr>
