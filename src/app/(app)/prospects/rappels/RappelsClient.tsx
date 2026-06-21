@@ -101,24 +101,24 @@ const SECTIONS: {
     bucket: 'overdue',
     title: 'En retard',
     icon: AlertTriangle,
-    headerClass: 'bg-rose-50 text-rose-700 ring-1 ring-rose-200',
-    countClass: 'bg-rose-100 text-rose-700',
+    headerClass: 'bg-danger-bg text-danger-fg ring-1 ring-[rgba(74,36,26,0.10)]',
+    countClass: 'bg-white/70 text-danger-fg ring-1 ring-[rgba(74,36,26,0.10)]',
     empty: 'Aucun rappel en retard. Beau travail.',
   },
   {
     bucket: 'today',
     title: "Aujourd'hui",
     icon: CalendarCheck,
-    headerClass: 'bg-brand-pale text-brand-dark ring-1 ring-[rgba(74,36,26,0.12)]/15',
-    countClass: 'bg-cream-deep text-brand-dark',
+    headerClass: 'bg-brand-pale text-brand-burnt ring-1 ring-[rgba(74,36,26,0.10)]',
+    countClass: 'bg-white/70 text-brand-dark ring-1 ring-[rgba(74,36,26,0.10)]',
     empty: "Aucun rappel prevu aujourd'hui.",
   },
   {
     bucket: 'upcoming',
     title: 'A venir',
     icon: CalendarDays,
-    headerClass: 'bg-cream-deep text-ink-warm ring-1 ring-border-soft',
-    countClass: 'bg-white text-muted-warm ring-1 ring-border-soft',
+    headerClass: 'bg-cream-deep text-ink-warm ring-1 ring-[rgba(74,36,26,0.10)]',
+    countClass: 'bg-white text-muted-warm ring-1 ring-[rgba(74,36,26,0.10)]',
     empty: 'Aucun rappel a venir.',
   },
 ];
@@ -154,45 +154,62 @@ export default function RappelsClient({ rows }: { rows: RappelRowVM[] }) {
   return (
     <div className="mx-auto max-w-5xl px-4 py-6">
       {/* En-tete */}
-      <header className="mb-5">
-        <div className="flex items-center gap-2">
-          <CalendarClock className="h-5 w-5 text-brand-dark" aria-hidden />
-          <h1 className="font-marcellus text-2xl text-choco">Rappels</h1>
-        </div>
-        <p className="mt-1 text-sm text-muted-warm">
-          Tous les prospects a rappeler, du plus en retard au plus lointain.
-          Quand vous reloguez l&apos;appel, le rappel se met a jour et la fiche
-          se deplace ou disparait toute seule.
-        </p>
-        <div className="mt-3 flex flex-wrap gap-2 text-xs">
-          <StatChip label="En retard" value={overdueCount} tone="rose" />
-          <StatChip label="Aujourd'hui" value={todayCount} tone="bronze" />
-          <StatChip label="Total" value={rows.length} />
+      <header className="surface-ceramic relative mb-6 overflow-hidden rounded-3xl p-6">
+        <span
+          className="watermark pointer-events-none absolute -right-2 -top-6 font-marcellus text-[120px] leading-none"
+          aria-hidden
+        >
+          Rappels
+        </span>
+        <div className="relative">
+          <span className="label-eyebrow">Suivi des relances</span>
+          <div className="mt-2 flex items-center gap-3">
+            <span className="inline-flex rounded-2xl bg-brand-pale p-2.5 text-brand-dark">
+              <CalendarClock className="h-5 w-5" aria-hidden />
+            </span>
+            <h1 className="font-marcellus text-3xl tracking-tight text-choco">Rappels</h1>
+          </div>
+          <p className="mt-2 max-w-2xl text-sm text-[#6F5A50]">
+            Tous les prospects a rappeler, du plus en retard au plus lointain.
+            Quand vous reloguez l&apos;appel, le rappel se met a jour et la fiche
+            se deplace ou disparait toute seule.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2 text-xs">
+            <StatChip label="En retard" value={overdueCount} tone="rose" />
+            <StatChip label="Aujourd'hui" value={todayCount} tone="bronze" />
+            <StatChip label="Total" value={rows.length} />
+          </div>
         </div>
       </header>
 
       {/* Recherche */}
-      <div className="mb-4">
+      <div className="mb-5">
         <label className="relative block">
           <Search
-            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-warm/60"
+            className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-brand-burnt/70"
             aria-hidden
           />
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Rechercher une entreprise, un dirigeant, une ville..."
-            className="w-full rounded-xl border border-border-soft bg-white py-2 pl-9 pr-3 text-sm text-ink-warm placeholder:text-muted-warm/50 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+            className="w-full rounded-2xl border border-border-soft bg-cream/60 py-2.5 pl-11 pr-3 text-sm text-ink-warm placeholder:text-muted-warm/50 transition focus:border-brand focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring"
           />
         </label>
       </div>
 
       {rows.length === 0 ? (
-        <p className="rounded-3xl border border-border-soft bg-white p-8 text-center text-sm text-muted-warm shadow-soft">
-          Aucun rappel pour le moment. Loguez un appel avec l&apos;issue
-          &laquo; Rappeler &raquo; depuis la liste d&apos;appel et le prospect
-          apparaitra ici.
-        </p>
+        <div className="surface-accent flex flex-col items-center rounded-3xl px-6 py-12 text-center">
+          <span className="mb-4 inline-flex rounded-2xl bg-brand-pale p-3 text-brand-dark">
+            <CalendarCheck className="h-6 w-6" aria-hidden />
+          </span>
+          <p className="font-marcellus text-xl text-choco">Tout est calme pour l&apos;instant</p>
+          <p className="mt-2 max-w-md text-sm text-[#6F5A50]">
+            Aucun rappel pour le moment. Loguez un appel avec l&apos;issue
+            &laquo; Rappeler &raquo; depuis la liste d&apos;appel et le prospect
+            apparaitra ici.
+          </p>
+        </div>
       ) : (
         <div className="space-y-6">
           {SECTIONS.map((section) => {
@@ -201,20 +218,20 @@ export default function RappelsClient({ rows }: { rows: RappelRowVM[] }) {
             return (
               <section key={section.bucket}>
                 <div
-                  className={`mb-3 flex items-center justify-between gap-2 rounded-2xl px-3 py-2 ${section.headerClass}`}
+                  className={`mb-3 flex items-center justify-between gap-2 rounded-2xl px-4 py-2.5 ${section.headerClass}`}
                 >
                   <span className="flex items-center gap-2 font-inter text-sm font-semibold">
                     <Icon className="h-4 w-4" aria-hidden />
                     {section.title}
                   </span>
                   <span
-                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-bold tabular-nums ${section.countClass}`}
+                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-bold tabular-nums ${section.countClass}`}
                   >
                     {items.length}
                   </span>
                 </div>
                 {items.length === 0 ? (
-                  <p className="rounded-2xl border border-dashed border-border-soft bg-white/60 px-4 py-3 text-center text-xs text-muted-warm">
+                  <p className="rounded-2xl border border-dashed border-border-soft bg-cream/50 px-4 py-4 text-center text-xs text-muted-warm">
                     {section.empty}
                   </p>
                 ) : (
@@ -247,13 +264,13 @@ function StatChip({
   tone?: 'slate' | 'rose' | 'bronze';
 }) {
   const tones: Record<string, string> = {
-    slate: 'bg-cream-deep text-ink-warm',
-    rose: 'bg-rose-100 text-rose-700',
-    bronze: 'bg-cream-deep text-brand-dark ring-1 ring-[rgba(74,36,26,0.12)]/15',
+    slate: 'bg-cream-deep text-ink-warm ring-1 ring-[rgba(74,36,26,0.08)]',
+    rose: 'bg-danger-bg text-danger-fg ring-1 ring-[rgba(74,36,26,0.10)]',
+    bronze: 'bg-brand-pale text-brand-burnt ring-1 ring-[rgba(74,36,26,0.10)]',
   };
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-semibold ${tones[tone]}`}
+      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-semibold ${tones[tone]}`}
     >
       {label}
       <span className="tabular-nums">{value}</span>
@@ -287,7 +304,7 @@ function PitchSelene({ r }: { r: RappelRowVM }) {
   if (!r.angleSelene) return null;
   const raisons = r.raisons.slice(0, 4);
   return (
-    <div className="mt-2 rounded-2xl border border-border-soft bg-cream-deep/40 p-2.5">
+    <div className="mt-3 rounded-2xl border border-border-soft bg-cream/60 p-3">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -308,13 +325,13 @@ function PitchSelene({ r }: { r: RappelRowVM }) {
       </button>
 
       {open && (
-        <div className="mt-2 space-y-2 border-t border-border-soft pt-2">
+        <div className="mt-2 space-y-2 border-t border-border-soft pt-2.5">
           {raisons.length > 0 && (
             <ul className="flex flex-wrap gap-1.5">
               {raisons.map((raison, i) => (
                 <li
                   key={i}
-                  className="inline-flex items-center rounded-full bg-white px-2 py-0.5 text-[11px] font-medium text-ink-warm ring-1 ring-[rgba(74,36,26,0.12)]/12"
+                  className="inline-flex items-center rounded-full bg-white px-2.5 py-0.5 text-[11px] font-medium text-ink-warm ring-1 ring-[rgba(74,36,26,0.10)]"
                 >
                   {raison}
                 </li>
@@ -352,8 +369,8 @@ function RappelCard({ r, overdue }: { r: RappelRowVM; overdue: boolean }) {
 
   return (
     <li
-      className={`rounded-3xl border bg-white p-4 shadow-soft ${
-        overdue ? 'border-rose-200' : 'border-border-soft'
+      className={`surface-ceramic card-hover rounded-3xl p-5 ${
+        overdue ? 'ring-1 ring-[rgba(74,36,26,0.10)]' : ''
       }`}
     >
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -368,7 +385,7 @@ function RappelCard({ r, overdue }: { r: RappelRowVM; overdue: boolean }) {
             </Link>
             <ScoreBadge r={r} />
             {r.scoreLabel && (
-              <span className="inline-flex items-center rounded-full bg-cream-deep px-2 py-0.5 text-[11px] font-medium text-brand-dark ring-1 ring-[rgba(74,36,26,0.12)]/12">
+              <span className="inline-flex items-center rounded-full bg-cream-deep px-2.5 py-0.5 text-[11px] font-medium text-brand-burnt ring-1 ring-[rgba(74,36,26,0.10)]">
                 {r.scoreLabel}
               </span>
             )}
@@ -396,10 +413,10 @@ function RappelCard({ r, overdue }: { r: RappelRowVM; overdue: boolean }) {
 
           {/* Date de rappel (relative + absolue) */}
           <div
-            className={`mt-2 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${
+            className={`mt-3 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${
               overdue
-                ? 'bg-rose-50 text-rose-700 ring-1 ring-rose-200'
-                : 'bg-cream-deep/70 text-brand-dark ring-1 ring-[rgba(74,36,26,0.12)]/10'
+                ? 'bg-danger-bg text-danger-fg ring-1 ring-[rgba(74,36,26,0.10)]'
+                : 'bg-cream-deep/70 text-brand-burnt ring-1 ring-[rgba(74,36,26,0.10)]'
             }`}
           >
             {overdue ? (
@@ -424,13 +441,13 @@ function RappelCard({ r, overdue }: { r: RappelRowVM; overdue: boolean }) {
           {href ? (
             <a
               href={href}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand px-4 py-2.5 text-sm font-semibold text-choco transition-colors hover:bg-brand-dark"
+              className="orange-glow inline-flex items-center justify-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-[#2A1810] transition-colors hover:bg-brand-dark"
             >
               <Phone className="h-4 w-4" aria-hidden />
               {r.tel}
             </a>
           ) : (
-            <span className="inline-flex items-center justify-center gap-2 rounded-xl bg-cream-deep px-4 py-2.5 text-sm font-medium text-muted-warm">
+            <span className="inline-flex items-center justify-center gap-2 rounded-full bg-cream-deep px-5 py-2.5 text-sm font-medium text-muted-warm">
               <Phone className="h-4 w-4" aria-hidden />
               Pas de tel
             </span>
@@ -438,10 +455,10 @@ function RappelCard({ r, overdue }: { r: RappelRowVM; overdue: boolean }) {
           <button
             type="button"
             onClick={() => setLogOpen((v) => !v)}
-            className={`inline-flex items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold transition-colors ${
+            className={`inline-flex items-center justify-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold transition-colors ${
               logOpen
-                ? 'bg-brand text-choco'
-                : 'border border-border-soft bg-white text-ink-warm hover:bg-cream-deep'
+                ? 'bg-brand text-[#2A1810]'
+                : 'border border-border-soft bg-white text-choco hover:bg-cream-deep'
             }`}
           >
             <PhoneCall className="h-3.5 w-3.5" aria-hidden />
@@ -449,7 +466,7 @@ function RappelCard({ r, overdue }: { r: RappelRowVM; overdue: boolean }) {
           </button>
           <Link
             href={`/prospects/${r.id}`}
-            className="inline-flex items-center justify-center gap-1 rounded-xl border border-border-soft bg-white px-3 py-2 text-xs font-semibold text-ink-warm hover:bg-cream-deep"
+            className="inline-flex items-center justify-center gap-1 rounded-full border border-border-soft bg-white px-4 py-2 text-xs font-semibold text-choco transition-colors hover:bg-cream-deep"
           >
             Fiche
             <ChevronRight className="h-3.5 w-3.5" aria-hidden />
