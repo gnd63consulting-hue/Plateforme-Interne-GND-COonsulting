@@ -40,7 +40,7 @@ export default function RessourcesClient() {
       {/* Hero — split 7/5 */}
       <header
         ref={heroRef}
-        className="relative mb-20 grid min-h-[60vh] grid-cols-1 items-center gap-12 overflow-hidden lg:grid-cols-[7fr_5fr] lg:gap-16"
+        className="relative mb-14 grid min-h-[56vh] grid-cols-1 items-center gap-12 overflow-hidden lg:grid-cols-[7fr_5fr] lg:gap-16"
       >
         <motion.span
           aria-hidden
@@ -56,12 +56,12 @@ export default function RessourcesClient() {
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
           className="relative z-10 max-w-2xl"
         >
-          <div className="mb-4 flex items-center gap-2">
-            <span className="h-px w-8 bg-brand" />
-            <span className="font-inter text-[11px] font-medium uppercase tracking-[0.14em] text-brand-burnt">
+          <span className="mb-4 inline-flex items-center gap-2">
+            <span className="h-px w-4 bg-gradient-to-r from-brand to-transparent" />
+            <span className="font-grotesk text-[11px] font-semibold uppercase tracking-[0.13em] text-brand-burnt">
               Sales toolkit
             </span>
-          </div>
+          </span>
           <h1 className="font-marcellus text-display-xl font-medium leading-[0.95] tracking-tight text-choco">
             Ressources{' '}
             <span className="italic text-brand-dark">commerciales</span>.
@@ -70,6 +70,32 @@ export default function RessourcesClient() {
             Outils stratégiques et supports opérationnels pour piloter ta
             performance commerciale au sein de GND Consulting.
           </p>
+          <div className="mt-7 flex flex-wrap items-stretch gap-y-1">
+            <div className="pr-5">
+              <p className="font-grotesk text-[10px] uppercase tracking-[0.12em] text-muted-warm">
+                Piliers
+              </p>
+              <p className="font-num tabular-nums text-lg font-medium text-choco">05</p>
+            </div>
+            <div className="border-l border-[rgba(74,36,26,0.07)] px-5">
+              <p className="font-grotesk text-[10px] uppercase tracking-[0.12em] text-muted-warm">
+                Objections
+              </p>
+              <p className="font-num tabular-nums text-lg font-medium text-choco">06</p>
+            </div>
+            <div className="border-l border-[rgba(74,36,26,0.07)] px-5">
+              <p className="font-grotesk text-[10px] uppercase tracking-[0.12em] text-muted-warm">
+                Templates
+              </p>
+              <p className="font-num tabular-nums text-lg font-medium text-choco">04</p>
+            </div>
+            <div className="border-l border-[rgba(74,36,26,0.07)] pl-5">
+              <p className="font-grotesk text-[10px] uppercase tracking-[0.12em] text-muted-warm">
+                Packs
+              </p>
+              <p className="font-num tabular-nums text-lg font-medium text-choco">03</p>
+            </div>
+          </div>
         </motion.div>
 
         <motion.div
@@ -83,8 +109,8 @@ export default function RessourcesClient() {
       </header>
 
       {/* Main grid */}
-      <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-10">
-        <section className="space-y-12 lg:col-span-8">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-6">
+        <section className="space-y-6 lg:col-span-8">
           {/* 01 · Argumentaire */}
           <SectionCard
             label="01 · Argumentaire clé"
@@ -110,7 +136,7 @@ export default function RessourcesClient() {
             title="Les réflexes"
             subtitle="Les bons gestes pour cadencer un cycle de vente, les pièges qui coûtent un deal, et les phrases interdites en interne."
           >
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
               <DosDontsCard
                 tone="do"
                 title="À privilégier"
@@ -168,12 +194,12 @@ export default function RessourcesClient() {
             subtitle="Trois appels, trois objectifs distincts. Chacun a un rôle précis dans le processus de vente — ne pas les confondre."
           >
             {/* Internal banner */}
-            <div className="mb-6 flex items-start gap-3 rounded-2xl border border-brand/20 bg-brand-soft/50 px-4 py-3">
-              <Lock className="mt-0.5 h-4 w-4 shrink-0 text-brand-dark" aria-hidden />
-              <p className="text-xs leading-relaxed text-muted-warm">
-                <span className="font-semibold text-ink-warm">
-                  Document interne équipe.
-                </span>{' '}
+            <div className="mb-4 flex items-center gap-3 rounded-2xl bg-warn-bg px-4 py-2.5">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-warn-fg/10 text-warn-fg">
+                <Lock className="h-3.5 w-3.5" aria-hidden />
+              </span>
+              <p className="text-xs leading-relaxed text-warn-fg">
+                <span className="font-semibold">Document interne équipe.</span>{' '}
                 Partageable avec les commerciaux freelances uniquement. Ne JAMAIS
                 partager avec un client ou un prospect.
               </p>
@@ -189,7 +215,7 @@ export default function RessourcesClient() {
             title="Les 6 réponses prêtes"
             subtitle="Les objections les plus courantes et la réponse-pivot à utiliser pour rouvrir la conversation. Répéter, pas réciter."
           >
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
               {OBJECTIONS.map((o, i) => (
                 <ObjectionCard key={o.title} index={i} {...o} />
               ))}
@@ -212,84 +238,90 @@ export default function RessourcesClient() {
         </section>
 
         {/* Sidebar */}
-        <aside className="space-y-8 lg:col-span-4">
+        <aside className="space-y-6 lg:col-span-4">
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-50px' }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-            className="surface-ceramic overflow-hidden rounded-3xl"
+            className="panel overflow-hidden p-4"
           >
-            <div className="h-px w-full bg-gradient-to-r from-transparent via-brand to-transparent" />
-            <div className="p-7">
-              <div className="mb-2 flex items-center gap-2">
-                <span className="h-px w-6 bg-brand" />
-                <span className="font-inter text-[11px] font-medium uppercase tracking-[0.14em] text-brand-burnt">
-                  Contacts
+            <div className="mb-3 flex items-center gap-3">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-pale text-brand-burnt">
+                <Mail className="h-4 w-4" aria-hidden />
+              </span>
+              <div>
+                <span className="inline-flex items-center gap-2">
+                  <span className="h-px w-4 bg-gradient-to-r from-brand to-transparent" />
+                  <span className="font-grotesk text-[11px] font-semibold uppercase tracking-[0.13em] text-brand-burnt">
+                    Contacts
+                  </span>
                 </span>
+                <h2 className="font-marcellus text-lg font-medium leading-tight tracking-tight text-choco">
+                  Contacts utiles
+                </h2>
               </div>
-              <h2 className="mb-6 font-marcellus text-2xl font-medium tracking-tight text-choco">
-                Contacts utiles
-              </h2>
-              <div className="space-y-5">
-                {CONTACTS.map((c) => (
-                  <div key={c.name} className="border-l-2 border-brand/30 pl-4">
-                    <p className="font-marcellus text-base font-medium text-choco">
-                      {c.name}
-                    </p>
-                    <p className="mt-0.5 text-xs text-muted-warm">{c.role}</p>
-                    {c.email && (
-                      <a
-                        href={`mailto:${c.email}`}
-                        className="mt-1 inline-flex items-center gap-1 font-inter text-xs text-brand-dark transition-colors hover:text-brand"
-                      >
-                        {c.email}
-                        <ArrowUpRight className="h-3 w-3" aria-hidden />
-                      </a>
-                    )}
-                  </div>
-                ))}
-              </div>
-              <a
-                href="mailto:contact@gndconsulting.fr"
-                className="orange-glow mt-7 inline-flex w-full items-center justify-center gap-2 rounded-full bg-brand px-5 py-3 text-xs font-semibold text-[#2A1810] transition-all hover:bg-brand-dark hover:shadow-soft-md"
-              >
-                <Mail className="h-3.5 w-3.5" aria-hidden />
-                Contacter le support
-              </a>
             </div>
+            <div className="space-y-0">
+              {CONTACTS.map((c) => (
+                <div key={c.name} className="divider-warm flex items-center justify-between gap-3 py-2.5 first:border-t-0">
+                  <div className="min-w-0">
+                    <p className="truncate font-medium text-choco">{c.name}</p>
+                    <p className="mt-0.5 text-xs text-muted-warm">{c.role}</p>
+                  </div>
+                  {c.email && (
+                    <a
+                      href={`mailto:${c.email}`}
+                      className="inline-flex shrink-0 items-center gap-1 font-num tabular-nums text-xs text-brand-burnt transition-colors hover:text-brand"
+                    >
+                      <ArrowUpRight className="h-3.5 w-3.5" aria-hidden />
+                    </a>
+                  )}
+                </div>
+              ))}
+            </div>
+            <a
+              href="mailto:contact@gndconsulting.fr"
+              className="orange-glow mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-brand px-5 py-2.5 text-xs font-semibold text-[#2A1810] transition-all hover:bg-brand-dark hover:shadow-soft-md"
+            >
+              <Mail className="h-3.5 w-3.5" aria-hidden />
+              Contacter le support
+            </a>
           </motion.div>
 
-          {/* Carte Module 03 — crème claire */}
+          {/* Carte Module 03 — zone d'action orange */}
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-50px' }}
             transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-            className="surface-ceramic card-hover relative overflow-hidden rounded-3xl bg-cream-deep p-7"
+            className="panel-accent card-hover relative overflow-hidden rounded-[14px] p-4"
           >
             <div className="relative">
-              <div className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-brand-soft px-2.5 py-1 font-inter text-[9px] font-semibold uppercase tracking-[0.18em] text-brand-dark">
-                <Sparkles className="h-3 w-3" aria-hidden />
-                Module 03
-              </div>
-              <h3 className="font-marcellus text-xl font-medium leading-tight text-choco">
+              <span className="inline-flex items-center gap-2">
+                <span className="h-px w-4 bg-gradient-to-r from-brand-burnt to-transparent" />
+                <span className="font-grotesk text-[11px] font-semibold uppercase tracking-[0.13em] text-brand-burnt">
+                  Module{' '}
+                  <span className="font-num tabular-nums">03</span>
+                </span>
+              </span>
+              <h3 className="mt-1 font-marcellus text-xl font-medium leading-tight text-choco">
                 Process de vente <span className="italic text-brand-dark">complet</span>
               </h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-warm">
+              <p className="mt-2 text-sm leading-relaxed text-ink-warm">
                 Le module 03 déroule l'intégralité du process commercial.
                 Scénario A, scénario B, et les 6 étapes.
               </p>
               <Link
                 href="/formation/module-03-process-vente"
-                className="group mt-5 inline-flex items-center gap-2 rounded-full bg-brand px-4 py-2.5 text-xs font-semibold text-[#2A1810] transition-all hover:bg-brand-dark hover:gap-3"
+                className="group mt-4 inline-flex items-center gap-2 rounded-full bg-brand px-4 py-2.5 text-xs font-semibold text-[#2A1810] shadow-soft transition-all hover:bg-brand-dark hover:gap-3"
               >
                 <BookOpen className="h-3.5 w-3.5" aria-hidden />
                 Ouvrir le module
               </Link>
               <span
                 aria-hidden
-                className="pointer-events-none absolute -bottom-3 right-3 select-none font-marcellus text-7xl font-medium italic leading-none text-brand/10"
+                className="pointer-events-none absolute -bottom-3 right-2 select-none font-num tabular-nums text-7xl font-medium leading-none text-brand/15"
               >
                 03
               </span>
@@ -304,16 +336,16 @@ export default function RessourcesClient() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-100px' }}
         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        className="relative mt-24"
+        className="relative mt-16"
       >
-        <div className="mb-10 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <div className="mb-3 flex items-center gap-2">
-              <span className="h-px w-8 bg-brand" />
-              <span className="font-inter text-[11px] font-medium uppercase tracking-[0.14em] text-brand-burnt">
-                Pricing 2026
+            <span className="mb-3 inline-flex items-center gap-2">
+              <span className="h-px w-4 bg-gradient-to-r from-brand to-transparent" />
+              <span className="font-grotesk text-[11px] font-semibold uppercase tracking-[0.13em] text-brand-burnt">
+                Pricing <span className="font-num tabular-nums">2026</span>
               </span>
-            </div>
+            </span>
             <h2 className="font-marcellus text-display-md font-medium leading-tight tracking-tight text-choco">
               Trois packs,{' '}
               <span className="italic text-brand-dark">trois ambitions</span>
@@ -338,15 +370,15 @@ export default function RessourcesClient() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-100px' }}
         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        className="relative mt-20"
+        className="relative mt-14"
       >
-        <div className="mb-10">
-          <div className="mb-3 flex items-center gap-2">
-            <span className="h-px w-8 bg-brand" />
-            <span className="font-inter text-[11px] font-medium uppercase tracking-[0.14em] text-brand-burnt">
+        <div className="mb-8">
+          <span className="mb-3 inline-flex items-center gap-2">
+            <span className="h-px w-4 bg-gradient-to-r from-brand to-transparent" />
+            <span className="font-grotesk text-[11px] font-semibold uppercase tracking-[0.13em] text-brand-burnt">
               Modalités & engagement
             </span>
-          </div>
+          </span>
           <h2 className="font-marcellus text-display-md font-medium leading-tight tracking-tight text-choco">
             Comment ça se passe{' '}
             <span className="italic text-brand-dark">concrètement</span>
@@ -356,7 +388,7 @@ export default function RessourcesClient() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <ModalityCard
             icon={<CreditCard className="h-5 w-5" aria-hidden />}
             title="Paiement"
@@ -382,7 +414,7 @@ export default function RessourcesClient() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-50px' }}
           transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-          className="surface-ceramic relative mt-8 overflow-hidden rounded-3xl p-10 md:p-14"
+          className="panel relative mt-6 overflow-hidden p-6 md:p-8"
         >
           <div
             aria-hidden
@@ -390,9 +422,12 @@ export default function RessourcesClient() {
           />
           <div className="relative flex flex-col items-start gap-6 md:flex-row md:items-center md:justify-between">
             <div className="max-w-xl">
-              <p className="mb-3 font-inter text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-burnt">
-                Une question, un projet ?
-              </p>
+              <span className="mb-3 inline-flex items-center gap-2">
+                <span className="h-px w-4 bg-gradient-to-r from-brand to-transparent" />
+                <span className="font-grotesk text-[11px] font-semibold uppercase tracking-[0.13em] text-brand-burnt">
+                  Une question, un projet ?
+                </span>
+              </span>
               <h3 className="font-marcellus text-3xl font-medium leading-tight text-choco md:text-4xl">
                 On en discute{' '}
                 <span className="italic text-brand-dark">directement</span>.
@@ -404,14 +439,14 @@ export default function RessourcesClient() {
             <div className="flex flex-col gap-3">
               <a
                 href="tel:+33759506322"
-                className="orange-glow group inline-flex items-center gap-3 rounded-full bg-brand px-6 py-3.5 text-sm font-semibold text-[#2A1810] transition-all hover:bg-brand-dark hover:shadow-soft-md"
+                className="orange-glow group inline-flex items-center gap-3 rounded-full bg-brand px-6 py-3 text-sm font-semibold text-[#2A1810] transition-all hover:bg-brand-dark hover:shadow-soft-md"
               >
                 <Phone className="h-4 w-4" aria-hidden />
-                07 59 50 63 22
+                <span className="font-num tabular-nums">07 59 50 63 22</span>
               </a>
               <a
                 href="mailto:contact@gndconsulting.fr"
-                className="group inline-flex items-center gap-3 rounded-full border border-border-soft bg-white px-6 py-3.5 text-sm font-semibold text-choco transition-all hover:bg-cream-deep"
+                className="group inline-flex items-center gap-3 rounded-full border border-border-soft bg-white px-6 py-3 text-sm font-semibold text-choco transition-all hover:bg-cream-deep"
               >
                 <Mail className="h-4 w-4" aria-hidden />
                 contact@gndconsulting.fr
@@ -443,17 +478,20 @@ function SectionCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-80px' }}
       transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-      className="surface-ceramic group card-hover relative overflow-hidden rounded-3xl p-8 sm:p-10"
+      className="panel group card-hover relative overflow-hidden p-4 sm:p-5"
     >
-      <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div className="flex items-start gap-4">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-brand-pale p-2.5 text-brand-dark">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex items-start gap-3">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-pale text-brand-burnt">
             {icon}
           </span>
           <div>
-            <p className="mb-1 font-inter text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-burnt">
-              {label}
-            </p>
+            <span className="inline-flex items-center gap-2">
+              <span className="h-px w-4 bg-gradient-to-r from-brand to-transparent" />
+              <span className="font-grotesk text-[11px] font-semibold uppercase tracking-[0.13em] text-brand-burnt">
+                {label}
+              </span>
+            </span>
             <h2 className="font-marcellus text-2xl font-medium leading-tight tracking-tight text-choco sm:text-3xl">
               {title}
             </h2>
@@ -461,7 +499,7 @@ function SectionCard({
         </div>
       </div>
       {subtitle && (
-        <p className="mb-6 max-w-2xl text-pretty text-sm leading-relaxed text-muted-warm">
+        <p className="mb-5 max-w-2xl text-pretty text-sm leading-relaxed text-muted-warm">
           {subtitle}
         </p>
       )}
@@ -472,7 +510,7 @@ function SectionCard({
 
 function ArgGrid({ items }: { items: { bold: string; body: string }[] }) {
   return (
-    <ul className="space-y-4">
+    <ul className="space-y-0">
       {items.map((item, i) => (
         <motion.li
           key={item.bold}
@@ -480,9 +518,9 @@ function ArgGrid({ items }: { items: { bold: string; body: string }[] }) {
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: i * 0.07, ease: 'easeOut' }}
-          className="flex gap-4 rounded-2xl border border-transparent px-4 py-3 transition-colors hover:border-border-soft hover:bg-cream"
+          className="divider-warm flex gap-3 py-2.5 transition-colors first:border-t-0 hover:bg-cream/50"
         >
-          <span className="shrink-0 font-marcellus text-xl font-medium italic leading-none text-brand-dark">
+          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-brand-pale font-num tabular-nums text-[11px] font-semibold text-brand-burnt">
             {String(i + 1).padStart(2, '0')}
           </span>
           <p className="text-sm leading-relaxed text-muted-warm">
@@ -510,8 +548,8 @@ function DosDontsCard({
   } as const;
   const s = styles[tone];
   return (
-    <div className={`rounded-2xl border p-6 ${s.border} ${s.bg}`}>
-      <div className={`mb-4 flex items-center gap-2 font-marcellus text-base font-medium ${s.label}`}>
+    <div className={`rounded-[14px] border p-4 ${s.border} ${s.bg}`}>
+      <div className={`mb-3 flex items-center gap-2 font-marcellus text-base font-medium ${s.label}`}>
         {s.icon}
         <span>{title}</span>
       </div>
@@ -548,20 +586,20 @@ function ObjectionCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-30px' }}
       transition={{ duration: 0.5, delay: index * 0.06, ease: [0.22, 1, 0.36, 1] }}
-      className="surface-ceramic group card-hover flex flex-col rounded-2xl p-5"
+      className="panel group card-hover flex flex-col p-4"
     >
-      <div className="mb-3 flex items-baseline gap-3">
-        <span className="font-marcellus text-2xl font-medium italic leading-none text-brand-dark">
+      <div className="mb-2.5 flex items-center gap-2.5">
+        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-brand-pale font-num tabular-nums text-xs font-semibold text-brand-burnt">
           {String(index + 1).padStart(2, '0')}
         </span>
-        <h4 className="font-marcellus text-base font-medium text-choco">
+        <h4 className="font-marcellus text-base font-medium leading-tight text-choco">
           {title}
         </h4>
       </div>
-      <p className="mb-3 text-xs italic leading-relaxed text-muted-warm">
+      <p className="mb-2.5 text-xs italic leading-relaxed text-muted-warm">
         « {prospect} »
       </p>
-      <div className="hairline border-t pt-3 text-sm leading-relaxed text-muted-warm">
+      <div className="hairline border-t pt-2.5 text-sm leading-relaxed text-muted-warm">
         {response}
       </div>
     </motion.div>
@@ -575,9 +613,9 @@ function TemplateCard({ title, body, index }: { title: string; body: React.React
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5, delay: index * 0.08, ease: 'easeOut' }}
-      className="surface-ceramic group card-hover flex gap-4 rounded-2xl p-5"
+      className="panel group card-hover flex gap-3 p-4"
     >
-      <span aria-hidden className="shrink-0 font-inter text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-burnt">
+      <span aria-hidden className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-pale font-num tabular-nums text-[11px] font-semibold tracking-[0.04em] text-brand-burnt">
         T{String(index + 1).padStart(2, '0')}
       </span>
       <div>
@@ -716,16 +754,16 @@ function ModalityCard({ icon, title, lines, footnote }: { icon: React.ReactNode;
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-      className="surface-ceramic flex flex-col gap-4 rounded-3xl p-7"
+      className="panel card-hover flex flex-col gap-3 p-4"
     >
       <div className="flex items-center gap-3">
-        <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-brand-pale p-2.5 text-brand-dark">{icon}</span>
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-pale text-brand-burnt">{icon}</span>
         <h3 className="font-marcellus text-xl font-medium text-choco">{title}</h3>
       </div>
       <div className="space-y-1.5">
         {lines.map((l) => (
           <p key={l.strong} className="text-sm leading-relaxed text-muted-warm">
-            <span className="font-semibold text-brand-dark">{l.strong}</span> {l.text}
+            <span className="font-num tabular-nums font-semibold text-brand-dark">{l.strong}</span> {l.text}
           </p>
         ))}
       </div>
