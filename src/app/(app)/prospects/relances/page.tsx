@@ -63,17 +63,24 @@ export default async function MesRelancesPage() {
 
   return (
     <div className="mx-auto max-w-4xl">
-      <SectionHeader
-        as="h1"
-        eyebrow="Mon pipeline · Relances"
-        title={
-          <>
-            Mes <span className="italic text-brand-dark">relances</span>
-          </>
-        }
-        subtitle="Tes prospects avec une date de relance posée. En retard d'abord, puis aujourd'hui, puis les 7 prochains jours. Triés par date."
-        className="mb-8"
-      />
+      <div className="relative mb-8 overflow-hidden">
+        <span
+          aria-hidden
+          className="watermark pointer-events-none absolute -right-2 -top-10 select-none font-marcellus text-[120px] leading-none text-choco/[0.04]"
+        >
+          Relances
+        </span>
+        <SectionHeader
+          as="h1"
+          eyebrow="Mon pipeline · Relances"
+          title={
+            <>
+              Mes <span className="italic text-brand-dark">relances</span>
+            </>
+          }
+          subtitle="Tes prospects avec une date de relance posée. En retard d'abord, puis aujourd'hui, puis les 7 prochains jours. Triés par date."
+        />
+      </div>
 
       {/* Stats — cartes au nouveau système */}
       <div className="mb-8 grid grid-cols-3 gap-3 sm:gap-4">
@@ -83,21 +90,21 @@ export default async function MesRelancesPage() {
       </div>
 
       {rows.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-3xl border border-border-soft/70 bg-surface-soft p-16 text-center shadow-soft">
+        <div className="surface-ceramic flex flex-col items-center justify-center rounded-3xl p-16 text-center">
           <span
             aria-hidden
-            className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-soft text-brand-dark"
+            className="orange-glow mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-pale text-brand-dark"
           >
-            <AlarmClock className="h-6 w-6" />
+            <AlarmClock className="h-7 w-7" />
           </span>
-          <p className="font-marcellus text-xl text-choco">
+          <p className="font-marcellus text-2xl text-choco">
             Aucune relance planifiée.
           </p>
           <p className="mt-2 max-w-sm text-sm text-muted-warm">
             Pose une date de relance depuis la fiche d&apos;un prospect (bouton
             notes) pour la voir apparaître ici.
           </p>
-          <Button href="/prospects" variant="primary" size="sm" className="mt-5">
+          <Button href="/prospects" variant="primary" size="sm" className="mt-6">
             Voir mes prospects
             <ArrowRight className="h-3.5 w-3.5" aria-hidden />
           </Button>
@@ -147,8 +154,8 @@ function RelanceStat({
         ? 'text-brand-dark'
         : 'text-[#3A7A52]';
   return (
-    <div className="rounded-2xl border border-border-soft/70 bg-surface-soft p-4 shadow-soft">
-      <p className="font-inter text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-warm">
+    <div className="surface-ceramic rounded-3xl p-5">
+      <p className="font-inter text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-burnt">
         {label}
       </p>
       <p className={`mt-1.5 font-marcellus text-3xl tabular-nums ${valueClass}`}>
@@ -190,7 +197,7 @@ function Group({
             <Link
               key={r.id}
               href={`/prospects/${r.id}`}
-              className="group flex items-center gap-4 rounded-2xl border border-border-soft/70 bg-surface-soft p-4 shadow-soft transition-all hover:-translate-y-0.5 hover:border-brand/30 hover:shadow-soft-md"
+              className="surface-ceramic card-hover group flex items-center gap-4 rounded-2xl p-4"
             >
               <span
                 className={`shrink-0 font-inter text-xs font-semibold tabular-nums ${dateClass}`}
