@@ -28,6 +28,39 @@ import {
  * Cloisonnement : ne lit QUE l'intel (aucune donnee financiere). La lecture est
  * deja filtree par la RLS owner (migration 0028) cote page serveur.
  */
+/**
+ * Transforme une URL source en lien HUMAIN lisible. Les agents d'enrichissement
+ * stockent parfois des endpoints API/JSON (ex. recherche-entreprises.api.gouv.fr)
+ * qui ouvrent du JSON brut. On les remappe vers la page humaine equivalente et on
+ * derive un libelle a partir du domaine (au lieu de "source 1").
+ */
+function humanizeSourceUrl(raw: string): { href: string; label: string } {
+  try {
+    const u = new URL(raw);
+    let host = u.hostname.replace(/^www\./, '');
+    let href = raw;
+    if (host === 'recherche-entreprises.api.gouv.fr') {
+      const terme = u.searchParams.get('q') ?? '';
+      href = `https://annuaire-entreprises.data.gouv.fr/rechercher?terme=${encodeURIComponent(terme)}`;
+      host = 'annuaire-entreprises.data.gouv.fr';
+    }
+    const NAMES: Record<string, string> = {
+      'annuaire-entreprises.data.gouv.fr': 'Annuaire entreprises',
+      'societe.com': 'Societe.com',
+      'pappers.fr': 'Pappers',
+      'linkedin.com': 'LinkedIn',
+      'instagram.com': 'Instagram',
+      'facebook.com': 'Facebook',
+      'google.com': 'Google',
+      'maps.google.com': 'Google Maps',
+    };
+    const label = NAMES[host] ?? host.replace(/\.(fr|com|net|org|io)$/, '');
+    return { href, label: label.length > 24 ? `${label.slice(0, 24)}…` : label };
+  } catch {
+    return { href: raw, label: 'Source' };
+  }
+}
+
 export default function ProspectIntelPanel({
   intel,
   createdAt,
@@ -218,18 +251,21 @@ export default function ProspectIntelPanel({
           {sources.length > 0 && (
             <p className="flex flex-wrap items-center gap-x-3 gap-y-1">
               <span className="font-semibold text-ink-warm">Sources :</span>
-              {sources.slice(0, 6).map((u, i) => (
-                <a
-                  key={`${u}-${i}`}
-                  href={u}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-brand-dark underline underline-offset-2 hover:text-choco"
-                >
-                  <ExternalLink className="h-3 w-3" aria-hidden />
-                  source {i + 1}
-                </a>
-              ))}
+              {sources.slice(0, 6).map((u, i) => {
+                const { href, label } = humanizeSourceUrl(u);
+                return (
+                  <a
+                    key={`${u}-${i}`}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 rounded-full border border-border-soft bg-cream/60 px-2.5 py-0.5 text-xs font-medium text-brand-dark transition-colors hover:border-brand/40 hover:bg-brand-pale hover:text-choco"
+                  >
+                    <ExternalLink className="h-3 w-3" aria-hidden />
+                    {label}
+                  </a>
+                );
+              })}
             </p>
           )}
         </div>
