@@ -63,54 +63,68 @@ export default async function MesRelancesPage() {
 
   return (
     <div className="mx-auto max-w-4xl">
-      <div className="relative mb-8 overflow-hidden">
+      {/* En-tete editorial */}
+      <div className="relative mb-6 overflow-hidden">
         <span
           aria-hidden
           className="watermark pointer-events-none absolute -right-2 -top-10 select-none font-marcellus text-[120px] leading-none text-choco/[0.04]"
         >
           Relances
         </span>
-        <SectionHeader
-          as="h1"
-          eyebrow="Mon pipeline · Relances"
-          title={
-            <>
-              Mes <span className="italic text-brand-dark">relances</span>
-            </>
-          }
-          subtitle="Tes prospects avec une date de relance posée. En retard d'abord, puis aujourd'hui, puis les 7 prochains jours. Triés par date."
-        />
+        <span className="inline-flex items-center gap-2">
+          <span
+            aria-hidden
+            className="h-px w-4 bg-gradient-to-r from-brand to-transparent"
+          />
+          <span className="font-grotesk text-[11px] font-semibold uppercase tracking-[0.13em] text-brand-burnt">
+            Mon pipeline · Relances
+          </span>
+        </span>
+        <h1 className="mt-2 font-marcellus text-3xl text-choco">
+          Mes <span className="italic text-brand-dark">relances</span>
+        </h1>
+        <p className="mt-2 max-w-2xl text-sm text-[#6F5A50]">
+          Tes prospects avec une date de relance posée. En retard d&apos;abord,
+          puis aujourd&apos;hui, puis les 7 prochains jours. Triés par date.
+        </p>
       </div>
 
-      {/* Stats — cartes au nouveau système */}
-      <div className="mb-8 grid grid-cols-3 gap-3 sm:gap-4">
+      {/* KPI compacts — matiere + chiffres mono */}
+      <div className="mb-6 grid grid-cols-3 gap-3">
         <RelanceStat label="En retard" value={overdue.length} tone="rose" />
         <RelanceStat label="Aujourd'hui" value={today.length} tone="amber" />
         <RelanceStat label="À venir (7j)" value={upcoming.length} tone="emerald" />
       </div>
 
       {rows.length === 0 ? (
-        <div className="surface-ceramic flex flex-col items-center justify-center rounded-3xl p-16 text-center">
+        <div className="panel flex items-center gap-4 p-4">
           <span
             aria-hidden
-            className="orange-glow mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-pale text-brand-dark"
+            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand-pale text-brand-burnt"
           >
-            <AlarmClock className="h-7 w-7" />
+            <AlarmClock className="h-6 w-6" />
           </span>
-          <p className="font-marcellus text-2xl text-choco">
-            Aucune relance planifiée.
-          </p>
-          <p className="mt-2 max-w-sm text-sm text-muted-warm">
-            Pose une date de relance depuis la fiche d&apos;un prospect (bouton
-            notes) pour la voir apparaître ici.
-          </p>
-          <Button href="/prospects" variant="primary" size="sm" className="mt-6">
+          <div className="min-w-0 flex-1">
+            <p className="font-marcellus text-lg text-choco">
+              Aucune relance planifiée.
+            </p>
+            <p className="mt-0.5 text-sm text-[#6F5A50]">
+              Pose une date de relance depuis la fiche d&apos;un prospect (bouton
+              notes) pour la voir apparaître ici.
+            </p>
+          </div>
+          <Button
+            href="/prospects"
+            variant="primary"
+            size="sm"
+            className="shrink-0"
+          >
             Voir mes prospects
             <ArrowRight className="h-3.5 w-3.5" aria-hidden />
           </Button>
         </div>
       ) : (
-        <div className="space-y-7">
+        <div className="space-y-5">
           <Group
             title="En retard"
             dotClass="bg-[#A04A4A]"
@@ -154,11 +168,11 @@ function RelanceStat({
         ? 'text-brand-dark'
         : 'text-[#3A7A52]';
   return (
-    <div className="surface-ceramic rounded-3xl p-5">
-      <p className="font-inter text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-burnt">
+    <div className="panel p-4">
+      <p className="font-grotesk text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-warm">
         {label}
       </p>
-      <p className={`mt-1.5 font-marcellus text-3xl tabular-nums ${valueClass}`}>
+      <p className={`mt-1.5 font-num text-3xl tabular-nums ${valueClass}`}>
         {value}
       </p>
     </div>
@@ -180,11 +194,14 @@ function Group({
 }) {
   return (
     <section>
-      <div className="mb-3 flex items-center gap-2">
+      <div className="mb-2.5 flex items-center gap-2">
         <span className={`h-2 w-2 rounded-full ${dotClass}`} aria-hidden />
-        <h2 className="font-inter text-[11px] font-semibold uppercase tracking-[0.18em] text-choco">
-          {title} ({rows.length})
+        <h2 className="font-grotesk text-[11px] font-semibold uppercase tracking-[0.18em] text-choco">
+          {title}
         </h2>
+        <span className="font-num text-[11px] tabular-nums text-muted-warm">
+          ({rows.length})
+        </span>
       </div>
       {rows.length === 0 ? (
         <p className="inline-flex items-center gap-1.5 pl-4 text-xs text-muted-warm">
@@ -192,26 +209,26 @@ function Group({
           {emptyText}
         </p>
       ) : (
-        <div className="space-y-2.5">
+        <div className="panel overflow-hidden p-0">
           {rows.map((r) => (
             <Link
               key={r.id}
               href={`/prospects/${r.id}`}
-              className="surface-ceramic card-hover group flex items-center gap-4 rounded-2xl p-4"
+              className="card-hover group flex items-center gap-4 px-4 py-2.5 [&:not(:first-child)]:divider-warm"
             >
               <span
-                className={`shrink-0 font-inter text-xs font-semibold tabular-nums ${dateClass}`}
+                className={`shrink-0 font-num text-xs font-semibold tabular-nums ${dateClass}`}
               >
                 {fmt(new Date(r.next_action_at))}
               </span>
               <div className="min-w-0 flex-1">
-                <p className="truncate font-marcellus text-base text-choco">
+                <p className="truncate font-medium text-choco">
                   {r.company_name}
                 </p>
                 <p className="truncate text-sm text-muted-warm">
                   {r.contact_name ?? '—'}
                   {r.phone && (
-                    <span className="ml-2 inline-flex items-center gap-1 text-xs text-brand-dark">
+                    <span className="ml-2 inline-flex items-center gap-1 font-num text-xs tabular-nums text-brand-dark">
                       <Phone className="h-3 w-3" aria-hidden />
                       {r.phone}
                     </span>
