@@ -103,7 +103,7 @@ export default function RecallDatePicker({
 
   return (
     <div
-      className={`w-full max-w-[18rem] rounded-2xl border border-border-soft bg-white p-3 shadow-soft ${className}`}
+      className={`w-full rounded-2xl border border-border-soft bg-white p-3.5 shadow-soft ${className}`}
     >
       {/* En-tête mois */}
       <div className="mb-2 flex items-center justify-between">
@@ -133,7 +133,7 @@ export default function RecallDatePicker({
         {DOW.map((d, i) => (
           <div
             key={`dow-${i}`}
-            className="flex h-6 items-center justify-center font-inter text-[10px] font-semibold uppercase text-muted-warm"
+            className="flex h-6 items-center justify-center font-num text-[10px] font-semibold uppercase text-muted-warm"
           >
             {d}
           </div>
@@ -146,7 +146,7 @@ export default function RecallDatePicker({
           const isToday = sameDay(d, today);
           const isPast = d < today;
           const cls = isSel
-            ? 'bg-brand font-semibold text-white'
+            ? 'bg-brand font-semibold text-[#3A2017] shadow-[0_4px_10px_-3px_rgba(243,146,83,0.55)]'
             : isToday
               ? 'font-semibold text-brand-dark ring-1 ring-brand/40 hover:bg-brand-soft'
               : isPast
@@ -157,7 +157,7 @@ export default function RecallDatePicker({
               key={`d-${i}`}
               type="button"
               onClick={() => pick(day)}
-              className={`flex h-8 w-8 items-center justify-center rounded-lg font-inter text-sm transition-colors ${cls}`}
+              className={`flex h-8 w-8 items-center justify-center rounded-lg font-num text-sm tabular-nums transition ${cls}`}
             >
               {day}
             </button>
