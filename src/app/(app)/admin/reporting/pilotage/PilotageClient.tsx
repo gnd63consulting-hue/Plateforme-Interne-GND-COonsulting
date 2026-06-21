@@ -10,8 +10,6 @@ import {
 } from 'lucide-react';
 
 /* Design System creme/orange (valeurs verrouillees — alignees reporting/commissions). */
-const SERIF = 'var(--font-marcellus), Georgia, serif';
-const SANS = 'var(--font-inter), system-ui, sans-serif';
 const CHOCO = '#532418';
 const INK = '#2A2320';
 const INK_SOFT = '#7B665C';
@@ -20,9 +18,6 @@ const BRAND = '#F39253';
 const BRAND_DARK = '#B5601C';
 const GREEN = '#4F7A38';
 const ROSE = '#B5485B';
-const CARD_BG = '#FFFFFF';
-const CREAM_HEAD = '#FBF7F2';
-const BORDER = '#E2D5C3';
 
 export type PilotageData = {
   adminName: string;
@@ -75,119 +70,76 @@ export default function PilotageClient({ data }: { data: PilotageData }) {
     baseTotale > 0 ? enrichissement.distincts / baseTotale : 0;
 
   return (
-    <div style={{ maxWidth: 1040, margin: '0 auto', padding: '40px 28px 64px', color: INK }}>
+    <div className="mx-auto max-w-[1040px] px-7 pb-16 pt-10 text-ink-warm">
       {/* Header */}
-      <header style={{ marginBottom: 30 }}>
-        <div
-          style={{
-            fontFamily: SANS,
-            fontSize: 10,
-            fontWeight: 600,
-            textTransform: 'uppercase',
-            letterSpacing: '0.22em',
-            color: BRAND_DARK,
-            marginBottom: 10,
-          }}
+      <header className="relative mb-9 overflow-hidden">
+        <span
+          aria-hidden
+          className="watermark pointer-events-none absolute -right-2 -top-10 select-none font-marcellus text-[120px] leading-none"
         >
-          ADMIN · PILOTAGE LIVE
-        </div>
-        <h1
-          style={{
-            fontFamily: SERIF,
-            fontSize: 32,
-            fontWeight: 500,
-            letterSpacing: '-0.01em',
-            color: CHOCO,
-            margin: 0,
-            lineHeight: 1.1,
-          }}
-        >
-          Pilotage du carnet
-        </h1>
-        <p style={{ fontSize: 14, lineHeight: 1.55, color: INK_SOFT, marginTop: 12, maxWidth: 680 }}>
-          Lecture de pilotage recalculee a chaque chargement directement depuis
-          la base : volume, repartition par statut, enrichissement Atlas, qualite
-          de la donnee et lecture phone-first. Tout est en nombres et en
-          pourcentages, jamais en euros. C&apos;est le rapport que produit
-          l&apos;agent, disponible sans l&apos;agent.
-        </p>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginTop: 22 }}>
-          <Stat label="Base totale" value={String(baseTotale)} color={CHOCO} hint="Fiches maitres (hors fusionnees)" />
-          <Stat label="A contacter" value={String(highlights.aContacter)} color={BRAND_DARK} hint="Pas encore approches" />
-          <Stat label="Enrichis Atlas" value={String(enrichissement.distincts)} color={GREEN} hint={pct(pctEnrichis) + ' de la base'} />
-          <Stat label="Non assignes" value={String(qualite.nonAssignes)} color={qualite.nonAssignes > 0 ? ROSE : INK_FAINT} hint="Sans commercial" />
+          Live
+        </span>
+        <div className="relative">
+          <span className="label-eyebrow text-[11px] uppercase tracking-[0.14em] text-brand-burnt">
+            Admin · Pilotage live
+          </span>
+          <h1 className="mt-3 font-marcellus text-[34px] font-medium leading-[1.08] tracking-[-0.01em] text-choco">
+            Pilotage du carnet
+          </h1>
+          <p className="mt-3 max-w-[680px] text-sm leading-[1.55] text-[#6F5A50]">
+            Lecture de pilotage recalculee a chaque chargement directement depuis
+            la base : volume, repartition par statut, enrichissement Atlas, qualite
+            de la donnee et lecture phone-first. Tout est en nombres et en
+            pourcentages, jamais en euros. C&apos;est le rapport que produit
+            l&apos;agent, disponible sans l&apos;agent.
+          </p>
+          <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <Stat label="Base totale" value={String(baseTotale)} color={CHOCO} hint="Fiches maitres (hors fusionnees)" />
+            <Stat label="A contacter" value={String(highlights.aContacter)} color={BRAND_DARK} hint="Pas encore approches" />
+            <Stat label="Enrichis Atlas" value={String(enrichissement.distincts)} color={GREEN} hint={pct(pctEnrichis) + ' de la base'} />
+            <Stat label="Non assignes" value={String(qualite.nonAssignes)} color={qualite.nonAssignes > 0 ? ROSE : INK_FAINT} hint="Sans commercial" />
+          </div>
         </div>
       </header>
 
       {/* Bloc 1 — Repartition par statut */}
-      <Section icon={GitBranch} eyebrow="BLOC 1" title="Repartition par statut">
-        <p style={{ fontSize: 13, color: INK_SOFT, margin: '0 0 18px', lineHeight: 1.5 }}>
+      <Section icon={GitBranch} eyebrow="Bloc 1" title="Repartition par statut">
+        <p className="mb-5 text-[13px] leading-[1.5] text-[#6F5A50]">
           Nombre de prospects par statut et part de la base totale. Les statuts
           du debut de funnel (a contacter, contacte) face aux issues (devis
           signe, perdu) donnent l&apos;etat d&apos;avancement du carnet.
         </p>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div className="flex flex-col gap-2.5">
           {repartition.map((r) => {
             const widthPct = Math.max(2, Math.round((r.count / maxRepart) * 100));
             const isHi = HIGHLIGHT_STATUSES.has(r.status);
             return (
-              <div key={r.status} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+              <div key={r.status} className="flex items-center gap-3.5">
                 <div
-                  style={{
-                    width: 184,
-                    flexShrink: 0,
-                    fontFamily: SANS,
-                    fontSize: 12.5,
-                    fontWeight: isHi ? 700 : 600,
-                    color: isHi ? CHOCO : INK,
-                  }}
+                  className="w-[150px] shrink-0 font-inter text-[12.5px] sm:w-[184px]"
+                  style={{ fontWeight: isHi ? 700 : 600, color: isHi ? CHOCO : INK }}
                 >
                   {r.label}
                 </div>
-                <div style={{ flex: 1, position: 'relative', height: 28 }}>
-                  <div style={{ position: 'absolute', inset: 0, borderRadius: 8, background: '#F3EADF' }} />
+                <div className="relative h-7 flex-1">
+                  <div className="absolute inset-0 rounded-lg bg-cream-deep" />
                   <div
+                    className="absolute bottom-0 left-0 top-0 flex min-w-[30px] items-center justify-end rounded-lg pr-2.5"
                     style={{
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      bottom: 0,
                       width: `${widthPct}%`,
-                      borderRadius: 8,
                       background: isHi
                         ? `linear-gradient(90deg, ${BRAND}, ${BRAND_DARK})`
                         : 'linear-gradient(90deg, #E8C9A8, #C99A6E)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'flex-end',
-                      paddingRight: 10,
-                      minWidth: 30,
+                      boxShadow: isHi ? '0 1px 6px rgba(243,146,83,0.35)' : 'none',
                     }}
                   >
-                    <span
-                      style={{
-                        fontFamily: SANS,
-                        fontSize: 11.5,
-                        fontWeight: 700,
-                        color: '#2A1810',
-                        fontVariantNumeric: 'tabular-nums',
-                      }}
-                    >
+                    <span className="font-inter text-[11.5px] font-bold tabular-nums text-[#2A1810]">
                       {r.count}
                     </span>
                   </div>
                 </div>
                 <div
-                  style={{
-                    width: 52,
-                    flexShrink: 0,
-                    textAlign: 'right',
-                    fontFamily: SANS,
-                    fontSize: 11.5,
-                    fontWeight: 600,
-                    color: INK_FAINT,
-                    fontVariantNumeric: 'tabular-nums',
-                  }}
+                  className="w-[52px] shrink-0 text-right font-inter text-[11.5px] font-semibold tabular-nums text-muted-warm"
                   title="Part de la base totale"
                 >
                   {pct(r.pct)}
@@ -196,47 +148,40 @@ export default function PilotageClient({ data }: { data: PilotageData }) {
             );
           })}
           {repartition.length === 0 && (
-            <div style={{ fontSize: 13, color: INK_FAINT }}>Aucun prospect dans la base.</div>
+            <div className="flex flex-col items-center gap-3 rounded-2xl border border-[rgba(74,36,26,0.10)] bg-cream/60 px-6 py-10 text-center">
+              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-pale text-brand-dark">
+                <GitBranch size={20} strokeWidth={1.8} />
+              </span>
+              <div className="text-[13px] text-muted-warm">Aucun prospect dans la base.</div>
+            </div>
           )}
         </div>
       </Section>
 
       {/* Bloc 2 — Enrichissement Atlas */}
-      <Section icon={Sparkles} eyebrow="BLOC 2" title="Enrichissement Atlas">
-        <p style={{ fontSize: 13, color: INK_SOFT, margin: '0 0 18px', lineHeight: 1.5 }}>
+      <Section icon={Sparkles} eyebrow="Bloc 2" title="Enrichissement Atlas" accent>
+        <p className="mb-5 text-[13px] leading-[1.5] text-cream/80">
           Prospects ayant une fiche d&apos;enrichissement Atlas (cascade FR), en
           ne gardant que la version la plus recente par prospect. Split selon le
           statut de l&apos;enrichissement.
         </p>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-            gap: 14,
-          }}
-        >
-          <MiniCard label="Prospects enrichis" value={String(enrichissement.distincts)} sub={pct(pctEnrichis) + ' de la base'} color={CHOCO} />
-          <MiniCard label="Enrichi" value={String(enrichissement.enrichis)} sub="Donnees confirmees" color={GREEN} />
-          <MiniCard label="A verifier (humain)" value={String(enrichissement.aVerifier)} sub="Revue manuelle requise" color={BRAND_DARK} />
+        <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
+          <MiniCard label="Prospects enrichis" value={String(enrichissement.distincts)} sub={pct(pctEnrichis) + ' de la base'} color={CHOCO} onDark />
+          <MiniCard label="Enrichi" value={String(enrichissement.enrichis)} sub="Donnees confirmees" color={GREEN} onDark />
+          <MiniCard label="A verifier (humain)" value={String(enrichissement.aVerifier)} sub="Revue manuelle requise" color={BRAND_DARK} onDark />
           {enrichissement.autre > 0 && (
-            <MiniCard label="Autre statut" value={String(enrichissement.autre)} sub="Statut intel non standard" color={INK_FAINT} />
+            <MiniCard label="Autre statut" value={String(enrichissement.autre)} sub="Statut intel non standard" color={INK_FAINT} onDark />
           )}
         </div>
       </Section>
 
       {/* Bloc 3 — Qualite data */}
-      <Section icon={ShieldAlert} eyebrow="BLOC 3" title="Qualite de la donnee">
-        <p style={{ fontSize: 13, color: INK_SOFT, margin: '0 0 18px', lineHeight: 1.5 }}>
+      <Section icon={ShieldAlert} eyebrow="Bloc 3" title="Qualite de la donnee">
+        <p className="mb-5 text-[13px] leading-[1.5] text-[#6F5A50]">
           Trous de donnees qui freinent le demarchage. Chaque chiffre est un
           nombre de fiches a corriger ou a assigner.
         </p>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-            gap: 14,
-          }}
-        >
+        <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
           <MiniCard
             label="Sans telephone"
             value={String(qualite.sansTel)}
@@ -259,15 +204,15 @@ export default function PilotageClient({ data }: { data: PilotageData }) {
       </Section>
 
       {/* Bloc 4 — Lecture phone-first */}
-      <Section icon={PhoneCall} eyebrow="BLOC 4" title="Lecture phone-first">
-        <p style={{ fontSize: 13, color: INK_SOFT, margin: '0 0 18px', lineHeight: 1.5 }}>
+      <Section icon={PhoneCall} eyebrow="Bloc 4" title="Lecture phone-first">
+        <p className="mb-5 text-[13px] leading-[1.5] text-[#6F5A50]">
           Le demarchage GND est d&apos;abord telephonique. On compare la part de
           la base joignable par telephone a la part avec un email valide
           {phoneFirst.emailEnrichmentDispo
             ? ' (statut valid cote enrichissement Atlas).'
             : " (a defaut d'enrichissement : email renseigne)."}
         </p>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div className="flex flex-col gap-4">
           <Gauge
             label="Joignables par telephone"
             count={phoneFirst.avecTel}
@@ -284,7 +229,7 @@ export default function PilotageClient({ data }: { data: PilotageData }) {
           />
         </div>
         {!phoneFirst.emailEnrichmentDispo && (
-          <p style={{ fontSize: 12, color: INK_FAINT, marginTop: 16, lineHeight: 1.5 }}>
+          <p className="mt-4 rounded-2xl border border-[rgba(74,36,26,0.10)] bg-cream/50 px-4 py-3 text-xs leading-[1.5] text-muted-warm">
             Repli : aucune ligne d&apos;enrichissement Atlas trouvee, l&apos;email
             valide est approxime par le nombre de fiches avec un email renseigne.
             Le chiffre se precisera des qu&apos;Atlas aura tourne sur la base.
@@ -295,72 +240,59 @@ export default function PilotageClient({ data }: { data: PilotageData }) {
   );
 }
 
-const eyebrowStyle: React.CSSProperties = {
-  fontFamily: SANS,
-  fontSize: 9,
-  fontWeight: 600,
-  textTransform: 'uppercase',
-  letterSpacing: '0.18em',
-  color: INK_FAINT,
-  marginBottom: 8,
-};
-
 function Section({
   icon: Icon,
   eyebrow,
   title,
   children,
+  accent = false,
 }: {
   icon: typeof Database;
   eyebrow: string;
   title: string;
   children: React.ReactNode;
+  accent?: boolean;
 }) {
   return (
     <section
-      style={{
-        background: CARD_BG,
-        border: `1px solid ${BORDER}`,
-        borderRadius: 18,
-        padding: '24px 26px',
-        marginBottom: 22,
-        boxShadow: '0 1px 3px rgba(83,36,24,0.06)',
-      }}
+      className={
+        accent
+          ? 'surface-chocolate mb-6 rounded-3xl p-7'
+          : 'surface-ceramic mb-6 rounded-3xl p-7'
+      }
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 11, marginBottom: 6 }}>
+      <div className="mb-4 flex items-center gap-3">
         <div
-          style={{
-            width: 30,
-            height: 30,
-            borderRadius: 9,
-            background: 'rgba(243,146,83,0.14)',
-            border: '1px solid rgba(243,146,83,0.30)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: BRAND_DARK,
-            flexShrink: 0,
-          }}
+          className={
+            accent
+              ? 'flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-brand/20 text-brand p-2.5'
+              : 'flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-brand-pale text-brand-dark p-2.5'
+          }
         >
-          <Icon size={16} strokeWidth={1.8} />
+          <Icon size={18} strokeWidth={1.8} />
         </div>
         <div>
-          <div style={eyebrowStyle}>{eyebrow}</div>
+          <div
+            className={
+              accent
+                ? 'font-inter text-[10px] font-semibold uppercase tracking-[0.18em] text-brand'
+                : 'font-inter text-[10px] font-semibold uppercase tracking-[0.18em] text-brand-burnt'
+            }
+          >
+            {eyebrow}
+          </div>
           <h2
-            style={{
-              fontFamily: SERIF,
-              fontSize: 20,
-              fontWeight: 500,
-              color: CHOCO,
-              margin: 0,
-              lineHeight: 1,
-            }}
+            className={
+              accent
+                ? 'font-marcellus text-[21px] font-medium leading-none text-cream'
+                : 'font-marcellus text-[21px] font-medium leading-none text-choco'
+            }
           >
             {title}
           </h2>
         </div>
       </div>
-      <div style={{ marginTop: 16 }}>{children}</div>
+      <div className="mt-4">{children}</div>
     </section>
   );
 }
@@ -377,34 +309,18 @@ function Stat({
   hint?: string;
 }) {
   return (
-    <div
-      style={{
-        flex: 1,
-        minWidth: 168,
-        background: CARD_BG,
-        border: `1px solid ${BORDER}`,
-        borderRadius: 16,
-        padding: '14px 18px',
-        boxShadow: '0 1px 3px rgba(83,36,24,0.06)',
-      }}
-    >
-      <div style={eyebrowStyle}>{label}</div>
+    <div className="surface-ceramic rounded-3xl p-6">
+      <div className="font-inter text-[10px] font-semibold uppercase tracking-[0.16em] text-brand-burnt">
+        {label}
+      </div>
       <div
-        style={{
-          fontFamily: SERIF,
-          fontSize: 26,
-          fontWeight: 500,
-          color,
-          lineHeight: 1,
-          fontVariantNumeric: 'tabular-nums',
-        }}
+        className="mt-2 font-marcellus text-[30px] font-medium leading-none tabular-nums"
+        style={{ color }}
       >
         {value}
       </div>
       {hint && (
-        <div style={{ fontFamily: SANS, fontSize: 11, color: INK_FAINT, marginTop: 6 }}>
-          {hint}
-        </div>
+        <div className="mt-2 font-inter text-[11px] text-muted-warm">{hint}</div>
       )}
     </div>
   );
@@ -415,35 +331,44 @@ function MiniCard({
   value,
   sub,
   color,
+  onDark = false,
 }: {
   label: string;
   value: string;
   sub: string;
   color: string;
+  onDark?: boolean;
 }) {
   return (
     <div
-      style={{
-        background: CREAM_HEAD,
-        border: `1px solid ${BORDER}`,
-        borderRadius: 14,
-        padding: '16px 18px',
-      }}
+      className={
+        onDark
+          ? 'rounded-2xl border border-cream/15 bg-cream/[0.06] p-5'
+          : 'rounded-2xl border border-[rgba(74,36,26,0.10)] bg-cream/60 p-5'
+      }
     >
-      <div style={eyebrowStyle}>{label}</div>
       <div
-        style={{
-          fontFamily: SERIF,
-          fontSize: 24,
-          fontWeight: 500,
-          color,
-          lineHeight: 1,
-          fontVariantNumeric: 'tabular-nums',
-        }}
+        className={
+          onDark
+            ? 'font-inter text-[10px] font-semibold uppercase tracking-[0.16em] text-cream/70'
+            : 'font-inter text-[10px] font-semibold uppercase tracking-[0.16em] text-brand-burnt'
+        }
+      >
+        {label}
+      </div>
+      <div
+        className="mt-2 font-marcellus text-[26px] font-medium leading-none tabular-nums"
+        style={{ color: onDark ? '#FBF7F1' : color }}
       >
         {value}
       </div>
-      <div style={{ fontFamily: SANS, fontSize: 11.5, color: INK_FAINT, marginTop: 6 }}>
+      <div
+        className={
+          onDark
+            ? 'mt-2 font-inter text-[11.5px] text-cream/60'
+            : 'mt-2 font-inter text-[11.5px] text-muted-warm'
+        }
+      >
         {sub}
       </div>
     </div>
@@ -465,49 +390,20 @@ function Gauge({
 }) {
   const widthPct = Math.max(2, Math.min(100, Math.round(ratio * 100)));
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-      <div
-        style={{
-          width: 200,
-          flexShrink: 0,
-          fontFamily: SANS,
-          fontSize: 12.5,
-          fontWeight: 600,
-          color: INK,
-        }}
-      >
+    <div className="flex items-center gap-3.5">
+      <div className="w-[140px] shrink-0 font-inter text-[12.5px] font-semibold text-ink-warm sm:w-[200px]">
         {label}
       </div>
-      <div style={{ flex: 1, position: 'relative', height: 30 }}>
-        <div style={{ position: 'absolute', inset: 0, borderRadius: 8, background: '#F3EADF' }} />
+      <div className="relative h-[30px] flex-1">
+        <div className="absolute inset-0 rounded-lg bg-cream-deep" />
         <div
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            bottom: 0,
-            width: `${widthPct}%`,
-            borderRadius: 8,
-            background: color,
-            minWidth: 4,
-            transition: 'width 0.4s ease',
-          }}
+          className="absolute bottom-0 left-0 top-0 min-w-[4px] rounded-lg transition-[width] duration-500 ease-out"
+          style={{ width: `${widthPct}%`, background: color }}
         />
       </div>
-      <div
-        style={{
-          width: 120,
-          flexShrink: 0,
-          textAlign: 'right',
-          fontFamily: SANS,
-          fontSize: 12,
-          fontWeight: 700,
-          color: INK,
-          fontVariantNumeric: 'tabular-nums',
-        }}
-      >
+      <div className="w-[110px] shrink-0 text-right font-inter text-xs font-bold tabular-nums text-ink-warm">
         {pct(ratio)}
-        <span style={{ color: INK_FAINT, fontWeight: 500 }}>
+        <span className="font-medium text-muted-warm">
           {' '}({count}/{total})
         </span>
       </div>
