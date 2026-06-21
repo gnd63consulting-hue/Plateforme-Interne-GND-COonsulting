@@ -74,25 +74,30 @@ export default async function RelancesPage() {
 
   return (
     <div className="mx-auto max-w-5xl px-7 pb-16 pt-10">
-      <header className="relative mb-9 overflow-hidden">
+      <header className="relative mb-7 overflow-hidden">
         <span
           aria-hidden
           className="watermark pointer-events-none absolute -right-2 -top-10 select-none font-marcellus text-[120px] leading-none text-choco/[0.04]"
         >
           Relances
         </span>
-        <span className="label-eyebrow">Admin · Pilotage</span>
+        <span className="inline-flex items-center gap-2">
+          <span aria-hidden className="h-px w-4 bg-gradient-to-r from-brand to-transparent" />
+          <span className="font-grotesk text-[11px] font-semibold uppercase tracking-[0.13em] text-brand-burnt">
+            Admin · Pilotage
+          </span>
+        </span>
         <h1 className="mt-3 font-marcellus text-[34px] leading-[1.1] tracking-tight text-choco">
           Relances à venir
         </h1>
-        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[#6F5A50]">
+        <p className="mt-2.5 max-w-2xl text-sm leading-relaxed text-[#6F5A50]">
           Qui doit rappeler quel prospect et quand, posé par les commerciaux sur
           leurs fiches. Les retards sont signalés en rouge. Mets à jour le statut
           ou reporte une relance via le bouton « Mettre à jour ».
         </p>
       </header>
 
-      <div className="mb-9 grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="mb-7 grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Stat label="En retard" value={overdue.length} tone="danger" />
         <Stat label="Aujourd'hui" value={today.length} tone="warn" />
         <Stat label="À venir" value={upcoming.length} tone="ok" />
@@ -100,16 +105,16 @@ export default async function RelancesPage() {
       </div>
 
       {recap.length > 0 && (
-        <section className="mb-9">
+        <section className="mb-7">
           <SectionLabel>Par commercial</SectionLabel>
           <div className="flex flex-wrap gap-2">
             {recap.map(([name, n]) => (
               <span
                 key={name}
-                className="inline-flex items-center gap-2 rounded-full border border-border-soft bg-white px-3.5 py-1.5 text-[13px] text-ink-warm shadow-soft"
+                className="card-hover inline-flex items-center gap-2 rounded-full border border-border-soft bg-cream/60 px-3.5 py-1.5 text-[13px] text-ink-warm"
               >
                 {name}
-                <span className="font-semibold tabular-nums text-brand-dark">{n}</span>
+                <span className="font-num font-semibold tabular-nums text-brand-burnt">{n}</span>
               </span>
             ))}
           </div>
@@ -117,23 +122,25 @@ export default async function RelancesPage() {
       )}
 
       {rows.length === 0 ? (
-        <div className="surface-ceramic flex flex-col items-center rounded-3xl p-12 text-center">
+        <div className="panel flex items-center gap-4 p-4">
           <span
             aria-hidden
-            className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-pale text-brand-dark"
+            className="flex h-11 w-11 flex-none items-center justify-center rounded-2xl bg-brand-pale text-brand-burnt"
           >
-            <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6" stroke="currentColor" strokeWidth={1.6}>
+            <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" stroke="currentColor" strokeWidth={1.6}>
               <path d="M8 2v4M16 2v4M3 10h18" strokeLinecap="round" strokeLinejoin="round" />
               <rect x="3" y="4" width="18" height="18" rx="2" />
             </svg>
           </span>
-          <p className="font-marcellus text-xl text-choco">
-            Aucune relance planifiée pour l&apos;instant.
-          </p>
-          <p className="mt-2 max-w-sm text-sm text-muted-warm">
-            Les dates posées par les commerciaux apparaîtront ici, du plus urgent
-            au plus lointain.
-          </p>
+          <div className="min-w-0">
+            <p className="font-marcellus text-base text-choco">
+              Aucune relance planifiée pour l&apos;instant.
+            </p>
+            <p className="mt-0.5 text-[13px] text-muted-warm">
+              Les dates posées par les commerciaux apparaîtront ici, du plus urgent
+              au plus lointain.
+            </p>
+          </div>
         </div>
       ) : (
         <>
@@ -164,9 +171,9 @@ function Stat({
           ? 'text-ok-fg'
           : 'text-choco';
   return (
-    <div className="surface-ceramic rounded-3xl p-6">
+    <div className="panel p-4">
       <p className="label-eyebrow">{label}</p>
-      <p className={`mt-2 font-marcellus text-3xl tabular-nums leading-none ${valueClass}`}>
+      <p className={`mt-2 font-num text-3xl tabular-nums leading-none ${valueClass}`}>
         {value}
       </p>
     </div>
@@ -203,14 +210,14 @@ function Group({
       {rows.length === 0 ? (
         <p className="pl-4 text-[13px] text-muted-warm">{emptyText}</p>
       ) : (
-        <div className="surface-ceramic overflow-hidden rounded-3xl">
+        <div className="panel overflow-hidden p-0">
           <table className="w-full border-collapse text-[13px]">
             <thead>
               <tr>
                 {['Date', 'Commercial', 'Prospect', 'Contact', 'Statut', 'Action'].map((h) => (
                   <th
                     key={h}
-                    className="px-4 py-3.5 text-left text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-burnt"
+                    className="px-4 py-3 text-left font-grotesk text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-burnt"
                     style={{ borderBottom: '1px solid rgba(74,36,26,0.10)' }}
                   >
                     {h}
@@ -224,24 +231,23 @@ function Group({
                 return (
                   <tr
                     key={r.id}
-                    className="transition-colors hover:bg-cream-deep/40"
-                    style={{ borderBottom: '1px solid rgba(83,36,24,0.07)' }}
+                    className="divider-warm transition-colors hover:bg-cream-deep/40"
                   >
-                    <td className={`whitespace-nowrap px-4 py-3 text-xs font-semibold tabular-nums ${dateClass}`}>
+                    <td className={`whitespace-nowrap px-4 py-2.5 font-num text-xs font-semibold tabular-nums ${dateClass}`}>
                       {fmt(new Date(r.next_action_at))}
                     </td>
-                    <td className="px-4 py-3 text-ink-warm">{name}</td>
-                    <td className="px-4 py-3 font-marcellus text-ink-warm">{r.company_name}</td>
-                    <td className="px-4 py-3 text-[#6F5A50]">
+                    <td className="px-4 py-2.5 text-ink-warm">{name}</td>
+                    <td className="px-4 py-2.5 font-marcellus text-ink-warm">{r.company_name}</td>
+                    <td className="px-4 py-2.5 text-[#6F5A50]">
                       {r.contact_name ?? '—'}
-                      {r.phone && <span className="block text-[11px] text-brand-dark">{r.phone}</span>}
+                      {r.phone && <span className="block font-num text-[11px] text-brand-dark">{r.phone}</span>}
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-2.5">
                       <span className="inline-flex items-center rounded-full bg-info-bg px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-info-fg">
                         {labelForStatus(r.status)}
                       </span>
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-2.5">
                       <ProspectQuickEdit prospectId={r.id} currentStatus={r.status} />
                     </td>
                   </tr>
