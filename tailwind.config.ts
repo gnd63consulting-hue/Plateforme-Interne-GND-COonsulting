@@ -158,6 +158,9 @@ const config: Config = {
         /* Sprint 10 — typo de marque officielle */
         marcellus: ['var(--font-marcellus)', 'Marcellus', 'Georgia', 'serif'],
         inter: ['var(--font-inter)', 'Inter', 'system-ui', 'sans-serif'],
+        /* DS v3 refonte premium — type a caractere (CRM) */
+        grotesk: ['var(--font-grotesk)', 'Space Grotesk', 'system-ui', 'sans-serif'],
+        num: ['var(--font-num)', 'JetBrains Mono', 'ui-monospace', 'monospace'],
       },
       fontSize: {
         'display-xl': ['clamp(3rem, 6vw, 5rem)', { lineHeight: '1', letterSpacing: '-0.03em' }],
