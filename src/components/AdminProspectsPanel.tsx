@@ -175,10 +175,10 @@ export default function AdminProspectsPanel({
       {/* ===== Header : count + reset ============================== */}
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-baseline gap-2">
-          <span className="font-display text-3xl font-medium tabular-nums text-gnd-bronze">
+          <span className="font-display text-3xl font-medium tabular-nums text-ink-warm">
             {filtered.length}
           </span>
-          <span className="font-mono text-[11px] uppercase tracking-[0.15em] text-gnd-bronze-soft">
+          <span className="font-mono text-[11px] uppercase tracking-[0.15em] text-[#6F5A50]">
             prospect{filtered.length > 1 ? 's' : ''} affiché{filtered.length > 1 ? 's' : ''}
             {filtered.length !== prospects.length && ` / ${prospects.length} total`}
           </span>
@@ -186,7 +186,7 @@ export default function AdminProspectsPanel({
         {activeFilterCount > 0 && (
           <button
             onClick={resetFilters}
-            className="inline-flex items-center gap-1.5 rounded-full border border-gnd-amber/30 bg-gnd-amber/10 px-3 py-1.5 font-mono text-[10px] font-semibold uppercase tracking-[0.15em] text-gnd-amber-dim transition hover:bg-gnd-amber/15 hover:text-gnd-amber"
+            className="inline-flex items-center gap-1.5 rounded-full border border-brand/30 bg-brand/10 px-3 py-1.5 font-mono text-[10px] font-semibold uppercase tracking-[0.15em] text-brand-dark transition hover:bg-brand/15 hover:text-brand"
           >
             <X className="h-3 w-3" />
             Réinitialiser ({activeFilterCount})
@@ -203,7 +203,7 @@ export default function AdminProspectsPanel({
 
       {/* ===== Filters bar (dark cockpit kept for identity) ===================== */}
       <div
-        className="relative overflow-hidden rounded-2xl border border-gnd-amber/15 p-3 shadow-warm-xl"
+        className="relative overflow-hidden rounded-2xl border border-brand/15 p-3 shadow-warm-xl"
         style={{
           backgroundImage: `
             radial-gradient(circle at 0% 0%, rgba(232, 133, 61, 0.08) 0%, transparent 60%),
@@ -212,7 +212,7 @@ export default function AdminProspectsPanel({
         }}
       >
         <div className="flex flex-wrap items-center gap-2">
-          <span className="flex items-center gap-1.5 rounded-full border border-gnd-amber/20 bg-gnd-amber/10 px-2.5 py-1 font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-gnd-amber">
+          <span className="flex items-center gap-1.5 rounded-full border border-brand/20 bg-brand/10 px-2.5 py-1 font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-brand">
             <Filter className="h-3 w-3" />
             Filtres
           </span>
@@ -279,21 +279,21 @@ export default function AdminProspectsPanel({
           <select
             value={pageSize}
             onChange={(e) => { setPageSize(Number(e.target.value)); setPage(1); }}
-            className="ml-auto rounded-full border border-gnd-amber/15 bg-gnd-ink/40 px-3 py-1.5 font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-gnd-cream/80 backdrop-blur-sm transition focus:border-gnd-amber focus:outline-none focus:ring-1 focus:ring-gnd-amber"
+            className="ml-auto rounded-full border border-brand/15 bg-[#2A1510]/40 px-3 py-1.5 font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-cream/80 backdrop-blur-sm transition focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
           >
-            <option value={30} className="bg-gnd-ink text-gnd-cream normal-case tracking-normal">30 par page</option>
-            <option value={50} className="bg-gnd-ink text-gnd-cream normal-case tracking-normal">50 par page</option>
-            <option value={100} className="bg-gnd-ink text-gnd-cream normal-case tracking-normal">100 par page</option>
+            <option value={30} className="bg-[#2A1510] text-cream normal-case tracking-normal">30 par page</option>
+            <option value={50} className="bg-[#2A1510] text-cream normal-case tracking-normal">50 par page</option>
+            <option value={100} className="bg-[#2A1510] text-cream normal-case tracking-normal">100 par page</option>
           </select>
         </div>
       </div>
 
       {/* ===== Table (warm paper for readability) ====================== */}
-      <div className="overflow-hidden rounded-3xl border border-gnd-bronze/8 bg-gnd-paper shadow-warm">
+      <div className="overflow-hidden rounded-3xl border border-[rgba(74,36,26,0.10)] bg-cream shadow-warm">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gnd-bronze/8 text-sm">
-            <thead className="sticky top-0 z-10 bg-gnd-cream backdrop-blur-sm">
-              <tr className="border-b border-gnd-amber/15">
+            <thead className="sticky top-0 z-10 bg-cream backdrop-blur-sm">
+              <tr className="border-b border-brand/15">
                 <Th className="w-44">Assigné à</Th>
                 <Th>Entreprise</Th>
                 <Th>Contact</Th>
@@ -311,16 +311,16 @@ export default function AdminProspectsPanel({
                 <tr>
                   <td colSpan={10} className="px-4 py-16">
                     <div className="flex flex-col items-center gap-2 text-center">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-full border border-gnd-amber/20 bg-gnd-amber/10">
-                        <Filter className="h-5 w-5 text-gnd-amber-dim" />
+                      <div className="flex h-12 w-12 items-center justify-center rounded-full border border-brand/20 bg-brand/10">
+                        <Filter className="h-5 w-5 text-brand-dark" />
                       </div>
-                      <p className="font-display text-base text-gnd-bronze">
+                      <p className="font-display text-base text-ink-warm">
                         Aucun prospect ne matche les filtres.
                       </p>
                       {activeFilterCount > 0 && (
                         <button
                           onClick={resetFilters}
-                          className="mt-1 font-mono text-[10px] font-semibold uppercase tracking-[0.15em] text-gnd-amber-dim hover:text-gnd-amber hover:underline"
+                          className="mt-1 font-mono text-[10px] font-semibold uppercase tracking-[0.15em] text-brand-dark hover:text-brand hover:underline"
                         >
                           Réinitialiser les filtres
                         </button>
@@ -346,11 +346,11 @@ export default function AdminProspectsPanel({
 
       {/* ===== Pagination ====================== */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between rounded-2xl border border-gnd-bronze/8 bg-gnd-paper px-4 py-3 shadow-warm sm:px-6">
-          <p className="font-mono text-[11px] uppercase tracking-[0.15em] text-gnd-bronze-soft">
-            Page <span className="font-semibold text-gnd-bronze">{safePage}</span> sur{' '}
-            <span className="text-gnd-bronze">{totalPages}</span>
-            <span className="ml-2 text-gnd-bronze-faded">
+        <div className="flex items-center justify-between rounded-2xl border border-[rgba(74,36,26,0.10)] bg-cream px-4 py-3 shadow-warm sm:px-6">
+          <p className="font-mono text-[11px] uppercase tracking-[0.15em] text-[#6F5A50]">
+            Page <span className="font-semibold text-ink-warm">{safePage}</span> sur{' '}
+            <span className="text-ink-warm">{totalPages}</span>
+            <span className="ml-2 text-muted-warm">
               · {(safePage - 1) * pageSize + 1}–{Math.min(safePage * pageSize, filtered.length)} / {filtered.length}
             </span>
           </p>
@@ -358,20 +358,20 @@ export default function AdminProspectsPanel({
             <button
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={safePage === 1}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full text-gnd-bronze transition-colors hover:bg-gnd-amber/10 disabled:cursor-not-allowed disabled:opacity-30"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full text-ink-warm transition-colors hover:bg-brand/10 disabled:cursor-not-allowed disabled:opacity-30"
               aria-label="Page précédente"
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
             {pageNumbers(safePage, totalPages).map((n, idx) =>
               n === '…' ? (
-                <span key={`gap-${idx}`} className="px-2 text-xs text-gnd-bronze-faded">…</span>
+                <span key={`gap-${idx}`} className="px-2 text-xs text-muted-warm">…</span>
               ) : (
                 <button
                   key={n}
                   onClick={() => setPage(n as number)}
                   className={`inline-flex h-9 min-w-[2.25rem] items-center justify-center rounded-full px-2 text-sm font-semibold tabular-nums transition-colors ${
-                    n === safePage ? 'bg-gnd-bronze text-gnd-cream' : 'text-gnd-bronze hover:bg-gnd-amber/10'
+                    n === safePage ? 'bg-choco text-cream' : 'text-ink-warm hover:bg-brand/10'
                   }`}
                 >
                   {n}
@@ -381,7 +381,7 @@ export default function AdminProspectsPanel({
             <button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={safePage === totalPages}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full text-gnd-bronze transition-colors hover:bg-gnd-amber/10 disabled:cursor-not-allowed disabled:opacity-30"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full text-ink-warm transition-colors hover:bg-brand/10 disabled:cursor-not-allowed disabled:opacity-30"
               aria-label="Page suivante"
             >
               <ChevronRight className="h-4 w-4" />
@@ -431,7 +431,7 @@ function Th({
 }) {
   return (
     <th
-      className={`whitespace-nowrap px-3 py-3 text-left font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-gnd-amber-dim first:pl-4 last:pr-4 ${className}`}
+      className={`whitespace-nowrap px-3 py-3 text-left font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-brand-dark first:pl-4 last:pr-4 ${className}`}
     >
       {children}
     </th>
@@ -454,12 +454,12 @@ function FilterSelect({
       onChange={(e) => onChange(e.target.value)}
       className={`rounded-full border px-3 py-1.5 font-mono text-[10px] font-semibold uppercase tracking-[0.12em] backdrop-blur-sm transition focus:outline-none focus:ring-1 ${
         isActive
-          ? 'border-gnd-amber/40 bg-gnd-amber/15 text-gnd-amber-glow focus:ring-gnd-amber'
-          : 'border-gnd-amber/15 bg-gnd-ink/40 text-gnd-cream/80 hover:border-gnd-amber/30 hover:text-gnd-cream focus:ring-gnd-amber/30'
+          ? 'border-brand/40 bg-brand/15 text-brand focus:ring-brand'
+          : 'border-brand/15 bg-[#2A1510]/40 text-cream/80 hover:border-brand/30 hover:text-cream focus:ring-brand/30'
       }`}
     >
       {options.map((o) => (
-        <option key={o.value} value={o.value} className="bg-gnd-ink text-gnd-cream normal-case tracking-normal">
+        <option key={o.value} value={o.value} className="bg-[#2A1510] text-cream normal-case tracking-normal">
           {o.label}
         </option>
       ))}
@@ -486,17 +486,17 @@ function ProspectRow({
   const StatusIcon = statusIcon(p.status);
 
   return (
-    <tr className="group transition hover:bg-gnd-cream-dim/40">
+    <tr className="group transition hover:bg-cream-deep/40">
       <td className="px-3 py-3 first:pl-4">
         <div className="flex items-center gap-2">
           <UserAvatar name={assigneeLabel} />
-          <span className="truncate text-xs text-gnd-bronze">{assigneeLabel}</span>
+          <span className="truncate text-xs text-ink-warm">{assigneeLabel}</span>
         </div>
       </td>
 
       <td className="px-3 py-3 align-top">
         <div className="flex flex-col gap-1">
-          <span className="font-display text-base font-medium text-gnd-bronze line-clamp-2">
+          <span className="font-display text-base font-medium text-ink-warm line-clamp-2">
             {p.company_name}
           </span>
           {p.classification && (
@@ -512,9 +512,9 @@ function ProspectRow({
 
       <td className="px-3 py-3 align-top">
         <div className="flex flex-col">
-          <span className="text-sm text-gnd-bronze line-clamp-1">{p.contact_name ?? '—'}</span>
+          <span className="text-sm text-ink-warm line-clamp-1">{p.contact_name ?? '—'}</span>
           {p.role_contact && (
-            <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-gnd-bronze-faded">{p.role_contact}</span>
+            <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted-warm">{p.role_contact}</span>
           )}
         </div>
       </td>
@@ -524,21 +524,21 @@ function ProspectRow({
           {tel ? (
             <a
               href={`tel:${tel.replace(/\s/g, '')}`}
-              className="inline-flex items-center gap-1.5 font-mono text-xs text-gnd-amber-dim transition-colors hover:text-gnd-amber"
+              className="inline-flex items-center gap-1.5 font-mono text-xs text-brand-dark transition-colors hover:text-brand"
             >
-              <Phone className="h-3 w-3 text-gnd-amber/70" />
+              <Phone className="h-3 w-3 text-brand/70" />
               {tel}
             </a>
           ) : (
-            <span className="text-xs text-gnd-bronze-faded">—</span>
+            <span className="text-xs text-muted-warm">—</span>
           )}
           {mail ? (
             <a
               href={`mailto:${mail}`}
-              className="inline-flex max-w-[180px] items-center gap-1.5 font-mono text-xs text-gnd-bronze-soft transition-colors hover:text-gnd-amber"
+              className="inline-flex max-w-[180px] items-center gap-1.5 font-mono text-xs text-[#6F5A50] transition-colors hover:text-brand"
               title={mail}
             >
-              <Mail className="h-3 w-3 shrink-0 text-gnd-amber/70" />
+              <Mail className="h-3 w-3 shrink-0 text-brand/70" />
               <span className="truncate">{mail}</span>
             </a>
           ) : null}
@@ -546,18 +546,18 @@ function ProspectRow({
       </td>
 
       <td className="max-w-[260px] px-3 py-3 align-top">
-        <span className="line-clamp-2 text-xs text-gnd-bronze-soft" title={p.address ?? p.city ?? undefined}>
+        <span className="line-clamp-2 text-xs text-[#6F5A50]" title={p.address ?? p.city ?? undefined}>
           {p.address ?? p.city ?? '—'}
         </span>
       </td>
 
       <td className="px-3 py-3 align-top">
         {p.sector ? (
-          <span className="inline-flex items-center rounded-full border border-gnd-amber/20 bg-gnd-amber/10 px-2 py-0.5 font-mono text-[10px] font-medium uppercase tracking-[0.12em] text-gnd-amber-dim">
+          <span className="inline-flex items-center rounded-full border border-brand/20 bg-brand/10 px-2 py-0.5 font-mono text-[10px] font-medium uppercase tracking-[0.12em] text-brand-dark">
             {p.sector}
           </span>
         ) : (
-          <span className="text-xs text-gnd-bronze-faded">—</span>
+          <span className="text-xs text-muted-warm">—</span>
         )}
       </td>
 
@@ -569,7 +569,7 @@ function ProspectRow({
           <select
             value={p.status}
             onChange={(e) => onChangeStatus(p, e.target.value)}
-            className={`min-w-0 cursor-pointer rounded-md border-0 bg-transparent py-0.5 pl-1 pr-5 text-[11px] font-medium focus:outline-none focus:ring-1 focus:ring-gnd-amber/30 ${toneForStatus(p.status)}`}
+            className={`min-w-0 cursor-pointer rounded-md border-0 bg-transparent py-0.5 pl-1 pr-5 text-[11px] font-medium focus:outline-none focus:ring-1 focus:ring-brand/30 ${toneForStatus(p.status)}`}
             aria-label={`Statut de ${p.company_name}`}
           >
             {!STATUS_OPTIONS.some((o) => o.value === p.status) && (
@@ -586,19 +586,19 @@ function ProspectRow({
 
       <td className="px-3 py-3 align-top">
         {p.notion_page_id ? (
-          <span className="inline-flex items-center gap-1 rounded-full bg-gnd-amber/15 px-2 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-[0.15em] text-gnd-amber-dim ring-1 ring-gnd-amber/30">
+          <span className="inline-flex items-center gap-1 rounded-full bg-brand/15 px-2 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-[0.15em] text-brand-dark ring-1 ring-brand/30">
             <Sparkles className="h-2.5 w-2.5" />
             Notion
           </span>
         ) : (
-          <span className="inline-flex items-center gap-1 rounded-full bg-gnd-cream-dim/60 px-2 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-[0.15em] text-gnd-bronze-soft ring-1 ring-gnd-bronze/15">
+          <span className="inline-flex items-center gap-1 rounded-full bg-cream-deep/60 px-2 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-[0.15em] text-[#6F5A50] ring-1 ring-[rgba(74,36,26,0.12)]/15">
             <UserPlus className="h-2.5 w-2.5" />
             Manuel
           </span>
         )}
       </td>
 
-      <td className="whitespace-nowrap px-3 py-3 align-top font-mono text-[10px] uppercase tracking-[0.12em] text-gnd-bronze-soft">
+      <td className="whitespace-nowrap px-3 py-3 align-top font-mono text-[10px] uppercase tracking-[0.12em] text-[#6F5A50]">
         {formatRelativeDate(p.updated_at)}
       </td>
 
@@ -606,7 +606,7 @@ function ProspectRow({
         <div className="flex justify-end gap-1">
           <button
             onClick={onView}
-            className="flex h-8 w-8 items-center justify-center rounded-full border border-gnd-amber/20 bg-white text-gnd-amber-dim transition hover:border-gnd-amber/40 hover:bg-gnd-amber/10 hover:text-gnd-amber"
+            className="flex h-8 w-8 items-center justify-center rounded-full border border-brand/20 bg-white text-brand-dark transition hover:border-brand/40 hover:bg-brand/10 hover:text-brand"
             aria-label={`Voir l'analyse complète de ${p.company_name}`}
             title="Voir l'analyse complète"
           >
@@ -614,7 +614,7 @@ function ProspectRow({
           </button>
           <button
             onClick={onEdit}
-            className="flex h-8 w-8 items-center justify-center rounded-full border border-gnd-bronze/10 bg-white text-gnd-bronze-soft transition hover:border-gnd-amber/30 hover:text-gnd-bronze"
+            className="flex h-8 w-8 items-center justify-center rounded-full border border-[rgba(74,36,26,0.12)] bg-white text-[#6F5A50] transition hover:border-brand/30 hover:text-ink-warm"
             aria-label={`Modifier ${p.company_name}`}
             title="Modifier le prospect"
           >
@@ -657,20 +657,20 @@ function classificationTooltip(classification: string | null): string | null {
 function classificationToneClass(c: string): string {
   if (c.startsWith('🔥')) return 'bg-rose-50 text-rose-700 ring-rose-200';
   if (c.startsWith('🌡️')) return 'bg-amber-50 text-amber-800 ring-amber-200';
-  if (c.startsWith('❄️')) return 'bg-sky-50 text-sky-700 ring-sky-200';
+  if (c.startsWith('❄️')) return 'bg-info-bg text-info-fg ring-[rgba(49,104,156,0.25)]';
   if (c.startsWith('Lead A') || c === 'A' || c.startsWith('A (')) return 'bg-amber-50 text-amber-800 ring-amber-200';
-  if (c.startsWith('Lead B') || c === 'B' || c.startsWith('B (')) return 'bg-sky-50 text-sky-700 ring-sky-200';
-  if (c.startsWith('Lead C') || c === 'C' || c.startsWith('C (')) return 'bg-slate-100 text-slate-700 ring-slate-200';
+  if (c.startsWith('Lead B') || c === 'B' || c.startsWith('B (')) return 'bg-info-bg text-info-fg ring-[rgba(49,104,156,0.25)]';
+  if (c.startsWith('Lead C') || c === 'C' || c.startsWith('C (')) return 'bg-cream-deep text-ink-warm ring-border-soft';
   if (c.startsWith('Rejet')) return 'bg-rose-50 text-rose-700 ring-rose-200';
-  return 'bg-slate-100 text-slate-700 ring-slate-200';
+  return 'bg-cream-deep text-ink-warm ring-border-soft';
 }
 
 const AVATAR_GRADIENTS = [
-  'from-gnd-amber to-gnd-amber-dim',
-  'from-gnd-bronze to-gnd-ink',
-  'from-gnd-amber-glow to-gnd-amber',
-  'from-gnd-bronze-soft to-gnd-bronze',
-  'from-gnd-clay to-gnd-amber-dim',
+  'from-brand to-brand-dark',
+  'from-choco to-[#2A1510]',
+  'from-brand to-brand',
+  'from-[#7D3E2C] to-choco',
+  'from-gnd-clay to-brand-dark',
 ];
 
 function colorFromName(name: string): string {
@@ -695,7 +695,7 @@ function initials(name: string): string {
 function UserAvatar({ name }: { name: string }) {
   return (
     <div
-      className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br font-mono text-[10px] font-bold text-gnd-cream shadow-warm ring-2 ring-gnd-paper ${colorFromName(name)}`}
+      className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br font-mono text-[10px] font-bold text-cream shadow-warm ring-2 ring-cream ${colorFromName(name)}`}
       aria-hidden
     >
       {initials(name)}
