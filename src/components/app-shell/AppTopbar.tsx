@@ -53,13 +53,13 @@ export default function AppTopbar({
     user.role === 'admin' ? 'Administrateur' : 'Commercial';
 
   return (
-    <header className="flex h-16 shrink-0 items-center gap-3 border-b border-border-soft/60 bg-surface-soft px-4 md:px-7">
+    <header className="surface-glass flex h-[68px] shrink-0 items-center gap-3 border-b border-[rgba(74,36,26,0.10)] px-4 md:px-7">
       {/* Burger (mobile) */}
       <button
         type="button"
         onClick={onOpenMenu}
         aria-label="Ouvrir le menu"
-        className="flex h-10 w-10 items-center justify-center rounded-xl text-ink-warm transition-colors hover:bg-cream-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring lg:hidden"
+        className="flex h-10 w-10 items-center justify-center rounded-2xl text-ink-warm transition-all hover:bg-cream-deep hover:text-choco focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring lg:hidden"
       >
         <Menu className="h-5 w-5" aria-hidden />
       </button>
@@ -79,9 +79,9 @@ export default function AppTopbar({
           onClick={() => setMenuOpen((v) => !v)}
           aria-haspopup="menu"
           aria-expanded={menuOpen}
-          className="flex h-10 items-center gap-2 rounded-full border border-border-soft/70 bg-surface-soft pl-1 pr-2.5 transition-all hover:border-brand/30 hover:shadow-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring"
+          className="flex h-11 items-center gap-2 rounded-full border border-[rgba(74,36,26,0.10)] bg-cream/60 pl-1 pr-2.5 transition-all hover:border-brand/40 hover:bg-white hover:shadow-soft-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring"
         >
-          <span className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-choco text-[10px] font-semibold text-cream">
+          <span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-choco text-[10px] font-semibold text-cream ring-1 ring-[rgba(74,36,26,0.10)]">
             {user.avatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -94,10 +94,10 @@ export default function AppTopbar({
             )}
           </span>
           <span className="hidden text-left sm:block">
-            <span className="block max-w-[140px] truncate text-xs font-semibold leading-tight text-ink-warm">
+            <span className="block max-w-[140px] truncate text-xs font-semibold leading-tight text-choco">
               {user.name ?? user.email ?? 'Utilisateur'}
             </span>
-            <span className="block text-[10px] leading-tight text-muted-warm">
+            <span className="block text-[10px] font-medium uppercase tracking-[0.12em] leading-tight text-brand-burnt">
               {roleLabel}
             </span>
           </span>
@@ -124,21 +124,22 @@ export default function AppTopbar({
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -8, scale: 0.98 }}
                 transition={{ duration: 0.16, ease: 'easeOut' }}
-                className="absolute right-0 z-50 mt-2 w-64 overflow-hidden rounded-2xl border border-border-soft/70 bg-surface-soft shadow-soft-lg"
+                className="surface-ceramic absolute right-0 z-50 mt-2.5 w-64 overflow-hidden rounded-2xl border border-[rgba(74,36,26,0.10)] shadow-soft-lg"
               >
-                <div className="border-b border-border-soft/60 bg-gradient-cream px-4 py-3.5">
+                <div className="border-b border-[rgba(74,36,26,0.10)] bg-gradient-cream px-4 py-3.5">
+                  <p className="label-eyebrow mb-1.5">Mon compte</p>
                   {user.name && (
                     <p className="truncate font-marcellus text-base text-choco">
                       {user.name}
                     </p>
                   )}
                   {user.email && (
-                    <p className="truncate text-xs text-muted-warm">
+                    <p className="truncate text-xs text-[#6F5A50]">
                       {user.email}
                     </p>
                   )}
                   {isAdmin && (
-                    <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-brand-soft px-2 py-0.5 text-[10px] font-semibold text-choco">
+                    <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-brand-soft px-2.5 py-0.5 text-[10px] font-semibold text-choco">
                       Administrateur
                     </span>
                   )}
@@ -147,7 +148,7 @@ export default function AppTopbar({
                   type="button"
                   role="menuitem"
                   onClick={handleLogout}
-                  className="flex w-full items-center gap-2.5 px-4 py-3 text-sm text-muted-warm transition-colors hover:bg-cream hover:text-ink-warm focus-visible:outline-none focus-visible:bg-cream"
+                  className="flex w-full items-center gap-2.5 px-4 py-3 text-sm font-medium text-[#6F5A50] transition-colors hover:bg-cream hover:text-choco focus-visible:outline-none focus-visible:bg-cream"
                 >
                   <LogOut className="h-3.5 w-3.5" aria-hidden />
                   Se deconnecter
