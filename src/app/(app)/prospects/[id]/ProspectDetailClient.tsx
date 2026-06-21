@@ -54,8 +54,9 @@ import QuotesPanel from './QuotesPanel';
 import { recordCommission } from './finance-actions';
 import RecallDatePicker from '@/components/gnd/RecallDatePicker';
 import ProspectIntelPanel from './ProspectIntelPanel';
+import PitchAppelCard from './PitchAppelCard';
 import GenerateMockupButton from './GenerateMockupButton';
-import type { EnrichmentPayload } from '@/lib/prospect-intel';
+import type { EnrichmentPayload, CallPitch } from '@/lib/prospect-intel';
 import type { MockupRow } from '@/lib/site-mockup';
 import type { SiteBriefRow } from '@/lib/site-brief';
 
@@ -170,6 +171,7 @@ type ProspectDetailClientProps = {
   // gauche. Présentation uniquement : aucune logique de fetch ici.
   intel?: EnrichmentPayload | null;
   intelCreatedAt?: string | null;
+  callPitch?: CallPitch | null;
   mockup?: MockupRow | null;
   brief?: SiteBriefRow | null;
   mockupProspectId?: string;
@@ -185,6 +187,7 @@ export default function ProspectDetailClient({
   canViewFinance,
   intel,
   intelCreatedAt,
+  callPitch,
   mockup,
   brief,
   mockupProspectId,
@@ -640,6 +643,8 @@ export default function ProspectDetailClient({
               />
             </div>
           ) : null}
+
+          <PitchAppelCard pitch={callPitch ?? null} />
 
           {/* Maquette Studio — rangée compacte une ligne */}
           {mockupProspectId ? (
@@ -1989,4 +1994,3 @@ function Field({
     </label>
   );
 }
-
