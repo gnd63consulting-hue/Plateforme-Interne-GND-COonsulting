@@ -13,20 +13,6 @@ import {
 
 export const dynamic = 'force-dynamic';
 
-// Design System crème/orange — texte FONCÉ sur fond clair (contraste AA).
-const INK = '#2A2320';
-const SOFT = '#7B665C';
-const FAINT = '#9A8A80';
-const AMBER = '#B5601C';
-const RED = '#A04A4A';
-const GREEN = '#4F7A38';
-const CHOCO = '#532418';
-const CARD = '#FFFFFF';
-const BORDER = '1px solid #E2D5C3';
-const SERIF = 'var(--font-marcellus), Georgia, serif';
-const MONO = 'var(--font-inter), ui-monospace, monospace';
-const SANS = 'var(--font-inter), system-ui, sans-serif';
-
 
 /**
  * /admin/suivi-equipe (Sprint 20) — couche MANAGER.
@@ -97,36 +83,67 @@ export default async function SuiviEquipePage() {
   );
 
   return (
-    <div style={{ maxWidth: 1040, margin: '0 auto', padding: '40px 28px 64px', color: INK }}>
-      <header style={{ marginBottom: 28 }}>
-        <div style={{ fontFamily: MONO, fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.22em', color: AMBER, marginBottom: 10 }}>
-          ADMIN · PILOTAGE
-        </div>
-        <h1 style={{ fontFamily: SERIF, fontSize: 32, fontWeight: 500, letterSpacing: '-0.01em', color: CHOCO, margin: 0, lineHeight: 1.1 }}>
+    <div className="mx-auto max-w-5xl px-7 pb-16 pt-10">
+      <header className="relative mb-9 overflow-hidden">
+        <span
+          aria-hidden
+          className="watermark pointer-events-none absolute -right-2 -top-10 select-none font-marcellus text-[120px] leading-none text-choco/[0.04]"
+        >
+          Équipe
+        </span>
+        <span className="label-eyebrow">Admin · Pilotage</span>
+        <h1 className="mt-3 font-marcellus text-[34px] leading-[1.1] tracking-tight text-choco">
           Suivi équipe
         </h1>
-        <p style={{ fontSize: 14, lineHeight: 1.55, color: SOFT, marginTop: 12, maxWidth: 640 }}>
-          Qui a des relances ou des tâches en retard — pour ne laisser personne sans suivi.
-          Relances <em>et</em> tâches confondues, triées par criticité. Lecture seule, temps réel.
+        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[#6F5A50]">
+          Qui a des relances ou des tâches en retard, pour ne laisser personne
+          sans suivi. Relances <em>et</em> tâches confondues, triées par
+          criticité. Lecture seule, temps réel.
         </p>
       </header>
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginBottom: 32 }}>
-        <Stat label="Actions en retard" value={totalOverdue} color={RED} />
-        <Stat label="Commerciaux en retard" value={flagged.length} color={AMBER} />
-        <Stat label="Dues aujourd'hui" value={totalToday} color={GREEN} />
-        <Stat label="Commerciaux suivis" value={summaries.length} color={INK} />
+      <div className="mb-9 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <Stat label="Actions en retard" value={totalOverdue} tone="danger" />
+        <Stat label="Commerciaux en retard" value={flagged.length} tone="warn" />
+        <Stat label="Dues aujourd'hui" value={totalToday} tone="ok" />
+        <Stat label="Commerciaux suivis" value={summaries.length} tone="ink" />
       </div>
 
       {summaries.length === 0 ? (
-        <p style={{ fontSize: 14, color: SOFT }}>Aucun commercial à suivre pour l&apos;instant.</p>
+        <div className="surface-ceramic flex flex-col items-center rounded-3xl p-12 text-center">
+          <span
+            aria-hidden
+            className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-pale text-brand-dark"
+          >
+            <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6" stroke="currentColor" strokeWidth={1.6}>
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" strokeLinecap="round" strokeLinejoin="round" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </span>
+          <p className="font-marcellus text-xl text-choco">
+            Aucun commercial à suivre pour l&apos;instant.
+          </p>
+          <p className="mt-2 max-w-sm text-sm text-muted-warm">
+            Dès qu&apos;une équipe commerciale sera active, son suivi apparaîtra
+            ici en temps réel.
+          </p>
+        </div>
       ) : (
-        <div style={{ background: CARD, border: BORDER, borderRadius: 16, overflow: 'hidden' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+        <div className="surface-ceramic overflow-hidden rounded-3xl">
+          <table className="w-full border-collapse text-[13px]">
             <thead>
               <tr>
                 {['Commercial', 'Relances retard', 'Tâches retard', "Aujourd'hui", 'Plus vieux retard'].map((h, i) => (
-                  <th key={h} style={{ textAlign: i === 0 ? 'left' : 'center', padding: '11px 16px', fontFamily: MONO, fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.14em', color: FAINT, borderBottom: '1px solid #E2D5C3' }}>{h}</th>
+                  <th
+                    key={h}
+                    className={`px-4 py-3.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-burnt ${
+                      i === 0 ? 'text-left' : 'text-center'
+                    }`}
+                    style={{ borderBottom: '1px solid rgba(74,36,26,0.10)' }}
+                  >
+                    {h}
+                  </th>
                 ))}
               </tr>
             </thead>
@@ -142,18 +159,40 @@ export default async function SuiviEquipePage() {
   );
 }
 
-function Stat({ label, value, color }: { label: string; value: number; color: string }) {
+function Stat({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: number;
+  tone: 'danger' | 'warn' | 'ok' | 'ink';
+}) {
+  const valueClass =
+    tone === 'danger'
+      ? 'text-danger-fg'
+      : tone === 'warn'
+        ? 'text-brand-dark'
+        : tone === 'ok'
+          ? 'text-ok-fg'
+          : 'text-choco';
   return (
-    <div style={{ flex: 1, minWidth: 150, background: CARD, border: BORDER, borderRadius: 16, padding: '16px 18px' }}>
-      <div style={{ fontFamily: MONO, fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.16em', color: FAINT, marginBottom: 8 }}>{label}</div>
-      <div style={{ fontFamily: SERIF, fontSize: 30, fontWeight: 500, color, lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>{value}</div>
+    <div className="surface-ceramic rounded-3xl p-6">
+      <p className="label-eyebrow">{label}</p>
+      <p className={`mt-2 font-marcellus text-3xl tabular-nums leading-none ${valueClass}`}>
+        {value}
+      </p>
     </div>
   );
 }
 
 function Cell({ n, danger }: { n: number; danger?: boolean }) {
   return (
-    <td style={{ padding: '12px 16px', textAlign: 'center', fontFamily: MONO, fontSize: 14, fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: n === 0 ? FAINT : danger ? RED : INK }}>
+    <td
+      className={`px-4 py-3 text-center text-sm font-bold tabular-nums ${
+        n === 0 ? 'text-muted-warm' : danger ? 'text-danger-fg' : 'text-ink-warm'
+      }`}
+    >
       {n}
     </td>
   );
@@ -164,19 +203,37 @@ function Row({ s, now }: { s: RepSummary; now: Date }) {
   const ageLabel = age == null ? '—' : age === 0 ? "auj." : `${age} j`;
   const clean = s.overdueTotal === 0;
   return (
-    <tr style={{ borderBottom: '1px solid rgba(83,36,24,0.07)' }}>
-      <td style={{ padding: '12px 16px', fontFamily: SANS, color: INK, fontWeight: 600 }}>
-        <Link href={`/admin/commercial/${s.userId}`} style={{ color: CHOCO, textDecoration: 'none', borderBottom: '1px solid rgba(83,36,24,0.25)' }}>
+    <tr
+      className="transition-colors hover:bg-cream-deep/40"
+      style={{ borderBottom: '1px solid rgba(83,36,24,0.07)' }}
+    >
+      <td className="px-4 py-3 font-semibold text-ink-warm">
+        <Link
+          href={`/admin/commercial/${s.userId}`}
+          className="text-choco underline decoration-[rgba(83,36,24,0.25)] underline-offset-2 transition-colors hover:decoration-brand"
+        >
           {s.name}
         </Link>
-        {clean && <span style={{ marginLeft: 8, fontFamily: MONO, fontSize: 10, color: GREEN }}>à jour</span>}
+        {clean && (
+          <span className="ml-2 inline-flex items-center rounded-full bg-ok-bg px-2 py-0.5 text-[10px] font-semibold text-ok-fg">
+            à jour
+          </span>
+        )}
       </td>
       <Cell n={s.relancesOverdue} danger />
       <Cell n={s.tasksOverdue} danger />
-      <td style={{ padding: '12px 16px', textAlign: 'center', fontFamily: MONO, fontSize: 13, color: s.relancesToday + s.tasksToday > 0 ? AMBER : FAINT }}>
+      <td
+        className={`px-4 py-3 text-center text-[13px] tabular-nums ${
+          s.relancesToday + s.tasksToday > 0 ? 'text-brand-dark' : 'text-muted-warm'
+        }`}
+      >
         {s.relancesToday + s.tasksToday}
       </td>
-      <td style={{ padding: '12px 16px', textAlign: 'center', fontFamily: MONO, fontSize: 12, fontWeight: 600, color: age && age > 0 ? RED : FAINT }}>
+      <td
+        className={`px-4 py-3 text-center text-xs font-semibold tabular-nums ${
+          age && age > 0 ? 'text-danger-fg' : 'text-muted-warm'
+        }`}
+      >
         {ageLabel}
       </td>
     </tr>
