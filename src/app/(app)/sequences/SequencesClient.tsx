@@ -67,35 +67,39 @@ export default function SequencesClient({
 
   return (
     <div className="mx-auto max-w-5xl pb-16">
-      {/* En-tête — nouveau langage DS (SectionHeader) */}
-      <SectionHeader
-        as="h1"
-        eyebrow="CRM · Relances"
-        title={
-          <>
+      {/* En-tête éditorial v5 */}
+      <header className="mb-6 flex flex-wrap items-end justify-between gap-4">
+        <div className="min-w-0">
+          <span className="inline-flex items-center gap-2">
+            <span className="h-px w-4 bg-gradient-to-r from-brand to-transparent" />
+            <span className="font-grotesk text-[11px] font-semibold uppercase tracking-[0.13em] text-brand-burnt">
+              CRM · Relances
+            </span>
+          </span>
+          <h1 className="mt-1.5 font-marcellus text-3xl text-choco">
             Séquences de <span className="italic text-brand-dark">relance</span>
-          </>
-        }
-        subtitle="Des cadences multi-étapes qui génèrent automatiquement les tâches de relance au bon moment. Inscris un prospect depuis sa fiche."
-        className="mb-8"
-        action={
-          canEdit ? (
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={() => setCreating((v) => !v)}
-            >
-              <Plus className="h-4 w-4" aria-hidden />
-              Nouvelle séquence
-            </Button>
-          ) : undefined
-        }
-      />
+          </h1>
+          <p className="mt-1.5 max-w-xl text-sm text-[#6F5A50]">
+            Des cadences multi-étapes qui génèrent automatiquement les tâches de
+            relance au bon moment. Inscris un prospect depuis sa fiche.
+          </p>
+        </div>
+        {canEdit ? (
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={() => setCreating((v) => !v)}
+          >
+            <Plus className="h-4 w-4" aria-hidden />
+            Nouvelle séquence
+          </Button>
+        ) : undefined}
+      </header>
 
       {error && (
         <div
           role="alert"
-          className="mb-6 rounded-2xl border border-danger-fg/20 bg-danger-bg p-3.5 text-sm font-medium text-danger-fg shadow-soft"
+          className="mb-5 rounded-2xl border border-danger-fg/20 bg-danger-bg p-3.5 text-sm font-medium text-danger-fg shadow-soft"
         >
           {error}
         </div>
@@ -116,21 +120,23 @@ export default function SequencesClient({
 
       {/* Liste */}
       {initialSequences.length === 0 ? (
-        <div className="surface-ceramic flex flex-col items-center rounded-3xl p-12 text-center">
-          <span className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-pale text-brand-dark shadow-soft">
-            <Clock className="h-6 w-6" aria-hidden />
+        <div className="panel flex items-center gap-4 p-4">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-brand-pale text-brand-burnt">
+            <Clock className="h-5 w-5" aria-hidden />
           </span>
-          <p className="font-marcellus text-xl text-choco">
-            Aucune séquence pour l&apos;instant.
-          </p>
-          <p className="mt-2 max-w-sm text-sm text-[#6F5A50]">
-            {canEdit
-              ? 'Crée ta première cadence de relance ci-dessus.'
-              : 'Un administrateur doit en créer une.'}
-          </p>
+          <div className="min-w-0">
+            <p className="font-marcellus text-base text-choco">
+              Aucune séquence pour l&apos;instant.
+            </p>
+            <p className="mt-0.5 text-sm text-[#6F5A50]">
+              {canEdit
+                ? 'Crée ta première cadence de relance ci-dessus.'
+                : 'Un administrateur doit en créer une.'}
+            </p>
+          </div>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {initialSequences.map((seq) => (
             <SequenceCard
               key={seq.id}
@@ -163,11 +169,14 @@ function CreateSequenceForm({
   const [description, setDescription] = useState('');
 
   return (
-    <div className="surface-ceramic mb-6 rounded-3xl p-6">
-      <h2 className="label-eyebrow mb-4">
-        Nouvelle séquence
-      </h2>
-      <div className="space-y-4">
+    <div className="panel-accent mb-5 p-4">
+      <span className="mb-3 inline-flex items-center gap-2">
+        <span className="h-px w-4 bg-gradient-to-r from-brand to-transparent" />
+        <span className="font-grotesk text-[11px] font-semibold uppercase tracking-[0.13em] text-brand-burnt">
+          Nouvelle séquence
+        </span>
+      </span>
+      <div className="space-y-3">
         <label className="block">
           <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-burnt">
             Nom
@@ -238,9 +247,9 @@ function SequenceCard({
   const [open, setOpen] = useState(false);
 
   return (
-    <section className="surface-ceramic card-hover overflow-hidden rounded-3xl">
+    <section className="panel card-hover overflow-hidden">
       {/* Bandeau */}
-      <div className="flex flex-wrap items-center justify-between gap-3 p-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 p-4">
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
@@ -269,10 +278,20 @@ function SequenceCard({
                 </span>
               )}
             </div>
-            <p className="mt-1 flex items-center gap-1.5 text-xs text-[#6F5A50]">
-              <Clock className="h-3 w-3 text-brand-dark" aria-hidden />
-              {cadenceSummary(sequence.steps)}
-            </p>
+            <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#6F5A50]">
+              <span className="inline-flex items-center gap-1.5">
+                <Clock className="h-3 w-3 text-brand-dark" aria-hidden />
+                {cadenceSummary(sequence.steps)}
+              </span>
+              <span className="inline-flex items-center gap-1 border-l border-[rgba(74,36,26,0.10)] pl-3">
+                <span className="font-num tabular-nums font-semibold text-ink-warm">
+                  {sequence.steps.length}
+                </span>
+                <span className="font-grotesk text-[10px] uppercase tracking-[0.1em] text-muted-warm">
+                  {sequence.steps.length > 1 ? 'étapes' : 'étape'}
+                </span>
+              </span>
+            </div>
             {sequence.description && (
               <p className="mt-1 truncate text-xs text-muted-warm">
                 {sequence.description}
@@ -365,7 +384,7 @@ function StepsEditor({
   }
 
   return (
-    <div className="space-y-3 bg-cream/50 p-6">
+    <div className="space-y-3 bg-cream/50 p-4">
       {steps.length === 0 && !adding && (
         <p className="text-xs italic text-muted-warm">
           Aucune étape. {canEdit ? 'Ajoute la première touche ci-dessous.' : ''}
@@ -466,10 +485,13 @@ function StepRow({
       </span>
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
+          <span className="font-num tabular-nums text-[10px] font-semibold text-muted-warm">
+            {String(index + 1).padStart(2, '0')}
+          </span>
           <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-burnt">
             {kindLabel(step.kind)}
           </span>
-          <span className="rounded-full bg-brand-soft px-2.5 py-0.5 font-inter text-[10px] font-semibold text-brand-burnt">
+          <span className="inline-flex items-center rounded-full bg-brand-soft px-2.5 py-0.5 font-num tabular-nums text-[10px] font-semibold text-brand-burnt">
             {step.delay_days === 0
               ? 'immédiat'
               : `+${step.delay_days} j`}
