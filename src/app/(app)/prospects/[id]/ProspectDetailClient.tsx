@@ -38,7 +38,6 @@ import {
   formatDate,
   labelForStatus,
   STATUS_OPTIONS,
-  toneForStatus,
   type Prospect,
 } from '@/lib/prospects';
 import {
@@ -480,72 +479,51 @@ export default function ProspectDetailClient({
       {/* ================================================================= */}
       <motion.header
         {...motionProps}
-        className="surface-ceramic relative mb-8 overflow-hidden rounded-3xl p-6 shadow-ceramic sm:p-8"
+        className="surface-chocolate relative mb-8 overflow-hidden rounded-[22px] p-6 sm:p-7"
       >
         <span
           aria-hidden
-          className="watermark pointer-events-none absolute -right-2 -top-6 select-none font-marcellus text-[120px] leading-none"
+          className="pointer-events-none absolute right-5 top-1 select-none font-marcellus text-[104px] leading-none text-cream/[0.08]"
         >
           {prospect.company_name?.charAt(0) ?? '·'}
         </span>
-        <div className="relative flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-          <div className="flex min-w-0 items-start gap-4">
-            <Avatar text={prospect.company_name} />
+        <div className="relative z-10 flex flex-wrap items-start justify-between gap-5">
+          <div className="flex min-w-0 items-center gap-4">
+            <span
+              aria-hidden
+              className="flex h-[60px] w-[60px] shrink-0 items-center justify-center rounded-2xl bg-brand font-marcellus text-2xl text-[#3A2017]"
+            >
+              {prospect.company_name
+                .split(/\s+/)
+                .filter(Boolean)
+                .slice(0, 2)
+                .map((w) => w[0]?.toUpperCase() ?? '')
+                .join('') || '?'}
+            </span>
             <div className="min-w-0">
-              <div className="label-eyebrow mb-2 flex flex-wrap items-center gap-2">
-                <span>Fiche prospect</span>
+              <div className="mb-1.5 flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 font-grotesk text-[11px] uppercase tracking-[0.14em] text-[#E7A86F]">
+                  <span aria-hidden className="h-px w-4 bg-gradient-to-r from-brand to-transparent" />
+                  Fiche prospect
+                </span>
                 {isHot && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-danger-bg px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-danger-fg">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-brand/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#F2C29B]">
                     <Flame className="h-3 w-3" aria-hidden />
                     Chaud
                   </span>
                 )}
               </div>
-              <h1 className="font-marcellus text-display-md font-medium leading-[1] tracking-tight text-choco">
+              <h1 className="font-marcellus text-[2rem] font-medium leading-[1.05] text-cream sm:text-4xl">
                 {prospect.company_name}
               </h1>
               {(prospect.contact_name || prospect.role_contact) && (
-                <p className="mt-2 text-base text-[#6F5A50]">
+                <p className="mt-1.5 text-sm text-cream/60">
                   {prospect.contact_name ?? prospect.prenom_contact ?? '—'}
                   {prospect.role_contact && (
-                    <span className="text-muted-warm">
-                      {' '}
-                      · {prospect.role_contact}
-                    </span>
+                    <span> · {prospect.role_contact}</span>
                   )}
                 </p>
               )}
-              <div className="mt-3.5 flex flex-wrap items-center gap-2">
-                <span
-                  className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${toneForStatus(status)}`}
-                >
-                  {labelForStatus(status)}
-                </span>
-                {prospect.classification && (
-                  <span className="inline-flex items-center gap-1 rounded-full border border-[rgba(74,36,26,0.10)] bg-cream/60 px-2.5 py-1 text-xs font-medium text-ink-warm">
-                    <Target className="h-3 w-3 text-brand-burnt" aria-hidden />
-                    {prospect.classification}
-                  </span>
-                )}
-                {prospect.city && (
-                  <span className="inline-flex items-center gap-1 rounded-full border border-[rgba(74,36,26,0.10)] bg-cream/60 px-2.5 py-1 text-xs font-medium text-ink-warm">
-                    <MapPin className="h-3 w-3 text-brand-burnt" aria-hidden />
-                    {prospect.city}
-                  </span>
-                )}
-                {canViewFinance && dealAmount != null && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-ok-bg px-2.5 py-1 text-xs font-semibold text-ok-fg">
-                    <Banknote className="h-3 w-3" aria-hidden />
-                    Signé {formatEurExact(Number(dealAmount))} HT
-                  </span>
-                )}
-                {prospect.notion_page_id && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-brand-pale px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-brand-burnt">
-                    <Sparkles className="h-3 w-3" aria-hidden />
-                    Notion
-                  </span>
-                )}
-              </div>
             </div>
           </div>
 
@@ -554,7 +532,7 @@ export default function ProspectDetailClient({
             {telHref && (
               <a
                 href={telHref}
-                className="orange-glow inline-flex items-center gap-1.5 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-[#2A1810] transition hover:bg-brand-dark"
+                className="inline-flex items-center gap-1.5 rounded-full bg-brand px-4 py-2.5 text-sm font-medium text-[#3A2017] transition hover:bg-brand-dark"
               >
                 <Phone className="h-4 w-4" aria-hidden />
                 Appeler
@@ -563,13 +541,60 @@ export default function ProspectDetailClient({
             {mailHref && (
               <a
                 href={mailHref}
-                className="inline-flex items-center gap-1.5 rounded-full border border-border-soft bg-white px-5 py-2.5 text-sm font-semibold text-choco transition hover:bg-cream-deep"
+                className="inline-flex items-center gap-1.5 rounded-full border border-cream/25 px-4 py-2.5 text-sm text-cream transition hover:bg-cream/10"
               >
                 <Mail className="h-4 w-4" aria-hidden />
                 Email
               </a>
             )}
           </div>
+        </div>
+
+        {/* Rangée badges — clair sur chocolat */}
+        <div className="relative z-10 mt-4 flex flex-wrap items-center gap-2">
+          <span className="inline-flex items-center rounded-full bg-brand/15 px-3 py-1 text-xs font-semibold text-[#F2C29B]">
+            {labelForStatus(status)}
+          </span>
+          {prospect.note_google != null && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-cream/10 px-3 py-1 text-xs text-cream/80">
+              <Star className="h-3 w-3 text-brand" aria-hidden />
+              <span className="font-num tabular-nums">{prospect.note_google}</span>
+            </span>
+          )}
+          {prospect.classification && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-cream/10 px-3 py-1 text-xs text-cream/80">
+              <Target className="h-3 w-3 text-brand" aria-hidden />
+              {prospect.classification}
+            </span>
+          )}
+          {prospect.sector && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-cream/10 px-3 py-1 text-xs text-cream/80">
+              <Building2 className="h-3 w-3 text-brand" aria-hidden />
+              {prospect.sector}
+            </span>
+          )}
+          {prospect.city && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-cream/10 px-3 py-1 text-xs text-cream/80">
+              <MapPin className="h-3 w-3 text-brand" aria-hidden />
+              {prospect.city}
+            </span>
+          )}
+          {canViewFinance && dealAmount != null && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-brand/15 px-3 py-1 text-xs font-semibold text-[#F2C29B]">
+              <Banknote className="h-3 w-3" aria-hidden />
+              Signé{' '}
+              <span className="font-num tabular-nums">
+                {formatEurExact(Number(dealAmount))}
+              </span>{' '}
+              HT
+            </span>
+          )}
+          {prospect.notion_page_id && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-cream/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-cream/80">
+              <Sparkles className="h-3 w-3 text-brand" aria-hidden />
+              Notion
+            </span>
+          )}
         </div>
       </motion.header>
 
@@ -583,11 +608,11 @@ export default function ProspectDetailClient({
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_minmax(20rem,24rem)]">
+      <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-[1.55fr_1fr]">
         {/* =============================================================== */}
         {/* COLONNE GAUCHE : infos + analyse + devis + timeline             */}
         {/* =============================================================== */}
-        <div className="space-y-6">
+        <div className="flex flex-col gap-4">
           {/* B. BLOC INFOS */}
           <section className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <ContactCard
@@ -609,8 +634,9 @@ export default function ProspectDetailClient({
           <QuotesPanel prospectId={prospect.id} initialQuotes={initialQuotes} />
 
           {/* E. TIMELINE */}
-          <section className="surface-ceramic rounded-3xl p-6">
-            <div className="label-eyebrow mb-5">
+          <section className="rounded-[14px] border border-[rgba(74,36,26,0.12)] bg-white p-5">
+            <div className="mb-5 flex items-center gap-2 font-grotesk text-[11px] uppercase tracking-[0.12em] text-brand-burnt">
+              <span aria-hidden className="h-px w-4 bg-gradient-to-r from-brand to-transparent" />
               Historique d&apos;activité
             </div>
             {activities.length === 0 ? (
@@ -647,7 +673,39 @@ export default function ProspectDetailClient({
         {/* =============================================================== */}
         {/* COLONNE DROITE : PANNEAU ACTIONS RAPIDES (sticky)               */}
         {/* =============================================================== */}
-        <aside className="lg:sticky lg:top-6 lg:self-start space-y-4">
+        <aside className="self-start lg:sticky lg:top-4 space-y-4">
+          {prospect.note_google != null && (
+            <section className="rounded-[14px] border border-[rgba(74,36,26,0.12)] bg-white p-5">
+              <div className="flex items-center justify-between">
+                <span className="inline-flex items-center gap-1.5 font-grotesk text-xs text-muted-warm">
+                  <Star className="h-3.5 w-3.5 text-brand" aria-hidden />
+                  Note Google
+                </span>
+                {isHot && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-[#FBF1E8] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-brand-burnt">
+                    <Flame className="h-3 w-3" aria-hidden />
+                    Prioritaire
+                  </span>
+                )}
+              </div>
+              <p className="mt-1 font-num text-5xl font-medium tabular-nums text-[#3A2017]">
+                {prospect.note_google}
+                {prospect.nombre_avis != null && (
+                  <span className="ml-2 align-middle text-sm text-muted-warm">
+                    · <span className="font-num tabular-nums">{prospect.nombre_avis}</span> avis
+                  </span>
+                )}
+              </p>
+              <div className="mt-3 h-1.5 rounded-full bg-cream-edge">
+                <div
+                  className="h-1.5 rounded-full bg-brand"
+                  style={{
+                    width: `${Math.max(0, Math.min(100, (Number(prospect.note_google) / 5) * 100))}%`,
+                  }}
+                />
+              </div>
+            </section>
+          )}
           <SequenceEnrollPanel
             prospectId={prospect.id}
             prospectOwnerId={prospect.assigned_to ?? prospect.created_by}
@@ -758,7 +816,7 @@ function WinDealModal({
             inputMode="decimal"
             autoFocus
             placeholder="Ex. 8500"
-            className="w-full rounded-2xl border border-border-soft bg-cream/60 px-3.5 py-2.5 text-lg font-semibold tabular-nums text-choco focus:border-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring"
+            className="w-full rounded-2xl border border-border-soft bg-cream/60 px-3.5 py-2.5 font-num text-lg font-semibold tabular-nums text-choco focus:border-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring"
           />
         </label>
 
@@ -832,15 +890,15 @@ function ActionsPanel({
       />
 
       {/* Panneau actions */}
-      <section className="surface-ceramic rounded-3xl p-5 shadow-ceramic">
+      <section className="rounded-[14px] border border-[rgba(74,36,26,0.12)] bg-white p-5">
         <div className="mb-4 flex items-center gap-2">
-          <span className="flex h-2 w-2 animate-pulse rounded-full bg-brand" />
-          <span className="font-inter text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-burnt">
+          <span aria-hidden className="h-px w-4 bg-gradient-to-r from-brand to-transparent" />
+          <span className="font-grotesk text-[11px] uppercase tracking-[0.12em] text-brand-burnt">
             Actions rapides
           </span>
         </div>
 
-        {/* Boutons 1-clic */}
+        {/* Boutons 1-clic — pills ghost */}
         <div className="grid grid-cols-2 gap-2">
           {QUICK_ACTIONS.map((qa) => (
             <button
@@ -848,10 +906,10 @@ function ActionsPanel({
               type="button"
               onClick={() => onToggleQuick(qa.kind)}
               aria-expanded={openQuick === qa.kind}
-              className={`inline-flex items-center justify-center gap-1.5 rounded-2xl border px-3 py-2.5 text-sm font-semibold transition ${
+              className={`inline-flex items-center justify-center gap-1.5 rounded-full border px-3 py-2.5 text-sm font-medium transition ${
                 openQuick === qa.kind
-                  ? 'border-brand bg-brand-soft text-brand-burnt'
-                  : 'border-border-soft bg-white text-choco hover:border-brand/40 hover:bg-cream-deep'
+                  ? 'border-brand bg-[#FBF1E8] text-brand-burnt'
+                  : 'border-[rgba(74,36,26,0.18)] bg-white text-choco hover:border-brand/40 hover:bg-[#FBF1E8]'
               }`}
             >
               <span aria-hidden>{iconForActivityKind(qa.kind)}</span>
@@ -979,18 +1037,19 @@ function NextActionBanner({
 
   return (
     <section
-      className="surface-ceramic rounded-3xl p-5"
+      className="rounded-[14px] border border-[rgba(74,36,26,0.12)] bg-white p-5"
       aria-label="Prochaine relance"
     >
       <div className="flex items-center gap-3">
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-brand-pale text-brand-burnt">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-[#FBF1E8] text-brand-burnt">
           <CalendarClock className="h-5 w-5" aria-hidden />
         </span>
         <div>
-          <p className="font-inter text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-burnt">
+          <p className="flex items-center gap-1.5 font-grotesk text-[11px] uppercase tracking-[0.12em] text-brand-burnt">
+            <span aria-hidden className="h-px w-4 bg-gradient-to-r from-brand to-transparent" />
             Prochaine relance
           </p>
-          <p className="mt-0.5 font-marcellus text-base font-medium text-choco">
+          <p className="mt-0.5 font-num text-base font-medium tabular-nums text-choco">
             {relanceIso ? formatRelance(relanceIso) : 'Aucune'}
           </p>
         </div>
@@ -1347,6 +1406,7 @@ function ContactCard({
             label="Téléphone"
             value={prospect.phone}
             href={telHref}
+            numeric
           />
           <KVLine
             icon={<Mail className="h-3.5 w-3.5" />}
@@ -1493,8 +1553,9 @@ function QualificationCard({ prospect }: { prospect: Prospect }) {
 
 function AnalysisSection({ prospect }: { prospect: Prospect }) {
   return (
-    <section className="surface-ceramic rounded-3xl p-6">
-      <div className="label-eyebrow mb-5">
+    <section className="rounded-[14px] border border-[rgba(74,36,26,0.12)] bg-white p-5">
+      <div className="mb-5 flex items-center gap-2 font-grotesk text-[11px] uppercase tracking-[0.12em] text-brand-burnt">
+        <span aria-hidden className="h-px w-4 bg-gradient-to-r from-brand to-transparent" />
         Analyse &amp; approche
       </div>
 
@@ -1521,42 +1582,35 @@ function AnalysisSection({ prospect }: { prospect: Prospect }) {
         </div>
       )}
 
-      {/* Blocs d'analyse (texte) */}
-      <div className="space-y-4">
+      {/* Blocs d'analyse — grille 2×2, un bloc accent sombre */}
+      <div className="grid grid-cols-2 gap-2.5">
         {prospect.analyse_besoin && (
           <AnalysisBlock
-            icon={<Target className="h-4 w-4" />}
+            icon={<Target className="h-3.5 w-3.5" />}
             title="Analyse du besoin"
             text={prospect.analyse_besoin}
-            accent="border-[rgba(74,36,26,0.10)] bg-cream/50"
-            headColor="text-brand-burnt"
           />
         )}
         {prospect.analyse_timing && (
           <AnalysisBlock
-            icon={<Clock className="h-4 w-4" />}
+            icon={<Clock className="h-3.5 w-3.5" />}
             title="Analyse du timing"
             text={prospect.analyse_timing}
-            accent="border-[rgba(74,36,26,0.10)] bg-cream/50"
-            headColor="text-brand-burnt"
           />
         )}
         {prospect.analyse_budget && (
           <AnalysisBlock
-            icon={<Banknote className="h-4 w-4" />}
+            icon={<Banknote className="h-3.5 w-3.5" />}
             title="Analyse du budget"
             text={prospect.analyse_budget}
-            accent="border-[rgba(74,36,26,0.10)] bg-cream/50"
-            headColor="text-brand-burnt"
           />
         )}
         {prospect.recommandation_approche && (
           <AnalysisBlock
-            icon={<Lightbulb className="h-4 w-4" />}
+            icon={<Lightbulb className="h-3.5 w-3.5" />}
             title="Recommandation commerciale"
             text={prospect.recommandation_approche}
-            accent="border-brand/25 bg-brand-soft/60"
-            headColor="text-brand-burnt"
+            dark
           />
         )}
       </div>
@@ -1568,29 +1622,33 @@ function AnalysisBlock({
   icon,
   title,
   text,
-  accent,
-  headColor,
+  dark,
 }: {
   icon: React.ReactNode;
   title: string;
   text: string;
-  accent: string;
-  headColor: string;
+  dark?: boolean;
 }) {
+  if (dark) {
+    return (
+      <div className="surface-chocolate rounded-[10px] p-3">
+        <div className="mb-1.5 flex items-center gap-1.5 font-grotesk text-xs text-[#F2C29B]">
+          <span aria-hidden>{icon}</span>
+          {title}
+        </div>
+        <p className="whitespace-pre-wrap break-words text-[13px] leading-relaxed text-cream/85">
+          {text}
+        </p>
+      </div>
+    );
+  }
   return (
-    <div className={`rounded-2xl border p-4 ${accent}`}>
-      <div
-        className={`mb-2.5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] ${headColor}`}
-      >
-        <span
-          aria-hidden
-          className="flex h-7 w-7 items-center justify-center rounded-xl bg-brand-pale text-brand-burnt"
-        >
-          {icon}
-        </span>
+    <div className="rounded-[10px] border border-[rgba(201,106,43,0.2)] bg-[#FBF1E8] p-3">
+      <div className="mb-1.5 flex items-center gap-1.5 font-grotesk text-xs text-brand-burnt">
+        <span aria-hidden>{icon}</span>
         {title}
       </div>
-      <p className="whitespace-pre-wrap break-words text-sm leading-7 text-ink-warm">
+      <p className="whitespace-pre-wrap break-words text-[13px] leading-relaxed text-[#5C3A2C]">
         {text}
       </p>
     </div>
@@ -1665,7 +1723,7 @@ function TimelineItem({ activity: a }: { activity: Activity }) {
               {outcomeLabel}
             </span>
           )}
-          <span className="font-inter text-[11px] text-muted-warm/70">
+          <span className="font-num text-[11px] tabular-nums text-muted-warm/70">
             {formatStamp(a.occurred_at)}
           </span>
         </div>
@@ -1702,15 +1760,11 @@ function InfoCard({
   children: React.ReactNode;
 }) {
   return (
-    <section className="surface-ceramic rounded-3xl p-5">
+    <section className="rounded-[14px] border border-[rgba(74,36,26,0.12)] bg-white p-5">
       <header className="mb-3.5 flex items-center justify-between">
-        <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-burnt">
-          <span
-            aria-hidden
-            className="flex h-8 w-8 items-center justify-center rounded-2xl bg-brand-pale text-brand-dark"
-          >
-            {icon}
-          </span>
+        <div className="flex items-center gap-2 font-grotesk text-[11px] uppercase tracking-[0.12em] text-brand-burnt">
+          <span aria-hidden className="h-px w-4 bg-gradient-to-r from-brand to-transparent" />
+          <span aria-hidden className="text-brand-burnt">{icon}</span>
           {title}
         </div>
         {action}
@@ -1727,6 +1781,7 @@ function KVLine({
   href,
   external,
   truncate,
+  numeric,
 }: {
   icon: React.ReactNode;
   label: string;
@@ -1734,16 +1789,17 @@ function KVLine({
   href?: string | null;
   external?: boolean;
   truncate?: boolean;
+  numeric?: boolean;
 }) {
   if (!value) return null;
-  const valueClass = `text-sm text-ink-warm ${truncate ? 'truncate' : 'break-words'}`;
+  const valueClass = `text-sm text-ink-warm ${numeric ? 'font-num tabular-nums' : ''} ${truncate ? 'truncate' : 'break-words'}`;
   return (
     <div className="flex items-start gap-2">
-      <span className="mt-0.5 shrink-0 text-muted-warm/70" aria-hidden>
+      <span className="mt-0.5 shrink-0 text-brand-burnt" aria-hidden>
         {icon}
       </span>
       <div className="min-w-0 flex-1">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-burnt">
+        <p className="font-grotesk text-[10px] uppercase tracking-[0.14em] text-brand-burnt">
           {label}
         </p>
         {href ? (
@@ -1773,12 +1829,12 @@ function Stat({
   value: string | null | undefined;
 }) {
   return (
-    <div className="rounded-2xl bg-cream/50 p-2.5 ring-1 ring-[rgba(74,36,26,0.10)]">
-      <div className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-brand-burnt">
-        <span className="text-brand-dark">{icon}</span>
+    <div className="rounded-[10px] border border-[rgba(201,106,43,0.2)] bg-[#FBF1E8] p-2.5">
+      <div className="flex items-center gap-1 font-grotesk text-[10px] uppercase tracking-[0.12em] text-brand-burnt">
+        <span className="text-brand-burnt">{icon}</span>
         {label}
       </div>
-      <p className="mt-1 break-words text-sm font-semibold text-choco">
+      <p className="mt-1 break-words font-num text-sm font-medium tabular-nums text-[#3A2017]">
         {value ?? '—'}
       </p>
     </div>
@@ -1808,36 +1864,5 @@ function Field({
         className="w-full rounded-2xl border border-border-soft bg-cream/60 px-3 py-2 text-sm text-ink-warm focus:border-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring"
       />
     </label>
-  );
-}
-
-function Avatar({ text }: { text: string }) {
-  const hash = useMemo(() => {
-    let h = 0;
-    for (let i = 0; i < text.length; i++) h = (h << 5) - h + text.charCodeAt(i);
-    return Math.abs(h);
-  }, [text]);
-  const palette = [
-    'from-brand to-brand-dark',
-    'from-choco to-[#2A1510]',
-    'from-brand to-brand',
-    'from-[#7D3E2C] to-choco',
-    'from-gnd-clay to-brand-dark',
-  ];
-  const grad = palette[hash % palette.length];
-  const initials =
-    text
-      .split(/\s+/)
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((w) => w[0]?.toUpperCase() ?? '')
-      .join('') || '?';
-  return (
-    <div
-      className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br font-marcellus text-xl font-medium text-cream shadow-soft-md ring-1 ring-[rgba(74,36,26,0.10)] ${grad}`}
-      aria-hidden
-    >
-      {initials}
-    </div>
   );
 }
