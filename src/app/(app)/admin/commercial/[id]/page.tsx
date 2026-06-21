@@ -117,13 +117,13 @@ export default async function CommercialDetailPage({
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">
-      <Link href="/admin/suivi-equipe" className="text-sm text-slate-500 hover:text-slate-700">
+      <Link href="/admin/suivi-equipe" className="text-sm text-muted-warm hover:text-ink-warm">
         &larr; Suivi equipe
       </Link>
 
       <div className="mt-3 flex flex-wrap items-center gap-3">
-        <h1 className="text-2xl font-semibold text-slate-800">{name}</h1>
-        <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+        <h1 className="text-2xl font-semibold text-choco">{name}</h1>
+        <span className="rounded-full bg-cream-deep px-3 py-1 text-xs font-medium text-[#6F5A50]">
           {commercial.role}
         </span>
         <span
@@ -136,7 +136,7 @@ export default async function CommercialDetailPage({
           {commercial.active === false ? 'Inactif' : 'Actif'}
         </span>
       </div>
-      <p className="mt-1 text-sm text-slate-400">{commercial.email}</p>
+      <p className="mt-1 text-sm text-muted-warm">{commercial.email}</p>
 
       {/* KPIs */}
       <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -147,12 +147,12 @@ export default async function CommercialDetailPage({
       </div>
 
       {/* Repartition par statut */}
-      <section className="mt-6 rounded-xl border border-slate-200 bg-white p-5">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+      <section className="mt-6 rounded-xl border border-[rgba(74,36,26,0.10)] bg-white p-5">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-warm">
           Repartition par statut
         </h2>
         {byStatus.length === 0 ? (
-          <p className="mt-3 text-sm text-slate-400">Aucun prospect assigne.</p>
+          <p className="mt-3 text-sm text-muted-warm">Aucun prospect assigne.</p>
         ) : (
           <div className="mt-3 flex flex-wrap gap-2">
             {byStatus.map(([status, n]) => (
@@ -174,28 +174,28 @@ export default async function CommercialDetailPage({
       </section>
 
       {/* Dernieres activites */}
-      <section className="mt-5 rounded-xl border border-slate-200 bg-white p-5">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+      <section className="mt-5 rounded-xl border border-[rgba(74,36,26,0.10)] bg-white p-5">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-warm">
           Dernieres actions
         </h2>
         {acts.length === 0 ? (
-          <p className="mt-3 text-sm text-slate-400">Aucune activite enregistree.</p>
+          <p className="mt-3 text-sm text-muted-warm">Aucune activite enregistree.</p>
         ) : (
           <ul className="mt-3 space-y-2">
             {acts.map((a) => (
               <li key={a.id} className="flex items-start gap-3 text-sm">
-                <span className="mt-0.5 rounded bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
+                <span className="mt-0.5 rounded bg-cream-deep px-2 py-0.5 text-xs font-medium text-[#6F5A50]">
                   {KIND_LABEL[a.kind ?? ''] ?? a.kind ?? '--'}
                 </span>
                 <div className="min-w-0">
                   <Link
                     href={`/prospects/${a.prospect_id}`}
-                    className="font-medium text-slate-700 hover:underline"
+                    className="font-medium text-ink-warm hover:underline"
                   >
                     {(a.prospect_id && companyById.get(a.prospect_id)) || 'Prospect'}
                   </Link>
-                  {a.body && <span className="text-slate-500"> &mdash; {a.body}</span>}
-                  <div className="text-xs text-slate-400">{formatDate(a.occurred_at)}</div>
+                  {a.body && <span className="text-muted-warm"> &mdash; {a.body}</span>}
+                  <div className="text-xs text-muted-warm">{formatDate(a.occurred_at)}</div>
                 </div>
               </li>
             ))}
@@ -216,7 +216,7 @@ function Kpi({
   tone: 'slate' | 'rose' | 'amber' | 'emerald';
 }) {
   const tones: Record<string, string> = {
-    slate: 'bg-slate-50 text-slate-700',
+    slate: 'bg-cream text-ink-warm',
     rose: 'bg-rose-50 text-rose-700',
     amber: 'bg-amber-50 text-amber-700',
     emerald: 'bg-emerald-50 text-emerald-700',
@@ -240,19 +240,19 @@ function RecallList({
 }) {
   const dot = tone === 'rose' ? 'text-rose-500' : 'text-amber-500';
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-5">
-      <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+    <div className="rounded-xl border border-[rgba(74,36,26,0.10)] bg-white p-5">
+      <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-warm">
         Rappels {title} ({rows.length})
       </h2>
       {rows.length === 0 ? (
-        <p className="mt-3 text-sm text-slate-400">Aucun.</p>
+        <p className="mt-3 text-sm text-muted-warm">Aucun.</p>
       ) : (
         <ul className="mt-3 space-y-1.5">
           {rows.map((p) => (
             <li key={p.id} className="flex items-center justify-between gap-2 text-sm">
               <Link
                 href={`/prospects/${p.id}`}
-                className="truncate font-medium text-slate-700 hover:underline"
+                className="truncate font-medium text-ink-warm hover:underline"
               >
                 {p.company_name ?? '--'}
               </Link>
