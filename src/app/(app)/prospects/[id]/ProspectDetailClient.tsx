@@ -468,7 +468,7 @@ export default function ProspectDetailClient({
       <div className="mb-6">
         <Link
           href="/prospects"
-          className="inline-flex items-center gap-2 rounded-full border border-border-soft bg-white px-4 py-2 text-sm font-semibold text-ink-warm transition-colors hover:bg-cream-deep"
+          className="inline-flex items-center gap-2 rounded-full border border-border-soft bg-white px-4 py-2 text-sm font-semibold text-ink-warm transition hover:bg-cream-deep card-hover"
         >
           <ArrowLeft className="h-4 w-4" aria-hidden />
           Retour aux prospects
@@ -480,19 +480,22 @@ export default function ProspectDetailClient({
       {/* ================================================================= */}
       <motion.header
         {...motionProps}
-        className="relative mb-8 overflow-hidden rounded-3xl border border-border-soft bg-white p-6 shadow-soft sm:p-8"
+        className="surface-ceramic relative mb-8 overflow-hidden rounded-3xl p-6 shadow-ceramic sm:p-8"
       >
-        <div className="h-px w-full" />
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+        <span
+          aria-hidden
+          className="watermark pointer-events-none absolute -right-2 -top-6 select-none font-marcellus text-[120px] leading-none"
+        >
+          {prospect.company_name?.charAt(0) ?? '·'}
+        </span>
+        <div className="relative flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
           <div className="flex min-w-0 items-start gap-4">
             <Avatar text={prospect.company_name} />
             <div className="min-w-0">
-              <div className="mb-1.5 flex flex-wrap items-center gap-2">
-                <span className="font-inter text-[10px] font-semibold uppercase tracking-[0.18em] text-brand-dark">
-                  Fiche prospect
-                </span>
+              <div className="label-eyebrow mb-2 flex flex-wrap items-center gap-2">
+                <span>Fiche prospect</span>
                 {isHot && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-rose-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-rose-700">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-danger-bg px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-danger-fg">
                     <Flame className="h-3 w-3" aria-hidden />
                     Chaud
                   </span>
@@ -502,42 +505,42 @@ export default function ProspectDetailClient({
                 {prospect.company_name}
               </h1>
               {(prospect.contact_name || prospect.role_contact) && (
-                <p className="mt-2 text-base text-muted-warm">
+                <p className="mt-2 text-base text-[#6F5A50]">
                   {prospect.contact_name ?? prospect.prenom_contact ?? '—'}
                   {prospect.role_contact && (
-                    <span className="text-muted-warm/70">
+                    <span className="text-muted-warm">
                       {' '}
                       · {prospect.role_contact}
                     </span>
                   )}
                 </p>
               )}
-              <div className="mt-3 flex flex-wrap items-center gap-2">
+              <div className="mt-3.5 flex flex-wrap items-center gap-2">
                 <span
                   className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${toneForStatus(status)}`}
                 >
                   {labelForStatus(status)}
                 </span>
                 {prospect.classification && (
-                  <span className="inline-flex items-center gap-1 rounded-full border border-border-soft bg-white px-2.5 py-1 text-xs font-medium text-muted-warm">
-                    <Target className="h-3 w-3" aria-hidden />
+                  <span className="inline-flex items-center gap-1 rounded-full border border-[rgba(74,36,26,0.10)] bg-cream/60 px-2.5 py-1 text-xs font-medium text-ink-warm">
+                    <Target className="h-3 w-3 text-brand-burnt" aria-hidden />
                     {prospect.classification}
                   </span>
                 )}
                 {prospect.city && (
-                  <span className="inline-flex items-center gap-1 rounded-full border border-border-soft bg-white px-2.5 py-1 text-xs font-medium text-muted-warm">
-                    <MapPin className="h-3 w-3" aria-hidden />
+                  <span className="inline-flex items-center gap-1 rounded-full border border-[rgba(74,36,26,0.10)] bg-cream/60 px-2.5 py-1 text-xs font-medium text-ink-warm">
+                    <MapPin className="h-3 w-3 text-brand-burnt" aria-hidden />
                     {prospect.city}
                   </span>
                 )}
                 {canViewFinance && dealAmount != null && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-ok-bg px-2.5 py-1 text-xs font-semibold text-ok-fg">
                     <Banknote className="h-3 w-3" aria-hidden />
                     Signé {formatEurExact(Number(dealAmount))} HT
                   </span>
                 )}
                 {prospect.notion_page_id && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-gnd-amber/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-brand-dark">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-brand-pale px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-brand-burnt">
                     <Sparkles className="h-3 w-3" aria-hidden />
                     Notion
                   </span>
@@ -551,7 +554,7 @@ export default function ProspectDetailClient({
             {telHref && (
               <a
                 href={telHref}
-                className="inline-flex items-center gap-1.5 rounded-full bg-brand px-4 py-2 text-sm font-semibold text-choco transition-colors hover:bg-brand-dark"
+                className="orange-glow inline-flex items-center gap-1.5 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-[#2A1810] transition hover:bg-brand-dark"
               >
                 <Phone className="h-4 w-4" aria-hidden />
                 Appeler
@@ -560,7 +563,7 @@ export default function ProspectDetailClient({
             {mailHref && (
               <a
                 href={mailHref}
-                className="inline-flex items-center gap-1.5 rounded-full border border-border-soft bg-white px-4 py-2 text-sm font-semibold text-ink-warm transition-colors hover:bg-cream-deep"
+                className="inline-flex items-center gap-1.5 rounded-full border border-border-soft bg-white px-5 py-2.5 text-sm font-semibold text-choco transition hover:bg-cream-deep"
               >
                 <Mail className="h-4 w-4" aria-hidden />
                 Email
@@ -574,7 +577,7 @@ export default function ProspectDetailClient({
         <div
           role="alert"
           aria-live="assertive"
-          className="mb-6 rounded-2xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800"
+          className="mb-6 rounded-2xl border border-danger-fg/20 bg-danger-bg p-3.5 text-sm text-danger-fg"
         >
           {errorMsg}
         </div>
@@ -606,18 +609,20 @@ export default function ProspectDetailClient({
           <QuotesPanel prospectId={prospect.id} initialQuotes={initialQuotes} />
 
           {/* E. TIMELINE */}
-          <section className="rounded-3xl border border-border-soft bg-white p-6 shadow-soft">
-            <div className="mb-4 flex items-center gap-2">
-              <span className="h-px w-8 bg-brand" />
-              <h2 className="font-inter text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-dark">
-                Historique d&apos;activité
-              </h2>
+          <section className="surface-ceramic rounded-3xl p-6">
+            <div className="label-eyebrow mb-5">
+              Historique d&apos;activité
             </div>
             {activities.length === 0 ? (
-              <p className="text-sm italic text-muted-warm/70">
-                Aucune activité pour l&apos;instant. Utilise les actions rapides
-                pour commencer à tracer ce prospect.
-              </p>
+              <div className="flex flex-col items-center gap-3 rounded-2xl bg-cream/50 px-6 py-10 text-center">
+                <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-pale text-brand-burnt">
+                  <Clock className="h-5 w-5" aria-hidden />
+                </span>
+                <p className="text-sm text-[#6F5A50]">
+                  Aucune activité pour l&apos;instant. Utilise les actions rapides
+                  pour commencer à tracer ce prospect.
+                </p>
+              </div>
             ) : (
               <>
                 <ol className="space-y-4">
@@ -629,7 +634,7 @@ export default function ProspectDetailClient({
                   <button
                     type="button"
                     onClick={() => setVisibleCount((c) => c + 30)}
-                    className="mt-5 w-full rounded-xl border border-dashed border-border-soft px-3 py-2 text-center font-inter text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-warm transition-colors hover:bg-gnd-bronze/[0.04] hover:text-ink-warm"
+                    className="mt-5 w-full rounded-2xl border border-dashed border-[rgba(74,36,26,0.10)] px-3 py-2.5 text-center font-inter text-[11px] font-semibold uppercase tracking-[0.1em] text-brand-burnt transition hover:bg-cream-deep hover:text-choco"
                   >
                     Voir plus ({activities.length - visibleCount} restantes)
                   </button>
@@ -713,15 +718,15 @@ function WinDealModal({
 
   return (
     <div
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-gnd-ink/40 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-[#2A1510]/40 p-4 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
       aria-label="Montant du contrat signé"
     >
-      <div className="w-full max-w-md rounded-3xl border border-border-soft bg-white p-6 shadow-soft-md">
+      <div className="surface-ceramic w-full max-w-md rounded-[28px] p-6 shadow-ceramic">
         <div className="mb-1 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
+          <div className="flex items-center gap-2.5">
+            <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-ok-bg text-ok-fg">
               <Banknote className="h-5 w-5" aria-hidden />
             </span>
             <h3 className="font-marcellus text-xl font-medium text-choco">
@@ -732,19 +737,19 @@ function WinDealModal({
             type="button"
             onClick={onClose}
             aria-label="Fermer"
-            className="rounded-lg p-1.5 text-muted-warm transition-colors hover:bg-cream-deep hover:text-ink-warm"
+            className="rounded-full p-1.5 text-muted-warm transition hover:bg-cream-deep hover:text-choco"
           >
             <X className="h-5 w-5" aria-hidden />
           </button>
         </div>
-        <p className="mb-4 text-sm text-muted-warm">
+        <p className="mb-4 text-sm text-[#6F5A50]">
           Indique le montant HT du contrat signé avec{' '}
-          <strong className="text-ink-warm">{companyName}</strong>. Il
+          <strong className="text-choco">{companyName}</strong>. Il
           déclenche le calcul de ta commission réelle.
         </p>
 
         <label className="block">
-          <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-muted-warm/70">
+          <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-burnt">
             Montant HT signé (€)
           </span>
           <input
@@ -753,12 +758,12 @@ function WinDealModal({
             inputMode="decimal"
             autoFocus
             placeholder="Ex. 8500"
-            className="w-full rounded-xl border border-border-soft bg-white px-3 py-2.5 text-lg font-semibold tabular-nums text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+            className="w-full rounded-2xl border border-border-soft bg-cream/60 px-3.5 py-2.5 text-lg font-semibold tabular-nums text-choco focus:border-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring"
           />
         </label>
 
         {err && (
-          <p role="alert" className="mt-2 text-sm text-rose-700">
+          <p role="alert" className="mt-2 text-sm text-danger-fg">
             {err}
           </p>
         )}
@@ -767,7 +772,7 @@ function WinDealModal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-xl px-4 py-2 text-sm font-semibold text-muted-warm transition-colors hover:bg-cream-deep hover:text-ink-warm"
+            className="rounded-full px-4 py-2 text-sm font-semibold text-muted-warm transition hover:bg-cream-deep hover:text-choco"
           >
             Plus tard
           </button>
@@ -775,7 +780,7 @@ function WinDealModal({
             type="button"
             onClick={confirm}
             disabled={saving}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-700 disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-[#2A1810] transition hover:bg-brand-dark disabled:opacity-50"
           >
             {saving ? (
               <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
@@ -827,12 +832,12 @@ function ActionsPanel({
       />
 
       {/* Panneau actions */}
-      <section className="rounded-3xl border border-gnd-amber/20 bg-white p-5 shadow-soft-md">
+      <section className="surface-ceramic rounded-3xl p-5 shadow-ceramic">
         <div className="mb-4 flex items-center gap-2">
           <span className="flex h-2 w-2 animate-pulse rounded-full bg-brand" />
-          <h2 className="font-inter text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-dark">
+          <span className="font-inter text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-burnt">
             Actions rapides
-          </h2>
+          </span>
         </div>
 
         {/* Boutons 1-clic */}
@@ -843,10 +848,10 @@ function ActionsPanel({
               type="button"
               onClick={() => onToggleQuick(qa.kind)}
               aria-expanded={openQuick === qa.kind}
-              className={`inline-flex items-center justify-center gap-1.5 rounded-xl border px-3 py-2.5 text-sm font-semibold transition-colors ${
+              className={`inline-flex items-center justify-center gap-1.5 rounded-2xl border px-3 py-2.5 text-sm font-semibold transition ${
                 openQuick === qa.kind
-                  ? 'border-gnd-amber bg-brand-soft text-brand-dark'
-                  : 'border-border-soft bg-white text-ink-warm hover:border-gnd-amber/40 hover:bg-cream-deep'
+                  ? 'border-brand bg-brand-soft text-brand-burnt'
+                  : 'border-border-soft bg-white text-choco hover:border-brand/40 hover:bg-cream-deep'
               }`}
             >
               <span aria-hidden>{iconForActivityKind(qa.kind)}</span>
@@ -869,15 +874,15 @@ function ActionsPanel({
         )}
 
         {/* Planifier une relance */}
-        <div className="mt-5 border-t border-border-soft pt-5">
+        <div className="mt-5 border-t border-[rgba(74,36,26,0.10)] pt-5">
           <RelancePlanner relanceIso={relanceIso} onPlanRelance={onPlanRelance} />
         </div>
 
         {/* Changer le statut */}
-        <div className="mt-5 border-t border-border-soft pt-5">
+        <div className="mt-5 border-t border-[rgba(74,36,26,0.10)] pt-5">
           <label
             htmlFor="fiche-status"
-            className="mb-1.5 block font-inter text-[10px] font-semibold uppercase tracking-[0.15em] text-brand-dark"
+            className="mb-1.5 block font-inter text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-burnt"
           >
             Statut du prospect
           </label>
@@ -885,7 +890,7 @@ function ActionsPanel({
             id="fiche-status"
             value={status}
             onChange={(e) => onStatusChange(e.target.value)}
-            className="w-full rounded-xl border border-border-soft bg-white px-3 py-2.5 text-sm font-semibold text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+            className="w-full rounded-2xl border border-border-soft bg-cream/60 px-3.5 py-2.5 text-sm font-semibold text-choco focus:border-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring"
           >
             {!STATUS_OPTIONS.some((o) => o.value === status) && (
               <option value={status}>{labelForStatus(status)}</option>
@@ -899,7 +904,7 @@ function ActionsPanel({
         </div>
 
         {/* Édition rapide des notes */}
-        <div className="mt-5 border-t border-border-soft pt-5">
+        <div className="mt-5 border-t border-[rgba(74,36,26,0.10)] pt-5">
           <NotesEditor notes={notes} onSave={onSaveNotes} />
         </div>
       </section>
@@ -934,16 +939,18 @@ function NextActionBanner({
   if (overdueOrMissing) {
     return (
       <section
-        className="rounded-3xl border border-gnd-amber bg-brand-soft p-5 shadow-soft"
+        className="surface-accent orange-glow rounded-3xl p-5"
         aria-label="Prochaine action requise"
       >
-        <div className="flex items-start gap-2">
-          <CalendarClock className="mt-0.5 h-5 w-5 shrink-0 text-brand-dark" aria-hidden />
+        <div className="flex items-start gap-3">
+          <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-brand-pale text-brand-burnt">
+            <CalendarClock className="h-5 w-5" aria-hidden />
+          </span>
           <div className="min-w-0 flex-1">
             <p className="font-marcellus text-base font-medium text-choco">
               ⚠️ Planifie ta prochaine action
             </p>
-            <p className="mt-0.5 text-xs text-muted-warm">
+            <p className="mt-0.5 text-xs text-[#6F5A50]">
               {relanceIso
                 ? `Relance dépassée (${formatDate(relanceIso)}). Pose une nouvelle date.`
                 : 'Aucune relance prévue sur ce prospect actif.'}
@@ -954,7 +961,7 @@ function NextActionBanner({
                 type="button"
                 onClick={save}
                 disabled={!value || saving}
-                className="inline-flex items-center gap-1.5 rounded-xl bg-brand px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-gnd-amber-dim disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-[#2A1810] transition hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {saving ? (
                   <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
@@ -972,13 +979,15 @@ function NextActionBanner({
 
   return (
     <section
-      className="rounded-3xl border border-border-soft bg-white p-5 shadow-soft"
+      className="surface-ceramic rounded-3xl p-5"
       aria-label="Prochaine relance"
     >
-      <div className="flex items-center gap-2">
-        <CalendarClock className="h-5 w-5 shrink-0 text-brand-dark" aria-hidden />
+      <div className="flex items-center gap-3">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-brand-pale text-brand-burnt">
+          <CalendarClock className="h-5 w-5" aria-hidden />
+        </span>
         <div>
-          <p className="font-inter text-[10px] font-semibold uppercase tracking-[0.15em] text-brand-dark">
+          <p className="font-inter text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-burnt">
             Prochaine relance
           </p>
           <p className="mt-0.5 font-marcellus text-base font-medium text-choco">
@@ -1015,7 +1024,7 @@ function QuickEntry({
   }
 
   return (
-    <div className="mt-3 rounded-2xl border border-gnd-amber/20 bg-white p-3">
+    <div className="mt-3 rounded-2xl border border-brand/20 bg-cream/40 p-3">
       {kind === 'call' && (
         <div
           role="group"
@@ -1028,10 +1037,10 @@ function QuickEntry({
               type="button"
               onClick={() => setOutcome(o.value)}
               aria-pressed={outcome === o.value}
-              className={`rounded-full px-2.5 py-1 text-xs font-semibold transition-colors ${
+              className={`rounded-full px-2.5 py-1 text-xs font-semibold transition ${
                 outcome === o.value
-                  ? 'bg-brand text-choco'
-                  : 'bg-cream text-muted-warm hover:bg-gnd-sand'
+                  ? 'bg-brand text-[#2A1810]'
+                  : 'bg-white text-muted-warm hover:bg-cream-deep'
               }`}
             >
               {o.label}
@@ -1046,13 +1055,13 @@ function QuickEntry({
         placeholder={placeholder}
         aria-label={`Détail — ${labelForActivityKind(kind)}`}
         autoFocus
-        className="w-full resize-y rounded-xl border border-border-soft bg-white p-2.5 text-sm text-ink-warm placeholder:text-muted-warm/70 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+        className="w-full resize-y rounded-2xl border border-border-soft bg-white p-2.5 text-sm text-ink-warm placeholder:text-muted-warm/70 focus:border-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring"
       />
       <div className="mt-2 flex items-center justify-end gap-2">
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-lg px-3 py-1.5 text-xs font-semibold text-muted-warm transition-colors hover:bg-cream-deep hover:text-ink-warm"
+          className="rounded-full px-3 py-1.5 text-xs font-semibold text-muted-warm transition hover:bg-cream-deep hover:text-choco"
         >
           Annuler
         </button>
@@ -1060,7 +1069,7 @@ function QuickEntry({
           type="button"
           onClick={submit}
           disabled={saving}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-brand px-3.5 py-1.5 text-xs font-semibold text-choco transition-colors hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-full bg-brand px-3.5 py-1.5 text-xs font-semibold text-[#2A1810] transition hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-50"
         >
           {saving ? (
             <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
@@ -1103,7 +1112,7 @@ function RelancePlanner({
     <div>
       <label
         htmlFor="fiche-relance"
-        className="mb-1.5 block font-inter text-[10px] font-semibold uppercase tracking-[0.15em] text-brand-dark"
+        className="mb-1.5 block font-inter text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-burnt"
       >
         Planifier une relance
       </label>
@@ -1113,7 +1122,7 @@ function RelancePlanner({
           type="button"
           onClick={save}
           disabled={saving || !value}
-          className="inline-flex items-center gap-1.5 rounded-xl bg-brand px-3.5 py-2 text-sm font-semibold text-choco transition-colors hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-full bg-brand px-3.5 py-2 text-sm font-semibold text-[#2A1810] transition hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-50"
         >
           {saving ? (
             <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
@@ -1160,7 +1169,7 @@ function NotesEditor({
   return (
     <div>
       <div className="mb-1.5 flex items-center justify-between">
-        <span className="font-inter text-[10px] font-semibold uppercase tracking-[0.15em] text-brand-dark">
+        <span className="font-inter text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-burnt">
           Notes
         </span>
         {!editing && (
@@ -1170,7 +1179,7 @@ function NotesEditor({
               setDraft(notes ?? '');
               setEditing(true);
             }}
-            className="inline-flex items-center gap-1 text-xs font-semibold text-muted-warm transition-colors hover:text-ink-warm"
+            className="inline-flex items-center gap-1 text-xs font-semibold text-muted-warm transition hover:text-choco"
           >
             <Edit3 className="h-3.5 w-3.5" aria-hidden />
             {notes ? 'Modifier' : 'Ajouter'}
@@ -1186,13 +1195,13 @@ function NotesEditor({
             placeholder="Contexte, historique, points clés sur ce prospect…"
             aria-label="Notes du prospect"
             autoFocus
-            className="w-full resize-y rounded-xl border border-border-soft bg-white p-2.5 text-sm text-ink-warm placeholder:text-muted-warm/70 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+            className="w-full resize-y rounded-2xl border border-border-soft bg-cream/60 p-2.5 text-sm text-ink-warm placeholder:text-muted-warm/70 focus:border-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring"
           />
           <div className="mt-2 flex items-center justify-end gap-2">
             <button
               type="button"
               onClick={() => setEditing(false)}
-              className="rounded-lg px-3 py-1.5 text-xs font-semibold text-muted-warm transition-colors hover:bg-cream-deep hover:text-ink-warm"
+              className="rounded-full px-3 py-1.5 text-xs font-semibold text-muted-warm transition hover:bg-cream-deep hover:text-choco"
             >
               Annuler
             </button>
@@ -1200,7 +1209,7 @@ function NotesEditor({
               type="button"
               onClick={save}
               disabled={saving}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-brand px-3.5 py-1.5 text-xs font-semibold text-choco transition-colors hover:bg-brand-dark disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-full bg-brand px-3.5 py-1.5 text-xs font-semibold text-[#2A1810] transition hover:bg-brand-dark disabled:opacity-50"
             >
               {saving ? (
                 <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
@@ -1212,7 +1221,7 @@ function NotesEditor({
           </div>
         </>
       ) : notes ? (
-        <p className="whitespace-pre-wrap break-words rounded-xl bg-white p-3 text-sm text-muted-warm ring-1 ring-gnd-bronze/8">
+        <p className="whitespace-pre-wrap break-words rounded-2xl bg-cream/50 p-3 text-sm text-ink-warm ring-1 ring-[rgba(74,36,26,0.10)]">
           {notes}
         </p>
       ) : (
@@ -1293,7 +1302,7 @@ function ContactCard({
               reset();
               setEditing(true);
             }}
-            className="inline-flex items-center gap-1 text-xs font-semibold text-muted-warm transition-colors hover:text-ink-warm"
+            className="inline-flex items-center gap-1 text-xs font-semibold text-muted-warm transition hover:text-choco"
           >
             <Edit3 className="h-3.5 w-3.5" aria-hidden />
             Modifier
@@ -1312,7 +1321,7 @@ function ContactCard({
             <button
               type="button"
               onClick={() => setEditing(false)}
-              className="rounded-lg px-3 py-1.5 text-xs font-semibold text-muted-warm transition-colors hover:bg-cream-deep hover:text-ink-warm"
+              className="rounded-full px-3 py-1.5 text-xs font-semibold text-muted-warm transition hover:bg-cream-deep hover:text-choco"
             >
               Annuler
             </button>
@@ -1320,7 +1329,7 @@ function ContactCard({
               type="button"
               onClick={save}
               disabled={saving}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-brand px-3.5 py-1.5 text-xs font-semibold text-choco transition-colors hover:bg-brand-dark disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-full bg-brand px-3.5 py-1.5 text-xs font-semibold text-[#2A1810] transition hover:bg-brand-dark disabled:opacity-50"
             >
               {saving ? (
                 <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
@@ -1425,14 +1434,14 @@ function SocialCard({ prospect }: { prospect: Prospect }) {
               href={s.href(s.value as string)}
               target="_blank"
               rel="noopener noreferrer"
-              className="-mx-1.5 flex items-center gap-2 rounded-lg px-1.5 py-1.5 transition-colors hover:bg-cream-deep"
+              className="-mx-1.5 flex items-center gap-2.5 rounded-2xl px-1.5 py-1.5 transition hover:bg-cream-deep"
             >
-              <span className="shrink-0 text-muted-warm/70">{s.icon}</span>
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-2xl bg-brand-pale text-brand-burnt">{s.icon}</span>
               <div className="min-w-0 flex-1">
-                <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-warm/70">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-burnt">
                   {s.label}
                 </p>
-                <p className="truncate text-sm text-brand-dark">{s.value}</p>
+                <p className="truncate text-sm text-ink-warm">{s.value}</p>
               </div>
               <ExternalLink className="h-3.5 w-3.5 shrink-0 text-muted-warm/70" aria-hidden />
             </a>
@@ -1484,12 +1493,9 @@ function QualificationCard({ prospect }: { prospect: Prospect }) {
 
 function AnalysisSection({ prospect }: { prospect: Prospect }) {
   return (
-    <section className="rounded-3xl border border-border-soft bg-white p-6 shadow-soft">
-      <div className="mb-4 flex items-center gap-2">
-        <span className="h-px w-8 bg-brand" />
-        <h2 className="font-inter text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-dark">
-          Analyse &amp; approche
-        </h2>
+    <section className="surface-ceramic rounded-3xl p-6">
+      <div className="label-eyebrow mb-5">
+        Analyse &amp; approche
       </div>
 
       {/* Tags : besoins + arguments */}
@@ -1501,7 +1507,7 @@ function AnalysisSection({ prospect }: { prospect: Prospect }) {
               icon={<Tag className="h-3.5 w-3.5" />}
               title="Besoins détectés"
               tags={prospect.besoins_detectes}
-              tone="bg-sky-50 text-sky-700 ring-sky-200"
+              tone="bg-info-bg text-info-fg ring-[rgba(49,104,156,0.25)]"
             />
           )}
           {prospect.arguments_cles && prospect.arguments_cles.length > 0 && (
@@ -1509,7 +1515,7 @@ function AnalysisSection({ prospect }: { prospect: Prospect }) {
               icon={<Lightbulb className="h-3.5 w-3.5" />}
               title="Arguments clés"
               tags={prospect.arguments_cles}
-              tone="bg-emerald-50 text-emerald-700 ring-emerald-200"
+              tone="bg-ok-bg text-ok-fg ring-[rgba(74,36,26,0.12)]"
             />
           )}
         </div>
@@ -1522,8 +1528,8 @@ function AnalysisSection({ prospect }: { prospect: Prospect }) {
             icon={<Target className="h-4 w-4" />}
             title="Analyse du besoin"
             text={prospect.analyse_besoin}
-            accent="border-sky-200 bg-sky-50/60"
-            headColor="text-sky-800"
+            accent="border-[rgba(74,36,26,0.10)] bg-cream/50"
+            headColor="text-brand-burnt"
           />
         )}
         {prospect.analyse_timing && (
@@ -1531,8 +1537,8 @@ function AnalysisSection({ prospect }: { prospect: Prospect }) {
             icon={<Clock className="h-4 w-4" />}
             title="Analyse du timing"
             text={prospect.analyse_timing}
-            accent="border-violet-200 bg-violet-50/60"
-            headColor="text-violet-800"
+            accent="border-[rgba(74,36,26,0.10)] bg-cream/50"
+            headColor="text-brand-burnt"
           />
         )}
         {prospect.analyse_budget && (
@@ -1540,8 +1546,8 @@ function AnalysisSection({ prospect }: { prospect: Prospect }) {
             icon={<Banknote className="h-4 w-4" />}
             title="Analyse du budget"
             text={prospect.analyse_budget}
-            accent="border-emerald-200 bg-emerald-50/60"
-            headColor="text-emerald-800"
+            accent="border-[rgba(74,36,26,0.10)] bg-cream/50"
+            headColor="text-brand-burnt"
           />
         )}
         {prospect.recommandation_approche && (
@@ -1549,8 +1555,8 @@ function AnalysisSection({ prospect }: { prospect: Prospect }) {
             icon={<Lightbulb className="h-4 w-4" />}
             title="Recommandation commerciale"
             text={prospect.recommandation_approche}
-            accent="border-amber-200 bg-amber-50/70"
-            headColor="text-amber-800"
+            accent="border-brand/25 bg-brand-soft/60"
+            headColor="text-brand-burnt"
           />
         )}
       </div>
@@ -1574,9 +1580,14 @@ function AnalysisBlock({
   return (
     <div className={`rounded-2xl border p-4 ${accent}`}>
       <div
-        className={`mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide ${headColor}`}
+        className={`mb-2.5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] ${headColor}`}
       >
-        <span aria-hidden>{icon}</span>
+        <span
+          aria-hidden
+          className="flex h-7 w-7 items-center justify-center rounded-xl bg-brand-pale text-brand-burnt"
+        >
+          {icon}
+        </span>
         {title}
       </div>
       <p className="whitespace-pre-wrap break-words text-sm leading-7 text-ink-warm">
@@ -1599,7 +1610,7 @@ function TagGroup({
 }) {
   return (
     <div>
-      <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-warm/70">
+      <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-burnt">
         <span aria-hidden>{icon}</span>
         {title}
       </div>
@@ -1639,18 +1650,18 @@ function TimelineItem({ activity: a }: { activity: Activity }) {
   return (
     <li className="flex gap-3">
       <span
-        className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-cream text-sm ring-1 ring-gnd-bronze/10"
+        className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-2xl bg-brand-pale text-sm text-brand-burnt"
         aria-hidden
       >
         {iconForActivityKind(a.kind)}
       </span>
-      <div className="min-w-0 flex-1 border-b border-gnd-bronze/6 pb-4">
+      <div className="min-w-0 flex-1 border-b border-[rgba(74,36,26,0.10)] pb-4">
         <div className="flex flex-wrap items-baseline gap-x-2">
-          <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-warm">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-brand-burnt">
             {labelForActivityKind(a.kind)}
           </span>
           {outcomeLabel && (
-            <span className="rounded-full bg-gnd-sand px-2 py-0.5 text-[10px] font-semibold text-muted-warm">
+            <span className="rounded-full bg-cream-edge px-2 py-0.5 text-[10px] font-semibold text-muted-warm">
               {outcomeLabel}
             </span>
           )}
@@ -1691,10 +1702,13 @@ function InfoCard({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-3xl border border-border-soft bg-white p-5 shadow-soft">
-      <header className="mb-3 flex items-center justify-between">
-        <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-warm/70">
-          <span aria-hidden className="text-brand-dark">
+    <section className="surface-ceramic rounded-3xl p-5">
+      <header className="mb-3.5 flex items-center justify-between">
+        <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-burnt">
+          <span
+            aria-hidden
+            className="flex h-8 w-8 items-center justify-center rounded-2xl bg-brand-pale text-brand-dark"
+          >
             {icon}
           </span>
           {title}
@@ -1729,7 +1743,7 @@ function KVLine({
         {icon}
       </span>
       <div className="min-w-0 flex-1">
-        <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-warm/70">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-burnt">
           {label}
         </p>
         {href ? (
@@ -1759,12 +1773,12 @@ function Stat({
   value: string | null | undefined;
 }) {
   return (
-    <div className="rounded-xl bg-white p-2.5 ring-1 ring-gnd-bronze/8">
-      <div className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-muted-warm/70">
-        {icon}
+    <div className="rounded-2xl bg-cream/50 p-2.5 ring-1 ring-[rgba(74,36,26,0.10)]">
+      <div className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-brand-burnt">
+        <span className="text-brand-dark">{icon}</span>
         {label}
       </div>
-      <p className="mt-1 break-words text-sm font-semibold text-ink-warm">
+      <p className="mt-1 break-words text-sm font-semibold text-choco">
         {value ?? '—'}
       </p>
     </div>
@@ -1784,14 +1798,14 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-muted-warm/70">
+      <span className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-burnt">
         {label}
       </span>
       <input
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-lg border border-border-soft bg-white px-2.5 py-1.5 text-sm text-ink-warm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+        className="w-full rounded-2xl border border-border-soft bg-cream/60 px-3 py-2 text-sm text-ink-warm focus:border-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring"
       />
     </label>
   );
@@ -1804,11 +1818,11 @@ function Avatar({ text }: { text: string }) {
     return Math.abs(h);
   }, [text]);
   const palette = [
-    'from-gnd-amber to-gnd-amber-dim',
-    'from-gnd-bronze to-gnd-ink',
-    'from-gnd-amber-glow to-gnd-amber',
-    'from-gnd-bronze-soft to-gnd-bronze',
-    'from-gnd-clay to-gnd-amber-dim',
+    'from-brand to-brand-dark',
+    'from-choco to-[#2A1510]',
+    'from-brand to-brand',
+    'from-[#7D3E2C] to-choco',
+    'from-gnd-clay to-brand-dark',
   ];
   const grad = palette[hash % palette.length];
   const initials =
@@ -1820,7 +1834,7 @@ function Avatar({ text }: { text: string }) {
       .join('') || '?';
   return (
     <div
-      className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br font-marcellus text-xl font-medium text-choco shadow-soft ${grad}`}
+      className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br font-marcellus text-xl font-medium text-cream shadow-soft-md ring-1 ring-[rgba(74,36,26,0.10)] ${grad}`}
       aria-hidden
     >
       {initials}
