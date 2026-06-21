@@ -189,11 +189,11 @@ export default function NotificationsBell() {
         }
         aria-haspopup="menu"
         aria-expanded={open}
-        className="relative flex h-10 w-10 items-center justify-center rounded-full text-muted-warm transition-colors hover:bg-cream-deep hover:text-ink-warm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring"
+        className="relative flex h-11 w-11 items-center justify-center rounded-full border border-[rgba(74,36,26,0.10)] bg-cream/60 text-brand-burnt transition-all hover:border-brand/40 hover:bg-white hover:text-choco hover:shadow-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring"
       >
         <Bell className="h-[18px] w-[18px]" aria-hidden />
         {count > 0 && (
-          <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-brand px-1 text-[10px] font-bold leading-none text-choco ring-2 ring-surface-soft">
+          <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-brand px-1 text-[10px] font-bold leading-none text-choco ring-2 ring-cream shadow-glow-brand-lg">
             {count > 9 ? '9+' : count}
           </span>
         )}
@@ -207,12 +207,12 @@ export default function NotificationsBell() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.98 }}
             transition={{ duration: 0.16, ease: 'easeOut' }}
-            className="absolute right-0 z-50 mt-2 w-80 overflow-hidden rounded-2xl border border-border-soft/70 bg-surface-soft shadow-soft-lg"
+            className="surface-ceramic absolute right-0 z-50 mt-2.5 w-80 overflow-hidden rounded-2xl border border-[rgba(74,36,26,0.10)] shadow-soft-lg"
           >
-            <div className="flex items-center justify-between border-b border-border-soft/60 bg-gradient-cream px-4 py-3">
+            <div className="flex items-center justify-between border-b border-[rgba(74,36,26,0.10)] bg-gradient-cream px-4 py-3.5">
               <p className="font-marcellus text-base text-choco">Notifications</p>
               {count > 0 && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-brand-soft px-2 py-0.5 text-[10px] font-semibold text-choco">
+                <span className="inline-flex items-center gap-1 rounded-full bg-brand-soft px-2.5 py-0.5 text-[10px] font-semibold text-choco">
                   {count} à traiter
                 </span>
               )}
@@ -225,11 +225,10 @@ export default function NotificationsBell() {
                 </div>
               ) : count === 0 ? (
                 <div className="px-4 py-8 text-center">
-                  <CheckSquare
-                    className="mx-auto mb-2 h-6 w-6 text-brand-dark/60"
-                    aria-hidden
-                  />
-                  <p className="text-sm text-muted-warm">
+                  <span className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-pale text-brand-dark">
+                    <CheckSquare className="h-6 w-6" aria-hidden />
+                  </span>
+                  <p className="text-sm text-[#6F5A50]">
                     Rien à traiter. Tu es à jour.
                   </p>
                 </div>
@@ -256,7 +255,7 @@ export default function NotificationsBell() {
             <Link
               href="/prospects/taches"
               onClick={() => setOpen(false)}
-              className="flex items-center justify-center gap-1.5 border-t border-border-soft/60 px-4 py-2.5 text-xs font-semibold text-brand-dark transition-colors hover:bg-cream"
+              className="flex items-center justify-center gap-1.5 border-t border-[rgba(74,36,26,0.10)] px-4 py-3 text-xs font-semibold text-brand-dark transition-colors hover:bg-cream hover:text-choco"
             >
               Voir toutes mes tâches & relances
             </Link>
@@ -280,7 +279,7 @@ function NotifSection({
     <div>
       <p
         className={`px-4 pb-1 pt-3 font-inter text-[10px] font-semibold uppercase tracking-[0.16em] ${
-          danger ? 'text-rose-700' : 'text-muted-warm'
+          danger ? 'text-danger-fg' : 'text-brand-burnt'
         }`}
       >
         {label}
@@ -306,10 +305,10 @@ function NotifRow({
         className="flex items-start gap-3 px-4 py-2.5 transition-colors hover:bg-cream"
       >
         <span
-          className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${
+          className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-2xl ${
             item.bucket === 'overdue'
-              ? 'bg-rose-50 text-rose-700'
-              : 'bg-brand-soft text-brand-dark'
+              ? 'bg-danger-bg text-danger-fg'
+              : 'bg-brand-pale text-brand-dark'
           }`}
         >
           <Icon className="h-3.5 w-3.5" aria-hidden />
@@ -317,7 +316,7 @@ function NotifRow({
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-medium text-ink-warm">{item.title}</p>
           {item.sub && (
-            <p className="truncate text-xs text-muted-warm">{item.sub}</p>
+            <p className="truncate text-xs text-[#6F5A50]">{item.sub}</p>
           )}
         </div>
       </Link>
