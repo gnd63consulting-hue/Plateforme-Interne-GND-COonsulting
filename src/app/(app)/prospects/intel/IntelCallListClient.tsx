@@ -240,7 +240,7 @@ export default function IntelCallListClient({ rows }: { rows: IntelRowVM[] }) {
             </p>
           </div>
           {/* Stats compactes — chiffres en font-num */}
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 sm:justify-end">
+          <div className="flex flex-nowrap items-center gap-x-3 sm:justify-end">
             <Stat label="A appeler" value={stats.callable} accent />
             <Stat label="Prospects" value={stats.total} />
             <Stat label="Avec tel" value={stats.withTel} />
@@ -351,11 +351,11 @@ function Stat({
   accent?: boolean;
 }) {
   return (
-    <div className="flex flex-col border-l border-[rgba(74,36,26,0.07)] pl-4 first:border-l-0 first:pl-0">
-      <span className={`font-num tabular-nums text-xl leading-none ${accent ? 'text-brand-burnt' : 'text-choco'}`}>
+    <div className="flex shrink-0 flex-col border-l border-[rgba(74,36,26,0.07)] pl-3 first:border-l-0 first:pl-0">
+      <span className={`font-num tabular-nums text-lg leading-none ${accent ? 'text-brand-burnt' : 'text-choco'}`}>
         {value}
       </span>
-      <span className="mt-1 font-grotesk text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-warm">
+      <span className="mt-1 whitespace-nowrap font-grotesk text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-warm">
         {label}
       </span>
     </div>
@@ -572,14 +572,14 @@ function IntelCard({ r }: { r: IntelRowVM }) {
         </div>
 
         {/* Action phone-first — le CTA telephone ressort, le reste discret */}
-        <div className="flex shrink-0 items-center gap-2 sm:w-44 sm:flex-col sm:items-stretch">
+        <div className="flex shrink-0 items-center gap-2 sm:w-48 sm:flex-col sm:items-stretch">
           {href ? (
             <a
               href={href}
-              className="orange-glow inline-flex items-center justify-center gap-2 rounded-full bg-brand px-5 py-2.5 text-base font-semibold text-[#3A2017] shadow-soft-md transition hover:bg-brand-dark hover:-translate-y-0.5"
+              className="orange-glow inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-brand px-4 py-2.5 text-sm font-semibold text-[#3A2017] shadow-soft-md transition hover:bg-brand-dark hover:-translate-y-0.5"
             >
-              <Phone className="h-5 w-5" aria-hidden />
-              <span className="font-num tabular-nums">{r.tel}</span>
+              <Phone className="h-4 w-4 shrink-0" aria-hidden />
+              <span className="whitespace-nowrap font-num tabular-nums">{r.tel}</span>
             </a>
           ) : (
             <span className="inline-flex items-center justify-center gap-2 rounded-full bg-cream-deep px-5 py-2.5 text-sm font-medium text-muted-warm">
