@@ -35,19 +35,28 @@ function Mono({ children, size = 9, color = '#7B665C', spacing = '0.2em', weight
 function Hairline({ label, color = '#B5601C' }: { label: string; color?: string }) {
   return <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}><span style={{ display: 'inline-block', width: 24, height: 1, background: '#F39253' }} /><Mono color={color}>{label}</Mono></div>;
 }
+function SectionLabel({ num, label }: { num: string; label: string }) {
+  return (
+    <div style={{ marginBottom: 14, display: 'flex', alignItems: 'center', gap: 12 }}>
+      <span aria-hidden className="font-num" style={{ fontFamily: 'var(--font-marcellus)', fontSize: 13, fontWeight: 500, color: 'rgba(217,122,61,0.55)', fontVariantNumeric: 'tabular-nums', letterSpacing: '0.04em' }}>{num}</span>
+      <Hairline label={label} />
+    </div>
+  );
+}
 
 
 
-function KpiCard({ label, value, sub, accent, spark }: { label: string; value: string | number; sub?: string; accent?: string; spark?: number[] }) {
+function KpiCard({ label, value, sub, accent, spark, dark }: { label: string; value: string | number; sub?: string; accent?: string; spark?: number[]; dark?: boolean }) {
   const sparkPts = spark ? spark.map((v, i) => `${(i / (spark.length - 1)) * 56},${18 - ((v - Math.min(...spark)) / (Math.max(...spark) - Math.min(...spark) || 1)) * 16}`).join(' ') : null;
   const lastY = spark ? 18 - ((spark[spark.length - 1] - Math.min(...spark)) / (Math.max(...spark) - Math.min(...spark) || 1)) * 16 : 0;
+  const valueColor = dark ? '#FBF7F1' : (accent ?? '#532418');
   return (
-    <div style={{ position: 'relative', overflow: 'hidden', borderRadius: 20, padding: '16px 20px', border: '1px solid rgba(74,36,26,0.10)', backgroundImage: 'radial-gradient(circle at 20% 0%,rgba(243,146,83,0.12) 0%,transparent 55%),linear-gradient(135deg,#FFFFFF 0%,#FBF7F1 100%)', boxShadow: '0 1px 2px rgba(83,36,24,0.05), 0 12px 30px -20px rgba(83,36,24,0.22)', flex: 1, minWidth: 120, transition: 'all .2s cubic-bezier(0.22,1,0.36,1)' }}>
+    <div className="panel card-hover" style={{ position: 'relative', overflow: 'hidden', padding: 16, flex: 1, minWidth: 120, ...(dark ? { backgroundImage: 'radial-gradient(rgba(243,146,83,0.10) 1px, transparent 1px),linear-gradient(135deg,#4A2719 0%,#2A1510 100%)', backgroundSize: '14px 14px, auto', border: '1px solid rgba(255,255,255,0.07)', boxShadow: '0 18px 44px -16px rgba(42,21,16,0.55)' } : {}) }}>
       <span aria-hidden style={{ position: 'absolute', left: 0, top: 14, bottom: 14, width: 3, borderRadius: 999, background: accent ? `linear-gradient(180deg,${accent},${accent}55)` : 'linear-gradient(180deg,#F39253,rgba(243,146,83,0.35))' }} />
-      <Mono size={8} color="#B5601C" style={{ display: 'block', marginBottom: 8 }}>{label}</Mono>
-      <div style={{ fontFamily: 'var(--font-marcellus), Georgia, serif', fontSize: 36, fontWeight: 500, lineHeight: 1, letterSpacing: '-0.02em', color: accent ?? '#532418', fontVariantNumeric: 'tabular-nums', marginBottom: 8 }}>{value}</div>
+      <Mono size={8} color={dark ? '#E0A572' : '#B5601C'} style={{ display: 'block', marginBottom: 8 }}>{label}</Mono>
+      <div className="font-num" style={{ fontFamily: 'var(--font-marcellus), Georgia, serif', fontSize: 34, fontWeight: 500, lineHeight: 1, letterSpacing: '-0.02em', color: valueColor, fontVariantNumeric: 'tabular-nums', marginBottom: 8 }}>{value}</div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        {sub && <Mono size={9} color="#9B8A7E">{sub}</Mono>}
+        {sub && <Mono size={9} color={dark ? 'rgba(251,247,241,0.55)' : '#9B8A7E'}>{sub}</Mono>}
         {sparkPts && <svg width="56" height="18" viewBox="0 0 56 18"><polyline points={sparkPts} fill="none" stroke="rgba(243,146,83,0.7)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /><circle cx="56" cy={lastY} r="2" fill="#F39253" /></svg>}
       </div>
     </div>
@@ -425,47 +434,62 @@ export default function AdminV2Client({ data }: { data: AdminV2PageData }) {
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
       <div style={{ flex: 1, background: 'linear-gradient(180deg,#F8F1E9 0%,#F6EFE7 60%,#F4ECE2 100%)', overflowY: 'auto' }}>
-      <header style={{ position: 'relative', padding: '34px 40px 30px', overflow: 'hidden', borderBottom: '1px solid rgba(74,36,26,0.10)', backgroundImage: 'radial-gradient(circle at 12% -10%,rgba(243,146,83,0.10) 0%,transparent 45%),linear-gradient(180deg,#FBF7F1 0%,#F6EFE7 100%)' }}>
-        <span aria-hidden style={{ position: 'absolute', right: -20, top: -40, fontFamily: 'var(--font-marcellus)', fontSize: 200, fontWeight: 500, lineHeight: 1, letterSpacing: '-0.04em', color: 'rgba(243,146,83,0.08)', whiteSpace: 'nowrap', pointerEvents: 'none', userSelect: 'none' }}>Pipeline.</span>
+      <header className="surface-chocolate" style={{ position: 'relative', margin: '24px 40px 0', padding: '28px 32px 26px', overflow: 'hidden', borderRadius: 16 }}>
+        <span aria-hidden className="watermark" style={{ position: 'absolute', right: -16, top: -34, fontFamily: 'var(--font-marcellus)', fontSize: 150, fontWeight: 500, lineHeight: 1, letterSpacing: '-0.04em', color: 'rgba(251,247,241,0.08)', whiteSpace: 'nowrap', pointerEvents: 'none', userSelect: 'none' }}>Pipeline.</span>
         <div style={{ position: 'relative' }}>
           <div style={{ marginBottom: 12 }}>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ display: 'inline-block', width: 28, height: 1, background: '#F39253' }} />
-              <Mono color="#B5601C" spacing="0.22em">VUE ADMIN · LIVE</Mono>
+              <span style={{ display: 'inline-block', width: 24, height: 1, background: 'linear-gradient(90deg,#F39253,transparent)' }} />
+              <Mono color="#E0A572" spacing="0.22em">VUE ADMIN · LIVE</Mono>
               <span style={{ width: 7, height: 7, borderRadius: 999, background: '#F39253', boxShadow: '0 0 8px rgba(243,146,83,0.8)', display: 'inline-block', marginLeft: 4, animation: 'pulse 2s infinite' }} />
             </span>
           </div>
-          <h1 style={{ fontFamily: 'var(--font-marcellus)', fontSize: 52, fontWeight: 500, lineHeight: 0.95, letterSpacing: '-0.03em', color: '#532418', margin: '0 0 10px' }}>Notre <span style={{ fontStyle: 'italic', color: '#D97A3D' }}>pipeline</span>, {data.adminName}.</h1>
-          <Mono size={9} spacing="0.2em" color="#7B665C" style={{ display: 'block', marginBottom: 22 }}>GND CONSULTING · ADMIN GLOBAL · {new Date().toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }).toUpperCase()} · {data.commerciaux.length} COMMERCIAUX ACTIFS</Mono>
+          <h1 style={{ fontFamily: 'var(--font-marcellus)', fontSize: 44, fontWeight: 500, lineHeight: 0.98, letterSpacing: '-0.03em', color: '#FBF7F1', margin: '0 0 8px' }}>Notre <span style={{ fontStyle: 'italic', color: '#F0B281' }}>pipeline</span>, {data.adminName}.</h1>
+          <Mono size={9} spacing="0.2em" color="rgba(251,247,241,0.55)" style={{ display: 'block', marginBottom: 22 }}>GND CONSULTING · ADMIN GLOBAL · {new Date().toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }).toUpperCase()} · {data.commerciaux.length} COMMERCIAUX ACTIFS</Mono>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
             <KpiCard label="PROSPECTS LIVE" value={data.kpi.live} sub="+12 VS M-1" spark={[160, 165, 168, 172, 175, 180, data.kpi.live]} />
-            <KpiCard label="🔥 CHAUDS" value={data.kpi.chauds} sub="ACTIONNABLES" accent="#D97A3D" />
+            <KpiCard label="🔥 CHAUDS" value={data.kpi.chauds} sub="ACTIONNABLES" accent="#D97A3D" dark />
             <KpiCard label={`SIGNATURES ${new Date().toLocaleDateString('fr-FR', { month: 'long' }).toUpperCase()}`} value={data.kpi.signatures} sub={new Date().toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }).toUpperCase()} accent="#4F7A38" />
             <KpiCard label="REVENU MOIS" value={`${(data.kpi.ca / 1000).toFixed(1)}K€`} sub="EUROS · TTC" accent="#4F7A38" spark={[8, 9.5, 10.2, 11, 12.8, 13.5, data.kpi.ca / 1000]} />
             <KpiCard label="CA POTENTIEL" value={formatEur(data.kpi.ca_potentiel)} sub="PIPELINE PONDÉRÉ" accent="#D97A3D" />
           </div>
         </div>
       </header>
-      <div style={{ padding: '30px 40px 40px', display: 'flex', flexDirection: 'column', gap: 22 }}>
+      <div style={{ padding: '26px 40px 40px', display: 'flex', flexDirection: 'column', gap: 20 }}>
         <section>
-          <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 12 }}>
-            <span aria-hidden style={{ fontFamily: 'var(--font-marcellus)', fontSize: 13, fontWeight: 500, color: 'rgba(217,122,61,0.55)', fontVariantNumeric: 'tabular-nums', letterSpacing: '0.04em' }}>01</span>
-            <Hairline label="PERFORMANCE PAR COMMERCIAL" />
-          </div>
+          <SectionLabel num="01" label="PERFORMANCE PAR COMMERCIAL" />
           <CommercialCards commerciaux={data.commerciaux} />
         </section>
-        <FunnelSection stages={data.funnel} />
-        <ClassementSection entries={data.classement} commerciaux={data.commerciaux} />
-        <FormationSection entries={data.formation} />
-        <PaliersSection commerciaux={data.commerciaux} />
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 20 }}>
-          <SyncSection commerciaux={data.commerciaux} />
-          <div style={{ background: 'linear-gradient(160deg,#FFFFFF 0%,#FCF8F3 100%)', border: '1px solid rgba(74,36,26,0.10)', borderRadius: 24, padding: 20, boxShadow: '0 1px 2px rgba(83,36,24,0.05), 0 10px 30px -18px rgba(83,36,24,0.18)' }}>
-            <div style={{ marginBottom: 14 }}><Hairline label="ACTIVITÉ RÉCENTE · ÉQUIPE" /></div>
-            <ActivityLog logs={data.activity} />
+        <section>
+          <SectionLabel num="02" label="FUNNEL & CONVERSION" />
+          <FunnelSection stages={data.funnel} />
+        </section>
+        <section>
+          <SectionLabel num="03" label="CLASSEMENT COMMERCIAUX" />
+          <ClassementSection entries={data.classement} commerciaux={data.commerciaux} />
+        </section>
+        <section>
+          <SectionLabel num="04" label="SUIVI FORMATION" />
+          <FormationSection entries={data.formation} />
+        </section>
+        <section>
+          <SectionLabel num="05" label="PALIERS BONUS" />
+          <PaliersSection commerciaux={data.commerciaux} />
+        </section>
+        <section>
+          <SectionLabel num="06" label="SYNCHRONISATION & ACTIVITÉ" />
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 20 }}>
+            <SyncSection commerciaux={data.commerciaux} />
+            <div className="panel" style={{ padding: 16 }}>
+              <div style={{ marginBottom: 14 }}><Hairline label="ACTIVITÉ RÉCENTE · ÉQUIPE" /></div>
+              <ActivityLog logs={data.activity} />
+            </div>
           </div>
-        </div>
-        <PipelineSection prospects={data.prospects} commerciaux={data.commerciaux} variant="A" />
+        </section>
+        <section>
+          <SectionLabel num="07" label="PIPELINE DÉTAILLÉ" />
+          <PipelineSection prospects={data.prospects} commerciaux={data.commerciaux} variant="A" />
+        </section>
       </div>
       </div>
     </div>
