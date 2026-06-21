@@ -130,6 +130,23 @@ const config: Config = {
         'border-soft': '#E2D5C3', // beige bordure officielle
         'ink-warm': '#2A2320', // texte charbon chaud (corps/titres)
         'muted-warm': '#8A7E73', // texte secondaire gris chaud
+
+        /* === DS v3 — matieres & statuts (refonte UI, juin 2026) ===========
+           Etend le spine charte sans rien retirer. Orange brule + echelle
+           cream surfaces + ceramic + statuts semantiques tons chauds. */
+        'brand-burnt': '#C96A2B', // orange brule — labels / profondeur
+        'cream-paper': '#F8F1E8', // papier editorial chaud (canvas)
+        'cream-sand': '#F3E9DE', // fond secondaire
+        'cream-edge': '#EFE1D3', // separation douce / arriere-plan zones
+        ceramic: '#FFFCF8', // carte mate premium (Soft Ceramic)
+        'ok-bg': '#E4F5EA',
+        'ok-fg': '#2F7D4C',
+        'info-bg': '#EAF3FF',
+        'info-fg': '#31689C',
+        'warn-bg': '#FFF0CC',
+        'warn-fg': '#9A6A10',
+        'danger-bg': '#FCE1E1',
+        'danger-fg': '#A13E3E',
       },
       fontFamily: {
         headline: ['Epilogue', 'sans-serif'],
@@ -169,6 +186,10 @@ const config: Config = {
         'soft-md': '0 2px 6px rgba(83, 36, 24, 0.05), 0 14px 36px rgba(83, 36, 24, 0.07)',
         'soft-lg': '0 4px 10px rgba(83, 36, 24, 0.05), 0 28px 60px rgba(83, 36, 24, 0.10)',
         'brand-glow': '0 8px 24px rgba(243, 146, 83, 0.28)',
+        /* DS v3 — matieres */
+        ceramic: '0 1px 2px rgba(83, 36, 24, 0.04), 0 8px 24px rgba(83, 36, 24, 0.05)',
+        glass: '0 1px 2px rgba(83, 36, 24, 0.04), 0 10px 30px rgba(83, 36, 24, 0.06)',
+        'glow-brand-lg': '0 18px 45px -12px rgba(243, 146, 83, 0.30)',
       },
       backgroundImage: {
         'gradient-warm': 'linear-gradient(135deg, #FDF6EE 0%, #F5EBD9 100%)',

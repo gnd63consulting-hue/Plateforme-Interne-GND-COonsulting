@@ -3,13 +3,21 @@
 @tailwind utilities;
 
 @layer base {
+  /* Canvas editorial chaud global (brief §4.1 + §9.1) — crème + halos
+     orange/chocolat tres faibles, fixes. Remplace l'ancien fond plat +
+     les tokens legacy bannis (gnd-cream / gnd-bronze). */
   body {
-    @apply bg-gnd-cream text-gnd-bronze antialiased;
+    @apply text-ink-warm antialiased;
+    background-color: #FBF7F1;
+    background-image:
+      radial-gradient(100% 90% at 50% -10%, rgba(243, 146, 83, 0.06), transparent 55%),
+      radial-gradient(70% 60% at 100% 100%, rgba(83, 36, 24, 0.03), transparent 60%);
+    background-attachment: fixed;
   }
 
   ::selection {
-    background-color: rgba(232, 133, 61, 0.25);
-    color: #1A0F0E;
+    background-color: rgba(243, 146, 83, 0.22);
+    color: #2A1810;
   }
 
   /* Lenis smooth scroll wrapper classes */
@@ -30,31 +38,125 @@
     pointer-events: none;
   }
 
-  /* Custom scrollbar warm */
+  /* Scrollbar warm fine arrondie (brief §9.3) */
   ::-webkit-scrollbar {
     width: 10px;
     height: 10px;
   }
   ::-webkit-scrollbar-track {
-    background: #FBF7F1;
+    background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: rgba(61, 31, 30, 0.2);
+    background: rgba(83, 36, 24, 0.16);
     border-radius: 999px;
-    border: 2px solid #FBF7F1;
+    border: 2px solid transparent;
+    background-clip: padding-box;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: rgba(232, 133, 61, 0.5);
+    background: rgba(243, 146, 83, 0.5);
+    background-clip: padding-box;
+    border: 2px solid transparent;
+  }
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(83, 36, 24, 0.18) transparent;
   }
 }
 
 @layer components {
-  /* Btn premium pour le legacy */
+  /* =========================================================================
+     MATIERES / SURFACES — Design System v3 (brief §4 + §8.1)
+     Utilitaires composant reutilisables. Aucune logique, CSS pur.
+     ========================================================================= */
+
+  /* 4.2 Frosted Ivory Glass — topbar, modales, panneaux flottants/sticky */
+  .surface-glass {
+    background-color: rgba(255, 250, 244, 0.72);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    box-shadow: 0 1px 2px rgba(83, 36, 24, 0.04), 0 10px 30px rgba(83, 36, 24, 0.06);
+  }
+
+  /* 4.3 Soft Ceramic Card — cartes KPI / fiches / blocs principaux */
+  .surface-ceramic {
+    background-color: #FFFCF8;
+    border: 1px solid rgba(74, 36, 26, 0.10);
+    box-shadow: 0 1px 2px rgba(83, 36, 24, 0.04), 0 8px 24px rgba(83, 36, 24, 0.05);
+  }
+
+  /* 4.4 Chocolate Accent Panel — accent premium, a utiliser avec parcimonie */
+  .surface-chocolate {
+    background-image: linear-gradient(150deg, #532418 0%, #2A1510 100%);
+    color: #FBF7F1;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 10px 40px rgba(42, 21, 16, 0.30);
+  }
+
+  /* 4.5 Accent orange pale — blocs "focus" teintes */
+  .surface-accent {
+    background-color: #FDF2E9;
+    border: 1px solid rgba(243, 146, 83, 0.22);
+  }
+
+  /* 4.6 Hairline luxury border (chaude) */
+  .hairline {
+    border: 1px solid rgba(74, 36, 26, 0.12);
+  }
+  .hairline-brand {
+    border: 1px solid rgba(243, 146, 83, 0.28);
+  }
+
+  /* 4.5 Orange glow — lumiere douce derriere CTA / cartes actives */
+  .orange-glow {
+    box-shadow: 0 18px 45px -12px rgba(243, 146, 83, 0.30);
+  }
+
+  /* Hover card premium (brief §27.2) */
+  .card-hover {
+    transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s ease;
+  }
+  .card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(83, 36, 24, 0.05), 0 28px 60px rgba(83, 36, 24, 0.12);
+  }
+
+  /* Label eyebrow — petites capitales + trait orange editorial (brief §6.3/§28) */
+  .label-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-inter), system-ui, sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #C96A2B;
+  }
+  .label-eyebrow::before {
+    content: '';
+    width: 18px;
+    height: 1.5px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #F39253, rgba(243, 146, 83, 0));
+  }
+
+  /* Watermark typographique geant en fond de page (brief §28) */
+  .watermark {
+    font-family: var(--font-marcellus), Georgia, serif;
+    color: rgba(83, 36, 24, 0.04);
+    pointer-events: none;
+    user-select: none;
+    line-height: 0.8;
+    letter-spacing: -0.04em;
+  }
+
+  /* Btn premium legacy (conserve) */
   .btn-primary {
-    @apply inline-flex items-center gap-2 rounded-full bg-gnd-bronze px-5 py-2.5 text-sm font-semibold text-gnd-cream transition-all hover:bg-gnd-ink hover:shadow-warm-lg;
+    @apply inline-flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-[#2A1810] transition-all hover:bg-brand-dark hover:shadow-brand-glow;
   }
   .btn-secondary {
-    @apply inline-flex items-center gap-2 rounded-full border border-gnd-bronze/15 bg-white px-5 py-2.5 text-sm font-semibold text-gnd-bronze transition-colors hover:bg-gnd-cream;
+    @apply inline-flex items-center gap-2 rounded-full border border-border-soft bg-white px-5 py-2.5 text-sm font-semibold text-choco transition-colors hover:bg-cream-deep;
   }
 
   /* Onglet actif sidebar - encoche concave (continuite menu <-> contenu) */
@@ -82,8 +184,6 @@
 
 @layer utilities {
   /* === Cockpit shine sweep === */
-  /* Pseudo-element qui sweepe une gradient amber translucide diagonalement
-     au hover — effet "reflet" sur surface premium. */
   .cockpit-shine {
     position: relative;
     isolation: isolate;
@@ -107,7 +207,6 @@
     transform: translateX(100%);
   }
 
-  /* Tabular nums utility (in case font-feature-settings doesn't apply) */
   .tabular-nums {
     font-variant-numeric: tabular-nums;
   }
