@@ -58,108 +58,50 @@ export default async function AdminConsolePage() {
   if (!me || !ADMIN_ROLES.has(me.role)) redirect('/dashboard');
 
   return (
-    <div
-      style={{
-        // La zone de contenu admin (<main>) fait 100vh (sidebar à côté).
-        // On centre la carte de lancement verticalement et horizontalement.
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '80vh',
-        boxSizing: 'border-box',
-        padding: '40px 28px',
-        color: INK,
-      }}
-    >
-      <div
-        style={{
-          maxWidth: 560,
-          width: '100%',
-          background: CARD,
-          border: BORDER,
-          borderRadius: 20,
-          padding: '40px 36px',
-          textAlign: 'center',
-        }}
+    <div className="relative flex min-h-[80vh] flex-col items-center justify-center overflow-hidden px-7 py-10">
+      <span
+        aria-hidden
+        className="watermark pointer-events-none absolute inset-x-0 top-8 text-center text-[120px] leading-none"
       >
-        <div
-          style={{
-            fontFamily: MONO,
-            fontSize: 10,
-            fontWeight: 600,
-            textTransform: 'uppercase',
-            letterSpacing: '0.22em',
-            color: AMBER,
-            marginBottom: 14,
-          }}
-        >
-          ADMIN · ARMÉE HERMÈS
+        Hermès
+      </span>
+
+      <div className="surface-ceramic orange-glow relative w-full max-w-[560px] rounded-3xl p-10 text-center">
+        <div className="mb-5 flex justify-center">
+          <span className="inline-flex items-center justify-center rounded-2xl bg-brand-pale p-2.5 text-brand-dark shadow-soft">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+              <rect x="3" y="4" width="18" height="14" rx="2" />
+              <path d="M7 9l3 2-3 2" />
+              <path d="M13 13h4" />
+              <path d="M8 22h8" />
+            </svg>
+          </span>
         </div>
 
-        <h1
-          style={{
-            fontFamily: SERIF,
-            fontSize: 32,
-            fontWeight: 500,
-            letterSpacing: '-0.01em',
-            color: CHOCO,
-            margin: 0,
-            lineHeight: 1.1,
-          }}
-        >
+        <div className="label-eyebrow justify-center">
+          Admin · Armée Hermès
+        </div>
+
+        <h1 className="mt-3 font-marcellus text-[32px] leading-[1.1] tracking-[-0.01em] text-choco">
           Console des agents
         </h1>
 
-        <p
-          style={{
-            fontFamily: SANS,
-            fontSize: 14,
-            lineHeight: 1.55,
-            color: SOFT,
-            margin: '12px auto 0',
-            maxWidth: 420,
-          }}
-        >
+        <p className="mx-auto mt-3 max-w-[420px] font-inter text-sm leading-relaxed text-[#6F5A50]">
           Pilotez l&apos;armée Hermès — chat, Kanban, dispatch.
         </p>
 
-        <div style={{ marginTop: 30 }}>
+        <div className="mt-8">
           <a
             href={HERMES_CONSOLE_URL}
             target="_blank"
             rel="noopener noreferrer"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 10,
-              background: AMBER,
-              border: `1px solid ${CHOCO}`,
-              borderRadius: 999,
-              padding: '14px 28px',
-              fontFamily: SANS,
-              fontSize: 15,
-              fontWeight: 600,
-              letterSpacing: '0.01em',
-              color: '#FFF8F0',
-              textDecoration: 'none',
-              whiteSpace: 'nowrap',
-            }}
+            className="orange-glow inline-flex items-center gap-2.5 rounded-full bg-brand px-7 py-3.5 font-inter text-[15px] font-semibold text-[#2A1810] transition hover:bg-brand-dark"
           >
             Ouvrir la console Hermès ↗
           </a>
         </div>
 
-        <p
-          style={{
-            fontFamily: SANS,
-            fontSize: 12,
-            lineHeight: 1.5,
-            color: FAINT,
-            margin: '22px auto 0',
-            maxWidth: 420,
-          }}
-        >
+        <p className="mx-auto mt-6 max-w-[420px] font-inter text-xs leading-relaxed text-muted-warm">
           Connexion avec le mot de passe Hermès (demandez-le à
           l&apos;administrateur).
         </p>
