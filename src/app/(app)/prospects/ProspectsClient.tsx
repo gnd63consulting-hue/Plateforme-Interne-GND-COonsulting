@@ -656,7 +656,10 @@ export default function ProspectsClient({
         </span>
         <div className="relative flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div className="min-w-0">
-            <span className="label-eyebrow">Mon pipeline</span>
+            <span className="inline-flex items-center gap-2">
+              <span className="h-px w-4 bg-gradient-to-r from-brand to-transparent" aria-hidden />
+              <span className="font-grotesk text-[11px] font-semibold uppercase tracking-[0.13em] text-brand-burnt">Mon pipeline</span>
+            </span>
             <h1 className="mt-2 font-marcellus text-3xl tracking-tight text-choco sm:text-4xl">
               Mes prospects
             </h1>
@@ -665,9 +668,9 @@ export default function ProspectsClient({
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2.5">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-brand/25 bg-brand-soft px-4 py-2 text-sm font-semibold text-choco tabular-nums shadow-soft">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-brand/25 bg-brand-soft px-4 py-2 text-sm font-semibold text-choco shadow-soft">
               <Trophy className="h-4 w-4 text-brand-dark" aria-hidden />
-              Bonus&nbsp;: {earnedBonus} €
+              Bonus&nbsp;: <span className="font-num tabular-nums">{earnedBonus}</span> €
             </span>
             <button
               type="button"
@@ -765,7 +768,7 @@ export default function ProspectsClient({
       {/* ==================================================================== */}
       {/* Filters + actions                                                      */}
       {/* ==================================================================== */}
-      <div className="surface-glass mb-6 flex flex-col gap-3 rounded-3xl p-3 lg:flex-row lg:items-center lg:justify-between">
+      <div className="panel mb-6 flex flex-col gap-3 p-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
           {/* Toggle Table / Kanban */}
           <div
@@ -858,9 +861,9 @@ export default function ProspectsClient({
           )}
         </div>
         <div className="flex items-center gap-3 lg:pr-1">
-          <span className="font-inter text-[11px] uppercase tracking-[0.15em] text-brand-burnt">
-            {filtered.length} prospect{filtered.length > 1 ? 's' : ''}
-            {(filter !== 'all' || search || activeAdvancedCount > 0) ? ` / ${pipelineScoped.length}` : ''}
+          <span className="font-grotesk text-[11px] uppercase tracking-[0.15em] text-brand-burnt">
+            <span className="font-num tabular-nums">{filtered.length}</span> prospect{filtered.length > 1 ? 's' : ''}
+            {(filter !== 'all' || search || activeAdvancedCount > 0) ? <> / <span className="font-num tabular-nums">{pipelineScoped.length}</span></> : ''}
           </span>
           <button
             type="button"
@@ -1089,12 +1092,24 @@ export default function ProspectsClient({
       {/* ==================================================================== */}
       {view === 'kanban' ? (
         filtered.length === 0 ? (
-          <div className="surface-ceramic flex flex-col items-center justify-center rounded-3xl p-16 text-center">
-            <span className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-pale text-brand-dark">
-              <FolderOpen className="h-6 w-6" aria-hidden />
-            </span>
-            <p className="font-marcellus text-xl text-choco">Aucun prospect trouvé.</p>
-            <p className="mt-2 text-sm text-[#6F5A50]">Ajuste tes filtres ou crée ton premier prospect.</p>
+          <div className="panel flex flex-col items-center justify-between gap-3 p-4 sm:flex-row sm:text-left">
+            <div className="flex items-center gap-3">
+              <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-brand-pale text-brand-burnt">
+                <FolderOpen className="h-5 w-5" aria-hidden />
+              </span>
+              <div className="min-w-0">
+                <p className="font-marcellus text-base text-choco">Aucun prospect trouvé</p>
+                <p className="text-sm text-[#6F5A50]">Ajuste tes filtres ou crée ton premier prospect.</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setCreateOpen(true)}
+              className="orange-glow inline-flex shrink-0 items-center gap-1.5 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-[#2A1810] transition hover:bg-brand-dark"
+            >
+              <Plus className="h-4 w-4" aria-hidden />
+              Nouveau prospect
+            </button>
           </div>
         ) : (
           <ProspectKanban
@@ -1107,12 +1122,24 @@ export default function ProspectsClient({
         <>
           {/* Prospect cards (vue Liste) */}
           {paginated.length === 0 ? (
-            <div className="surface-ceramic flex flex-col items-center justify-center rounded-3xl p-16 text-center">
-              <span className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-pale text-brand-dark">
-                <FolderOpen className="h-6 w-6" aria-hidden />
-              </span>
-              <p className="font-marcellus text-xl text-choco">Aucun prospect trouvé.</p>
-              <p className="mt-2 text-sm text-[#6F5A50]">Ajuste tes filtres ou crée ton premier prospect.</p>
+            <div className="panel flex flex-col items-center justify-between gap-3 p-4 sm:flex-row sm:text-left">
+              <div className="flex items-center gap-3">
+                <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-brand-pale text-brand-burnt">
+                  <FolderOpen className="h-5 w-5" aria-hidden />
+                </span>
+                <div className="min-w-0">
+                  <p className="font-marcellus text-base text-choco">Aucun prospect trouvé</p>
+                  <p className="text-sm text-[#6F5A50]">Ajuste tes filtres ou crée ton premier prospect.</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setCreateOpen(true)}
+                className="orange-glow inline-flex shrink-0 items-center gap-1.5 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-[#2A1810] transition hover:bg-brand-dark"
+              >
+                <Plus className="h-4 w-4" aria-hidden />
+                Nouveau prospect
+              </button>
             </div>
           ) : (
             <div className="space-y-3">
@@ -1134,9 +1161,9 @@ export default function ProspectsClient({
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="surface-glass mt-8 flex items-center justify-between rounded-2xl px-4 py-3 sm:px-6">
-              <p className="font-inter text-[11px] uppercase tracking-[0.15em] text-brand-burnt">
-                Page <span className="font-semibold text-choco">{safePage}</span> sur <span className="text-choco">{totalPages}</span>
+            <div className="panel mt-8 flex items-center justify-between px-4 py-3 sm:px-6">
+              <p className="font-grotesk text-[11px] uppercase tracking-[0.15em] text-brand-burnt">
+                Page <span className="font-num font-semibold tabular-nums text-choco">{safePage}</span> sur <span className="font-num tabular-nums text-choco">{totalPages}</span>
               </p>
               <div className="flex items-center gap-1">
                 <button
@@ -1287,21 +1314,21 @@ function ProspectRow({ prospect: p, index, onView, onEdit, onDelete, onNotes, on
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: Math.min(index * 0.03, 0.4), ease: 'easeOut' }}
-      className="surface-ceramic card-hover group flex flex-col gap-4 rounded-2xl p-5 hover:border-brand/40 sm:p-6 lg:flex-row lg:items-center"
+      className="panel card-hover group flex flex-col gap-3 p-4 lg:flex-row lg:items-center"
     >
-      <div className="flex flex-1 items-start gap-4 lg:max-w-[28%]">
-        <Avatar name={p.company_name} size="lg" tone="choco" className="rounded-2xl" />
+      <div className="flex flex-1 items-start gap-3 lg:max-w-[28%]">
+        <Avatar name={p.company_name} size="lg" tone="choco" className="rounded-xl" />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <Link
               href={`/prospects/${p.id}`}
-              className="truncate font-marcellus text-base font-normal text-choco underline-offset-4 transition-colors hover:text-brand-dark hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring"
+              className="truncate font-medium text-choco underline-offset-4 transition-colors hover:text-brand-dark hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring"
               title="Ouvrir la fiche 360"
             >
               {p.company_name}
             </Link>
             {p.notion_page_id && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-brand-soft px-2 py-0.5 font-inter text-[8px] font-semibold uppercase tracking-[0.18em] text-brand-dark">
+              <span className="inline-flex items-center gap-1 rounded-full bg-brand-soft px-2 py-0.5 font-grotesk text-[8px] font-semibold uppercase tracking-[0.18em] text-brand-dark">
                 <Sparkles className="h-2.5 w-2.5" aria-hidden />
                 Notion
               </span>
@@ -1315,18 +1342,18 @@ function ProspectRow({ prospect: p, index, onView, onEdit, onDelete, onNotes, on
           )}
         </div>
       </div>
-      <div className="flex flex-col gap-1 text-sm lg:max-w-[22%] lg:flex-1">
-        {p.phone && <a href={`tel:${p.phone}`} className="inline-flex items-center gap-1.5 font-inter text-xs text-brand-dark transition-colors hover:text-brand">{p.phone}</a>}
+      <div className="flex flex-col gap-1 text-sm lg:max-w-[22%] lg:flex-1 lg:border-l lg:border-[rgba(74,36,26,0.07)] lg:pl-4">
+        {p.phone && <a href={`tel:${p.phone}`} className="inline-flex items-center gap-1.5 font-num text-xs tabular-nums text-brand-dark transition-colors hover:text-brand">{p.phone}</a>}
         {p.email && (
-          <a href={`mailto:${p.email}`} className="inline-flex items-center gap-1.5 truncate font-inter text-xs text-muted-warm transition-colors hover:text-brand-dark">
+          <a href={`mailto:${p.email}`} className="inline-flex items-center gap-1.5 truncate text-xs text-muted-warm transition-colors hover:text-brand-dark">
             {p.email}
             <ExternalLink className="h-3 w-3" aria-hidden />
           </a>
         )}
       </div>
-      <div className="flex flex-col gap-1 text-xs lg:max-w-[18%] lg:flex-1">
+      <div className="flex flex-col gap-1 text-xs lg:max-w-[18%] lg:flex-1 lg:border-l lg:border-[rgba(74,36,26,0.07)] lg:pl-4">
         {p.city && <span className="inline-flex items-center gap-1 text-muted-warm"><MapPin className="h-3 w-3 text-muted-warm/70" aria-hidden />{p.city}</span>}
-        {p.sector && <span className="font-inter text-[10px] uppercase tracking-[0.15em] text-muted-warm/70">{p.sector}</span>}
+        {p.sector && <span className="font-grotesk text-[10px] uppercase tracking-[0.15em] text-muted-warm/70">{p.sector}</span>}
       </div>
       <div className="lg:max-w-[16%]">
         <select
@@ -1342,10 +1369,10 @@ function ProspectRow({ prospect: p, index, onView, onEdit, onDelete, onNotes, on
             <option key={opt.value} value={opt.value}>{opt.label}</option>
           ))}
         </select>
-        <p className="mt-1 font-inter text-[9px] uppercase tracking-[0.15em] text-muted-warm/70">MAJ {formatDate(p.updated_at)}</p>
+        <p className="mt-1 font-grotesk text-[9px] uppercase tracking-[0.15em] text-muted-warm/70">MAJ <span className="font-num tabular-nums">{formatDate(p.updated_at)}</span></p>
         {p.next_action_at && (
-          <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-brand-soft px-2 py-0.5 font-inter text-[9px] font-semibold uppercase tracking-[0.12em] text-brand-dark">
-            ⏰ Relance {formatDate(p.next_action_at)}
+          <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-brand-soft px-2 py-0.5 font-grotesk text-[9px] font-semibold uppercase tracking-[0.12em] text-brand-dark">
+            ⏰ Relance <span className="font-num tabular-nums">{formatDate(p.next_action_at)}</span>
           </span>
         )}
       </div>
