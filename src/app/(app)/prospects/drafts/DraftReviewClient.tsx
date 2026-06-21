@@ -89,23 +89,32 @@ export default function DraftReviewClient({ rows }: { rows: DraftRow[] }) {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
-      <header className="mb-6">
-        <h1 className="font-marcellus text-3xl text-brand-dark">Drafts a valider</h1>
-        <p className="mt-1 font-inter text-sm text-choco/70">
+      <header className="relative mb-8 overflow-hidden">
+        <span
+          aria-hidden
+          className="watermark pointer-events-none absolute -right-2 -top-8 select-none font-marcellus text-[120px] leading-none text-choco"
+        >
+          Nyx
+        </span>
+        <span className="label-eyebrow">File de validation</span>
+        <h1 className="mt-2 font-marcellus text-3xl tracking-tight text-choco">
+          Drafts a valider
+        </h1>
+        <p className="mt-2 max-w-2xl font-inter text-sm text-[#6F5A50]">
           Brouillons rediges par les agents (Nyx). Relisez, ajustez, validez ou rejetez. Rien
           n'est envoye sans votre validation.
         </p>
       </header>
 
-      <div className="mb-6 flex flex-wrap gap-2">
+      <div className="mb-7 flex flex-wrap gap-2">
         {FILTERS.map((f) => (
           <button
             key={f.key}
             onClick={() => setFilter(f.key)}
             className={`rounded-full px-4 py-1.5 font-inter text-sm transition ${
               filter === f.key
-                ? 'bg-brand text-white'
-                : 'bg-cream-deep text-choco hover:bg-cream-deep/70'
+                ? 'bg-brand text-[#2A1810] font-semibold orange-glow'
+                : 'border border-border-soft bg-white text-choco hover:bg-cream-deep'
             }`}
           >
             {f.label}
@@ -115,17 +124,23 @@ export default function DraftReviewClient({ rows }: { rows: DraftRow[] }) {
       </div>
 
       {visible.length === 0 ? (
-        <div className="rounded-3xl border border-border-soft bg-cream-deep/40 p-10 text-center font-inter text-choco/60">
-          Aucun draft dans cette vue.
+        <div className="surface-ceramic rounded-3xl p-12 text-center">
+          <div className="mx-auto mb-4 inline-flex rounded-2xl bg-brand-pale p-3 text-brand-dark">
+            <Mail className="h-6 w-6" />
+          </div>
+          <p className="font-marcellus text-lg text-choco">Aucun draft dans cette vue.</p>
+          <p className="mt-1 font-inter text-sm text-[#6F5A50]">
+            Les brouillons des agents apparaitront ici des qu'ils seront prets.
+          </p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-5">
           {visible.map((r) => (
             <article
               key={r.id}
-              className="rounded-3xl border border-border-soft bg-white p-5 shadow-soft"
+              className="surface-ceramic card-hover rounded-3xl p-6"
             >
-              <div className="mb-3 flex flex-wrap items-center gap-2">
+              <div className="mb-4 flex flex-wrap items-center gap-2">
                 <span
                   className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${statusTone(r.status)}`}
                 >
@@ -134,12 +149,12 @@ export default function DraftReviewClient({ rows }: { rows: DraftRow[] }) {
                 <span className="inline-flex items-center gap-1 rounded-full bg-cream-deep px-2.5 py-0.5 text-xs text-choco">
                   <ChannelIcon channel={r.channel} /> {channelLabel(r.channel)}
                 </span>
-                <span className="inline-flex items-center gap-1 text-xs text-choco/60">
+                <span className="inline-flex items-center gap-1 text-xs text-[#6F5A50]">
                   <Bot className="h-3.5 w-3.5" /> {r.created_by ?? 'agent'}
                 </span>
                 <Link
                   href={`/prospects/${r.prospect_id}`}
-                  className="ml-auto inline-flex items-center gap-1 font-marcellus text-lg text-brand-dark hover:underline"
+                  className="ml-auto inline-flex items-center gap-1 font-marcellus text-lg text-brand-dark transition hover:text-brand-burnt"
                 >
                   {prospectDisplay(r.prospect)} <ExternalLink className="h-4 w-4" />
                 </Link>
@@ -150,7 +165,7 @@ export default function DraftReviewClient({ rows }: { rows: DraftRow[] }) {
                   href={r.mockup_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mb-3 inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700 transition hover:bg-emerald-100"
+                  className="mb-4 inline-flex items-center gap-2 rounded-full bg-ok-bg px-3 py-1.5 text-xs font-medium text-ok-fg transition hover:opacity-80"
                 >
                   <Globe className="h-3.5 w-3.5" /> Maquette du prospect prete — voir le site
                   <ExternalLink className="h-3.5 w-3.5" />
@@ -158,30 +173,30 @@ export default function DraftReviewClient({ rows }: { rows: DraftRow[] }) {
               )}
 
               {editing === r.id ? (
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <input
                     value={draftSubject}
                     onChange={(e) => setDraftSubject(e.target.value)}
                     placeholder="Objet"
-                    className="w-full rounded-xl border border-border-soft px-3 py-2 font-inter text-sm"
+                    className="w-full rounded-2xl border border-border-soft bg-cream/60 px-3.5 py-2.5 font-inter text-sm text-choco focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring focus:border-brand"
                   />
                   <textarea
                     value={draftBody}
                     onChange={(e) => setDraftBody(e.target.value)}
                     rows={8}
-                    className="w-full rounded-xl border border-border-soft px-3 py-2 font-inter text-sm"
+                    className="w-full rounded-2xl border border-border-soft bg-cream/60 px-3.5 py-2.5 font-inter text-sm text-choco focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring focus:border-brand"
                   />
                   <div className="flex gap-2">
                     <button
                       disabled={pending}
                       onClick={() => saveEdit(r.id)}
-                      className="inline-flex items-center gap-1 rounded-full bg-brand px-4 py-1.5 text-sm text-white disabled:opacity-50"
+                      className="inline-flex items-center gap-1 rounded-full bg-brand px-4 py-1.5 text-sm font-semibold text-[#2A1810] transition hover:bg-brand-dark disabled:opacity-50"
                     >
                       <Save className="h-4 w-4" /> Enregistrer
                     </button>
                     <button
                       onClick={() => setEditing(null)}
-                      className="rounded-full bg-cream-deep px-4 py-1.5 text-sm text-choco"
+                      className="rounded-full border border-border-soft bg-white px-4 py-1.5 text-sm text-choco transition hover:bg-cream-deep"
                     >
                       Annuler
                     </button>
@@ -190,22 +205,22 @@ export default function DraftReviewClient({ rows }: { rows: DraftRow[] }) {
               ) : (
                 <>
                   {r.subject && (
-                    <p className="mb-1 font-inter text-sm font-semibold text-brand-dark">
+                    <p className="mb-1.5 font-inter text-sm font-semibold text-brand-dark">
                       {r.subject}
                     </p>
                   )}
-                  <p className="whitespace-pre-wrap font-inter text-sm text-choco/90">
+                  <p className="whitespace-pre-wrap font-inter text-sm leading-relaxed text-ink-warm">
                     {r.body || '(vide)'}
                   </p>
                 </>
               )}
 
-              <div className="mt-4 flex flex-wrap gap-2 border-t border-border-soft pt-3">
+              <div className="mt-5 flex flex-wrap gap-2 border-t border-[rgba(74,36,26,0.10)] pt-4">
                 {r.status !== 'ready' && (
                   <button
                     disabled={pending}
                     onClick={() => act(() => setDraftStatus(r.id, 'ready'))}
-                    className="inline-flex items-center gap-1 rounded-full bg-emerald-600 px-4 py-1.5 text-sm text-white disabled:opacity-50"
+                    className="inline-flex items-center gap-1 rounded-full bg-brand px-4 py-1.5 text-sm font-semibold text-[#2A1810] orange-glow transition hover:bg-brand-dark disabled:opacity-50"
                   >
                     <Check className="h-4 w-4" /> Valider
                   </button>
@@ -213,7 +228,7 @@ export default function DraftReviewClient({ rows }: { rows: DraftRow[] }) {
                 {editing !== r.id && (
                   <button
                     onClick={() => startEdit(r)}
-                    className="inline-flex items-center gap-1 rounded-full bg-cream-deep px-4 py-1.5 text-sm text-choco"
+                    className="inline-flex items-center gap-1 rounded-full border border-border-soft bg-white px-4 py-1.5 text-sm text-choco transition hover:bg-cream-deep"
                   >
                     <Pencil className="h-4 w-4" /> Editer
                   </button>
@@ -222,7 +237,7 @@ export default function DraftReviewClient({ rows }: { rows: DraftRow[] }) {
                   <button
                     disabled={pending}
                     onClick={() => act(() => setDraftStatus(r.id, 'discarded'))}
-                    className="inline-flex items-center gap-1 rounded-full bg-cream-deep px-4 py-1.5 text-sm text-rose-700 disabled:opacity-50"
+                    className="inline-flex items-center gap-1 rounded-full border border-border-soft bg-white px-4 py-1.5 text-sm text-danger-fg transition hover:bg-danger-bg disabled:opacity-50"
                   >
                     <X className="h-4 w-4" /> Rejeter
                   </button>
@@ -231,7 +246,7 @@ export default function DraftReviewClient({ rows }: { rows: DraftRow[] }) {
                   <button
                     disabled={pending}
                     onClick={() => act(() => setDraftStatus(r.id, 'draft'))}
-                    className="inline-flex items-center gap-1 rounded-full bg-cream-deep px-4 py-1.5 text-sm text-choco disabled:opacity-50"
+                    className="inline-flex items-center gap-1 rounded-full border border-border-soft bg-white px-4 py-1.5 text-sm text-choco transition hover:bg-cream-deep disabled:opacity-50"
                   >
                     <RotateCcw className="h-4 w-4" /> Remettre a valider
                   </button>
