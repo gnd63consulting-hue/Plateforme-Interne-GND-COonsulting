@@ -1267,6 +1267,73 @@ function RelancePlanner({
 
 /* ---- F. Édition rapide des notes ------------------------------------- */
 
+/* Étiquettes de section reconnues dans les notes générées (enrichissement IA).
+   Sert à découper un long pavé en blocs lisibles, chaque étiquette en gras. */
+const NOTE_LABELS = [
+  'Recommandation',
+  'Statut juridique',
+  'Statut',
+  'Adresse',
+  'Angle',
+  'Pitch Selene',
+  'Pitch',
+  'Canal optimal',
+  'QUALIFIER AU 1ER CONTACT',
+  'QUALIFIER',
+  'Args clés',
+  'Concurrence',
+  'Classification',
+  'Besoins détectés',
+  'Vérif',
+];
+
+/* Découpe une note en blocs : un saut avant chaque étiquette connue suivie d'un « : ». */
+function splitNote(text: string): string[] {
+  const re = new RegExp(
+    `(?=(?:${NOTE_LABELS.join('|')})\\b[^:\\n]{0,40}:)`,
+    'g'
+  );
+  return text
+    .split(re)
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+/* Affichage structuré des notes : sections espacées, étiquette en gras.
+   Repli sur un simple paragraphe si aucune structure détectée. */
+function FormattedNotes({ notes }: { notes: string }) {
+  const blocks = splitNote(notes);
+  if (blocks.length <= 1) {
+    return (
+      <p className="whitespace-pre-wrap break-words rounded-2xl bg-cream/50 p-3 text-sm leading-relaxed text-ink-warm ring-1 ring-[rgba(74,36,26,0.10)]">
+        {notes}
+      </p>
+    );
+  }
+  return (
+    <div className="space-y-2 rounded-2xl bg-cream/50 p-3 ring-1 ring-[rgba(74,36,26,0.10)]">
+      {blocks.map((b, i) => {
+        const m = b.match(/^([^:]{1,40}?\s*:)\s*([\s\S]*)$/);
+        return (
+          <p
+            key={i}
+            className="whitespace-pre-wrap break-words text-sm leading-relaxed text-ink-warm"
+          >
+            {m ? (
+              <>
+                <strong className="font-semibold text-choco">{m[1]}</strong>{' '}
+                {m[2]}
+              </>
+            ) : (
+              b
+            )}
+          </p>
+        );
+      })}
+    </div>
+  );
+}
+
 function NotesEditor({
   notes,
   onSave,
@@ -1340,9 +1407,7 @@ function NotesEditor({
           </div>
         </>
       ) : notes ? (
-        <p className="whitespace-pre-wrap break-words rounded-2xl bg-cream/50 p-3 text-sm text-ink-warm ring-1 ring-[rgba(74,36,26,0.10)]">
-          {notes}
-        </p>
+        <FormattedNotes notes={notes} />
       ) : (
         <p className="text-xs italic text-muted-warm/70">
           Aucune note pour ce prospect.

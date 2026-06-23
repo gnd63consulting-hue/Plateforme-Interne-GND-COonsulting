@@ -47,7 +47,7 @@ export default async function InvitationsPage() {
   const { data: membersRaw } = await supabase
     .from('users')
     .select('id, full_name, email, role, commission_rate, active, permissions')
-    .in('role', ['admin', 'admin_limited', 'freelance', 'commercial'])
+    .in('role', ['admin', 'admin_limited', 'assistant', 'freelance', 'commercial', 'stagiaire'])
     .order('created_at', { ascending: true });
 
   const allMembers = (membersRaw ?? []) as {

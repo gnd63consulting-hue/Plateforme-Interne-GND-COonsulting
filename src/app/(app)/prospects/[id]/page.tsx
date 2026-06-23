@@ -165,7 +165,7 @@ export default async function ProspectDetailPage({
       callPitch={callPitch}
       mockup={mockup}
       brief={brief}
-      mockupProspectId={id}
+      mockupProspectId={isAdmin ? id : undefined}
     />
   );
 }

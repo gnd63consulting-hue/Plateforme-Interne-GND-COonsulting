@@ -53,7 +53,7 @@ export default function AppTopbar({
     user.role === 'admin' ? 'Administrateur' : 'Commercial';
 
   return (
-    <header className="surface-glass flex h-[68px] shrink-0 items-center gap-3 border-b border-[rgba(74,36,26,0.10)] px-4 md:px-7">
+    <header className="surface-glass relative z-30 flex h-[68px] shrink-0 items-center gap-3 border-b border-[rgba(74,36,26,0.10)] px-4 md:px-7">
       {/* Burger (mobile) */}
       <button
         type="button"
