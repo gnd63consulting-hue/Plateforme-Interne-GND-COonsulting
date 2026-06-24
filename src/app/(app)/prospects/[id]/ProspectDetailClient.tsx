@@ -1783,8 +1783,23 @@ function splitAnalysisLeads(
   return cleaned;
 }
 
+/* Remplace les tirets cadratins/demi-cadratins (style « IA ») par une vraie
+   ponctuation, pour un rendu plus humain. */
+function cleanDashes(s: string): string {
+  return s.replace(/\s+[—–]\s+/g, ', ');
+}
+
+/* Découpe un paragraphe en phrases (protège les décimales type 4.9) afin
+   d'aérer les longs blocs d'analyse (une phrase par ligne). */
+function splitSentences(s: string): string[] {
+  return s
+    .split(/(?<=[.!?…])\s+(?=[A-ZÀ-ÖØ-Þ«“(0-9])/)
+    .map((x) => x.trim())
+    .filter(Boolean);
+}
+
 function AnalysisBody({ text, dark }: { text: string; dark?: boolean }) {
-  const sections = splitAnalysisLeads(text);
+  const sections = splitAnalysisLeads(cleanDashes(text));
   const leadTone = dark ? 'text-[#F2C29B]' : 'text-brand-burnt';
   const bodyTone = dark ? 'text-cream/85' : 'text-[#5C3A2C]';
 
@@ -1803,11 +1818,16 @@ function AnalysisBody({ text, dark }: { text: string; dark?: boolean }) {
             </div>
           )}
           {s.body && (
-            <p
-              className={`${s.lead ? 'mt-1 ' : ''}whitespace-pre-wrap break-words text-[13px] leading-relaxed max-w-[60ch] ${bodyTone}`}
-            >
-              {s.body}
-            </p>
+            <div className={`${s.lead ? 'mt-1.5 ' : ''}max-w-[62ch] space-y-1.5`}>
+              {splitSentences(s.body).map((sent, j) => (
+                <p
+                  key={j}
+                  className={`break-words text-[13px] leading-relaxed ${bodyTone}`}
+                >
+                  {sent}
+                </p>
+              ))}
+            </div>
           )}
         </div>
       ))}
