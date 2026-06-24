@@ -18,10 +18,12 @@ const ADMIN_ROLES = new Set(['admin', 'admin_limited']);
  * Réassigne un prospect à un autre commercial (ou à NULL pour désassigner).
  * Réservé aux admins. Met à jour uniquement la colonne `assigned_to` du prospect.
  *
- * Note : ce endpoint ne pousse PAS le changement vers Notion. Le prochain
- * run du sync Notion → Supabase risque donc de remettre l'ancien `assigned_to`
- * si la fiche Notion n'a pas été mise à jour aussi. À traiter dans une
- * évolution future (push bidirectionnel).
+ * Source de vérité : la PLATEFORME est master de la propriété. Le sync Notion
+ * (cf. sync-prospects) ne réécrit JAMAIS `assigned_to` sur un prospect existant
+ * (la colonne est exclue de FILLABLE_COLUMNS ; l'UPDATE ne comble que les
+ * champs encore vides). Le mirror Google Sheets ne fait que LIRE. Une
+ * assignation faite ici est donc préservée à travers les syncs. (Le push
+ * bidirectionnel vers Notion reste un nice-to-have informatif, pas requis.)
  */
 export async function POST(req: Request) {
   const supabase = await createClient();
