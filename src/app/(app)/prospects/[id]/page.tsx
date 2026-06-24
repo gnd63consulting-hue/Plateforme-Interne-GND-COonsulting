@@ -85,6 +85,19 @@ export default async function ProspectDetailPage({
       finance?.deal_amount != null ? Number(finance.deal_amount) : null;
   }
 
+  // Membres assignables (admin only) : commerciaux actifs, pour le bouton
+  // « Assigner » sur la fiche. RLS users : lecture autorisée pour l'admin.
+  let assignableMembers: { id: string; full_name: string | null }[] = [];
+  if (isAdmin) {
+    const { data: mem } = await supabase
+      .from('users')
+      .select('id, full_name')
+      .in('role', ['freelance', 'commercial'])
+      .eq('active', true)
+      .order('full_name', { ascending: true });
+    assignableMembers = (mem ?? []) as { id: string; full_name: string | null }[];
+  }
+
   // Timeline + sequences + inscription + devis + intel + maquette + brief, en parallele.
   const [
     activityRes,
@@ -166,6 +179,9 @@ export default async function ProspectDetailPage({
       mockup={mockup}
       brief={brief}
       mockupProspectId={isAdmin ? id : undefined}
+      canAssign={isAdmin}
+      assignableMembers={assignableMembers}
+      currentAssignedTo={(prospect as { assigned_to?: string | null }).assigned_to ?? null}
     />
   );
 }

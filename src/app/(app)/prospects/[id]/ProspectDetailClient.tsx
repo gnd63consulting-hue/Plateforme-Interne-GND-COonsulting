@@ -175,6 +175,10 @@ type ProspectDetailClientProps = {
   mockup?: MockupRow | null;
   brief?: SiteBriefRow | null;
   mockupProspectId?: string;
+  // Assignation (admin only) : liste des commerciaux + propriétaire courant.
+  canAssign?: boolean;
+  assignableMembers?: { id: string; full_name: string | null }[];
+  currentAssignedTo?: string | null;
 };
 
 export default function ProspectDetailClient({
@@ -191,6 +195,9 @@ export default function ProspectDetailClient({
   mockup,
   brief,
   mockupProspectId,
+  canAssign,
+  assignableMembers,
+  currentAssignedTo,
 }: ProspectDetailClientProps) {
   const supabase = useMemo(() => createClient(), []);
   const reduceMotion = useReducedMotion();
@@ -671,6 +678,15 @@ export default function ProspectDetailClient({
                 brief={brief ?? null}
               />
             </section>
+          ) : null}
+
+          {/* Assigner le prospect (admin only) */}
+          {canAssign ? (
+            <AssignControl
+              prospectId={prospect.id}
+              members={assignableMembers ?? []}
+              current={currentAssignedTo ?? null}
+            />
           ) : null}
 
           {/* B. BLOC INFOS */}
@@ -1331,6 +1347,88 @@ function FormattedNotes({ notes }: { notes: string }) {
         );
       })}
     </div>
+  );
+}
+
+/* ---- Assigner / réassigner le prospect (admin only) ------------------ */
+
+function AssignControl({
+  prospectId,
+  members,
+  current,
+}: {
+  prospectId: string;
+  members: { id: string; full_name: string | null }[];
+  current: string | null;
+}) {
+  const [value, setValue] = useState(current ?? '');
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState<{ kind: 'ok' | 'err'; text: string } | null>(
+    null
+  );
+
+  async function save(next: string) {
+    setSaving(true);
+    setMsg(null);
+    try {
+      const res = await fetch('/api/admin/reassign-prospect', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prospect_id: prospectId,
+          new_assigned_to: next || null,
+        }),
+      });
+      if (res.ok) {
+        setValue(next);
+        const who = next
+          ? members.find((m) => m.id === next)?.full_name ?? 'le commercial'
+          : null;
+        setMsg({
+          kind: 'ok',
+          text: who ? `Assigné à ${who}.` : 'Prospect désassigné.',
+        });
+      } else {
+        const e = (await res.json().catch(() => ({}))) as { error?: string };
+        setMsg({ kind: 'err', text: e.error ? `Erreur : ${e.error}` : 'Erreur.' });
+      }
+    } catch {
+      setMsg({ kind: 'err', text: 'Erreur réseau.' });
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <section className="panel p-4">
+      <div className="mb-2 flex items-center gap-1.5 font-grotesk text-[11px] font-semibold uppercase tracking-[0.1em] text-brand-burnt">
+        <Users className="h-3.5 w-3.5" aria-hidden />
+        Assigner le prospect
+      </div>
+      <select
+        value={value}
+        onChange={(e) => save(e.target.value)}
+        disabled={saving}
+        aria-label="Assigner le prospect à un commercial"
+        className="w-full rounded-2xl border border-border-soft bg-cream/60 px-3.5 py-2.5 text-sm font-semibold text-choco focus:border-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring disabled:opacity-50"
+      >
+        <option value="">Non assigné</option>
+        {members.map((m) => (
+          <option key={m.id} value={m.id}>
+            {m.full_name ?? '—'}
+          </option>
+        ))}
+      </select>
+      {msg && (
+        <p
+          className={`mt-1.5 text-xs ${
+            msg.kind === 'ok' ? 'text-ok-fg' : 'text-danger-fg'
+          }`}
+        >
+          {msg.text}
+        </p>
+      )}
+    </section>
   );
 }
 
