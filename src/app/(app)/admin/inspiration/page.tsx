@@ -54,7 +54,19 @@ function RefCard({ r }: { r: DesignRefRow }) {
         </div>
       </div>
       {r.notes && (
-        <p className="mt-2.5 font-inter text-sm leading-relaxed text-[#6F5A50]">{r.notes}</p>
+        <p className="mt-2.5 line-clamp-3 font-inter text-[13px] leading-relaxed text-[#6F5A50]">{r.notes}</p>
+      )}
+      {r.tags && r.tags.length > 0 && (
+        <div className="mt-2.5 flex flex-wrap gap-1.5">
+          {r.tags.slice(0, 5).map((t) => (
+            <span
+              key={t}
+              className="rounded-md bg-cream-deep px-2 py-0.5 font-grotesk text-[10px] font-medium uppercase tracking-wide text-brand-burnt"
+            >
+              {t}
+            </span>
+          ))}
+        </div>
       )}
       <div className="mt-auto flex flex-wrap gap-2 pt-3">
         {r.url && (
