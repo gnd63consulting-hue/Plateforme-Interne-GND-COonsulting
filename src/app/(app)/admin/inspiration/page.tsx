@@ -10,7 +10,28 @@ export const dynamic = 'force-dynamic';
 
 function RefCard({ r }: { r: DesignRefRow }) {
   return (
-    <article className="panel card-hover flex flex-col p-4">
+    <article className="panel card-hover flex flex-col overflow-hidden p-0">
+      {r.preview_url && (
+        <a
+          href={r.preview_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Voir l'aperçu en grand"
+          className="group relative block aspect-[16/10] overflow-hidden bg-cream-deep"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={r.preview_url}
+            alt={`Aperçu ${r.name}`}
+            loading="lazy"
+            className="h-full w-full object-cover object-top transition-transform duration-300 group-hover:scale-[1.03]"
+          />
+          <span className="absolute bottom-2 right-2 rounded-full bg-choco/80 px-2 py-0.5 text-[10px] font-semibold text-cream opacity-0 transition group-hover:opacity-100">
+            Aperçu ↗
+          </span>
+        </a>
+      )}
+      <div className="flex flex-1 flex-col p-4">
       <div className="flex items-start gap-3">
         <span className="inline-flex shrink-0 items-center justify-center rounded-xl bg-brand-pale p-2 text-brand-burnt shadow-soft">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
@@ -57,6 +78,7 @@ function RefCard({ r }: { r: DesignRefRow }) {
           </a>
         )}
       </div>
+      </div>
     </article>
   );
 }
@@ -77,6 +99,7 @@ export default async function InspirationPage() {
   const rows = (data ?? []) as DesignRefRow[];
   const gnd = rows.filter((r) => r.kind === 'gnd_site');
   const ext = rows.filter((r) => r.kind === 'external_ref');
+  const tpl = rows.filter((r) => r.kind === 'template');
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">
@@ -108,6 +131,18 @@ export default async function InspirationPage() {
         </div>
       ) : (
         <div className="space-y-8">
+          {tpl.length > 0 && (
+            <section>
+              <h2 className="mb-4 flex items-center gap-2 font-grotesk text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-burnt">
+                Templates (inspiration) <span className="font-num tabular-nums text-muted-warm">({tpl.length})</span>
+              </h2>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {tpl.map((r) => (
+                  <RefCard key={r.id} r={r} />
+                ))}
+              </div>
+            </section>
+          )}
           <section>
             <h2 className="mb-4 flex items-center gap-2 font-grotesk text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-burnt">
               Sites GND <span className="font-num tabular-nums text-muted-warm">({gnd.length})</span>
