@@ -98,8 +98,9 @@ export default async function InspirationPage() {
 
   const rows = (data ?? []) as DesignRefRow[];
   const gnd = rows.filter((r) => r.kind === 'gnd_site');
-  const ext = rows.filter((r) => r.kind === 'external_ref');
-  const tpl = rows.filter((r) => r.kind === 'template');
+  // Références externes = refs externes + templates (Envato). Pas de section
+  // séparée : tout vit dans la même section "Références externes".
+  const ext = rows.filter((r) => r.kind === 'external_ref' || r.kind === 'template');
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">
@@ -131,18 +132,6 @@ export default async function InspirationPage() {
         </div>
       ) : (
         <div className="space-y-8">
-          {tpl.length > 0 && (
-            <section>
-              <h2 className="mb-4 flex items-center gap-2 font-grotesk text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-burnt">
-                Templates (inspiration) <span className="font-num tabular-nums text-muted-warm">({tpl.length})</span>
-              </h2>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {tpl.map((r) => (
-                  <RefCard key={r.id} r={r} />
-                ))}
-              </div>
-            </section>
-          )}
           <section>
             <h2 className="mb-4 flex items-center gap-2 font-grotesk text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-burnt">
               Sites GND <span className="font-num tabular-nums text-muted-warm">({gnd.length})</span>
