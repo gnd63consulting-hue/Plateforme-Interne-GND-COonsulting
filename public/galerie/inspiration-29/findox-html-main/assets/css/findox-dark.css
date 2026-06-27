@@ -1,0 +1,187 @@
+:root {
+  --findox-text: #869390;
+  --findox-text: #ededed;
+  --findox-white: #ffffff;
+  --findox-text-rgb: toRGB(#869390);
+  --findox-black: #050d22;
+  --findox-black-rgb: toRGB(#010f0b);
+  --findox-black2: #1b2748;
+  --findox-black2-rgb: toRGB(#082820);
+  --findox-black3: #394871;
+  --findox-black3-rgb: toRGB(#394871);
+}
+
+.contact-one__wrapper,
+.sticky-header--cloned,
+body,
+body.boxed-wrapper .page-wrapper {
+  background-color: var(--findox-black);
+}
+
+.client-carousel .client-carousel__one .client-carousel__one__item:hover,
+.topbar-one {
+  background-color: var(--findox-black);
+}
+
+.about-one__inner {
+  background-color: var(--findox-black);
+  border: 1px solid var(--findox-black3);
+  box-shadow: 0px 4px 80px 0px rgba(0, 0, 0, 0.6);
+}
+
+.service-one__item {
+  background-color: var(--findox-black);
+  color: var(--findox-white);
+}
+
+.about-one__content__list li:hover span,
+.service-one__item__title {
+  color: var(--findox-white);
+}
+
+.work-process-one__item__icon__inner,
+.work-process-one__item,
+.blog-card,
+.portfolio-one,
+.team-one,
+.testimonials-card,
+.contact-one__form .form-one__group,
+.contact-one__info {
+  background-color: var(--findox-black);
+}
+
+.form-one .bootstrap-select > .dropdown-toggle,
+.form-one input[type=text],
+.form-one input[type=email],
+.form-one textarea {
+  background-color: transparent;
+}
+
+.testimonials-card__rating,
+.blog-card__user__name,
+.contact-one__info__text a,
+.contact-one__info__text {
+  color: var(--findox-white);
+}
+
+.service-one__item__top,
+.barnds-one__inner,
+.barnds-one__text,
+.why-choose-one__booking,
+.why-choose-one__experiance,
+.testimonials-card__top,
+.contact-one__info__item:last-child {
+  border-color: var(--findox-black3);
+}
+
+.contact-one__overlay {
+  background: linear-gradient(90deg, #1b2748 33.55%, rgba(27, 39, 72, 0) 100%);
+}
+
+.why-choose-one,
+.contact-one {
+  background-color: var(--findox-black2);
+}
+
+.why-choose-one__bg::after {
+  background: linear-gradient(-90deg, #1b2748 33.55%, rgba(27, 39, 72, 0.1) 100%);
+}
+
+.why-choose-one__experiance__text,
+.why-choose-one__booking__text {
+  color: var(--findox-text);
+}
+
+.portfolio-one {
+  padding-bottom: 0;
+}
+
+.work-process-one__item {
+  border-color: var(--findox-black3);
+}
+
+.blog-card {
+  border: none;
+}
+
+.blog-card__content {
+  border: 1px solid var(--findox-black3);
+  border-bottom: none;
+  transition: all 500ms ease;
+}
+
+.blog-card:hover {
+  border-color: var(--findox-white);
+}
+
+.blog-card:hover .blog-card__content {
+  background-color: var(--findox-black3);
+}
+
+.blog-card__meta {
+  background-color: #19223a;
+}
+
+.blog-card__meta li:last-child {
+  border-color: var(--findox-black3);
+}
+
+.main-header__info,
+.work-process-one__item__icon::after {
+  border-color: rgba(var(--findox-white-rgb), 0.2);
+}
+
+.main-menu .main-menu__list > li > a,
+.why-choose-one__item__icon,
+.work-process-one__item__icon__inner,
+.testimonials-card__name,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--findox-white);
+}
+
+.main-header__cart,
+.main-header__search {
+  color: var(--findox-text);
+}
+
+.work-process-one__item:hover .work-process-one__item__icon__inner {
+  color: var(--findox-black);
+}
+
+.sec-title__tagline {
+  color: var(--findox-text);
+}
+
+.sec-title__tagline__border {
+  background-color: var(--findox-primary);
+  border-color: var(--findox-white);
+}
+
+.about-one .findox-btn > i {
+  border: none;
+}
+.about-one .findox-btn > i span {
+  background-color: var(--findox-white);
+}
+
+.demo-one__btns {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.portfolio-one .findox-owl__carousel--basic-nav.owl-carousel .owl-nav button {
+  color: var(--findox-white);
+}
+
+.why-choose-one .findox-btn {
+  color: var(--findox-primary);
+  background-color: var(--findox-white);
+}
+.why-choose-one .findox-btn:hover {
+  color: var(--findox-white);
+}
+/*# sourceMappingURL=findox-dark.css.map */

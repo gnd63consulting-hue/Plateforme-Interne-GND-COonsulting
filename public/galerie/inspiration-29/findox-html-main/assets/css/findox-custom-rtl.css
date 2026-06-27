@@ -1,0 +1,109 @@
+body {
+  overflow-x: hidden;
+  direction: rtl;
+}
+
+.owl-carousel {
+  direction: ltr;
+}
+
+.owl-carousel .owl-nav,
+.owl-carousel .owl-dots,
+.owl-carousel .owl-item {
+  direction: rtl;
+}
+
+.contact__input-box .bootstrap-select .dropdown-menu,
+.bootstrap-select .dropdown-toggle .filter-option {
+  text-align: right;
+}
+
+.list-unstyled {
+  padding-right: 0;
+}
+
+.sec-title__top {
+  clip-path: polygon(100% 0, 15% 0, 0 50%, 15% 100%, 100% 100%);
+}
+
+.topbar::before,
+.topbar::after {
+  clip-path: polygon(0% 0%, 7% 50%, 0% 100%, 100% 100%, 100% 50%, 100% 0);
+}
+
+.hero-one__bg::before {
+  clip-path: polygon(100% 0, 100% 100%, 0 0);
+}
+
+.hero-one__tagline {
+  clip-path: polygon(100% 0, 10% 0, 0% 50%, 10% 100%, 100% 100%);
+}
+
+.hero-one__tagline::before {
+  clip-path: polygon(100% 0, 100% 100%, 0 50%);
+}
+
+.service-card__bg {
+  -webkit-mask: url("../images/shapes/service-card-shape-1-1-rtl.png");
+  mask: url("../images/shapes/service-card-shape-1-1-rtl.png");
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+}
+
+.service-card__bg__main::before {
+  -webkit-mask: url("../images/shapes/service-card-shape-1-2-rtl.png");
+  mask: url("../images/shapes/service-card-shape-1-2-rtl.png");
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+}
+
+.book-appointment__shape-1 {
+  -webkit-mask: url("../images/shapes/book-appointment-shape-1-1-rtl.png");
+  mask: url("../images/shapes/book-appointment-shape-1-1-rtl.png");
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+}
+
+.book-appointment__shape-2 {
+  -webkit-mask: url("../images/shapes/book-appointment-shape-1-2-rtl.png");
+  mask: url("../images/shapes/book-appointment-shape-1-2-rtl.png");
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+}
+
+.why-choose__image__img {
+  -webkit-mask: url("../images/shapes/why-choose-image-shape-1-1-rtl.png");
+  mask: url("../images/shapes/why-choose-image-shape-1-1-rtl.png");
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+}
+
+.why-choose__item::after {
+  clip-path: polygon(100% 0, 0 0, 0 100%, 100% 100%, 35% 50%);
+}
+
+.why-choose__item--hover::after {
+  clip-path: polygon(0 0, 35% 52%, 0 100%, 100% 100%, 100% 0);
+}
+
+.team-card__shape {
+  -webkit-mask: url('data:image/svg+xml;utf8,<svg version="1.0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 270.000000 242.000000"><g transform="translate(0.000000,242.000000) scale(0.050000,-0.050000)" stroke="none"> <path d="M1098 4810 c-344 -84 -762 -398 -1008 -758 l-80 -117 -5 -1967 -6 -1968 2701 0 2700 0 0 1264 c0 1419 6 1356 -151 1494 -215 189 -459 271 -789 264 -566 -12 -608 -11 -720 27 -371 123 -661 366 -1040 871 -551 733 -1066 1020 -1602 890z"/> </g> </svg>');
+  mask: url('data:image/svg+xml;utf8,<svg version="1.0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 270.000000 242.000000"><g transform="translate(0.000000,242.000000) scale(0.050000,-0.050000)" stroke="none"> <path d="M1098 4810 c-344 -84 -762 -398 -1008 -758 l-80 -117 -5 -1967 -6 -1968 2701 0 2700 0 0 1264 c0 1419 6 1356 -151 1494 -215 189 -459 271 -789 264 -566 -12 -608 -11 -720 27 -371 123 -661 366 -1040 871 -551 733 -1066 1020 -1602 890z"/> </g> </svg>');
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: top center;
+  mask-position: top center;
+  -webkit-mask-size: cover;
+  mask-size: cover;
+}
+/*# sourceMappingURL=findox-custom-rtl.css.map */
