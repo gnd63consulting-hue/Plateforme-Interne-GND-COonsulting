@@ -1,0 +1,79 @@
+@charset "UTF-8";
+$direction: rtl;
+$direction_upside: ltr;
+$direction_angle: '-';
+$direction_upside_angle: '+';
+$direction_start: right;
+$direction_end: left;
+
+@if $direction == ltr {
+	$direction_upside: rtl;
+	$direction_angle: '+';
+    $direction_upside_angle: '-';
+	$direction_start: left;
+	$direction_end: right;
+}
+
+body {
+	direction: $direction;
+}
+// (1.02) variables
+
+// inter google font source
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap");
+
+:root {
+  // font family
+  --inter: "Inter", sans-serif;
+
+  // theme default
+  --theme-font: var(--inter);
+  --theme-bg: #000000;
+  --theme-color: #ffffff;
+
+  // colors
+  --white: #ffffff;
+  --black: #000000;
+  --primary-color: #ff7425;
+  --secondary-color: #757575;
+  --tertiary-color: #0e0e0e;
+  --quaternary-color: #040404;
+  --quinary-color: #c1c1c1;
+  --senary-color: #191919;
+  --septenary-color: #101010;
+  --octonary-color: #1a1a1a;
+  --nonary-color: #d9d9d9;
+
+  // transitions
+  --transition: all 0.3s ease-in-out;
+
+  // box shadow
+  --shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+  --shadow-secondary: 0 0 31px rgba(0, 0, 0, 0.1);
+}
+
+@if $direction == rtl {
+
+    svg[class*=right], svg[class*=left], [class*=right].fas, [class*=left].fas {
+        transform: scaleX(-1) !important;
+    }
+
+    .product-item__badge {
+        transform: rotate(-45deg) translateZ(0) !important;
+    }
+
+    #st_gdpr_iframe {
+        left: 0 !important;
+        right: -5000px;
+    }
+
+    .product-form__item select.single-option-selector {
+        background-position: calc(23px) calc(1rem + 10px), calc(27px) calc(1rem + 10px);
+    }
+
+    .card__badge {
+        -ms-transform: rotate(-45deg) translateZ(0);
+        -webkit-transform: rotate(-45deg) translateZ(0);
+        transform: rotate(-45deg) translateZ(0);
+    }
+}

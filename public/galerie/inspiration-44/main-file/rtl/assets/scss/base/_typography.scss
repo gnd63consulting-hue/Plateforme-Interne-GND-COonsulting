@@ -1,0 +1,160 @@
+@charset "UTF-8";
+$direction: rtl;
+$direction_upside: ltr;
+$direction_angle: "-";
+$direction_upside_angle: "+";
+$direction_start: right;
+$direction_end: left;
+
+@if $direction == ltr {
+  $direction_upside: rtl;
+  $direction_angle: "+";
+  $direction_upside_angle: "-";
+  $direction_start: left;
+  $direction_end: right;
+}
+
+body {
+  direction: $direction;
+}
+/* ==== 
+ --------- (2.02) typography styles start ---------
+ ==== */
+
+//  paragraph styles
+p,
+th,
+td,
+li,
+input,
+textarea,
+select,
+label,
+blockquote,
+span {
+  font-size: 16px;
+  line-height: 30px;
+  font-weight: 400;
+  color: var(--theme-color);
+}
+
+.primary-text {
+  font-size: 20px;
+  line-height: 30px;
+}
+
+.secondary-text {
+  font-size: 28px;
+  line-height: 38px;
+}
+
+.tertiary-text {
+  font-size: 14px;
+  line-height: 24px;
+}
+
+// link styles
+a,
+button {
+  font-size: 16px;
+  line-height: 18px;
+  color: var(--theme-color);
+  font-weight: 500;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--primary-color);
+  }
+}
+
+// heading styles
+h1,
+.h1 {
+  font-size: 100px;
+  line-height: 130px;
+}
+
+.light-title {
+  font-size: 75px;
+  line-height: 85px;
+}
+
+.light-title-lg {
+  font-size: 30px;
+  line-height: 40px;
+}
+
+h2 {
+  font-size: 55px;
+  line-height: 70px;
+}
+
+h3 {
+  font-size: 40px;
+  line-height: 50px;
+}
+
+h4 {
+  font-size: 24px;
+  line-height: 34px;
+}
+
+h5 {
+  font-size: 20px;
+  line-height: 30px;
+}
+
+h6 {
+  font-size: 16px;
+  line-height: 24px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  a,
+  span {
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    font-weight: inherit;
+    color: inherit;
+  }
+}
+
+/* ==== 
+ --------- (2.02) typography styles end ---------
+ ==== */
+
+@if $direction == rtl {
+  svg[class*="right"],
+  svg[class*="left"],
+  [class*="right"].fas,
+  [class*="left"].fas {
+    transform: scaleX(-1) !important;
+  }
+
+  .product-item__badge {
+    transform: rotate(-45deg) translateZ(0) !important;
+  }
+
+  #st_gdpr_iframe {
+    left: 0 !important;
+    right: -5000px;
+  }
+
+  .product-form__item select.single-option-selector {
+    background-position: calc(23px) calc(1rem + 10px),
+      calc(27px) calc(1rem + 10px);
+  }
+
+  .card__badge {
+    -ms-transform: rotate(-45deg) translateZ(0);
+    -webkit-transform: rotate(-45deg) translateZ(0);
+    transform: rotate(-45deg) translateZ(0);
+  }
+}

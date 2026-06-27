@@ -1,0 +1,70 @@
+@charset "UTF-8";
+$direction: rtl;
+$direction_upside: ltr;
+$direction_angle: '-';
+$direction_upside_angle: '+';
+$direction_start: right;
+$direction_end: left;
+
+@if $direction == ltr {
+	$direction_upside: rtl;
+	$direction_angle: '+';
+    $direction_upside_angle: '-';
+	$direction_start: left;
+	$direction_end: right;
+}
+
+body {
+	direction: $direction;
+}
+// (1.01) mixins
+
+@mixin background($color, $repeat, $size, $position) {
+  background-color: $color;
+  background-repeat: $repeat;
+  background-size: $size;
+  background-position: $position;
+}
+
+@mixin center($width) {
+  max-width: $width;
+  margin-#{$direction_start}: auto;
+  margin-#{$direction_end}: auto;
+  text-align: center;
+}
+
+@mixin box($value) {
+  width: $value;
+  min-width: $value;
+  height: $value;
+  border-radius:50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@if $direction == rtl {
+
+    svg[class*=right], svg[class*=left], [class*=right].fas, [class*=left].fas {
+        transform: scaleX(-1) !important;
+    }
+
+    .product-item__badge {
+        transform: rotate(-45deg) translateZ(0) !important;
+    }
+
+    #st_gdpr_iframe {
+        left: 0 !important;
+        right: -5000px;
+    }
+
+    .product-form__item select.single-option-selector {
+        background-position: calc(23px) calc(1rem + 10px), calc(27px) calc(1rem + 10px);
+    }
+
+    .card__badge {
+        -ms-transform: rotate(-45deg) translateZ(0);
+        -webkit-transform: rotate(-45deg) translateZ(0);
+        transform: rotate(-45deg) translateZ(0);
+    }
+}
