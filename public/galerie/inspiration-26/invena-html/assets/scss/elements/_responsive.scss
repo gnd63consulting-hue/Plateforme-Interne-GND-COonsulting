@@ -1,0 +1,266 @@
+@media(max-width:1800px) {
+}
+
+@media(max-width:1400px) {
+    .rts-banner-event-conference {
+        .banner-content-area {
+            .banner-title-area {
+                .banner-title {
+                    font-size: 80px;
+                    line-height: 60px;
+
+                    .mid {
+                        font-size: 50px;
+                    }
+
+                    .year {
+                        font-size: 100px;
+                        line-height: 80px;
+                    }
+                }
+            }
+        }
+    }
+
+    .rts-about-event-wrapper .about-image-event .image-two {
+        margin: -90px 0 0 50px;
+    }
+
+    .event-schedule-wrapper .single-evet-schedule .time {
+        font-size: 18px;
+    }
+
+    .event-schedule-wrapper .single-evet-schedule .author-info .author-content .name {
+        font-size: 20px;
+    }
+
+    .event-schedule-wrapper .single-evet-schedule .content {
+        max-width: 400px;
+
+        .title {
+            font-size: 24px;
+        }
+    }
+}
+
+@media(max-width:1400px) and (min-width:1200px) {}
+
+@media(max-width:1200px) {
+    .rts-banner-area.investment .banner-one-inner .title {
+        font-size: 64px;
+    }
+
+    .table-area {
+        overflow-x: scroll;
+    }
+
+    .team-wrapper-area {
+        .team-single-one-start {
+            .single-details {
+                padding: 20px 0 0;
+            }
+        }
+    }
+
+    .event-schedule-wrapper .single-evet-schedule {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 30px;
+
+        .content {
+            max-width: 100%;
+        }
+    }
+
+    .rts-pricing-wrapper-area .single-pricing-wrapper {
+        .pricing-left {
+            .plan-type {
+                margin-bottom: 10px;
+            }
+
+            .plan-title {
+                font-size: 24px;
+            }
+        }
+
+        .pricing-price .price {
+            font-size: 36px;
+        }
+    }
+}
+
+@media(max-width:1200px) and (min-width:991px) {}
+
+@media(max-width:991px) {
+    .rts-banner-area.investment {
+        height: auto;
+        padding: 200px 0 100px;
+    }
+
+    .image-slider-area {
+        margin-top: 50px;
+    }
+
+    .rts-counter-area.investment .right-content {
+        margin-left: 0;
+        margin-top: 40px;
+    }
+
+
+    .rts-team-event-conference .section-title-area {
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .rts-pricing-area.event-conference .section-title-area {
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .rts-pricing-wrapper-area .single-pricing-wrapper {
+        flex-direction: column;
+        align-items: start;
+        gap: 30px;
+    }
+
+    .single-blog-area-twenty-two .inner-content .title {
+        font-size: 18px;
+        line-height: 1.3;
+    }
+
+    .rts-testimonials-event-conference .testimonial-author-review-area .author-thumb {
+        max-width: 250px;
+        min-width: 250px;
+    }
+
+    .rts-testimonials-event-conference .testimonial-author-review-area .author-review-area .desc {
+        font-size: 25px;
+        line-height: 35px;
+    }
+
+    .rts-testimonials-event-conference .testimonial-info-wrapper {
+        margin-top: 120px;
+
+        .testimonial-info-area {
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+    }
+
+}
+
+@media(max-width:991px) and (min-width:768px) {}
+
+@media(max-width:768px) {
+    .rts-banner-area.investment .banner-one-inner .title {
+        font-size: 48px;
+    }
+}
+
+@media(max-width:767px) {
+    .rts-testimonials-event-conference .testimonial-author-review-area {
+        flex-wrap: wrap;
+    }
+
+    .footer-twenty-two .copyright-wrapper {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 20px;
+    }
+}
+
+@media(max-width:768px) and (min-width:576px) {}
+
+@media(max-width:576px) {
+    .rts-banner-area.investment .banner-one-inner .title {
+        font-size: 36px;
+    }
+
+    .rts-counter-area.investment .counter-area .counter-inner {
+        padding: 50px 30px;
+    }
+
+    .rts-counter-area.investment .counter-area {
+        gap: 20px;
+    }
+
+    .contact-join-wrapper {
+        flex-direction: column;
+    }
+
+    .contact-join-wrapper .right textarea {
+        height: 130px;
+    }
+
+    .rts-banner-event-conference {
+        .banner-content-area {
+            .banner-title-area {
+                .banner-title {
+                    font-size: 50px;
+                    line-height: 50px;
+
+                    .mid {
+                        font-size: 30px;
+                        line-height: 55px;
+                        margin: 0;
+                    }
+
+                    .year {
+                        font-size: 60px;
+                        line-height: 50px;
+                    }
+                }
+            }
+
+            .banner-meta {
+                flex-wrap: wrap;
+                margin-bottom: 50px;
+            }
+        }
+    }
+
+    .rts-about-event-wrapper .about-image-event {
+        max-width: 100%;
+
+        .image-one {
+            width: 100%;
+        }
+
+        .image-two {
+            display: none;
+        }
+    }
+
+    .rts-event-schedule-area .title-style-two .event-tab-nav .nav-tabs .nav-link {
+        padding: 15px 20px;
+    }
+
+    .event-schedule-wrapper .single-evet-schedule {
+        padding: 20px 25px;
+    }
+
+    .event-schedule-wrapper .single-evet-schedule .content .title {
+        font-size: 20px;
+        line-height: 1.2;
+    }
+
+    .single-attend-conference .content .title {
+        font-size: 20px;
+    }
+
+    .rts-pricing-wrapper-area .single-pricing-wrapper {
+        padding: 40px 20px;
+    }
+}
+
+@media(max-width:576px) and (min-width:450px) {}
+
+@media(max-width:450px) {
+    .rts-banner-area.investment .banner-one-inner .title {
+        font-size: 30px;
+    }
+
+    .rts-testimonials-event-conference .testimonial-info-wrapper .testimonial-info-area .single-info {
+        gap: 20px;
+    }
+}

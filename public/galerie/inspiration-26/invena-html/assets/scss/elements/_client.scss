@@ -1,0 +1,227 @@
+.title-area-client-client {
+    position: relative;
+
+    p {
+        &.client-title {
+            max-width: max-content;
+            margin: auto;
+            font-weight: 700;
+            color: #1C2539;
+            text-transform: uppercase;
+        }
+    }
+
+    &.six {
+        &::after {
+            background: var(--color-primary);
+        }
+
+        &::before {
+            background: var(--color-primary);
+        }
+    }
+
+    &::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        width: 41%;
+        background: var(--color-primary);
+        display: flex;
+        align-items: center;
+        margin-top: -14px;
+
+        @media #{$smlg-device} {
+            width: 38%;
+        }
+
+        @media #{$md-layout} {
+            width: 35%;
+        }
+
+        @media #{$sm-layout} {
+            width: 30%;
+        }
+
+        @media #{$large-mobile} {
+            display: none;
+        }
+    }
+
+    &::before {
+        content: "";
+        position: absolute;
+        left: 59%;
+        width: 100%;
+        height: 2px;
+        width: 41%;
+        background: var(--color-primary);
+        display: flex;
+        align-items: center;
+        margin-top: 15px;
+
+        @media #{$smlg-device} {
+            left: 62%;
+        }
+
+        @media #{$md-layout} {
+            left: 65%;
+            width: 35%;
+        }
+
+        @media #{$sm-layout} {
+            left: 69%;
+            width: 30%;
+        }
+
+        @media #{$large-mobile} {
+            display: none;
+        }
+    }
+}
+
+.client-wrapper-one {
+    margin-top: 40px;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+
+    &.intelligence {
+        gap: 40px;
+    }
+
+    @media #{$laptop-device} {
+        justify-content: center;
+
+        &.event-conference {
+            justify-content: space-between;
+        }
+    }
+
+    @media #{$smlg-device} {
+        justify-content: center;
+
+        &.event-conference {
+            gap: 40px;
+        }
+    }
+
+    @media #{$sm-layout} {
+        position: relative;
+        z-index: 50;
+        gap: 15px;
+
+    }
+
+    a {
+        img {
+            transition: var(--transition);
+            max-width: 130px;
+
+            @media #{$laptop-device} {
+                margin-right: 10px;
+            }
+
+            @media #{$smlg-device} {
+                margin-right: 10px;
+                margin-bottom: 10px;
+            }
+
+            @media #{$small-mobile} {
+                max-width: 80px;
+            }
+        }
+
+        &:hover {
+            img {
+                transform: scale(1.1) translateY(-5px);
+            }
+        }
+    }
+}
+
+.truested-twenty {
+    background: #f6f6f6;
+
+    .client-wrapper-one {
+        margin-top: 0;
+        padding: 55px 0;
+
+        @media #{$smlg-device} {
+            gap: 65px;
+        }
+
+        @media #{$small-mobile} {
+            padding: 30px 0;
+            gap: 30px;
+        }
+    }
+}
+
+.title-area-client-client.intelligence {
+
+    &::before,
+    &::after {
+        background: #20282D;
+    }
+}
+
+.title-area-client-client.event-conference {
+
+    &::before,
+    &::after {
+        background: var(--color-heading-1);
+    }
+}
+
+.title-area-client-client.event-conference {
+
+    &::before,
+    &::after {
+        background: #20282D;
+    }
+}
+
+.rts-trusted-user-area {
+    background: var(--color-primary);
+    margin: 45px;
+    border-radius: 10px;
+
+    @media(max-width: 1199px) {
+        margin: 0;
+        border-radius: 0;
+    }
+}
+
+.rts-trusted-stats-wrapper {
+    .single-stats {
+        padding: 30px;
+        background: var(--color-white);
+        border-radius: 10px;
+
+        @media #{$mdsm-layout} {
+            height: 100%;
+        }
+
+        .title {
+            font-size: 36px;
+
+            @media #{$mdsm-layout} {
+                font-size: 25px;
+                line-height: 1.1;
+            }
+        }
+
+        .desc {
+            font-size: 16px;
+            text-transform: uppercase;
+        }
+    }
+}
+
+.rts-trusted-client.event-conference {
+    background: #F2F2F2;
+    padding: 80px 0;
+}

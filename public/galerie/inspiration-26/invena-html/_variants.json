@@ -1,0 +1,128 @@
+{
+  "template": "Invena - Business Consulting HTML",
+  "inspiration": 26,
+  "note": "Mapping nom->fichier dans l'ordre des previews Envato (a confirmer). Chaque demo a une version multipage (index*) et souvent onepage (onepage*).",
+  "home_variants": [
+    {
+      "name": "Business One",
+      "multipage": "index.html",
+      "onepage": null
+    },
+    {
+      "name": "Business Two",
+      "multipage": "index-two.html",
+      "onepage": "onepage-two.html"
+    },
+    {
+      "name": "Business Investment",
+      "multipage": "index-three.html",
+      "onepage": "onepage-three.html"
+    },
+    {
+      "name": "Marketing Coach",
+      "multipage": "index-four.html",
+      "onepage": "onepage-four.html"
+    },
+    {
+      "name": "Event Conference",
+      "multipage": "index-five.html",
+      "onepage": "onepage-five.html"
+    },
+    {
+      "name": "SaaS Consulting",
+      "multipage": "index-six.html",
+      "onepage": "onepage-six.html"
+    },
+    {
+      "name": "Business Intelligence",
+      "multipage": "index-seven.html",
+      "onepage": "onepage-seven.html"
+    },
+    {
+      "name": "Business Partners",
+      "multipage": "index-eight.html",
+      "onepage": "onepage-eight.html"
+    },
+    {
+      "name": "SEO Website",
+      "multipage": "index-nine.html",
+      "onepage": "onepage-nine.html"
+    },
+    {
+      "name": "Business Coach",
+      "multipage": "index-ten.html",
+      "onepage": "onepage-ten.html"
+    },
+    {
+      "name": "HR Website",
+      "multipage": "index-eleven.html",
+      "onepage": "onepage-eleven.html"
+    },
+    {
+      "name": "Technology",
+      "multipage": "index-twelve.html",
+      "onepage": "onepage-twelve.html"
+    },
+    {
+      "name": "Business Tree",
+      "multipage": "index-thirteen.html",
+      "onepage": "onepage-thirteen.html"
+    },
+    {
+      "name": "Accountant One",
+      "multipage": "index-fourteen.html",
+      "onepage": "onepage-fourteen.html"
+    },
+    {
+      "name": "Business Four",
+      "multipage": "index-fifteen.html",
+      "onepage": "onepage-fifteen.html"
+    },
+    {
+      "name": "Finance",
+      "multipage": "index-sixteen.html",
+      "onepage": "onepage-sixteen.html"
+    },
+    {
+      "name": "Marketing Agency",
+      "multipage": "index-seventeen.html",
+      "onepage": "onepage-seventeen.html"
+    },
+    {
+      "name": "Business Agency",
+      "multipage": "index-eighteen.html",
+      "onepage": "onepage-eighteen.html"
+    },
+    {
+      "name": "Business Management",
+      "multipage": "index-nineteen.html",
+      "onepage": "onepage-nineteen.html"
+    },
+    {
+      "name": "Insurance Home",
+      "multipage": "index-twenty.html",
+      "onepage": "onepage-twenty.html"
+    },
+    {
+      "name": "Motel",
+      "multipage": "index-twenty-one.html",
+      "onepage": "onepage-twenty-one.html"
+    },
+    {
+      "name": "Accountant Two",
+      "multipage": "index-twenty-two.html",
+      "onepage": "onepage-twenty-two.html"
+    },
+    {
+      "name": "Video Demo",
+      "multipage": "index-twenty-three.html",
+      "onepage": "onepage-twenty-three.html"
+    },
+    {
+      "name": "Parallax Demo",
+      "multipage": "index-twenty-four.html",
+      "onepage": "onepage-twenty-four.html"
+    }
+  ],
+  "total_pages": 96
+}

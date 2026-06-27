@@ -1,0 +1,19 @@
+.header-seven {
+    padding: 0 !important;
+    .header-top-area-wrapper {
+        background: var(--color-secondary);
+        padding: 0 15px;
+
+        .header-top-one-wrapper {
+            max-width: 1650px;
+            margin: 0 auto;
+        }
+    }
+
+    .header-main {
+        .header-main-one-wrapper {
+            max-width: 1650px;
+            margin: 0 auto;
+        }
+    }
+}
