@@ -1,0 +1,52 @@
+/*************** Dark Page Layout CSS ******************/
+body,
+.header{
+	background-color: #000000;
+}
+
+.slider-content span,
+.slider-content h1,
+.slider-pbutton p,
+.specialities-column h3,
+.our-item h3,
+.single-testi-one h3,
+.chef-content h3{
+	color: #ffffff;
+}
+
+p,
+.specialities-top p,
+.slider-content p,
+.specialities-column p,
+.our-item p,
+.single-testi-one p,
+.chef-content p,
+.tr-nav-item .nav-link,
+.email-form .form-control{
+	color: #cccccc;
+}
+
+#testimonials-slider-pager,
+.testimonials-slider-pager-two{
+	background-color: transparent;
+}
+
+.our-item-section .bx-controls-direction a,
+.chef-section .bx-controls-direction a,
+.scroll-top{
+	border-color: #333333;
+}
+.header.sticky,
+.our-item-tab.nav-tabs li a.active,
+.our-item-section .bx-controls-direction a,
+.chef-section .bx-controls-direction a,
+.email-form .form-control,
+.scroll-top,
+.play-button{
+	background-color: #333333;
+}
+
+.our-item-tab.nav-tabs li a{
+	color: #cccccc;
+	background-color: #181818;
+}
