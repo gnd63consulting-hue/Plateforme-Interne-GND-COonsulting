@@ -1,0 +1,168 @@
+/*
+Template Name: Wekala Multipurpose Agency HTML Template
+Template URI: https://themeforest.net/user/creative-wp
+Author: creative-wp
+Author URI: https://themeforest.net/user/creative-wp
+Description: It is a Multipurpose HTML5 Portfolio Template. Which is a unique feature and user competitive feature.
+Version: 1.0
+*/
+
+/*--------------------------------------------------------------
+>>> TABLE OF CONTENTS:
+----------------------------------------------------------------
+# Typography 
+    [ ## Heading ] 
+    [ ## Others Typography ]
+# Elements
+    [ ## Font Size ]
+    [ ## Font Weight ]
+    [ ## Margin Element ]
+    [ ## Padding Element ]
+    [ ## Color Element ]
+    [ ## Background Element ]
+    [ ## Extra Background ]
+    [ ## SVG Fill ]
+    [ ## Social Element ]
+    [ ## Overlay Element ]
+    [ ## Border element ]
+    [ ## Border Extra Elements ]
+    [ ## Radius Element ]
+    [ ## Lists ]
+    [ ## Post, Page, Comments Table ]
+    [ ## Others Element ]
+    [ ## Grid Element ]
+# Forms
+	[ ## Buttons ]
+	[ ## Fields ]
+# Media
+	[ ## Captions ]
+	[ ## Galleries ]
+	[ ## media ]
+# Modules 
+	[ ## Accessibility ]
+	[ ## Alignments ]
+	[ ## Clearings ]
+	[ ## Infinite Scroll ]
+# Header Content
+	[ ## Preloader ]
+	[ ## Header ]
+    [ ## Sticky header ]
+# Navigation
+	[ ## Links ]
+	[ ## Menus ]
+        [ ### Hamburger Menu ]
+	[ ## Pagination ]
+        [ ### Post Navigation ]
+	[ ## Navigation responsive ]
+# layout
+    [ ## Slider Block ]
+    [ ## Hero Block ]
+    [ ## About Us ]
+        [ ### Counter Element ]
+    [ ## Services ]
+    [ ## Team ]
+    [ ## Pricing ]
+    [ ## Portfolio ]
+        [ ### Innovation Block ]
+        [ ### Portfolio Element ]
+        [ ### Portfolio Single ]
+        [ ### Portfolio Links ]
+    [ ## Testimonial ]
+    [ ## Sections ]
+        [ ### Faqs Block ]
+        [ ### Resume Block  ]
+        [ ### Call To Action ]
+        [ ### Work Process ]
+        [ ### Facility Block ]
+        [ ### Specializing ]
+        [ ### Newsletter Block ]
+        [ ### Call Request Block ]
+        [ ### Membership Block ]
+    [ ## Blog ]
+# Others
+	[ ## Single Posts ]
+# site content
+	[ ## About Page ]
+	[ ## Contact Page ]
+	[ ## 404 Page ]
+	[ ## Posts and pages ]
+	    [ ### Page Title ]
+	    [ ### Breadcrumb ]
+	    [ ### No results ]
+	[ ## Comments ]
+	[ ## Widgets ]
+	[ ## Widgets Content ]
+# Footer
+--------------------------------------------------------------*/
+@import "variables-site/variables-site";
+@import "mixins/mixins-master";
+
+/*--------------------------------------------------------------
+# Typography
+--------------------------------------------------------------*/
+@import "typography/typography";
+
+/*--------------------------------------------------------------
+# Elements
+--------------------------------------------------------------*/
+@import "elements/elements";
+
+/*--------------------------------------------------------------
+# Forms
+--------------------------------------------------------------*/
+@import "forms/forms";
+
+/*--------------------------------------------------------------
+# Media
+--------------------------------------------------------------*/
+@import "media/media";
+
+/*--------------------------------------------------------------
+# Accessibility
+--------------------------------------------------------------*/
+@import "modules/accessibility";
+
+/*--------------------------------------------------------------
+# Alignments
+--------------------------------------------------------------*/
+@import "modules/alignments";
+
+/*--------------------------------------------------------------
+# Clearings
+--------------------------------------------------------------*/
+@import "modules/clearings";
+
+/*--------------------------------------------------------------
+# Infinite scroll
+--------------------------------------------------------------*/
+@import "modules/infinite-scroll";
+
+/*--------------------------------------------------------------
+# Header Content
+--------------------------------------------------------------*/
+@import "header/header";
+
+/*--------------------------------------------------------------
+# Navigation
+--------------------------------------------------------------*/
+@import "navigation/navigation";
+
+/*--------------------------------------------------------------
+# Layout
+--------------------------------------------------------------*/
+@import "layout/layout";
+
+/*--------------------------------------------------------------
+# Others
+--------------------------------------------------------------*/
+@import "others/others";
+
+/*--------------------------------------------------------------
+# Site Content
+--------------------------------------------------------------*/
+@import "site/site";
+
+/*--------------------------------------------------------------
+# Footer Content
+--------------------------------------------------------------*/
+@import "footer/footer";

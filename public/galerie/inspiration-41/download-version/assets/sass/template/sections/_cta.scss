@@ -1,0 +1,131 @@
+.cta-area-1 {
+    position: relative;
+    background: $white-color;
+    box-shadow: 0px 10px 30px 0px rgba(0, 0, 0, 0.07);
+    margin-top: -245px;
+    .contact-form-wrap {
+        background: $white-color;
+        .title {
+            margin-top: -0.3em;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        @include lg {
+            margin-top: 0;
+        }
+    }
+}
+.cta-wrap {
+    padding: 40px;
+    position: relative;
+    z-index: 3;
+    .sec-title {
+        font-size: 30px;
+        line-height: 40px;
+    }
+    .sec-text {
+        margin: 30px 0;
+    }
+    .cta-link-wrap {
+        border-top: 1px solid rgba(255, 255, 255, 0.5);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+        gap: 30px;
+        .cta-link {
+            padding: 20px 0;
+            ~ .cta-link {
+                border-left: 1px solid rgba(255, 255, 255, 0.5);
+                padding-left: 30px;
+            }
+        }
+        @include lg {
+            display: inline-flex;
+            margin-right: 30px;
+            margin-bottom: 0;
+        }
+        @include md {
+            display: flex;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+        @include xs {
+            margin-right: 0;
+            border: 0;
+            display: block;
+            .cta-link {
+                padding: 0;
+                ~ .cta-link {
+                    padding-left: 0;
+                    border-left: 0;
+                    border-top: 1px solid rgba(255, 255, 255, 0.5);
+                    padding-top: 30px;
+                    margin-top: 30px;
+                }
+            }
+        }
+    }
+    .th-btn {
+        margin-left: auto;
+        flex: none;
+    }
+}
+.cta-link-wrap {
+    display: flex;
+    gap: 40px;
+}
+.cta-link {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    &-icon {
+        width: var(--icon-size, 36px);
+        height: var(--icon-size, 36px);
+        line-height: var(--icon-size, 36px);
+        background: $white-color;
+        border-radius: 50%;
+        text-align: center;
+        color: $theme-color;
+        font-size: 18px;
+        position: relative;
+        &:after,
+        &:before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            background-color: $white-color;
+            @extend .ripple-animation;
+            z-index: -1;
+            border-radius: 50%;
+            transition: all ease 0.4s;
+        }
+        &:after {
+            animation-delay: 2s;
+        }
+    }
+    p {
+        font-size: 14px;
+        font-weight: 400;
+        color: $white-color;
+        margin-bottom: 2px;
+        margin-top: -0.4em;
+    }
+    .cta-single-link {
+        font-size: 18px;
+        font-weight: 600;
+        font-family: $title-font;
+        color: $white-color;
+    }
+}
+/*Cta area 2***********************/
+.cta-area-2 {
+    background: #F4F4F4;
+    .cta-text {
+        font-size: 18px;
+        font-weight: 600;
+        font-family: $title-font;
+        color: #4D5765;
+        margin-bottom: -0.5em;
+    }
+}

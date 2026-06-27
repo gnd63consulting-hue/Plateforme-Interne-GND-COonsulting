@@ -1,0 +1,252 @@
+/* Process 1 ---------------------------------- */ 
+.process-card {
+    background: $white-color;
+    box-shadow: 0px 6px 30px 0px rgba(0, 0, 0, 0.06);
+    text-align: center;
+    position: relative;
+    margin-top: 50px;
+    padding: 85px 30px 40px;
+    transition: 0.4s;
+    z-index: 1;
+    &_icon {
+        width: 100px;
+        height: 100px;
+        line-height: 100px;
+        border-radius: 0;
+        background: $white-color;
+        position: absolute;
+        top: -50px;
+        left: 50%;
+        transform: translateX(-50%);
+        transition: 0.4s;
+        box-shadow: 0px 6px 30px 0px rgba(0, 0, 0, 0.10);
+        &:after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: -12px;
+            height: 12px;
+            width: 22px;
+            background: transparent;
+            border-top: 12px solid $white-color;
+            border-right: 11px solid transparent;
+            border-left: 11px solid transparent;
+            border-bottom: 0;
+            transform: translate(-50%, 0);
+            transition: 0.4s;
+        }
+        img {
+            transition: 0.4s;
+        }
+    }
+    &_bg-shape {
+        position: absolute;
+        inset: 0;
+        opacity: 0.05;
+        z-index: -1;
+    }
+
+    &_subtitle {
+        font-size: 14px;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+        display: block;
+    }
+    &_title {
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 15px;
+        display: block;
+        transition: 0.4s;
+    }
+    &_text {
+        margin-bottom: -0.5em;
+    }
+    &:hover {
+        background: $title-color;
+        --body-color: #8993A1;
+        .process-card_bg-shape {
+            opacity: 0.15;
+        }
+        .process-card_icon {
+            background: $theme-color;
+            &:after {
+                border-top: 12px solid $theme-color;
+            }
+            img {
+                transform: rotateY(180deg);
+            }
+        }
+        .process-card_title {
+            color: $white-color;
+        }
+    }
+}
+/* Process 2 ---------------------------------- */ 
+.process-card.style2 {
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+    text-align: left;
+    margin: 0;
+    .process-card_details {
+        padding: 176px 30px 30px;
+        margin-top: -150px;
+        margin-left: 80px;
+        position: relative;
+        z-index: -1;
+        background-size: calc(100% + 60px) calc(100% + 72px);
+        filter: drop-shadow(0px 6px 30px rgba(0, 0, 0, 0.06));
+    }
+    .process-card_title {
+        margin-bottom: 25px;
+        color: $title-color
+    }
+    .checklist {
+        margin-bottom: 30px;
+        li {
+            font-weight: 400;
+            color: $body-color;
+            &:not(:last-child) {
+                margin-bottom: 5px;
+            }
+        }
+    }
+    .th-btn {
+        padding: 17px 20px;
+    }
+    @include xs {
+        .process-card_details {
+            margin-left: 40px;
+        }
+    }
+}
+/* Process 1.2 ---------------------------------- */ 
+
+
+/* Process 3 ---------------------------------- */ 
+.process-card2 {
+    &-wrap {
+        position: relative;
+        &:after {
+            content: '';
+            height: 42px;
+            width: 116px;
+            background-image: url("data:image/svg+xml,%3Csvg width='116' height='42' viewBox='0 0 116 42' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath opacity='0.3' d='M115.551 36.6652C111.559 29.4285 108.897 21.8539 105.787 14.2467C104.978 12.2611 102.253 13.5251 102.477 15.3846C102.847 18.5361 103.56 21.6643 104.519 24.7352C98.3211 19.1913 90.7487 14.5818 83.8058 11.0206C74.4953 6.24801 64.2973 2.90809 53.9555 1.36405C36.8086 -1.19473 13.0193 2.07937 1.18365 16.1594C0.506835 16.9694 1.66463 18.0051 2.48375 17.6096C10.8028 13.6619 18.1327 9.40841 27.3743 7.72378C36.4214 6.07799 46.0699 6.15641 55.1077 7.96139C64.6604 9.87409 73.5052 13.8715 81.802 18.943C88.7376 23.1882 94.6187 28.5144 100.852 33.5113C95.1561 33.508 89.4292 34.5084 84.7225 36.8576C81.9555 38.2404 83.4736 42.4769 86.4885 41.9425C91.0648 41.1333 95.3424 39.7652 100.05 39.5838C104.415 39.4115 108.626 39.9863 112.924 40.6872C114.981 41.0253 116.495 38.3804 115.551 36.6652Z' fill='white'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-size: contain;
+            position: absolute;
+            top: 0;
+            left: calc(100% - 30px);
+        }
+        &:nth-child(even) {
+            &:after {
+                top: unset;
+                bottom: 0;
+                transform: rotateX(180deg);
+            }
+        }
+        &:last-child {
+            &:after {
+                display: none;
+            }
+        }
+    }
+    text-align: center;
+    max-width: 187px;
+    height: 187px;
+    background-color: $white-color;
+    border: 3px solid $theme-color;
+    margin: 17px;
+    position: relative;
+    border-radius: 9999px;
+    padding: 42px 6px;
+    &:before {
+        content: '';
+        @include equal-size(216px);
+        position: absolute;
+        top: -17px;
+        left: -17px;
+        border: 4px dotted $theme-color;
+        border-radius: inherit;
+    }
+    &_icon {
+        @include equal-size(82px);
+        line-height: 78px;
+        border: 3px solid $white-color;
+        background-color: $theme-color;
+        border-radius: 50%;
+        font-size: 34px;
+        color: $white-color;
+        position: absolute;
+        top: -40px;
+        left: -17px;
+        i {
+            transition: 0.4s ease-in-out;
+        }
+    }
+    &_title {
+        font-size: 20px;
+        margin-bottom: 8px;
+        text-align: center;
+    }
+    &_text {
+        margin-bottom: 0;
+        font-size: 14px;
+    }
+    &:hover {
+        &:before {
+            animation: spin 10s linear infinite;
+        }
+    }
+}
+
+@media (max-width: 1300px) {
+    .process-card2-wrap:after {
+        left: calc(100% - 50px);
+    }
+}
+
+@include lg {
+    .process-card2 {
+        margin: 14px;
+        &-wrap {
+            &:after {
+                height: 24px;
+                left: calc(100% - 55px);
+            }
+            &:nth-child(even):after {
+                left: calc(100% - 45px);
+            }
+        }
+    }
+}
+
+@include md {
+    .process-card2 {
+        &-wrap {
+            &:after {
+                height: 42px;
+                left: calc(100% - 68px);
+            }
+            &:nth-child(even) {
+                &:after {
+                    display: none;
+                }
+            }
+        }
+        margin: 14px auto;
+    }
+}
+
+@include sm {
+    .process-card2-wrap:after {
+        height: 32px;
+    }
+}
+
+@include xs {
+    .process-card2-wrap:after {
+        display: none;
+    }
+}

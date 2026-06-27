@@ -1,0 +1,109 @@
+.error-page-content {
+    .error-title {
+        color: $color__heading;
+        font-size: 42px;
+        font-weight: 700;
+        margin-bottom: 18px;
+    }
+    > p {
+        font-size: 15px;
+        line-height: 1.55em;
+        > a {
+            color: $color__primary;
+            &:hover,
+            &:focus {
+                color: $black;
+            }
+        }
+    }
+    @media only screen and (max-width: 1199px) {
+        .error-title {
+            font-size: 36px;
+        }
+    }
+    @media only screen and (max-width: 575px) {
+        .error-title {
+            font-size: 28px;
+        }
+    }
+}
+.search-form-area {
+    padding-top: 35px;
+    @media only screen and (max-width: 1199px) {
+        padding-top: 25px;
+    }
+    .search-form .input-group {
+        -webkit-box-align: center;
+            -ms-flex-align: center;
+                align-items: center;
+        border: 1px solid $color__border-one;
+        border-radius: 50px 0 50px 50px;
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+        -ms-flex-wrap: wrap;
+            flex-wrap: wrap;
+        > input.form-controllar {
+            border-bottom: 0 solid;
+            -webkit-box-flex: 0;
+                -ms-flex: 0 0 calc(100% - 120px);
+                    flex: 0 0 calc(100% - 120px);
+            max-width: calc(100% - 120px);
+            height: 64px;
+            padding: 5px 30px !important;
+            border-radius: 50px;
+            color: #1d1855;
+        }
+        .input-group-btn {
+            -webkit-box-flex: 0;
+                -ms-flex: 0 0 118px;
+                    flex: 0 0 118px;
+            max-width: 118px;
+            text-align: right;
+            margin-right: 2px;
+            .btn-default {
+                height: 60px;
+                line-height: 60px;
+                width: 100%;
+                padding: 0;
+                box-shadow: 0px 0px 0px transparent;
+            }
+        }
+        @media only screen and (max-width: 575px) {
+            display: block;
+            background-color: transparent;
+            border-width: 0px;
+            border-radius: 0px;
+            box-shadow: 0px 0px 0px 0px rgba($black, 0);
+            text-align: center;
+            > input.form-controllar {
+                border: 1px solid $color__border-one;
+                height: 55px;
+                padding: 5px 15px !important;
+                margin-bottom: 15px;
+                width: 100%;
+            }
+            > input.form-controllar,
+            .input-group-btn {
+                max-width: 100%;
+            }
+            .input-group-btn {
+                text-align: center;
+                display: block;
+                margin-right: 0px;
+                .btn-default {
+                    height: 50px;
+                    line-height: 50px;
+                    width: auto;
+                    padding: 0 30px;
+                }
+            }
+        }
+    }
+}
+
+@media only screen and (max-width: 991px) {
+    .error-page-block .error-thumbnail {
+        margin-bottom: 50px;
+    }
+}

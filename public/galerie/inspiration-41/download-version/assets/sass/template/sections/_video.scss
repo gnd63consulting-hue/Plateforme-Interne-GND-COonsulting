@@ -1,0 +1,67 @@
+/* Mockup 1 ---------------------------------- */
+.th-video2 {
+    position: relative;
+    .play-bg {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 4;
+        .play-btn {
+            position: absolute;
+            bottom: 65px;
+            left: 50%;
+            &:hover {
+                > i {
+                    background-color: $title-color;
+                    color: $white-color;
+                }
+                &::before,
+                &:after {
+                    background-color: $title-color;
+                }
+            }
+        }
+    }
+}
+.img-right {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 4;
+    height: 100%;
+    width: 44%;
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+}
+
+@include lg {
+    .img-right {
+        position: relative;
+        width: 100%;
+        margin-bottom: -65px;
+    }
+}
+
+@include md {
+    .img-right {
+        margin-bottom: -35px;
+    }
+}
+
+@include xs {
+    .th-video2 .play-bg {
+        left: 30%;
+        transform: translateX(-30%);
+    }
+}
+
+@include vxs {
+    .th-video2 .play-bg .play-btn {
+        bottom: 30px;
+        left: 45%;
+    }
+}

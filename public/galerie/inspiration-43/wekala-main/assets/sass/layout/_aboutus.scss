@@ -1,0 +1,65 @@
+/*-------------------------------------------------
+    [ ### Counter Element ]
+*/
+.counter-item {
+    padding: 0 30px;
+    .count-element {
+        width: 77px;
+        height: 77px;
+        margin: auto;
+        > * {
+            margin: 0;
+            text-align: center;
+            line-height: 70px;
+            color: #fff;
+            font-weight: 600;
+        }
+    }    
+    .counter-title {
+        margin-top: 10px;
+    }
+    &.ver-two {
+        .count-element {
+            width: auto;
+            height: auto;
+            > * {
+                color: $matterhorn;
+                line-height: 1.4em;
+                text-align: left;
+                font-size: 30px;
+                font-weight: 800;
+            }
+        }
+    }
+}
+.col-md-auto:first-of-type {
+    .counter-item {
+        padding-left: 0;
+    }
+}
+
+.tg-promo-number {
+    margin-top: 40px;
+	.odometer {
+		font-size: 50px;
+		line-height: 1;
+		font-weight: 600;
+        color: $color__primary;
+        margin-bottom: 13px;
+	}
+	.promo-title {
+		text-transform: uppercase;
+		font-weight: 500;
+        font-size: 14px;
+        color: $color__heading;
+	}
+    @media only screen and (max-width: 767px) {
+        .odometer {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+        .promo-title { 
+            font-size: 12px;
+        }
+    }
+}

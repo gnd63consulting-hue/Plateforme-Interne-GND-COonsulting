@@ -1,0 +1,213 @@
+/*client-area 1**********/
+.client-area-1 {
+    padding: 60px;
+    .sec-title {
+        font-size: 36px;
+    }
+    .icon-box {
+        display: flex;
+        gap: 10px;
+        margin-top: 22px;
+        button {
+            --icon-size: 46px;
+            background: transparent;
+            border: 1px solid #4D5765;
+            color: $white-color;
+            font-size: 20px;
+            margin: 0;
+            &:hover {
+                background: $theme-color;
+                border-color: $theme-color;
+            }
+        }
+        @include md {
+            justify-content: center;
+        }
+    }
+    @include xs {
+        padding: 60px 40px;
+    }
+}
+/*client-area 2**********/
+.client-area-2 {
+    padding: 45px 0;
+    border-bottom: 1px solid $border-color;
+}
+/*client-area 3**********/
+.client-area-3 {
+    padding: 55px 40px 55px 0px;
+    position: relative;
+    z-index: 3;
+    margin-right: 150px;
+    @include xxl {
+        margin-right: 110px;
+    }
+    @include ml {
+        margin-right: 70px;
+    }
+    @include xl {
+        margin-right: 0;
+        padding: 55px 20px;
+    }
+}
+/*client-area 4**********/
+.client-area-4 {
+    position: relative;
+    padding: 55px 0;
+    margin: 0 -50px;
+    &:after {
+        content: '';
+        position: absolute;
+        height: 100%;
+        width: calc(100% + 100px);
+        background: $theme-color;
+        inset: 0;
+        left: -50px;
+        z-index: -1;
+        clip-path: polygon(0 0, 100% 0, 95% 100%, 5% 100%);
+    }
+    &:before {
+        content: '';
+        position: absolute;
+        height: 101px;
+        width: calc(100% + 190px);
+        background: $body-color;
+        inset: 0;
+        left: -95px;
+        z-index: -1;
+        clip-path: polygon(3% 0, 97% 0, 100% 100%, 0 100%);
+    }
+    @include xxl {
+        margin: 0;
+        &:before {
+            width: calc(100% + 184px);
+            left: -92px;
+        }
+    }
+    @include ml {
+        margin: 0 55px;
+        &:before {
+            width: calc(100% + 178px);
+            left: -89px;
+        }
+    }
+    @include xl {
+        margin: 0 70px;
+        &:before {
+            width: calc(100% + 172px);
+            left: -86px;
+        }
+    }
+    @include lg {
+        &:before {
+            width: calc(100% + 160px);
+            left: -80px;
+        }
+    }
+    @include md {
+        padding: 30px 0;
+        &:before {
+            width: calc(100% + 146px);
+            left: -73px;
+            height: 75px;
+        }
+    }
+    @include sm {
+        &:before {
+            width: calc(100% + 132px);
+            left: -66px;
+        }
+    }
+    @include xs {
+        &:before {
+            width: calc(100% + 126px);
+            left: -63px;
+        }
+    }
+    @media (max-width: 320px) {
+        &:before {
+            width: calc(100% + 120px);
+            left: -60px;
+            height: 73px;
+        }
+    }
+}
+/*client-area 5**********/
+.client-area-5 {
+    background-size: calc(100% - 240px);
+    padding: 55px 0;
+    @media (max-width: 1700px) {
+        background-size: calc(100% - 240px) 100%;
+    }
+    @include xxl {
+        background-size: calc(100% - 100px) 100%;
+    }
+    @include ml {
+        background-size: cover;
+    }
+}
+.client-slider5 {
+    margin: 0 20px; 
+    @media (max-width: 1700px) {
+        margin: 0 120px; 
+    } 
+    @include xxl {
+        margin: 0 50px;
+    } 
+    @include ml {
+        margin: 0;
+    } 
+}
+
+/*client-area 6**********/
+.client-thumb.style2 {
+    filter: grayscale(1) opacity(0.5);
+    transition: 0.4s;
+    &:hover {
+        filter: none;
+    }
+}
+/*client-area 7**********/
+.brand-box {
+    &-wrap {
+        background-color: $smoke-color;
+        box-shadow: -1000px 0 0 0 $smoke-color;
+    }
+    padding: 25px 0;
+}
+.brand-icon-wrap {
+    height: 100%;
+    background-color: $body-color;
+    display: grid;
+    justify-content: center;
+    align-items: center;
+    clip-path: polygon(50px 0%, 100% 0, 100% 100%, 50px 100%, 0% 50%);
+    .slick-arrow {
+        margin-left: 25px;
+        top: 0;
+    }
+}
+
+@include ml {
+    .brand-box {
+        &-wrap {
+            box-shadow: -200px 0 0 0 $smoke-color;
+        }
+    }
+}
+@include sm {
+    .brand-icon-wrap .slick-arrow {
+        margin-right: 0;
+    }
+}
+
+@include xs {
+    .brand-box {
+        text-align: center;
+    }
+    .brand-box-wrap {
+        box-shadow: none;
+        margin: 0 -15px;
+        padding: 0 15px;
+    }
+}

@@ -1,0 +1,422 @@
+/* Counter 1 ---------------------------------- */
+.counter-area-1 {
+    padding: 85px 0;
+}
+
+.counter-grid {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    &_icon {
+        img {
+            transition: 0.4s;
+        }
+    }
+    &_number {
+        color: $white-color;
+        margin-bottom: -7px;
+        margin-top: -0.16em;
+        font-weight: 700;
+        font-size: 48px;
+        @include lg {
+            font-size: 36px;
+            margin-bottom: 0;
+        }
+        @include sm {
+            font-size: 28px;
+        }
+    }
+    &_text {
+        color: #B2B2B2;
+        display: block;
+        margin-bottom: -0.5em;
+        font-size: 16px;
+    }
+    &:hover {
+        .counter-grid {
+            &_icon {
+                img {
+                    transform: rotateY(180deg);
+                }
+            }
+        }
+    }
+}
+
+/* Counter 2 ---------------------------------- */
+.counter-area-2 {
+    padding: 60px;
+    @include xl {
+        padding: 50px;
+    }
+    @include xs {
+        padding: 30px;
+    }
+}
+.counter-thumb {
+    @include lg {
+        img {
+            width: 100%;
+        }
+    }
+}
+.counter-grid.style2 {
+    background: $white-color;
+    padding: 40px 30px 40px 40px;
+    position: relative;
+    &:after {
+        content: '';
+        position: absolute;
+        left: 5px;
+        top: 5px;
+        height: 30px;
+        width: 30px;
+        border-right: 30px solid $white-color;
+        border-top: 30px solid $theme-color;
+    }
+    .details {
+        position: relative;
+        z-index: 1;
+    }
+    .counter-grid_icon {
+        flex: none;
+    }
+    .counter-grid_number {
+        color: $title-color;
+        font-size: 64px;
+        font-weight: 700;
+        margin-bottom: 1px;
+    }
+    .counter-grid_number-shadow {
+        position: absolute;
+        font-size: 69px;
+        font-weight: 700;
+        -webkit-text-stroke: 1px $border-color;
+        -webkit-text-fill-color: transparent;
+        z-index: -1;
+        top: -12px;
+        left: 4px;
+    }
+    .counter-grid_text {
+        color: $body-color;
+    }
+    @include xl {
+        padding: 30px 30px 30px 30px;
+        .counter-grid_text {
+            font-size: 14px;
+        }
+    }
+    @include xs {
+        .counter-grid_number-shadow {
+            font-size: 49px;
+        }
+        .counter-grid_number {
+            font-size: 44px;
+        }
+    }
+    @include vxs {
+        display: block;
+        .counter-grid_icon {
+            margin-bottom: 25px;
+        }
+        .counter-grid_number-shadow {
+            top: -3px;
+        }
+    }
+}
+/* Counter 3 ---------------------------------- */
+.counter-area-3 {
+    border-bottom: 1px solid $border-color;
+}
+.counter-grid.style3 {
+    align-items: center;
+    .counter-grid_icon {
+        filter: drop-shadow(0px 10px 50px rgba(30, 40, 58, 0.12));
+        height: 80px;
+        width: 80px;
+        line-height: 80px;
+        border-radius: 50%;
+        background: $white-color;
+        text-align: center;
+        flex: none;
+    }
+    .counter-grid_number {
+        color: $title-color;
+        font-weight: 400;
+        margin-bottom: 0;
+        .counter-number {
+            font-weight: 700;
+        }
+    }
+    .counter-grid_text {
+        color: $body-color;
+    }
+}
+/* Counter 4 ---------------------------------- */
+.counter-area-4 {
+    border: 1px solid $border-color;
+    padding: 80px;
+    position: relative;
+    &:after {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        background: $smoke-color;
+        width: 46%;
+        clip-path: polygon(0 0, 100% 0, 80% 100%, 0% 100%);
+        z-index: 0;
+    }
+    @include xl {
+        padding: 60px;
+    }
+    @include sm {
+        padding: 40px 20px;
+        &:after {
+            display: none;
+        }
+    }
+    &.bg-shadow {
+        box-shadow: 0px 10px 50px 0px rgba(0, 0, 0, 0.07);
+    }
+}
+.counter-wrap4 {
+    padding: 0 0.75rem;
+    margin-left: 80px;
+    @include xxl {
+        margin-left: 30px;
+    }
+    @include lg {
+        margin-left: 0;
+    }
+}
+.counter-grid.style4 {
+    .counter-grid_icon {
+        height: 80px;
+        width: 80px;
+        line-height: 80px;
+        text-align: center;
+        border-radius: 50%;
+        background: $white-color;
+        flex: none;
+        box-shadow: 0px 10px 50px rgba(30, 40, 58, 0.12);
+        @include sm {
+            height: 70px;
+            width: 70px;
+            line-height: 70px;
+            img {
+                width: 40px;
+            }
+        }
+    }
+    .counter-grid_number {
+        color: $title-color;
+        margin-bottom: 0;
+    }
+    .counter-grid_text {
+        color: $body-color;
+        @include xl {
+            font-size: 14px;
+        }
+    }
+}
+.counter-grid-wrap {
+    $service-list-border: 3;
+    $service-twocolumn: 2;
+    --space-x: 60px;
+    --space-y: 45px;
+    padding: 0;
+    // Reset All
+    &:not(:nth-child(#{$service-list-border}n)) {
+        border-right: unset;
+    }
+    // For 2 Column
+    &:not(:nth-last-child(-n + #{$service-twocolumn})) {
+        padding-bottom: var(--space-y);
+    }
+    &:not(:nth-child(-n + #{$service-twocolumn})) {
+        padding-top: var(--space-y);    
+        border-top: 1px solid $border-color;
+    }
+    &:nth-child(odd) {
+        padding-right: var(--space-x);
+    }
+    &:nth-child(even) {
+        padding-left: var(--space-x);
+        border-left: 1px solid $border-color;
+    }
+    &:not(:nth-last-child(-n + 4)) {
+        border-top: 0;
+    }
+    @include xxl {
+        --space-x: 40px;
+    }
+    @include xl {
+        --space-x: 30px;
+        --space-y: 30px;
+    }
+    @include sm {
+        &:nth-child(even) {
+            padding-left: 12px;
+            border-left: 0;
+        }
+        &:not(:nth-child(-n + 2)) {
+            border-top: 0;
+            padding-top: 0;
+        }
+        &:nth-child(odd) {
+            padding-left: 12px;
+            padding-right: 12px;
+            padding-top: 0;
+        }
+    }
+    @include xs {
+        &:not(:nth-child(-n + 2)) {
+            padding-bottom: var(--space-x);
+        }
+        &:last-child {
+            padding-bottom: 0;
+        }
+    }
+}
+/* Counter 5 ---------------------------------- */
+.counter-card {
+    &-wrap {
+        padding: 65px;
+    }
+    &-wrap2 {
+        padding: 60px 0;
+    }
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    &_icon {
+        @include equal-size(80px);
+        line-height: 70px;
+        background-color: $theme-color;
+        border: 10px solid #bdbdbd;
+        border-radius: 50%;
+        box-sizing: content-box;
+        text-align: center;
+        img {
+            transition: 0.4s ease-in-out;
+        }
+    }
+    &_number {
+        color: $white-color;
+        margin-bottom: 5px;
+        margin-top: -0.24em;
+    }
+    &_text {
+        color: $white-color;
+        display: block;
+        margin-bottom: -0.45em;
+    }
+    &:hover {
+        .counter-card {
+            &_icon {
+                img {
+                    transform: rotateY(180deg);
+                }
+            }
+        }
+    }
+    &.style2 {
+        .counter-card {
+            &_icon {
+                border: none;
+            }
+        }
+    }
+}
+
+@include ml {
+    .counter-card {
+        &_number {
+            max-width: 110px;
+        }
+    }
+}
+
+@include lg {
+    .counter-card {
+        &_number {
+            font-size: 40px;
+        }
+    }
+}
+
+@include sm {
+    .counter-card {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+        &_number {
+            max-width: 100%;
+        }
+    }
+}
+
+@include vxs {
+    .counter-card-wrap {
+        padding: 65px 20px;
+    }
+}
+
+
+/* Counter 7 ---------------------------------- */
+.counter-card {
+    &.style3 {
+        position: relative;
+        .counter-card_bg-number {
+            font-weight: 800;
+            font-size: 120px;
+            font-family: $title-font;
+            position: absolute;
+            -webkit-text-stroke: 1px rgba(255, 255, 255, 0.15);
+            color: transparent;
+            left: 50%;
+            transform: translate(-50%, 0);
+        }
+        .media-body {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            .counter-card_number {
+                font-weight: 800;
+                margin: 0 0 -0.3em;
+            }
+            .counter-card_text {
+                font-size: 18px;
+                font-weight: 500;
+                width: 140px;
+                line-height: 26px;
+            }
+        }
+    }
+}
+@include lg {
+    .counter-card.style3 {
+        .media-body {
+            justify-content: center;
+        }
+        .counter-card_bg-number {
+            font-size: 90px;
+        }   
+    }
+}
+@include md {
+    .counter-card.style3 .counter-card_bg-number {
+        font-size: 60px;
+        line-height: initial;
+        transform: translate(-50%, -50%);
+        top: 50%;
+    }
+}
+@include sm {
+    .counter-card.style3 {
+        text-align: left;
+    }
+    
+}

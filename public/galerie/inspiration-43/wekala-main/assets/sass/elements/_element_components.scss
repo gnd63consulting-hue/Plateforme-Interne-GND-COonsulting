@@ -1,0 +1,167 @@
+/*-------------------------------------------------
+    [ # Button Links ]
+*/
+.btn-links-area {
+    margin: 5px -8px 0;
+    .btn-links {
+        background-color: transparent;
+        border: 0 solid;
+        margin: 0 8px;
+        -webkit-transition: all 0.25s;
+        transition: all 0.25s;
+        color: #B4C0D9;
+        font-size: 32px;
+        padding: 0;
+        position: relative;
+        &:hover {
+            color: $color__primary;
+            &.btn-next {
+                padding-left: 5px;
+            }
+        }
+    }
+    &.text-right {
+        .btn-links:hover {
+            &.btn-prev {
+                padding-right: 5px;
+            }
+            &.btn-next {
+                padding-left: 0;
+            }
+        }
+    }
+    @media only screen and (max-width: 991px) {
+        &.text-right {
+            text-align: left !important;
+            margin-bottom: 15px;
+            .btn-links:hover {
+                &.btn-prev {
+                    padding-right: 0px;
+                }
+                &.btn-next {
+                    padding-left: 5px;
+                }
+            }
+        }
+    }
+    @media only screen and (max-width: 767px) {
+        .btn-links {
+            font-size: 26px;
+        }
+    }
+}
+
+
+/*-------------------------------------------------
+    [ ## Socail Status ]
+*/
+.social-status {
+    a {
+        border-radius: 50%;
+        color: $color_text_main;
+        display: inline-block;
+        font-size: 15px;
+        height: 45px;
+        line-height: 45px;
+        text-align: center;
+        width: 45px;
+        -webkit-transition: all 150ms ease-in;
+        transition: all 150ms ease-in;
+        margin: 0 4px;
+        &:hover,
+        &:focus {
+            background-color: $color__heading;
+            color: $white !important;
+        }
+    }
+}
+
+/*-------------------------------------------------
+    [ ## Scroll Top ]
+*/
+.topbutton {
+    color: $white;
+    bottom: 50px;
+    display: block;
+    height: 50px;
+    line-height: 50px;
+    position: fixed;
+    right: 20px;
+    text-align: center;
+    width: 50px;
+    border-radius: 0;
+    -webkit-transition: all 0.3s; 
+    transition: all 0.3s;
+    z-index: 999;
+    font-size: 20px;
+    border-radius: 5px;
+    background-color: $color__primary;
+    
+    &.btn-show {
+        opacity: 1;
+        -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
+        -webkit-transform: translateY(0);
+        transform: translateY(0);
+    }
+    &.btn-hide {
+        opacity: 0;
+        -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+        -webkit-transform: translateY(40px);
+        transform: translateY(40px);
+    }
+    &:hover {
+        color: $white !important;
+        opacity: 0.9;
+        -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=90)";
+    }
+    &:focus {
+        color: $white !important;
+    }
+}
+
+/*-------------------------------------------------
+    [ ## Carousel Align Center ]
+*/
+.carousel-nav-align-center {
+    .owl-nav {
+        &.disabled {
+            display: block;
+        }
+        > div {
+            display: inline-block;
+            color: $white;
+            font-size: 14px;
+            font-weight: 600;
+            -webkit-transition: all 0.25s ease-in 0s;
+            transition: all 0.25s ease-in 0s;
+            position: absolute;
+            top: 50%;
+            -webkit-transform: translateY(-50%);
+                    transform: translateY(-50%);
+            border-radius: 0;
+            letter-spacing: 0.6em;
+            text-transform: uppercase;
+            display: -webkit-box;
+            display: -ms-flexbox;
+            display: flex;
+            -webkit-box-align: center;
+                -ms-flex-align: center;
+                    align-items: center;
+            @media only screen and (max-width: 1199px) {
+                letter-spacing: 0.3em;
+            }
+            > span {
+                font-size: 32px;
+            }
+            &.owl-prev {
+                left: 0px;
+            }
+            &.owl-next {
+                right: 0px;
+            }
+            &:hover {
+                color: $color__primary;
+            }
+        }
+    }
+}

@@ -1,0 +1,237 @@
+/*-------------------------------------------------
+    [ ## Testimonial ]
+*/
+.testimonial-block {
+    .container {
+        @media only screen and (max-width: 1199px) {
+            &.ml-t-10 {
+                margin-top: -30px;
+            }
+        }
+        @media only screen and (max-width: 991px) {
+            &.ml-t-10 {
+                margin-top: 0px;
+            }
+            &.ml-b-30 {
+                margin-bottom: -20px;
+            }
+        }
+    }
+    &.testimonial-right {
+        .container > .row > div {
+            &:nth-child(1) {
+                -webkit-box-ordinal-group: 3;
+                    -ms-flex-order: 2;
+                        order: 2;
+            }
+            &:nth-child(2) {
+                -webkit-box-ordinal-group: 2;
+                    -ms-flex-order: 1;
+                        order: 1;
+            }
+            @media only screen and (max-width: 991px) {
+                &:nth-child(1) {
+                    -webkit-box-ordinal-group: 2;
+                        -ms-flex-order: 1;
+                            order: 1;
+                }
+                &:nth-child(2) {
+                    -webkit-box-ordinal-group: 3;
+                        -ms-flex-order: 2;
+                            order: 2;
+                }
+            }
+        }
+        .btn-links-area {
+            margin-bottom: 0px;
+        }
+    }
+}
+.testimonial-slide-area {
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
+    height: 500px;
+    overflow: hidden;
+    margin-right: -30px;
+    margin-left: -30px;
+    .testimonial-slick-wrapper {
+        -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
+        -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
+        margin-top: -175px;
+        .slick-active .testimonial-item  {
+            -webkit-transform: translateY(60%) translateZ(0px) scale(0.75);
+                    transform: translateY(60%) translateZ(0px) scale(0.75);
+            opacity: 0.5;
+            -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
+        }
+        .slick-center .testimonial-item  {
+            -webkit-transform: translateZ(50px) scale(0.9);
+                    transform: translateZ(50px) scale(0.9);
+            position: relative;
+            z-index: 2;
+            opacity: 1;
+            -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
+        }
+        .slick-center + .slick-active .testimonial-item  {
+            -webkit-transform: translateY(-60%) translateZ(0px) scale(0.75);
+                    transform: translateY(-60%) translateZ(0px) scale(0.75);
+        }
+    }
+    @media only screen and (max-width: 1199px) {
+        height: 440px;
+        .testimonial-slick-wrapper {
+            margin-top: -155px;
+        }
+    }
+    @media only screen and (max-width: 991px) {
+        margin-top: 40px;
+    }
+    @media only screen and (max-width: 767px) {
+        height: 480px;
+        margin-top: 30px;
+        .testimonial-slick-wrapper {
+            margin-top: -177px;
+        }
+    }
+    @media only screen and (max-width: 575px) {
+        height: 570px;
+        margin-right: 0px;
+        margin-left: 0px;
+        .testimonial-slick-wrapper {
+            -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
+            margin-top: 0px;
+            .slick-active .testimonial-item,
+            .slick-center .testimonial-item,
+            .slick-center + .slick-active .testimonial-item {
+                -webkit-transform: translateY(0%) translateZ(0px) scale(0.9) !important;
+                        transform: translateY(0%) translateZ(0px) scale(0.9) !important;
+                opacity: 1 !important;
+                -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
+            }
+        }
+    }
+}
+.testimonial-item {
+    position: relative;
+    border-radius: 10px;
+    box-shadow: 5px 8px 30px rgba($black,0.15);
+    overflow: hidden;
+    background-color: $white;
+    -webkit-transition: 1s;
+    transition: 1s;
+    .testimonial-item-inner {
+        padding: 60px 60px 55px;
+    }
+    .quote-icon {
+        bottom: -20px;
+        position: absolute;
+        right: -25px;
+    }
+    @media only screen and (min-width: 992px) and (max-width: 1199px) {
+        .testimonial-item-inner {
+	        padding: 45px 35px 40px;
+        }
+    }
+    @media only screen and (max-width: 575px) {
+        box-shadow: 3px 3px 15px rgba($black,0.15);
+        .testimonial-item-inner {
+	        padding: 30px 15px 25px;
+        }
+    }
+}
+
+.client-testimonial {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-wrap: wrap;
+        flex-wrap: wrap;
+    .client-thumb {
+        width: 100px;
+        height: 100px;
+        -webkit-box-flex: 0;
+            -ms-flex: 0 0 100px;
+                flex: 0 0 100px;
+        max-width: 100px;
+        margin-top: 5px;
+        img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+        }
+    }
+    .testimonial-details {
+        -webkit-box-flex: 0;
+            -ms-flex: 0 0 calc(100% - 100px);
+                flex: 0 0 calc(100% - 100px);
+        max-width: calc(100% - 100px);
+        padding-left: 60px;
+        .details {
+            margin-bottom: 20px;
+        }
+        .client-area {
+            .client-name {
+                font-size: 14px;
+                font-weight: 600;
+                margin-bottom: 4px;
+            }
+            .client-designation {
+                font-size: 12px;
+                line-height: 1.5em;
+            }
+        }
+    }
+    @media only screen and (max-width: 1199px) {
+        .testimonial-details {
+            padding-left: 30px;
+        }
+    }
+    @media only screen and (max-width: 575px) {
+        display: block;
+        .client-thumb {
+            width: 60px;
+            height: 60px;
+            max-width: 100%;
+            margin-top: 0px;
+            margin-bottom: 20px;
+            img {
+                width: 100%;
+                height: 100%;
+            }
+        }
+        .testimonial-details {
+            padding-left: 0px;
+            max-width: 100%;
+            p {
+                line-height: 1.5em;
+            }
+        }
+    }
+}
+
+
+/*-------------------------------------------------
+    [ ## Work Brand ]
+*/
+.work-brand-block {
+    .owl-carousel .owl-item {
+        display: table;
+        height: 110px;
+    }
+    .brands-link {
+        cursor: pointer;
+        display: table-cell;
+        vertical-align: middle;
+        width: 100%;
+        img {
+            -webkit-transition: all 0.25s;
+            transition: all 0.25s;
+            margin: 0 auto;
+        }
+        &:hover img {
+            -webkit-transform: scale(1.1);
+                    transform: scale(1.1);
+        }
+    }
+}
