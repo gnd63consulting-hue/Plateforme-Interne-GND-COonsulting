@@ -13,10 +13,10 @@ function RefCard({ r }: { r: DesignRefRow }) {
     <article className="panel card-hover flex flex-col overflow-hidden p-0">
       {r.preview_url && (
         <a
-          href={r.preview_url}
+          href={r.url ?? r.preview_url}
           target="_blank"
           rel="noopener noreferrer"
-          title="Voir l'aperçu en grand"
+          title={r.url ? 'Ouvrir le site (live)' : "Voir l'aperçu en grand"}
           className="group relative block aspect-[16/10] overflow-hidden bg-cream-deep"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -27,7 +27,7 @@ function RefCard({ r }: { r: DesignRefRow }) {
             className="h-full w-full object-cover object-top transition-transform duration-300 group-hover:scale-[1.03]"
           />
           <span className="absolute bottom-2 right-2 rounded-full bg-choco/80 px-2 py-0.5 text-[10px] font-semibold text-cream opacity-0 transition group-hover:opacity-100">
-            Aperçu ↗
+            {r.url ? 'Voir le site ↗' : 'Aperçu ↗'}
           </span>
         </a>
       )}
