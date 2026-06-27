@@ -1,0 +1,140 @@
+
+/*-------------------------------------------------------
+04. Faq css 
+---------------------------------------------------------*/
+
+.faq-header .faq-para {
+    padding-right: 71px;
+}
+
+.shape-11 {
+    position: absolute;
+    right: 30px;
+    z-index: -1;
+}
+
+.faq-2-shape {
+	img {
+		position: absolute;
+		z-index: -1;
+		&.faq-2-shape-1 {
+			top:  5rem;
+			left: 5rem;
+		}
+		&.faq-2-shape-2 {
+			bottom:  5rem;
+			right: 5rem;
+		}
+	}
+}
+
+.faq-dot {
+    position: absolute;
+    right: 6px;
+    top: 60px;
+    z-index: -1;
+    width: 223px;
+}
+
+.faq-pic-4 {
+	&::before {
+		@include pos-abs(var(--clr-def-3),7rem,8rem,1);
+		bottom: 104px;
+		right: 63px;
+		z-index: 1;
+		animation: to-left 5s linear infinite alternate;
+	}
+}
+
+.faq-header {
+	margin-bottom: 4rem;
+	padding-bottom: 3.2rem;
+	border-bottom: 2px solid #ccc;
+	.faq-para{
+		padding-right: 31rem;
+		margin-bottom: 0;
+	}
+}
+
+.accordion-header {
+    margin-bottom: 30px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid var(--clr-1);
+}
+
+.accordion-item {
+	margin-bottom: -1px;
+    background-color: transparent;
+	border: none;
+}
+
+.accordion-item:not(last-child) {
+	margin-bottom: 3rem;
+}
+
+.accordion-button {
+	font-size: 1.6rem;
+    color: var(--clr-heading);
+    font-weight: 700;
+	border: none;
+	box-shadow: none;
+	padding: 0;
+}
+
+.accordion-button:not(.collapsed) {
+	color: var(--clr-heading);
+	background: transparent;
+	border: none;
+	box-shadow: none;
+}
+
+.accordion-button.collapsed {
+	box-shadow: none;
+    border: none;
+    background: transparent;
+}
+
+.accordion-button::after {
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-left: auto;
+	font-family: 'Font Awesome\ 5 Free';
+	content: "\f067"; /* FontAwesome Unicode */
+	font-weight: 900;
+	background-image: inherit;
+	font-size: 1.4rem;
+}
+
+.accordion-button:not(.collapsed)::after {
+    transform: rotate(180deg);
+	background-image: inherit;
+	font-family: 'Font Awesome\ 5 Free';
+	content: "\f068"; /* FontAwesome Unicode */
+	font-weight: 900;
+	font-size: 1.4rem;
+}
+
+//.accordion-item:first-of-type .accordion-button {
+//    border-top-left-radius: 5px;
+//    border-top-right-radius: 5px;
+//}
+
+.accordion-collapse {
+	background: transparent;
+	color: var(--clr-body);
+}
+
+.accordion-button:focus {
+    z-index: 3;
+    border: none;
+    outline: 0;
+    box-shadow: none;
+}
+
+.accordion-body {
+	padding: 0;
+	p {
+		font-size: 1.6rem;
+	}
+}
+

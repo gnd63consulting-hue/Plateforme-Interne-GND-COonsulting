@@ -1,0 +1,27 @@
+/*-------------------------------------------------------
+38. Sub css
+---------------------------------------------------------*/
+
+.sub-wpr {
+	background-position: bottom right;
+    background-repeat: no-repeat;
+    background-size: cover;
+	padding: 70px 60px;
+	background: var(--clr-1);
+	position: relative;
+	z-index: 1;
+}
+
+.sub-left {
+	.heading-1 {
+		color: var(--clr-white);
+	}
+}
+
+.cta-shape-1 {
+	position: absolute;
+	z-index: -1;
+	top: 0;
+	right: 0;
+	width: 190px;
+}

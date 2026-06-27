@@ -1,0 +1,41 @@
+    
+
+/*-------------------------------------------------------
+01. Variable css #9C2460 #9627E3
+---------------------------------------------------------*/
+
+@import url('https://fonts.googleapis.com/css2?family=Fira+Sans:wght@100;200;300;400;500;600;700;800;900&family=Roboto:wght@100;300;400;500;700;900&display=swap');
+
+:root {
+	--clr-heading: #232323;
+	--clr-body: #666;
+	--clr-body-2: #BBBBBB;
+	--clr-bg: #F5F8FF;
+	--clr-bg-2: #f6f6f6;
+	--clr-bg-3: #EEF3F9;
+	--clr-def:  #DF0A0A;
+	--clr-def-2: #A8040A;
+	--clr-def-3: #1D2027;
+	--clr-menu: #FF4A17;
+	--clr-white: #fff;
+	--clr-black: #000;
+	--clr-black-2: #080821;
+	--font-1: 'Roboto', sans-serif;
+	--font-2: 'Fira Sans', sans-serif;
+    --clr-1:#16243E;
+    --clr-2:#0B1830;
+	--clr-3:#272b37;
+    --clr-4:#1e202c;
+    --clr-5:#2a2c38;
+    --clr-6:#232323;
+    --clr-ccc:#ccc;
+    --clr-orange:#F42222;
+    --clr-rgb:0, 102, 208;
+    --clr-gradient: linear-gradient(90deg, var(--clr-def) 0%, var(--clr-def-2) 35%, var(--clr-def-3) 100%);
+    --clr-gradient-2: linear-gradient(to right, var(--clr-def) 0%, transparent 100%);
+    --clr-gradient-3: linear-gradient(90deg, var(--clr-def, #00206e) 0%, var(--clr-def-2) 100%);
+	--clr-overlay: rgba(5, 20, 65, 0.8);
+	--box-shadow-1: 0 0 10px rgba(0, 0 , 0, .09);
+}
+ 
+ 

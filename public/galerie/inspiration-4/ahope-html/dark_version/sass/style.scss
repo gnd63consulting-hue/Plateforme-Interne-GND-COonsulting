@@ -1,0 +1,43 @@
+// Call Mixins
+@import 'mixins';
+// Call Reseter 
+@import 'default';
+// Call Variables
+@import 'variables';
+// Call Global Class
+@import 'common_class';
+// Call Partials
+@import 'partials/testimonial'; 
+@import 'partials/faq';
+@import 'partials/order';
+@import 'partials/team';
+@import 'partials/product';
+@import 'partials/knowledge';
+@import 'partials/contact'; 
+@import 'partials/footer';
+@import 'partials/feature';
+@import 'partials/hosting_brand';
+@import 'partials/blogs/all_blog';
+@import 'partials/call_to_action';
+@import 'partials/pricing';
+@import 'partials/service';
+@import 'partials/promo'; 
+@import 'partials/client';
+@import 'partials/subscribe';
+@import 'partials/tooltip';
+@import 'partials/info_section';
+@import 'partials/terms_and_condition';
+@import 'header_with_menu';
+@import 'pre_loader_and_mobile_menu_icon';
+@import 'hero_area';
+@import 'search_offcanvas_overlay';
+@import 'sign_in_up_resetpass';
+@import '404';
+@import 'coming_soon';
+@import 'about';
+@import 'client_and_testimonial';
+@import 'offers';
+@import 'counter_area';
+
+
+

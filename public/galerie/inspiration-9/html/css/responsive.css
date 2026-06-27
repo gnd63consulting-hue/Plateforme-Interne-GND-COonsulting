@@ -1,0 +1,247 @@
+/*
+   Elexer Theme Responsive Design
+*/
+
+@media (max-width: 1024px) {
+    .button_container{
+        top: 3%;
+    }
+    .gallery-wrap{
+        padding-left: 20px;
+    }
+    .gallery-wrap h3{
+        font-size: 22px;
+    }
+    .gallery-content{
+        top: 50px;
+    }
+    .slider-section .profile-info .d-flex,
+    .main-slider .slide-item{
+        height: 500px;
+    }
+    .promo-content h3{
+        font-size: 18px;
+    }
+    p{
+        font-size: 14px;
+    }
+    .page-content h2{
+        font-size: 24px;
+    }
+    .page-content p{
+        margin: 0;
+    }
+    .comments-list .comment-box{
+        width: 715px;
+    }
+    .reply-list .comment-box{
+        width: 645px;
+    }
+    
+}
+
+/* ---- Start of max-width 992px CSS ---- */
+@media (max-width: 992px) {
+    .sm-padding{ padding: 15px; }
+    .feature_list,
+    .about_content {
+        padding: 0;
+    } 
+    .hero_mockup{
+        background-position: 120% center;
+    }
+    ul.nav > li > a {
+        padding: 0 5px;
+        font-size: 10px;
+    }
+    .hero-moc{
+        display: none;
+    }
+    .promo-content{
+        padding: 0;
+    }
+    .comments-list .comment-box{
+        width: 640px;
+    }
+    .reply-list .comment-box {
+        width: 570px;
+    }
+    .contact-wrap{
+        padding: 30px 10px;
+    }
+   
+  
+
+}
+/* ---- End of max-width 992px CSS ---- */
+
+
+/* ---- Start of min-width 480px and max-width 768px CSS ---- */
+@media all and (min-width: 480px) and (max-width: 768px) {
+	
+}
+/* ---- End of min-width 480px and max-width 768px CSS ---- */
+
+
+/* ---- Start of max-width 767px CSS ---- */
+@media all and (max-width: 767px) {
+    body, p{
+        font-size: 12px;
+        line-height: 22px;
+    }
+    h1{
+        font-size: 30px!important;
+    }
+    h2{
+        font-size: 20px;
+    }
+    h3{
+        font-size: 16px;
+    }
+    h2 br,
+    .mock-hide,
+    p br{
+        display: none;
+    }
+    .padding{
+        padding: 60px 0;
+    }
+    .page-header.padding{
+        padding: 80px 0 60px;
+    }
+    .xs-padding{
+    	padding: 15px;
+    }
+    .owl-controls{
+        display: none;
+    }
+    .profile-info h2{
+        font-size: 28px;
+    }
+    .profile{
+        width: 200px;
+        height: 200px;
+        position: inherit;
+        margin: 60px auto 0;
+    }
+    .gallery-section{
+        padding-top: 0;
+    }
+    .about-content h2 {
+        margin: 40px 0 40px 0;
+    }
+    .gallery-items .col-md-6:nth-child(2){
+        margin-top: 0;
+    }
+    .about-section {
+        padding: 0 0 60px 0;
+    }
+    .about-inner .about-bg{
+        margin-bottom: 20px;
+    }
+    .promo-section{
+        padding-top: 0;
+    }
+    .promo-content span {
+        font-size: 36px;
+        position: inherit;
+    }
+    .team-content .team-thumb{
+        margin-bottom: 15px;
+    }
+    .cta-section .text-right,
+    .cta-content{
+        text-align: center!important;
+    }
+    .cta-content h2 {
+        margin: 0 0 15px;
+    }
+    .cta-section .col-md-6:not(:last-of-type){
+        margin-bottom: 15px;
+    }
+    .service-section{
+        padding-top: 0;
+    }
+    .blog-section{
+        padding: 0;
+    }
+    .comments-list .comment-box{
+        width: 100%;
+    }
+    .blog-items{
+        padding: 0 15px;
+    }
+    .comments-list .comment-box:before, 
+    .comments-list .comment-box:after,
+    .reply-list li:before,
+    .comments-list:before{ display: none; }
+    .reply-list { padding-left: 40px; }
+    .comments-list .comment-avatar{ margin-bottom: 5px; }
+    .comment-form .form-group .col-sm-4:not(:last-of-type){
+        margin-bottom: 15px;
+    }
+    .contact-wrap .form-group .col-sm-6:not(:last-of-type){
+        margin-bottom: 15px;
+    }
+    .instafeed a {
+        width: 25%;
+    }
+    .share-icon li {
+        margin-right: 7px;
+    }
+    
+}
+/* ---- End of max-width 767px CSS ---- */
+
+
+/* ---- Start of max-width 575px CSS ---- */
+@media all and (max-width: 575px) {
+    .promo-content{ text-align: center; }
+    .gallery-filter li {
+        margin-right: 10px;
+        font-size: 12px;
+    }
+    .gallery-filter li:last-child{ margin-right: 0; }
+    .subscribe-form{ width: 100%; }
+    .download-content h2{
+        font-size: 20px;
+    }
+    .download-btn a:first-child{
+        margin-bottom: 10px;
+    }
+    .social-link li{
+        margin: 0;
+    }
+    .coment-form .form-group .col-sm-4{
+        margin-bottom: 15px;
+        margin-top: auto;
+    }
+    .coment-form .form-group .col-sm-4:last-child{
+        margin: 0;
+    }
+    .share-icon li {
+        margin-right: 5px;
+        margin-bottom: 5px;
+    }
+    .gallery-items .single-item{
+        padding-bottom: 30px;
+    }
+    .gallery-wrap{
+        padding: 0;
+    }
+}
+/* ---- End of max-width 575px CSS ---- */
+
+
+/* ---- Start of max-width 420px CSS ---- */
+@media all and (max-width: 420px) {
+    
+}
+/* ---- End of max-width 420px CSS ---- */
+
+
+/* ---- Start of max-width 380px CSS ---- */
+@media all and (max-width: 380px) {
+	
+}
+/* ---- End of max-width 380px CSS ---- */

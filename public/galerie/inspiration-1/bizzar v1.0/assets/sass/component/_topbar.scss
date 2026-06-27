@@ -1,0 +1,94 @@
+/*-------------------------------------------------------
+21. Topbar css 
+---------------------------------------------------------*/
+
+.top-bar-area {
+	height: 90px;
+	line-height: 90px;
+	&::before {
+		position: absolute;
+		background: var(--clr-def-3);
+		content: '';
+		z-index: -1;
+		top: 0;
+		left: -245px;
+		height: 100%;
+		width: 100%;
+		clip-path: polygon(0 0, 100% 0, 97% 100%, 0% 100%);
+	}
+}
+
+.top-barshp {
+	position: absolute;
+	z-index: -1;
+	top: 0;
+	right: 0;
+}
+
+.top-social {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+	justify-content: flex-end;
+	li {
+		a {
+			i {
+				color: var(--clr-white);
+				font-size: 1.5rem;
+				background: var(--clr-def-3);
+				display: inline-block;
+				height: 4rem;
+				width: 4rem;
+				text-align: center;
+				line-height: 4rem;
+				border-radius: 4px;
+			}
+		}
+	}
+}
+
+
+.topbar-before-off {
+	&::before {
+		display: none;
+	}
+}
+
+.top-box {
+	display: flex;
+	align-items: center;
+	gap: 2rem;
+	color: var(--clr-heading);
+	i {
+		color: var(--clr-def);
+		height: 4rem;
+		width: 4rem;
+		line-height: 4rem;
+		text-align: center;
+		border-radius: 50%;
+		background-color: var(--clr-white);
+	}
+}
+
+.top-box.top-location.hm-2 {
+	span {
+		font-size: 2rem;
+		letter-spacing: 1px;
+		&:first-letter {
+			text-transform: uppercase;
+		}
+	}
+}
+
+.top-box.top-login {
+	justify-content: flex-end;
+}
+
+.topbar-white {
+	.top-box {
+		color: var(--clr-white);
+		a {
+			color: var(--clr-white);
+		}
+	}
+}

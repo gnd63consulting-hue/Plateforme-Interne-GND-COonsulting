@@ -1,0 +1,551 @@
+
+
+/*----------------------------------------------------------------------------------- 
+
+Template Name: Bistly - Restaurant & Cafe HTML Template
+URI: pixelfit.agency
+Description: Bistly is a clean, modern, and fully responsive HTML template designed specifically for restaurants, cafes, bakeries, coffee shops, and food-related businesses. Crafted with attention to detail and built using the latest web technologies, Bistly ensures an exceptional user experience on all devices.
+Author: Pixelfit
+Author URI: https://themeforest.net/user/pixelfit
+Version: 1.0 
+
+
+------------------------------------------------------
+   CSS INDEX
+-----------------------------------------------------
+
+    # Common CSS
+    # Hero Section CSS
+    # About Section CSS
+    # Enjoy Food Section CSS
+    # Food CSS
+    # Gallery Section CSS
+    # Testimonial Section CSS
+    # Team Section CSS
+    # Booking Section CSS
+    # Opening Time Section CSS
+    # Blog Section CSS
+    # Instagram Section CSS
+    
+-------------------------------------------------------    */
+
+@import "../abstract";
+
+/* Common CSS */ 
+
+h2{
+    @include respond(xxxl){
+        font-size: 52px;
+        line-height: 65px;
+    }
+    @include respond(md){
+        font-size: 28px;
+        line-height: 45px;
+    }
+}
+
+
+/* Hero Section */ 
+
+.rs-hero{
+    position: relative;
+    z-index: 1;
+    padding: 220px 0 110px;
+    background-color: $primary-black-color;
+    & .hero-image{
+        position: absolute;
+        z-index: -1;
+        @include respond(xl){
+            display: none;
+        }
+        & img{
+            border-radius: 400px 400px 0px 0px;
+        }
+        &.image_one{
+            top: 20%;
+            left: 100px;
+            @include respond(xxxl){
+                max-width: 380px;
+                left: 30px;
+            }
+        }
+        &.image_two{
+            position: absolute;
+            bottom: 0;
+            right: 100px;
+            @include respond(xxxl){
+                max-width: 380px;
+                right: 30px;
+            }
+        }
+    }
+}
+
+.hero-content{
+    & .sub-head{
+        margin-bottom: 40px;
+    }
+    & h1{
+        color: $white-color;
+        margin-bottom: 15px;
+        @include respond(xl){
+            font-size: 50px;
+            line-height: 65px;
+        }
+    }
+    & p{
+        color: $white-color;
+        font-size: 22px;
+        line-height: 35px;
+        margin-bottom: 30px;
+    }
+    & .bistly-button{
+        & .theme-btn{
+            &.style-one{
+                &:hover{
+                    background-color: $white-color;
+                    color: $primary-color;
+                }
+            }
+        }
+    }
+}
+
+.bistly-counter-item{
+    & .content{
+        & h2{
+            color: $white-color;
+            font-size: 64px;
+            line-height: 1;
+            & i{
+                font-size: 24px;
+                color: #FF9F1A;
+                vertical-align: super;
+                margin-inline-start: 5px;
+            }
+        }
+    }
+}
+
+
+/* About Section */ 
+
+.rs-about{
+    & .shape{
+        position: absolute;
+        z-index: -1;
+        & img{
+            opacity: 0.10;
+        }
+        &.shape-one{
+            right: 60px;
+            top: 250px;
+        }
+        &.shape-two{
+            right: 43%;
+            bottom: 160px;
+        }
+    }
+    & .big-text{
+        position: absolute;
+        top: 37%;
+        left: 37%;
+        font-size: 96px;
+        font-family: $heading-font;
+        line-height: 1;
+        text-align: right;
+        z-index: 2;
+        @include respond(lg){
+            position: relative;
+            top: auto;
+            left: auto;
+            text-align: left;
+            margin: 0 40px 50px;
+            @include respond(md){
+                font-size: 42px;
+            }
+        }
+    }
+    &  .bistly-image{
+        &.image-two{
+            & img{
+                border-radius: 200px 200px 0px 0px;
+            }
+        }
+    }
+}
+.image-radius{
+    & img{
+        border-radius: 200px 200px 0px 0px;
+    }
+}
+
+
+/* Enjoy Food Section */ 
+
+.rs-enjoy-food{
+    position: relative;
+    z-index: 1;
+    background-color: $primary-black-color;
+    & .shape{
+        position: absolute;
+        z-index: -1;
+        & img{
+            opacity: 0.10;
+        }
+        &.shape-one{
+            top: 100px;
+            left: 33%;
+        }
+        &.shape-two{
+            bottom: 180px;
+            left: 110px;
+        }
+    }
+    & .bistly-image-box{
+        &.image-box-one{
+            margin-inline-start: -80px;
+            @include respond(xl){
+                margin-inline-start: 0;
+            }
+        }
+        &.image-box-two{
+            margin-inline-end: -200px;
+            @include respond(xxxl){
+                margin-inline-end: -120px;
+            }
+            @include respond(xxl){
+                margin-inline-end: -90px;
+            }
+            @include respond(xl){
+                margin-inline-end: 0;
+            }
+        }
+    }
+    & .bistly-content-box{
+        padding: 0 110px;
+        @include respond(lg){
+            padding: 0 50px;
+        }
+        @include respond(md){
+            padding: 0;
+        }
+        & p{
+            font-size: 20px;
+            line-height: 35px;
+        }
+        & .theme-btn{
+            &.style-one{
+                &:hover{
+                    background-color: $white-color;
+                    color: $primary-black-color;
+                }
+            }
+        }
+    }
+}
+
+/* Food Section */ 
+
+.rs-food-menu{
+    background-color: #354B4A;
+}
+
+.bistly-food-item{
+    position: relative;
+    text-align: center;
+    padding: 30px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.20);
+    &:first-child{
+        border-top: 1px solid rgba(255, 255, 255, 0.20);
+    }
+    & .hover-image{
+        transition: opacity .3s, transform .7scubic-bezier(.23,1,.32,1);
+        position: absolute;
+        width: 250px;
+        height: 340px;
+        -o-object-fit: cover;
+        object-fit: cover;
+        left: 0;
+        top: 20px;
+        z-index: 1;
+        opacity: 0;
+        visibility: hidden;
+        background-size: cover;
+        background-repeat: no-repeat;
+        pointer-events: none;
+        @include respond(lg){
+            display: none;
+        }
+    }
+    & .content{
+        & h2{
+            font-size: 120px;
+            line-height: 1;
+            color: rgba(255, 255, 255, 0.50);
+            @include respond(md){
+                font-size: 60px;
+            }
+        }
+        & p{
+            color: rgba(255, 255, 255, 0.50);
+            font-size: 24px;
+            line-height: 35px;
+        }
+    }
+    &:hover{
+        & .content{
+            & h2{
+                color: $white-color;
+            }
+            & p{
+                color: $white-color;
+            }
+        }
+        & .hover-image{
+            visibility: visible;
+            opacity: 1;
+        }
+    }
+}
+
+/* Gallery Section */ 
+
+.rs-gallery{
+    margin-bottom: -155px;
+    padding: 0 15px;
+    @include respond(lg){
+        padding: 0;
+    }
+}
+.gallery-slider{
+    margin-left: -15px;
+    margin-right: -15px;
+    @include respond(lg){
+        margin-left: -12px;
+        margin-right: -12px;
+    }
+    & .bistly-gallery-item{
+        margin-left: 15px;
+        margin-right: 15px;
+        @include respond(lg){
+            margin-left: 12px;
+            margin-right: 12px;
+        }
+    }
+}
+
+/* Testimonial Section */ 
+
+.rs-testimonial{
+    padding-top: 230px;
+    background-color: $primary-black-color;
+}
+.testimonial-slider{
+    & .slick-arrow{
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 50px;
+        color: $primary-color;
+        cursor: pointer;
+        &.next{
+            right: -15%;
+            @include respond(xl){
+                right: -10%;
+            }
+        }
+        &.prev{
+            left: -15%;
+            @include respond(xl){
+                left: -10%;
+            }
+        }
+    }
+}
+.bistly-testimonial-item{
+    text-align: center;
+    & .testimonial-content{
+        & .ratings{
+            & i{
+                color: var(--rating-color);
+            }
+        }
+        & p{
+            font-size: 32px;
+            line-height: 50px;
+            color: $white-color;
+            font-family: $heading-font;
+            margin-bottom: 25px;
+            @include respond(md){
+                font-size: 20px;
+                line-height: 30px;
+            }
+        }
+        & span{
+            color: $white-color;
+        }
+    }
+}
+
+
+/* Team Section */ 
+
+
+.rs-team-item{
+    & .member-image{
+        & img{
+            transition: all .3s;
+        }
+    }
+    &:hover{
+        & .member-image{
+            & img{
+                border-radius: 300px 300px 0px 0px;
+            }
+        }
+    }
+}
+
+
+/* Booking Section */ 
+
+
+.rs-booking{
+    &:after{
+        position: absolute;
+        top: 0;
+        left: 0;
+        content: '';
+        width: 100%;
+        height: 100%;
+        background-color: rgba(45, 68, 67, 0.50);
+        z-index: -1;
+    }
+}
+
+
+/*  Time Section */ 
+
+.rs-time-sec{
+    background-color: $primary-black-color;
+    & .bistly-content-box{
+        & p{
+            font-size: 20px;
+            line-height: 32px;
+            color: rgba(255, 255, 255, 0.80);
+        }
+    }
+    & .map-box{
+        & iframe{
+            height: 325px;
+        }
+    }
+    & .opening-time-box{
+        padding: 40px 50px 45px;
+        margin-inline-start: 70px;
+        border: 1px solid rgba(255, 255, 255, 0.10);
+        @include respond(xl){
+            margin-inline-start: 0;
+        }
+        & h3{
+            color: $white-color;
+            margin-bottom: 35px;
+        }
+        & ul{
+            & li{
+                color: $white-color;
+                & span{
+                    float: right;
+                }
+                & .close{
+                    color: $primary-color;
+                }
+                &:not(:last-child){
+                    margin-bottom: 25px;
+                    padding-bottom: 30px;
+                    border-bottom: 1px dashed rgba(255, 255, 255, 0.20);
+                }
+            }
+        }
+    }
+}
+
+/* Blog Section */ 
+
+.bistly-blog-post{
+    & .post-thumbnail{
+        & img{
+            width: 100%;
+        }
+    }
+    & .post-content{
+        padding-top: 25px;
+        & .post-meta{
+            & span{
+                margin-bottom: 10px;
+                &:not(:last-child){
+                    margin-inline-end: 25px;
+                }
+                & i{
+                    margin-inline-end: 10px;
+                }
+            }
+        }
+        & h4{
+            margin-bottom: 25px;
+            border-bottom: 1px solid $border-color;
+            padding-bottom: 25px;
+            &:hover{
+                color: $primary-color;
+            }
+        }
+        & .read-more{
+            &.style-one{
+                &:hover{
+                    color: $primary-color;
+                }
+            }
+        }
+    }
+}
+
+/* Instagram Section */ 
+
+.bistly-instagram-item{
+    &:hover{
+        & .thumbnail{
+            & .hover-content{
+                visibility: visible;
+                opacity: 1;
+                & .icon{
+                    transform: translateY(0);
+                }
+            }
+        }
+    }
+    & .thumbnail{
+        position: relative;
+        overflow: hidden;
+        & .hover-content{
+            position: absolute;
+            top: 0;
+            left: 0;
+            width:  100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(45, 68, 67, 0.502);
+            visibility: hidden;
+            opacity: 0;
+            transition: all .3s;
+            & .icon{
+                color: $white-color;
+                font-size: 20px;
+                transform: translateY(20px);
+                transition: all .35s;
+            }
+        }
+    }
+}

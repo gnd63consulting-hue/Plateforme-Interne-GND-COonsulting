@@ -1,0 +1,248 @@
+/*-------------------------------------------------------
+26. About css 
+---------------------------------------------------------*/
+
+.about-pics {
+    padding-left: 50px;
+    padding-top: 115px;
+	padding-bottom: 70px;
+}
+
+.about-2 {
+	position: absolute;
+	bottom: 0;
+	right: 0;
+}
+
+.about-3 {
+    position: absolute;
+    top: 0;
+    left: 0px;
+}
+
+.about-v-4 {
+	position: absolute;
+	z-index: -1;
+	top: 0;
+	right: 0;
+}
+
+.custom-text {
+    font-size: 2.4rem;
+    font-weight: 500;
+    line-height: 1.4;
+    color: var(--clr-heading);
+    text-transform: uppercase;
+}
+
+
+.about-opt {
+    display: grid;
+    grid-template-columns: 1fr 150px;
+    align-items: center;
+	background: var(--clr-black);
+	padding-left: 2rem;
+}
+
+.about-opt-list {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	li {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		color: var(--clr-white);
+		i {
+			width: 23px;
+			height: 23px;
+			line-height: 23px;
+			text-align: center;
+			display: inline-block;
+			color: var(--clr-white);
+			border: 1px solid var(--clr-white);
+			font-size: 12px;
+			border-radius: 50%;
+		}
+	}
+}
+
+.about-one-opt {
+    width: 150px;
+    background: var(--clr-def);
+    padding: 4rem 3rem;
+	h3 {
+		color: var(--clr-white);
+	}
+	h6 {
+		color: var(--clr-white);
+		margin-bottom: 0;
+	}
+} 
+
+//Progressbar
+
+.progress-box {
+	.chart {
+		height: 140px;
+		width: 140px;
+		position: relative;
+		display: inline-block;
+		span {
+			position: absolute;
+			height: 90px;
+			width: 90px;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%,-50%);
+			border: 1px solid #ececec;
+			display: block;
+			border-radius: 50%;
+			text-align: center;
+			line-height: 90px;
+			color: var(--clr-def);
+			font-size: 2.2rem;
+			font-weight: 700;
+			&::before {
+				position: absolute;
+				content: '';
+				height: 160px;
+				width: 160px;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%,-50%);
+				border: 1px solid #ececec;
+				border-radius: 50%;
+				z-index: -1;
+			}
+		}
+	}
+	h4 {
+		text-transform: capitalize;
+		margin-bottom: 0;
+		line-height: 1;
+		margin-top: 2.5rem;
+		font-weight: 700;
+	}
+}
+
+
+//About 2
+
+.about-left-pics-2 {
+    padding: 0 5rem 0 5rem;
+	margin-bottom: 100px;
+}
+
+.about-left-pics-2 {
+	&::before {
+		position: absolute;
+		content: '';
+		z-index: -1;
+		top: 40px;
+		left: 0;
+		width: 200px;
+		height: 230px;
+		background: var(--clr-def);
+		clip-path: polygon(100% 1%, 0 0, 0 100%);
+	}
+}
+
+.about-2-2 {
+	position: absolute;
+    clip-path: polygon(0 0, 100% 0, 100% 50%, 100% 100%, 25% 100%, 0% 50%);
+    bottom: -100px;
+    left: 0;
+    width: 350px;
+}
+
+.about-2-1 {
+	
+}
+
+.about-exp-yr {
+    position: absolute;
+    bottom: 5rem;
+    right: 40px;
+    padding: 3rem 17rem 3rem 3rem;
+	z-index: 1;
+	&::before {
+		position: absolute;
+		content: '';
+		width: 100%;
+		height: 100%;
+		top: 0;
+		left: 0;
+		background: var(--clr-def);
+		clip-path: polygon(50% 0%, 100% 0, 100% 60%, 100% 100%, 10% 100%, 0 75%, 0 0);
+		z-index: -1;
+	}
+	.about-exp {
+		.heading-2 {
+			line-height: 1;
+			margin-bottom: 5px;
+			color: var(--clr-white);
+		}
+		.heading-5 {
+			color: var(--clr-white);
+		}
+	}
+	.about-exp-pic {
+		position: absolute;
+		bottom: 0;
+		right: -35px;
+		width: 200px;
+	}
+}
+
+.about-opt-list-2 {
+	column-count: 2;
+	column-gap: 1.5rem;
+	margin-bottom: 1.5rem;
+	li {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		margin-bottom: 1.5rem;
+		i {
+			width: 23px;
+			height: 23px;
+			line-height: 23px;
+			text-align: center;
+			display: inline-block;
+			font-size: 12px;
+			border-radius: 50%;
+			color: var(--clr-def);
+			border: 1px solid var(--clr-def);
+		}
+	}
+}
+
+.about-contact-2 {
+	display: flex;
+	align-items: center;
+	gap: 2rem;
+	margin-bottom: 3rem;
+	.about-cnt-icon {
+		i {
+			height: 9rem;
+			width: 9rem;
+			line-height: 9rem;
+			background: var(--clr-def);
+			text-align: center;
+			font-size: 4rem;
+			color: var(--clr-white);
+			clip-path: polygon(20% 0%, 100% 0, 100% 20%, 100% 80%, 100% 100%, 20% 100%, 0% 80%, 0 0);
+			display: inline-block;
+		}
+	}
+	.about-cnt-text {
+		.heading-5 {
+			margin-bottom: 10px;
+		}
+		p {
+			line-height: 1;
+		}
+	}
+}
+

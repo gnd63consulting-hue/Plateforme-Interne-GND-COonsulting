@@ -1,0 +1,819 @@
+/*----------------------------------------------------------------------------------- 
+
+Template Name: Bistly - Restaurant & Cafe HTML Template
+URI: pixelfit.agency
+Description: Bistly is a clean, modern, and fully responsive HTML template designed specifically for restaurants, cafes, bakeries, coffee shops, and food-related businesses. Crafted with attention to detail and built using the latest web technologies, Bistly ensures an exceptional user experience on all devices.
+Author: Pixelfit
+Author URI: https://themeforest.net/user/pixelfit
+Version: 1.0 
+
+
+------------------------------------------------------
+   CSS INDEX
+-----------------------------------------------------
+
+    # Common CSS
+    # Hero Section CSS
+    # Categories Section CSS
+    # About Section CSS
+    # Promo Section CSS
+    # Choose Section CSS
+    # Menu Section CSS
+    # Offer Section CSS
+    # Testimonial Section CSS
+    # Gallery Section CSS
+    # CTA Section CSS
+    # Blog Section CSS
+
+-------------------------------------------------------    */
+/* Common CSS */
+:root {
+  --primary-color: #E3C7F2;
+  --primary-black-color: #502965;
+  --heading-color: #0A0B0C;
+  --text-color: #3B3C3D;
+  --accent-color: #ED696E;
+  --rating-color: #FF9F1A;
+}
+
+.sub-title {
+  color: var(--heading-color);
+  font-weight: 500;
+}
+.sub-title:before, .sub-title:after {
+  display: none;
+}
+
+.section-title.text-center .sub-title:after {
+  display: none;
+}
+
+.theme-btn.style-one {
+  color: var(--heading-color);
+}
+
+.container-fluid {
+  padding-left: 30px;
+  padding-right: 30px;
+}
+@media screen and (max-width: 1199.98px) {
+  .container-fluid {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+}
+
+/* Hero Section CSS */
+.ds-hero-sec {
+  padding: 325px 0 130px;
+  background-color: #F9F4FC;
+  overflow: hidden;
+}
+@media (max-width: 1650px) {
+  .ds-hero-sec {
+    padding: 190px 0 130px;
+  }
+}
+.ds-hero-sec .container-fluid {
+  padding-left: 100px;
+  padding-right: 100px;
+}
+@media (max-width: 1650px) {
+  .ds-hero-sec .container-fluid {
+    padding-left: 50px;
+    padding-right: 50px;
+  }
+}
+@media screen and (max-width: 1199.98px) {
+  .ds-hero-sec .container-fluid {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+}
+.ds-hero-sec .hero-shape {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  -webkit-transform: translateX(-50%);
+          transform: translateX(-50%);
+  width: 100%;
+  z-index: -1;
+}
+.ds-hero-sec .hero-content {
+  margin-bottom: 60px;
+}
+.ds-hero-sec .hero-content h1 {
+  font-size: 360px;
+  line-height: 1;
+}
+@media (max-width: 1650px) {
+  .ds-hero-sec .hero-content h1 {
+    font-size: 240px;
+  }
+}
+@media screen and (max-width: 1199.98px) {
+  .ds-hero-sec .hero-content h1 {
+    font-size: 200px;
+  }
+}
+@media screen and (max-width: 991.98px) {
+  .ds-hero-sec .hero-content h1 {
+    font-size: 150px;
+  }
+}
+@media (max-width: 767.98px) {
+  .ds-hero-sec .hero-content h1 {
+    font-size: 60px;
+  }
+}
+.ds-hero-sec .text-box {
+  max-width: 655px;
+}
+@media (max-width: 1650px) {
+  .ds-hero-sec .text-box {
+    max-width: 450px;
+  }
+}
+@media screen and (max-width: 991.98px) {
+  .ds-hero-sec .text-box {
+    max-width: 100%;
+    text-align: center;
+  }
+}
+.ds-hero-sec .text-box p {
+  font-size: 24px;
+  line-height: 35px;
+  font-weight: 500;
+  color: var(--heading-color);
+  margin-bottom: 50px;
+}
+@media (max-width: 767.98px) {
+  .ds-hero-sec .text-box p {
+    font-size: 18px;
+  }
+}
+.ds-hero-sec .hero-image-wrap {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  -webkit-transform: translateX(-50%);
+          transform: translateX(-50%);
+  width: 55%;
+}
+@media screen and (max-width: 1199.98px) {
+  .ds-hero-sec .hero-image-wrap {
+    display: none;
+  }
+}
+.ds-hero-sec .hero-image-wrap .hero-image {
+  text-align: center;
+  margin-left: -150px;
+}
+@media (max-width: 1650px) {
+  .ds-hero-sec .hero-image-wrap .hero-image {
+    margin-left: -100px;
+  }
+}
+.ds-hero-sec .hero-image-wrap .hero-image img {
+  -o-object-position: bottom;
+     object-position: bottom;
+  -o-object-fit: contain;
+     object-fit: contain;
+  margin: 0 auto;
+}
+@media (max-width: 1650px) {
+  .ds-hero-sec .hero-image-wrap .hero-image img {
+    width: 50%;
+  }
+}
+@media (max-width: 1399.98px) {
+  .ds-hero-sec .hero-image-wrap .hero-image img {
+    width: 55%;
+  }
+}
+.ds-hero-sec .bistly-author-box {
+  -webkit-margin-start: auto;
+          margin-inline-start: auto;
+}
+@media screen and (max-width: 991.98px) {
+  .ds-hero-sec .bistly-author-box {
+    -webkit-margin-start: inherit;
+            margin-inline-start: inherit;
+    margin: 40px auto 0;
+  }
+}
+
+.bistly-author-box {
+  background-color: var(--primary-color);
+  max-width: 380px;
+  padding: 30px 30px 10px;
+  border-radius: 20px;
+}
+.bistly-author-box .author-thumbs {
+  margin-bottom: 10px;
+}
+.bistly-author-box .author-thumbs img {
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  border: 2px solid var(--white-color);
+}
+.bistly-author-box .author-thumbs img:not(:first-child) {
+  margin-left: -15px;
+}
+.bistly-author-box h2 {
+  display: -webkit-inline-box;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  font-size: 48px;
+}
+.bistly-author-box h2 span {
+  margin-left: 15px;
+  font-size: 24px;
+  font-family: var(--body-font);
+  font-weight: 400;
+}
+
+/* Categories Section CSS */
+.categories-wrapper {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+  gap: 10px;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+}
+@media screen and (max-width: 1199.98px) {
+  .categories-wrapper {
+    -webkit-box-pack: center;
+        -ms-flex-pack: center;
+            justify-content: center;
+  }
+}
+.categories-wrapper .bistly-category-item {
+  max-width: 240px;
+}
+@media (max-width: 1650px) {
+  .categories-wrapper .bistly-category-item {
+    max-width: 220px;
+  }
+}
+
+.bistly-category-item {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  padding: 10px;
+  width: 100%;
+  border-radius: 50px;
+}
+.bistly-category-item .icon {
+  -webkit-box-flex: 0;
+      -ms-flex: 0 0 auto;
+          flex: 0 0 auto;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: -webkit-inline-box;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  color: var(--heading-color);
+  font-size: 24px;
+  margin-right: 15px;
+}
+.bistly-category-item.bg_one {
+  background-color: #F9F4FC;
+}
+.bistly-category-item.bg_one .icon {
+  background-color: #E3C7F2;
+}
+.bistly-category-item.bg_two {
+  background-color: #FFEEEE;
+}
+.bistly-category-item.bg_two .icon {
+  background-color: #F3B9B9;
+}
+.bistly-category-item.bg_three {
+  background-color: #F6F9E1;
+}
+.bistly-category-item.bg_three .icon {
+  background-color: #C5E5A3;
+}
+.bistly-category-item.bg_four {
+  background-color: #E7F4FC;
+}
+.bistly-category-item.bg_four .icon {
+  background-color: #B9E2FB;
+}
+.bistly-category-item.bg_five {
+  background-color: #FCEFD5;
+}
+.bistly-category-item.bg_five .icon {
+  background-color: #F6C872;
+}
+
+/* About Section */
+.ds-about-sec .about-wrapper {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+}
+.ds-about-sec .about-wrapper .about-left-wrap {
+  width: calc(50% - 15px);
+  margin-right: 15px;
+  min-height: 700px;
+}
+@media screen and (max-width: 1199.98px) {
+  .ds-about-sec .about-wrapper .about-left-wrap {
+    background-position: top center;
+    width: 100%;
+    margin-right: 0;
+    margin-bottom: 30px;
+  }
+}
+.ds-about-sec .about-wrapper .about-right-wrap {
+  width: 50%;
+}
+@media screen and (max-width: 1199.98px) {
+  .ds-about-sec .about-wrapper .about-right-wrap {
+    width: 100%;
+  }
+}
+.ds-about-sec .bistly-about-box {
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  padding: 45px 50px;
+  background-color: #F9F4FC;
+  margin-bottom: 10px;
+}
+.ds-about-sec .bistly-about-box .shape {
+  position: absolute;
+  top: 0;
+  right: -150px;
+  z-index: -1;
+}
+.ds-about-sec .bistly-about-box .shape img {
+  opacity: 0.05;
+}
+.ds-about-sec .bistly-about-box .content {
+  max-width: 580px;
+}
+@media screen and (max-width: 1199.98px) {
+  .ds-about-sec .bistly-about-box .content {
+    padding: 0 150px;
+    max-width: 100%;
+  }
+}
+@media (max-width: 767.98px) {
+  .ds-about-sec .bistly-about-box .content {
+    padding: 0 15px;
+  }
+}
+.ds-about-sec .bistly-about-box .section-title {
+  margin-bottom: 20px;
+}
+.ds-about-sec .bistly-about-box .section-title .sub-title {
+  margin-bottom: 5px;
+}
+.ds-about-sec .bistly-about-box p {
+  line-height: 27px;
+}
+@media screen and (max-width: 1199.98px) {
+  .ds-about-sec .bistly-about-box {
+    text-align: center;
+    padding: 40px 30px;
+  }
+}
+.ds-about-sec .bistly-experience-box {
+  padding: 40px 50px;
+  background-color: #E3C7F2;
+}
+.ds-about-sec .bistly-experience-box .content {
+  max-width: 580px;
+}
+@media screen and (max-width: 1199.98px) {
+  .ds-about-sec .bistly-experience-box .content {
+    padding: 0 150px;
+    max-width: 100%;
+  }
+}
+@media (max-width: 767.98px) {
+  .ds-about-sec .bistly-experience-box .content {
+    padding: 0 15px;
+  }
+}
+.ds-about-sec .bistly-experience-box .section-title {
+  margin-bottom: 20px;
+}
+.ds-about-sec .bistly-experience-box .section-title .sub-title {
+  margin-bottom: 5px;
+}
+.ds-about-sec .bistly-experience-box p {
+  line-height: 27px;
+}
+@media screen and (max-width: 1199.98px) {
+  .ds-about-sec .bistly-experience-box {
+    text-align: center;
+    padding: 40px 30px;
+  }
+}
+
+/* Promo Section CSS */
+.bistly-promo-item {
+  padding: 165px 30px;
+  border-radius: 20px;
+}
+@media screen and (max-width: 1199.98px) {
+  .bistly-promo-item {
+    padding: 70px 30px;
+  }
+}
+.bistly-promo-item .content span {
+  font-weight: 700;
+  font-family: var(--heading-font);
+  color: var(--heading-color);
+  line-height: 1;
+}
+.bistly-promo-item .content h2 {
+  font-size: 40px;
+  line-height: 50px;
+}
+@media screen and (max-width: 1199.98px) {
+  .bistly-promo-item .content h2 {
+    font-size: 24px;
+    line-height: 40px;
+  }
+}
+
+/* Why Choose Section */
+.ds-choose-sec .item-choose-list.choose-list-left {
+  padding-right: 30px;
+}
+@media screen and (max-width: 1199.98px) {
+  .ds-choose-sec .item-choose-list.choose-list-left {
+    padding-right: 0;
+  }
+}
+.ds-choose-sec .item-choose-list.choose-list-right {
+  padding-left: 30px;
+}
+@media screen and (max-width: 1199.98px) {
+  .ds-choose-sec .item-choose-list.choose-list-right {
+    padding-left: 0;
+  }
+}
+
+.bistly-choose-item {
+  background-color: var(--white-color);
+  border-radius: 30px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+.bistly-choose-item .content h4 {
+  padding: 11px 30px;
+  border-radius: 30px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+.bistly-choose-item .content h4.bg-one {
+  background-color: #F9F4FC;
+}
+.bistly-choose-item .content h4.bg-two {
+  background-color: #F6F9E1;
+}
+.bistly-choose-item .content h4.bg-three {
+  background-color: #E7F4FC;
+}
+.bistly-choose-item .content h4.bg-four {
+  background-color: #FEE;
+}
+@media screen and (max-width: 1199.98px) {
+  .bistly-choose-item .content h4 {
+    font-size: 18px;
+  }
+}
+.bistly-choose-item .content p {
+  padding: 20px 30px;
+}
+
+/* Menu Section CSS */
+.ds-menu-sec {
+  background: linear-gradient(96deg, #F5FEFF 0%, #FFF3EB 40.52%, #F7F5FB 69.21%, #F5EAF6 100%);
+}
+
+.menu-slider {
+  margin-left: -15px;
+  margin-right: -15px;
+}
+.menu-slider .slick-slide {
+  margin-left: 15px;
+  margin-right: 15px;
+}
+
+.bistly-product-item {
+  background-color: var(--white-color);
+  padding: 10px;
+  border-radius: 10px;
+}
+.bistly-product-item:hover .thumbnail .add-to-cart {
+  bottom: 10px;
+}
+.bistly-product-item .thumbnail {
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+}
+.bistly-product-item .thumbnail .wishlist-btn {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: var(--white-color);
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  font-size: 24px;
+  cursor: pointer;
+  -webkit-transition: all 0.3s;
+  transition: all 0.3s;
+}
+.bistly-product-item .thumbnail .wishlist-btn:hover {
+  color: var(--primary-color);
+}
+.bistly-product-item .thumbnail .add-to-cart {
+  position: absolute;
+  bottom: -50%;
+  left: 50%;
+  -webkit-transform: translateX(-50%);
+          transform: translateX(-50%);
+  -webkit-transition: all 0.3s;
+  transition: all 0.3s;
+}
+.bistly-product-item .thumbnail .add-to-cart a {
+  padding: 12px 20px;
+  color: var(--heading-color);
+  border-radius: 40px;
+  line-height: 1;
+  font-weight: 500;
+  background-color: var(--primary-color);
+}
+.bistly-product-item img {
+  width: 100%;
+  border-radius: 10px;
+}
+.bistly-product-item .content {
+  padding: 15px 20px 10px;
+}
+.bistly-product-item .content .ratings-price-wrap {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  margin-bottom: 8px;
+}
+.bistly-product-item .content .ratings-price-wrap .ratings i {
+  color: var(--rating-color);
+}
+.bistly-product-item .content .ratings-price-wrap .price {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--accent-color);
+}
+.bistly-product-item .content h4 {
+  margin-bottom: 8px;
+}
+
+/* Offer Section */
+.ds-offer-sec .bistly-image-box {
+  position: relative;
+}
+.ds-offer-sec .bistly-image-box .shape {
+  position: absolute;
+  top: 60px;
+  left: 120px;
+  -webkit-transform: rotate(-30deg);
+          transform: rotate(-30deg);
+}
+@media (max-width: 1650px) {
+  .ds-offer-sec .bistly-image-box .shape {
+    left: 70px;
+  }
+}
+@media (max-width: 767.98px) {
+  .ds-offer-sec .bistly-image-box .shape {
+    display: none;
+  }
+}
+.ds-offer-sec .bistly-image-box .discount-box {
+  position: absolute;
+  top: 40%;
+  left: 13%;
+  width: 100px;
+  height: 100px;
+  display: -webkit-inline-box;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+}
+@media (max-width: 767.98px) {
+  .ds-offer-sec .bistly-image-box .discount-box {
+    display: none;
+  }
+}
+.ds-offer-sec .bistly-image-box .discount-box .content {
+  text-align: center;
+}
+.ds-offer-sec .bistly-image-box .discount-box .content h4 span {
+  line-height: 1;
+  display: block;
+  font-size: 16px;
+}
+@media (max-width: 1650px) {
+  .ds-offer-sec .bistly-image-box .discount-box {
+    left: 7%;
+  }
+}
+
+/* Testimonial Section */
+.ds-testimonial {
+  background: linear-gradient(96deg, #F5FEFF 0%, #FFF3EB 40.52%, #F7F5FB 69.21%, #F5EAF6 100%);
+  padding-bottom: 240px;
+}
+
+.testimonial-slider .slick-arrow {
+  position: absolute;
+  top: 50%;
+  -webkit-transform: translateY(-50%);
+          transform: translateY(-50%);
+  font-size: 50px;
+  color: var(--heading-color);
+  cursor: pointer;
+}
+.testimonial-slider .slick-arrow.next {
+  right: -15%;
+}
+.testimonial-slider .slick-arrow.prev {
+  left: -15%;
+}
+
+.bistly-testimonial-item {
+  text-align: center;
+}
+.bistly-testimonial-item .testimonial-content p {
+  font-size: 32px;
+  line-height: 50px;
+  color: var(--heading-color);
+  font-family: var(--heading-font);
+  margin-bottom: 25px;
+}
+@media (max-width: 767.98px) {
+  .bistly-testimonial-item .testimonial-content p {
+    font-size: 20px;
+    line-height: 35px;
+  }
+}
+.bistly-testimonial-item .testimonial-content span {
+  color: var(--heading-color);
+}
+
+/* Gallery Section CSS */
+.ds-gallery {
+  margin-top: -220px;
+}
+
+.gallery-slider {
+  margin-left: -15px;
+  margin-right: -15px;
+}
+.gallery-slider .slick-slide {
+  margin-left: 15px;
+  margin-right: 15px;
+}
+
+.bistly-gallery-item .gallery-img img {
+  border-radius: 10px;
+}
+
+/* CTA Section CSS */
+.ds-cta .shape {
+  position: absolute;
+  z-index: 1;
+}
+@media screen and (max-width: 1199.98px) {
+  .ds-cta .shape {
+    display: none;
+  }
+}
+.ds-cta .shape.shape-one {
+  left: 80px;
+}
+@media (max-width: 1650px) {
+  .ds-cta .shape.shape-one img {
+    width: 80%;
+  }
+}
+.ds-cta .shape.shape-two {
+  bottom: 0;
+  right: 80px;
+}
+@media (max-width: 1650px) {
+  .ds-cta .shape.shape-two {
+    right: 50px;
+    text-align: right;
+  }
+}
+@media (max-width: 1650px) {
+  .ds-cta .shape.shape-two img {
+    width: 60%;
+  }
+}
+
+.ds-cta-wrapper {
+  padding: 85px 30px 100px;
+}
+.ds-cta-wrapper .ds-cta-box h2 {
+  margin-bottom: 12px;
+}
+.ds-cta-wrapper .ds-cta-box p {
+  margin-bottom: 45px;
+}
+.ds-cta-wrapper .ds-cta-box form .form_control {
+  padding: 10px 20px;
+  border-radius: 50px;
+  border: none;
+}
+.ds-cta-wrapper .ds-cta-box form .theme-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+.ds-cta-wrapper .ds-cta-box form .theme-btn.style-one {
+  border-radius: 50px;
+}
+@media (max-width: 767.98px) {
+  .ds-cta-wrapper .ds-cta-box form .theme-btn {
+    position: relative;
+    top: auto;
+    right: auto;
+    margin-top: 30px;
+  }
+}
+
+/* Blog Section CSS */
+.bistly-blog-post .post-thumbnail img {
+  width: 100%;
+}
+.bistly-blog-post .post-content {
+  padding-top: 25px;
+}
+.bistly-blog-post .post-content .post-meta span {
+  margin-bottom: 15px;
+}
+.bistly-blog-post .post-content .post-meta span:not(:last-child) {
+  -webkit-margin-end: 25px;
+          margin-inline-end: 25px;
+}
+.bistly-blog-post .post-content .post-meta span i {
+  -webkit-margin-end: 10px;
+          margin-inline-end: 10px;
+}
+.bistly-blog-post .post-content h4 {
+  margin-bottom: 10px;
+}
+.bistly-blog-post .post-content h4:hover {
+  color: var(--primary-black-color);
+}

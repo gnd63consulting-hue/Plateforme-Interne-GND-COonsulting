@@ -1,0 +1,517 @@
+
+
+/*----------------------------------------------------------------------------------- 
+
+Template Name: Bistly - Restaurant & Cafe HTML Template
+URI: pixelfit.agency
+Description: Bistly is a clean, modern, and fully responsive HTML template designed specifically for restaurants, cafes, bakeries, coffee shops, and food-related businesses. Crafted with attention to detail and built using the latest web technologies, Bistly ensures an exceptional user experience on all devices.
+Author: Pixelfit
+Author URI: https://themeforest.net/user/pixelfit
+Version: 1.0 
+
+
+------------------------------------------------------
+   CSS INDEX
+-----------------------------------------------------
+
+    # Common CSS
+    # Hero Section CSS
+    # About Section CSS
+    # Enjoy Section CSS
+    # Popular Section CSS
+    # Menu Section CSS
+    # Team Section CSS
+    # Time Section CSS
+    # Blog Section CSS
+    
+-------------------------------------------------------    */
+
+
+
+@import "../abstract";
+
+
+/* Common CSS */ 
+
+:root{
+    --primary-color: #F8CCB9;
+    --primary-black-color: #0F0E0E;
+    --heading-color: #0F0E0E;
+    --text-color: #3B3C3D;
+}
+
+.theme-btn{
+    &.style-one{
+        background-color: $primary-black-color;
+        color: $white-color;
+        &:hover{
+            background-color: $primary-color;
+            color: $heading-color;
+        }
+    }
+    &.style-two{
+        &:hover{
+            color: $heading-color;
+        }
+    }
+}
+
+@keyframes playpopup {
+    0% {
+        transform: translate(-50%,-50%), scale(1);
+        transition: all .3s;
+        opacity: 0.6;
+    }
+    50% {
+        transform: translate(-50%,-50%), scale(1.5);
+        transition: all .4s;
+        opacity: 0.3;
+    }
+    100% {
+        transform: translate(-50%,-50%), scale(2);
+        transition: all .3s;
+        opacity: 0;
+    }
+}
+
+/* Hero Section */ 
+
+.cs-hero-sec{
+    padding: 190px 0 120px;
+    &:after{
+        position: absolute;
+        top: 0;
+        left: 0;
+        content: '';
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.55);
+        z-index: -1;
+    }
+    & .hero-content{
+        position: relative;
+        z-index: 1;
+        @include respond(md){
+            text-align: center;
+        }
+        & h1{
+            font-size: 300px;
+            color: $white-color;
+            line-height: 1;
+            @include respond(xxxl){
+                font-size: 250px;
+            }
+            @include respond(xl){
+                font-size: 150px;
+                line-height: 1.1;
+            }
+            @include respond(lg){
+                font-size: 120px;
+            }
+            @include respond(md){
+                font-size: 70px;
+            }
+        }
+        & .text-box{
+            position: absolute;
+            bottom: 80px;
+            right: 0;
+            max-width: 470px;
+            @include respond(xl){
+                position: relative;
+                bottom: 0;
+                left: 0;
+                margin-top: 30px;
+            }
+            & p{
+                color: $white-color;
+                font-size: 24px;
+                line-height: 35px;
+                @include respond(md){
+                    font-size: 18px;
+                }
+            }
+        }
+    }
+    & .play-button{
+        position: absolute;
+        bottom: 95px;
+        right: 95px;
+        @include respond(md){
+            position: relative;
+            bottom: auto;
+            right: auto;
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        & .video-popup{
+            position: relative;
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.03);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+            font-size: 30px;
+            color: $white-color;
+            &:after,
+            &:before{
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%,-50%);
+                content: '';
+                @include border-radius(50%);
+                background-color: rgba(255, 255, 255, 0.03);
+                animation: playpopup infinite ease-in 2s;
+                z-index: -1;
+            }
+            &:before{
+                width: 140px;
+                height: 140px;
+            }
+            &:after{
+                width: 170px;
+                height: 170px;
+            }
+        }
+    }
+}
+
+/* About Section */ 
+
+.cs-about-sec{
+    & .bistly-content-box{
+        & h2{
+            margin-bottom: 25px;
+            @include respond(xl){
+                font-size: 32px;
+                line-height: 50px;
+            }
+        }
+        & p{
+            margin-bottom: 25px;
+        }
+    }
+    & .text-box{
+        & h2{
+            margin-bottom: 15px;
+            @include respond(xl){
+                font-size: 32px;
+                line-height: 50px;
+            }
+        }
+        & .position{
+            font-size: 24px;
+            font-weight: 500;
+            color: $heading-color;
+            margin-bottom: 20px;
+            @include respond(xl){
+                font-size: 18px;
+                line-height: 30px;
+            }
+        }
+        & p{
+            margin-bottom: 20px;
+        }
+    }
+}
+
+/* Enjoy Section */ 
+
+.cs-enjoy-coffee{
+    background-color: $primary-black-color;
+    padding: 0 30px;
+    & .bistly-image{
+        position: absolute;
+        z-index: -1;
+        & img{
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            @include respond(xxxl){
+                width: 350px;
+                height: 350px;
+            }
+            @include respond(xl){
+                width: 250px;
+                height: 250px;
+            }
+            @include respond(lg){
+                width: 200px;
+                height: 200px;
+            }
+        }
+        &.image_one{
+            left: 100px;
+            top: -50px;
+            @include respond(xl){
+                left: 50px;
+            }
+        }
+        &.image_two{
+            right: 100px;
+            bottom: -50px;
+            @include respond(xl){
+                right: 50px;
+            }
+        }
+    }
+    & .bistly-content-box{
+        & .section-title{
+            & h2{
+            color: $white-color;
+            margin-bottom: 32px;
+        }
+        }
+        & p{
+            color: rgba(255, 255, 255, 0.80);
+        }
+    }
+}
+
+/*  Popular Section */ 
+
+.popular-item-list{
+    &.item-list-left{
+        direction:rtl;
+        @include respond(xl){
+            direction: ltr;
+        }
+    }
+}
+.bistly-popular-item{
+    display: flex;
+    .icon{
+        margin-inline-end: 30px;
+        flex: 0 0 auto;
+        width: 50px;
+        font-size: 50px;
+        color: $heading-color;
+    }
+    & .content{
+        margin-top: -5px;
+        & h4{
+            margin-bottom: 5px;
+        }
+    }
+}
+
+/* Menu Section CSS */ 
+
+.bistly-menu-sec{
+    & .menu-image-wrap{
+        position: absolute;
+        top: 0;
+        left: 0;
+        @include respond(xl){
+            display: none;
+        }
+    }
+    & .menu-logo-thumb{
+        position: absolute;
+        top: 0;
+        right:calc(100% - 84%);
+        & img{
+            border-radius: 0 0 200px 200px;
+        }
+        @include respond(xl){
+            display: none;
+        }
+    }
+    & .menu-item-list{
+        & h3{
+            color: $white-color;
+        }
+        &.left-item-list{
+            padding-right: 40px;
+            @include respond(lg){
+                padding-right: 0;
+            }
+        }
+        &.item-right-list{
+            padding-left: 40px;
+            @include respond(lg){
+                padding-left: 0;
+            }
+            &:nth-child(2){
+                margin-top: 110px;
+                @include respond(md){
+                    margin-top: 40px;
+                }
+            }
+        }
+    }
+}
+.bistly-menu-item{
+    display: flex;
+    align-items: flex-start;
+    padding: 20px 25px;
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    & .content-price-wrap{
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        @include respond(md){
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+    & .thumbnail{
+        flex: 0 0 auto;
+        width: 60px;
+        margin-inline-end: 20px;
+    }
+    & .content{
+        position: relative;
+        padding-right: 20px;
+        width: 75%;
+        flex: 0 0 auto;
+        @include respond(md){
+            width: 100%;
+            padding-right: 0;
+        }
+        &:after{
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            content: '';
+            width: 1px;
+            height: 55px;
+            background-color: rgba(255, 255, 255, 0.10);
+            @include respond(md){
+                display: none;
+            }
+        }
+        & h4{
+            font-size: 20px;
+            color: $white-color;
+        }
+        & p{
+            font-size: 14px;
+            line-height: 20px;
+            color: rgba(255, 255, 255, 0.80);
+        }
+    }
+    & .price{
+        padding-left: 20px;
+        font-size: 24px;
+        color: $primary-color;
+        font-family: $heading-font;
+        @include respond(md){
+            padding-left: 0;
+            margin-top: 20px;
+        }
+    }
+}
+
+/* Team Section */ 
+
+.cs-team-item{
+    &:hover{
+        & .member-image{
+            & img{
+                border-radius: 50%;
+            }
+        }
+    }
+    & .member-image{
+        & img{
+            width: 100%;
+            height: 100%;
+            transition: all .35s;
+        }
+    }
+    & .member-info{
+        padding-top: 32px;
+    }
+}
+
+
+/*  Time Section */ 
+
+.cs-time-sec{
+    background-color: $primary-black-color;
+    & .bistly-content-box{
+        & p{
+            font-size: 20px;
+            line-height: 32px;
+            color: rgba(255, 255, 255, 0.80);
+        }
+    }
+    & .map-box{
+        & iframe{
+            height: 325px;
+        }
+    }
+    & .opening-time-box{
+        padding: 40px 50px 45px;
+        margin-inline-start: 70px;
+        border: 1px solid rgba(255, 255, 255, 0.10);
+        @include respond(xl){
+            padding: 30px 30px 35px;
+            margin-inline-start: 0;
+        }
+        & h3{
+            color: $white-color;
+            margin-bottom: 35px;
+        }
+        & ul{
+            & li{
+                color: $white-color;
+                & span{
+                    float: right;
+                }
+                & .close{
+                    color: $primary-color;
+                }
+                &:not(:last-child){
+                    margin-bottom: 25px;
+                    padding-bottom: 30px;
+                    border-bottom: 1px dashed rgba(255, 255, 255, 0.20);
+                }
+            }
+        }
+    }
+}
+
+
+/* Blog Section CSS */ 
+
+.bistly-blog-post{
+    & .post-thumbnail{
+        & img{
+            width: 100%;
+        }
+    }
+    & .post-content{
+        padding-top: 22px;
+        & .post-meta{
+            & span{
+                margin-bottom: 15px;
+                & i{
+                    margin-inline-end: 10px;
+                }
+                &:not(:last-child){
+                    margin-inline-end: 20px;
+                }
+            }
+        }
+        & h4{
+            margin-bottom: 10px;
+        }
+        & p{
+            & a{
+                color: $heading-color;
+                font-size: 20px;
+                font-weight: 600;
+                margin-inline-start: 5px;
+                text-decoration: underline;
+            }
+        }
+    }
+}

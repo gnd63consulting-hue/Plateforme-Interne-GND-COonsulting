@@ -1,0 +1,60 @@
+/*-------------------------------------------------------
+46. About css 
+---------------------------------------------------------*/
+
+
+.marquee {
+    position: relative;
+    z-index: 1;
+    height: 100px;
+	background: var(--clr-def);
+	&:hover {
+		.mrg-wrp {
+		  animation-play-state: paused;
+		}
+	}
+}
+
+.mrg-wrp {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    align-items: center;
+    grid-gap: 3rem;
+    position: absolute;
+    width: 200%;
+	height: 100%;
+    overflow: hidden;
+    animation: marquee 20s linear infinite;
+    left: 0;
+    top: 0;
+}
+
+.lk {
+    font-size: 2.2rem;
+    font-weight: 500;
+    text-transform: capitalize;
+    color: var(--clr-white);
+    position: relative;
+    z-index: 1;
+	padding-left: 10rem;
+	&::before {
+		position: absolute;
+		content: '';
+		top: 20px;
+		left: 0;
+		width: 80px;
+		height: 1px;
+		background: #fff;
+	}
+}
+
+@keyframes marquee {
+	0% {
+		left: 0;
+	}
+	100% {
+		left: -100%;
+	}
+}
+	
+	

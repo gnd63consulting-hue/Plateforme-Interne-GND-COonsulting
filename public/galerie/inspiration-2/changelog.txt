@@ -1,0 +1,60 @@
+Playhost 1.1.8
+New added: Onepage 2 Light (02_light-onepage-2.html)
+
+Playhost 1.1.7
+Contact form update
+
+Playhost 1.1.6
+New added: Homepage 10 (homepage-10.html)
+
+Playhost 1.1.5
+New added: Homepage 9 (homepage-9.html)
+
+Playhost 1.1.4
+New added: Homepage 8 (homepage-8.html)
+
+Playhost 1.1.3
+New added: Homepage Light 1 (02_index.html)
+
+Playhost 1.1.2
+New added: Megamenu
+
+Playhost 1.1.1
+New added: Onepage (onepage-2.html)
+New added: alternative scheme (css/colors/scheme-04.css)
+
+Playhost 1.1.0
+New added: Homepage 7 (homepage-7.html)
+New added: alternative scheme (css/colors/scheme-03.css)
+
+Playhost 1.0.9
+New added: Onepage (onepage-1.html)
+New added: alternative scheme (css/colors/scheme-02.css)
+
+Playhost 1.0.8
+New added: Pricing Table Four (pricing-table-four.html)
+
+Playhost 1.0.7
+New added: Homepage 6 (homepage-6.html)
+
+Playhost 1.0.6
+New added: Game Server Two (game-server-2.html)
+
+Playhost 1.0.5
+New added: Homepage 5 (homepage-5.html)
+
+Playhost 1.0.4
+New added: Pricing Table Three (pricing-table-three.html)
+
+Playhost 1.0.3
+New added: Homepage 4 (homepage-4.html)
+
+Playhost 1.0.2
+New added: Login Page (login.html)
+New added: Register Page (register.html)
+Layout improvements for mobile devices
+CSS improvements for mobile devices
+Fixes for some icons not rendered
+
+Playhost 1.0.1
+New added Homepage 3 (homepage-3.html)

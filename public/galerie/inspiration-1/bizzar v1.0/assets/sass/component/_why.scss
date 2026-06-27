@@ -1,0 +1,41 @@
+/*-------------------------------------------------------
+29. Why css 
+---------------------------------------------------------*/
+
+
+.why-right {
+    text-align: right;
+}
+
+.why-pic {
+	border-radius: 260px;
+}
+
+.why-ui {
+    position: absolute;
+	bottom: 30px;
+    left: 90px;
+	box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+
+.why-opt {
+	display: flex;
+	flex-direction: column;
+	gap: 2rem;
+	li {
+		display: flex;
+		align-items: center;
+		gap: 2rem;
+		img {
+			width: 90px;
+		}
+	}
+}
+
+.why-box {
+    position: absolute;
+    top: 80px;
+    left: 20px;
+    z-index: -1;
+}

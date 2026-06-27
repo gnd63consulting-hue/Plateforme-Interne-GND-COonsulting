@@ -1,0 +1,530 @@
+/*----------------------------------------------------------------------------------- 
+
+Template Name: Bistly - Restaurant & Cafe HTML Template
+URI: pixelfit.agency
+Description: Bistly is a clean, modern, and fully responsive HTML template designed specifically for restaurants, cafes, bakeries, coffee shops, and food-related businesses. Crafted with attention to detail and built using the latest web technologies, Bistly ensures an exceptional user experience on all devices.
+Author: Pixelfit
+Author URI: https://themeforest.net/user/pixelfit
+Version: 1.0 
+
+
+------------------------------------------------------
+   CSS INDEX
+-----------------------------------------------------
+
+    # Common CSS
+    # Hero Section CSS
+    # About Section CSS
+    # Enjoy Food Section CSS
+    # Food CSS
+    # Gallery Section CSS
+    # Testimonial Section CSS
+    # Team Section CSS
+    # Booking Section CSS
+    # Opening Time Section CSS
+    # Blog Section CSS
+    # Instagram Section CSS
+
+-------------------------------------------------------    */
+/* Common CSS */
+@media (max-width: 1650px) {
+  h2 {
+    font-size: 52px;
+    line-height: 65px;
+  }
+}
+@media (max-width: 767.98px) {
+  h2 {
+    font-size: 28px;
+    line-height: 45px;
+  }
+}
+
+/* Hero Section */
+.rs-hero {
+  position: relative;
+  z-index: 1;
+  padding: 220px 0 110px;
+  background-color: var(--primary-black-color);
+}
+.rs-hero .hero-image {
+  position: absolute;
+  z-index: -1;
+}
+@media screen and (max-width: 1199.98px) {
+  .rs-hero .hero-image {
+    display: none;
+  }
+}
+.rs-hero .hero-image img {
+  border-radius: 400px 400px 0px 0px;
+}
+.rs-hero .hero-image.image_one {
+  top: 20%;
+  left: 100px;
+}
+@media (max-width: 1650px) {
+  .rs-hero .hero-image.image_one {
+    max-width: 380px;
+    left: 30px;
+  }
+}
+.rs-hero .hero-image.image_two {
+  position: absolute;
+  bottom: 0;
+  right: 100px;
+}
+@media (max-width: 1650px) {
+  .rs-hero .hero-image.image_two {
+    max-width: 380px;
+    right: 30px;
+  }
+}
+
+.hero-content .sub-head {
+  margin-bottom: 40px;
+}
+.hero-content h1 {
+  color: var(--white-color);
+  margin-bottom: 15px;
+}
+@media screen and (max-width: 1199.98px) {
+  .hero-content h1 {
+    font-size: 50px;
+    line-height: 65px;
+  }
+}
+.hero-content p {
+  color: var(--white-color);
+  font-size: 22px;
+  line-height: 35px;
+  margin-bottom: 30px;
+}
+.hero-content .bistly-button .theme-btn.style-one:hover {
+  background-color: var(--white-color);
+  color: var(--primary-color);
+}
+
+.bistly-counter-item .content h2 {
+  color: var(--white-color);
+  font-size: 64px;
+  line-height: 1;
+}
+.bistly-counter-item .content h2 i {
+  font-size: 24px;
+  color: #FF9F1A;
+  vertical-align: super;
+  -webkit-margin-start: 5px;
+          margin-inline-start: 5px;
+}
+
+/* About Section */
+.rs-about .shape {
+  position: absolute;
+  z-index: -1;
+}
+.rs-about .shape img {
+  opacity: 0.1;
+}
+.rs-about .shape.shape-one {
+  right: 60px;
+  top: 250px;
+}
+.rs-about .shape.shape-two {
+  right: 43%;
+  bottom: 160px;
+}
+.rs-about .big-text {
+  position: absolute;
+  top: 37%;
+  left: 37%;
+  font-size: 96px;
+  font-family: var(--heading-font);
+  line-height: 1;
+  text-align: right;
+  z-index: 2;
+}
+@media screen and (max-width: 991.98px) {
+  .rs-about .big-text {
+    position: relative;
+    top: auto;
+    left: auto;
+    text-align: left;
+    margin: 0 40px 50px;
+  }
+}
+@media screen and (max-width: 991.98px) and (max-width: 767.98px) {
+  .rs-about .big-text {
+    font-size: 42px;
+  }
+}
+.rs-about .bistly-image.image-two img {
+  border-radius: 200px 200px 0px 0px;
+}
+
+.image-radius img {
+  border-radius: 200px 200px 0px 0px;
+}
+
+/* Enjoy Food Section */
+.rs-enjoy-food {
+  position: relative;
+  z-index: 1;
+  background-color: var(--primary-black-color);
+}
+.rs-enjoy-food .shape {
+  position: absolute;
+  z-index: -1;
+}
+.rs-enjoy-food .shape img {
+  opacity: 0.1;
+}
+.rs-enjoy-food .shape.shape-one {
+  top: 100px;
+  left: 33%;
+}
+.rs-enjoy-food .shape.shape-two {
+  bottom: 180px;
+  left: 110px;
+}
+.rs-enjoy-food .bistly-image-box.image-box-one {
+  -webkit-margin-start: -80px;
+          margin-inline-start: -80px;
+}
+@media screen and (max-width: 1199.98px) {
+  .rs-enjoy-food .bistly-image-box.image-box-one {
+    -webkit-margin-start: 0;
+            margin-inline-start: 0;
+  }
+}
+.rs-enjoy-food .bistly-image-box.image-box-two {
+  -webkit-margin-end: -200px;
+          margin-inline-end: -200px;
+}
+@media (max-width: 1650px) {
+  .rs-enjoy-food .bistly-image-box.image-box-two {
+    -webkit-margin-end: -120px;
+            margin-inline-end: -120px;
+  }
+}
+@media (max-width: 1399.98px) {
+  .rs-enjoy-food .bistly-image-box.image-box-two {
+    -webkit-margin-end: -90px;
+            margin-inline-end: -90px;
+  }
+}
+@media screen and (max-width: 1199.98px) {
+  .rs-enjoy-food .bistly-image-box.image-box-two {
+    -webkit-margin-end: 0;
+            margin-inline-end: 0;
+  }
+}
+.rs-enjoy-food .bistly-content-box {
+  padding: 0 110px;
+}
+@media screen and (max-width: 991.98px) {
+  .rs-enjoy-food .bistly-content-box {
+    padding: 0 50px;
+  }
+}
+@media (max-width: 767.98px) {
+  .rs-enjoy-food .bistly-content-box {
+    padding: 0;
+  }
+}
+.rs-enjoy-food .bistly-content-box p {
+  font-size: 20px;
+  line-height: 35px;
+}
+.rs-enjoy-food .bistly-content-box .theme-btn.style-one:hover {
+  background-color: var(--white-color);
+  color: var(--primary-black-color);
+}
+
+/* Food Section */
+.rs-food-menu {
+  background-color: #354B4A;
+}
+
+.bistly-food-item {
+  position: relative;
+  text-align: center;
+  padding: 30px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+.bistly-food-item:first-child {
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+.bistly-food-item .hover-image {
+  -webkit-transition: opacity 0.3s, 1, 0.32, 1, -webkit-transform 0.7scubic-bezier 0.23;
+  transition: opacity 0.3s, 1, 0.32, 1, -webkit-transform 0.7scubic-bezier 0.23;
+  transition: opacity 0.3s, transform 0.7scubic-bezier 0.23, 1, 0.32, 1;
+  transition: opacity 0.3s, transform 0.7scubic-bezier 0.23, 1, 0.32, 1, -webkit-transform 0.7scubic-bezier 0.23;
+  position: absolute;
+  width: 250px;
+  height: 340px;
+  -o-object-fit: cover;
+  object-fit: cover;
+  left: 0;
+  top: 20px;
+  z-index: 1;
+  opacity: 0;
+  visibility: hidden;
+  background-size: cover;
+  background-repeat: no-repeat;
+  pointer-events: none;
+}
+@media screen and (max-width: 991.98px) {
+  .bistly-food-item .hover-image {
+    display: none;
+  }
+}
+.bistly-food-item .content h2 {
+  font-size: 120px;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.5);
+}
+@media (max-width: 767.98px) {
+  .bistly-food-item .content h2 {
+    font-size: 60px;
+  }
+}
+.bistly-food-item .content p {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 24px;
+  line-height: 35px;
+}
+.bistly-food-item:hover .content h2 {
+  color: var(--white-color);
+}
+.bistly-food-item:hover .content p {
+  color: var(--white-color);
+}
+.bistly-food-item:hover .hover-image {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Gallery Section */
+.rs-gallery {
+  margin-bottom: -155px;
+  padding: 0 15px;
+}
+@media screen and (max-width: 991.98px) {
+  .rs-gallery {
+    padding: 0;
+  }
+}
+
+.gallery-slider {
+  margin-left: -15px;
+  margin-right: -15px;
+}
+@media screen and (max-width: 991.98px) {
+  .gallery-slider {
+    margin-left: -12px;
+    margin-right: -12px;
+  }
+}
+.gallery-slider .bistly-gallery-item {
+  margin-left: 15px;
+  margin-right: 15px;
+}
+@media screen and (max-width: 991.98px) {
+  .gallery-slider .bistly-gallery-item {
+    margin-left: 12px;
+    margin-right: 12px;
+  }
+}
+
+/* Testimonial Section */
+.rs-testimonial {
+  padding-top: 230px;
+  background-color: var(--primary-black-color);
+}
+
+.testimonial-slider .slick-arrow {
+  position: absolute;
+  top: 50%;
+  -webkit-transform: translateY(-50%);
+          transform: translateY(-50%);
+  font-size: 50px;
+  color: var(--primary-color);
+  cursor: pointer;
+}
+.testimonial-slider .slick-arrow.next {
+  right: -15%;
+}
+@media screen and (max-width: 1199.98px) {
+  .testimonial-slider .slick-arrow.next {
+    right: -10%;
+  }
+}
+.testimonial-slider .slick-arrow.prev {
+  left: -15%;
+}
+@media screen and (max-width: 1199.98px) {
+  .testimonial-slider .slick-arrow.prev {
+    left: -10%;
+  }
+}
+
+.bistly-testimonial-item {
+  text-align: center;
+}
+.bistly-testimonial-item .testimonial-content .ratings i {
+  color: var(--rating-color);
+}
+.bistly-testimonial-item .testimonial-content p {
+  font-size: 32px;
+  line-height: 50px;
+  color: var(--white-color);
+  font-family: var(--heading-font);
+  margin-bottom: 25px;
+}
+@media (max-width: 767.98px) {
+  .bistly-testimonial-item .testimonial-content p {
+    font-size: 20px;
+    line-height: 30px;
+  }
+}
+.bistly-testimonial-item .testimonial-content span {
+  color: var(--white-color);
+}
+
+/* Team Section */
+.rs-team-item .member-image img {
+  -webkit-transition: all 0.3s;
+  transition: all 0.3s;
+}
+.rs-team-item:hover .member-image img {
+  border-radius: 300px 300px 0px 0px;
+}
+
+/* Booking Section */
+.rs-booking:after {
+  position: absolute;
+  top: 0;
+  left: 0;
+  content: "";
+  width: 100%;
+  height: 100%;
+  background-color: rgba(45, 68, 67, 0.5);
+  z-index: -1;
+}
+
+/*  Time Section */
+.rs-time-sec {
+  background-color: var(--primary-black-color);
+}
+.rs-time-sec .bistly-content-box p {
+  font-size: 20px;
+  line-height: 32px;
+  color: rgba(255, 255, 255, 0.8);
+}
+.rs-time-sec .map-box iframe {
+  height: 325px;
+}
+.rs-time-sec .opening-time-box {
+  padding: 40px 50px 45px;
+  -webkit-margin-start: 70px;
+          margin-inline-start: 70px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+@media screen and (max-width: 1199.98px) {
+  .rs-time-sec .opening-time-box {
+    -webkit-margin-start: 0;
+            margin-inline-start: 0;
+  }
+}
+.rs-time-sec .opening-time-box h3 {
+  color: var(--white-color);
+  margin-bottom: 35px;
+}
+.rs-time-sec .opening-time-box ul li {
+  color: var(--white-color);
+}
+.rs-time-sec .opening-time-box ul li span {
+  float: right;
+}
+.rs-time-sec .opening-time-box ul li .close {
+  color: var(--primary-color);
+}
+.rs-time-sec .opening-time-box ul li:not(:last-child) {
+  margin-bottom: 25px;
+  padding-bottom: 30px;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
+}
+
+/* Blog Section */
+.bistly-blog-post .post-thumbnail img {
+  width: 100%;
+}
+.bistly-blog-post .post-content {
+  padding-top: 25px;
+}
+.bistly-blog-post .post-content .post-meta span {
+  margin-bottom: 10px;
+}
+.bistly-blog-post .post-content .post-meta span:not(:last-child) {
+  -webkit-margin-end: 25px;
+          margin-inline-end: 25px;
+}
+.bistly-blog-post .post-content .post-meta span i {
+  -webkit-margin-end: 10px;
+          margin-inline-end: 10px;
+}
+.bistly-blog-post .post-content h4 {
+  margin-bottom: 25px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 25px;
+}
+.bistly-blog-post .post-content h4:hover {
+  color: var(--primary-color);
+}
+.bistly-blog-post .post-content .read-more.style-one:hover {
+  color: var(--primary-color);
+}
+
+/* Instagram Section */
+.bistly-instagram-item:hover .thumbnail .hover-content {
+  visibility: visible;
+  opacity: 1;
+}
+.bistly-instagram-item:hover .thumbnail .hover-content .icon {
+  -webkit-transform: translateY(0);
+          transform: translateY(0);
+}
+.bistly-instagram-item .thumbnail {
+  position: relative;
+  overflow: hidden;
+}
+.bistly-instagram-item .thumbnail .hover-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  background-color: rgba(45, 68, 67, 0.502);
+  visibility: hidden;
+  opacity: 0;
+  -webkit-transition: all 0.3s;
+  transition: all 0.3s;
+}
+.bistly-instagram-item .thumbnail .hover-content .icon {
+  color: var(--white-color);
+  font-size: 20px;
+  -webkit-transform: translateY(20px);
+          transform: translateY(20px);
+  -webkit-transition: all 0.35s;
+  transition: all 0.35s;
+}

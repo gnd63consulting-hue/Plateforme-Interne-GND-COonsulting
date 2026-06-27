@@ -1,0 +1,148 @@
+/*-------------------------------------------------------
+27. Service CSS 
+---------------------------------------------------------*/
+
+.service-box {
+	padding: 5rem 3rem;
+    border: 1px solid var(--clr-ccc);
+	position: relative;
+	z-index: 1;
+	.service-icon {
+		margin-bottom: 3rem;
+		i {
+			height: 9rem;
+			width: 9rem;
+			line-height: 10rem;
+			display: inline-block;
+			background: var(--clr-def);
+			color: var(--clr-white);
+			text-align: center;
+			font-size: 4.5rem;
+			position: relative;
+			z-index: 1;
+			border-radius: 5px;
+		}
+	}
+	.service-desc {
+		.heading-4 {
+			text-transform: capitalize;
+			font-weight: 500;
+		}
+		p {
+			margin-bottom: 2rem;
+		}
+	}
+}
+
+.service-wash {
+    position: absolute;
+	bottom: 10px;
+    right: 10px;
+    z-index: -1;
+    height: 130px;
+	opacity: .08;
+}
+
+.service-c-1 {
+    position: absolute;
+    height: 4rem;
+    width: 4rem;
+    border: 10px solid var(--clr-def-3);
+    display: inline-block;
+    border-radius: 50%;
+    top: -35px;
+    left: 126px;
+	opacity: .2;
+}
+
+
+.btn-text {
+	color: var(--clr-def);
+	display: inline-block;
+}
+
+
+//Service 2
+
+.service-minus-margin {
+    margin-top: -135px;
+}
+
+.service-top-padding {
+	padding-top: 255px;
+}
+
+.service-box-2 {
+	padding: 5rem 4rem 0 4rem;
+    border: 1px solid var(--clr-ccc);
+	position: relative;
+	z-index: 1;
+	background: var(--clr-white);
+	.service-up-2 {
+		display: flex;
+		justify-content: space-between;
+		margin-bottom: 3rem;
+		padding-bottom: 4rem;
+		border-bottom: 1px solid var(--clr-ccc);
+		align-items: center;
+		position: relative;
+		z-index: 1;
+		.service-icon-2 {
+			i {
+				height: 9rem;
+				width: 9rem;
+				line-height: 10rem;
+				display: inline-block;
+				background: var(--clr-def);
+				color: var(--clr-white);
+				text-align: center;
+				font-size: 4.5rem;
+				position: relative;
+				z-index: 1;
+				border-radius: 5px;
+			}
+		}
+		.service-value-2 {
+			span {
+				display: inline-block;
+				font-size: 3rem;
+				color: var(--clr-heading);
+				font-weight: 800;
+				border-top: 1px solid var(--clr-ccc);
+			}
+		}
+	}
+	.service-desc-2 {
+		h5 {
+			font-weight: 500;
+			line-height: 1.4;
+		}
+		p {
+			margin-bottom: 2rem;
+		}
+	}
+}
+
+.service-btn-2 {
+	display: inline-block;
+	i {
+		clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+		height: 5rem;
+		width: 8rem;
+		line-height: 6.5rem;
+		display: inline-block;
+		background: var(--clr-def);
+		color: var(--clr-white);
+		text-align: center;
+		font-size: 1.8rem;
+		transition: all .5s ease;
+		&:hover {
+			background-color: var(--clr-black);
+			color: var(--clr-white);
+		}
+	}
+}
+
+
+
+

@@ -1,0 +1,39 @@
+
+/*----------------------------------------------------------------------------------- 
+
+Template Name: Bistly - Restaurant & Cafe HTML Template
+URI: pixelfit.agency
+Description: Bistly is a clean, modern, and fully responsive HTML template designed specifically for restaurants, cafes, bakeries, coffee shops, and food-related businesses. Crafted with attention to detail and built using the latest web technologies, Bistly ensures an exceptional user experience on all devices.
+Author: Pixelfit
+Author URI: https://themeforest.net/user/pixelfit
+Version: 1.0 
+
+------------------------------------------------------
+   CSS INDEX
+------------------------------------------------------
+
+    # Components
+        # Base CSS
+        # Common CSS
+        # Preloader CSS
+        # Offcanvas CSS
+        # Animation CSS
+        # Button CSS
+        # Header CSS
+        # Footer CSS
+----------------------------------------------------*/
+
+
+// Abstract
+
+@import "abstract";
+
+// Components
+@import 'components/base';
+@import 'components/common';
+@import 'components/preloader';
+@import 'components/Offcanvas';
+@import 'components/animations';
+@import 'components/buttons';
+@import 'components/header';
+@import 'components/footer';

@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="zxx">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Blogs</title>
+        <!-- Favicon -->
+        <link href="img/favicon.ico" rel="shortcut icon">
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+        <!-- themify icon -->
+        <link rel="stylesheet" type="text/css" href="css/themify-icons.css">
+        <!-- colorbox popup -->
+        <link rel="stylesheet" type="text/css" href="css/colorbox.css">
+        <!-- swiper slider -->
+        <link rel="stylesheet" type="text/css" href="css/swiper.min.css">
+        <!-- Google Font- Rubik -->
+        <link href="https://fonts.googleapis.com/css?family=Rubik:400,500,700" rel="stylesheet">
+        <!-- Google Font- Fira sans -->
+        <link href="https://fonts.googleapis.com/css?family=Fira+Sans:300,400,400i,500,700" rel="stylesheet">
+        <!-- CSS -->
+        <link href="css/style.css" rel="stylesheet">
+    </head>
+    <body class="gray_bg">
+
+		<!-- Pre-loader -->
+        <div class="preloader">
+            <div class="loader">
+                <div class="loader_inner"></div>
+                <div class="loader_inner"></div>
+            </div>
+        </div>
+		
+        <!-- mobile menu icon -->
+        <a class="burger_icon d-md-flex d-lg-none navbar-toggler" data-bs-toggle="collapse" data-bs-target="#mega_menu">
+            <div class="stick stick_1"></div>
+            <div class="stick stick_2"></div>
+            <div class="stick stick_3"></div>
+        </a>
+
+        <!-- offcanvas overlay -->
+        <div class="offcanvas_overlay"></div>
+
+        <!-- offcanvas menu -->
+        <div class="offcanvas_menu">
+            <a href="index.html" class="logo"><img src="img/logo_3.png" alt="logo"></a>
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Praesentium veritatis voluptatem illum ipsum odit!</p>
+            <ul class="social_link">
+                <li><a href="#"><i class="ti-facebook"></i></a></li>
+                <li><a href="#"><i class="ti-vimeo-alt"></i></a></li>
+                <li><a href="#"><i class="ti-twitter-alt"></i></a></li>
+                <li><a href="#"><i class="ti-pinterest"></i></a></li>
+            </ul>
+            <h5>Get In Tuch:</h5>
+            <div class="contact_form">
+                <form>
+                    <div class="row">
+                        <div class="form-group col-md-12">
+                            <input type="text" class="form-control" id="inputfirstname3" placeholder="Name" required>
+                        </div>
+                    </div> 
+                    <div class="row">   
+                        <div class="form-group col-md-12"> 
+                            <input type="email" class="form-control" id="inputEmail3" placeholder="Email" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-12"> 
+                            <textarea rows="3" class="form-control" id="inputmessage" placeholder="Message" required></textarea>
+                        </div>
+                    </div>
+                    <button type="submit" class="boxed_btn">Submit</button>
+                </form>
+            </div>
+            <img src="img/mobileno.png" alt="call" class="mobileno">
+        </div>
+        
+        <!--Modal For Search -->
+        <div class="search_bar">
+            <div class="search_body">
+                <form action="#">
+                    <input type="text" placeholder="Enter your text"> <button><i class="ti-search"></i></button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Start Header Section -->
+        <header class="header_wrap_dark_in">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <nav class="mega_nav navbar navbar-expand-lg d-flex justify-content-between p-0">
+                            <a class="navbar-brand" href="index.html"><img src="img/logo_4.png" alt="Ahope logo_4"></a>
+                            <div class="p-lg-0 nav_wrapper">
+                                <ul class="navbar-nav m-auto collapse navbar-collapse" id="mega_menu" >
+                                    <li class="nav-item home_drop">
+                                        <a class="nav-link collapsed hcollapse"  href="#mega_home" data-bs-toggle="collapse">Home</a>
+                                        <div id="mega_home" class="hid">
+                                            <div class="cart_body"> 
+                                                <a href="index.html" class="single_element"><span>01</span>Creative 1</a>
+                                                <a href="home_2.html" class="single_element"><span>02</span>Creative 2</a>
+                                                <a href="home_3.html" class="single_element"><span>03</span>
+                                                Standard</a>
+                                                <a href="home_4.html" class="single_element"><span>04</span>Modarn 1</a>
+                                                <a href="home_5.html" class="single_element"><span>05</span>Modern 2</a>
+                                                <a href="home_6.html" class="single_element"><span>06</span>
+                                                Minimal</a>
+                                                <a href="home_7.html" class="single_element"><span>07</span>
+                                                Classic 1</a>
+                                                <a href="home_8.html" class="single_element"><span>08</span>
+                                                Classic 2</a>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="nav-item hosting_drop">
+                                        <a class="nav-link collapsed hcollapse" href="shared_hosting.html" data-bs-toggle="collapse">Hosting</a> 
+                                        <div id="mega_hosting" class="hid">
+                                            <div class="mega_hosting_details">
+                                                <ul class="mega_hosting_list">
+                                                    <li><a href="shared_hosting.html">Shared Hosting</a></li>
+                                                    <li><a href="vps_hosting.html">VPS Hosting</a></li>
+                                                    <li><a href="dadicated_hosting.html">Dedicated Hosting</a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="wordpress.html">Wordpress</a>
+                                    </li>
+                                    <li class="nav-item page_drop">
+                                        <a class="nav-link collapsed hcollapse"  href="#mega_page_details" data-bs-toggle="collapse">Pages</a>
+                                        <div class="mega_page_details hid" id="mega_page_details">
+                                            <div class="container">
+                                                <div class="row">
+                                                    <div class="col-lg-4 d-lg-block d-none">
+                                                        <div id="mega_page_slider" class="carousel slide" data-ride="carousel">
+                                                            <div class="carousel-inner">
+                                                                <div class="carousel-item active">
+                                                                    <a href="index.html"><img class="d-block w-100" src="img/home/1.png" alt="First slide"> </a>
+                                                                </div>
+                                                                <div class="carousel-item">
+                                                                    <a href="home_2.html"><img class="d-block w-100" src="img/home/2.png" alt="Second slide"></a>
+                                                                </div>
+                                                                <div class="carousel-item">
+                                                                    <a href="home_3.html"><img class="d-block w-100" src="img/home/3.png" alt="Third slide"></a>
+                                                                </div>
+                                                                <div class="carousel-item">
+                                                                    <a href="home_4.html"><img class="d-block w-100" src="img/home/4.png" alt="First slide"> </a>
+                                                                </div>
+                                                                <div class="carousel-item">
+                                                                    <a href="home_5.html"><img class="d-block w-100" src="img/home/5.png" alt="Second slide"></a>
+                                                                </div>
+                                                                <div class="carousel-item">
+                                                                    <a href="home_6.html"><img class="d-block w-100" src="img/home/6.png" alt="Third slide"></a>
+                                                                </div>
+                                                                <div class="carousel-item">
+                                                                    <a href="home_7.html"><img class="d-block w-100" src="img/home/7.png" alt="Second slide"></a>
+                                                                </div>
+                                                                <div class="carousel-item">
+                                                                    <a href="home_8.html"><img class="d-block w-100" src="img/home/8.png" alt="Third slide"></a>
+                                                                </div>
+                                                            </div>
+                                                            <a class="carousel-control-prev" href="#mega_page_slider" role="button" data-slide="prev">
+                                                                <i class="ti-angle-left"></i>
+                                                            </a>
+                                                            <a class="carousel-control-next" href="#mega_page_slider" role="button" data-slide="next">
+                                                                <i class="ti-angle-right"></i>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-2 col-12">
+                                                        <ul class="mega_page_list">
+                                                            <li><a href="signup.html">Sign Up</a></li>
+                                                            <li><a href="signin.html">Sign In</a></li>
+                                                            <li><a href="reset_password.html">Reset Password</a></li>
+                                                            <li><a href="reset_new_password.html">Reset New Password</a></li>
+                                                            <li><a href="comming_soon.html">Comming Soon</a></li>
+                                                            <li><a href="terms_and_condition.html">Terms And Condition</a></li>
+
+                                                        </ul>
+                                                    </div>
+                                                    <div class="col-lg-2 col-12">
+                                                        <ul class="mega_page_list">
+                                                            <li><a href="team.html">Team</a></li>
+                                                            <li><a href="team_2.html">Team 2</a></li>
+                                                            <li><a href="product.html">Product</a></li>
+                                                            <li><a href="order.html">Order</a></li>
+                                                            <li><a href="contact.html">Contact Us</a></li>
+                                                            <li><a href="contact_2.html">Contact Us 2</a></li>
+                                                        </ul>
+                                                    </div>
+                                                    <div class=" col-lg-2 col-12">
+                                                        <ul class="mega_page_list">
+                                                            <li><a href="knowledge.html">Knowledge</a></li>
+                                                            <li><a href="faq.html">FAQ</a></li>
+                                                            <li><a href="404.html">404</a></li>
+                                                            <li><a href="promo_video.html">Promo Video</a></li>
+                                                            <li><a href="services.html">Services</a></li>
+                                                            <li><a href="testimonials.html">Testimonials</a></li>
+                                                        </ul>
+                                                    </div>
+                                                    <div class=" col-lg-2 col-12">
+                                                        <ul class="mega_page_list">
+                                                            <li><a href="blogs.html">Blogs</a></li>
+                                                            <li><a href="call_to_actions.html">Call To Actions</a></li>
+                                                            <li><a href="clients.html">Clients</a></li>
+                                                            <li><a href="counters.html">Counters</a></li>
+                                                            <li><a href="features.html">Features</a></li>
+                                                            <li><a href="footers.html">Footers</a></li>
+                                                            <li><a href="pricing.html">Pricing</a></li>
+                                                        </ul>
+                                                    </div>  
+                                                </div>                  
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="about_us.html">About Us</a>
+                                    </li>
+                                    <li class="nav-item blog_drop">
+                                        <a class="nav-link collapsed hcollapse" href="blog_single_with_left_side_bar.html" data-bs-toggle="collapse">Blog</a> 
+                                        <div id="mega_blog" class="hid">
+                                            <div class="mega_blog_details">
+                                                <ul class="mega_blog_list">
+                                                    <li><a href="blog_single_with_left_side_bar.html">Single With Left Side Bar</a></li>
+                                                    <li><a href="blog_single_with_right_side_bar.html">Single With Right Side Bar</a></li>
+                                                    <li><a href="blog_two_column_left.html">Two Column With Left Side Bar</a></li>
+                                                    <li><a href="blog_two_column_right.html">Two Column With Right Side Bar</a></li>
+                                                    <li><a href="blog_full_width_left.html">Full Width With Left Side Bar</a></li>
+                                                    <li><a href="blog_full_width_right.html">Full Width With Right Side Bar</a></li>
+                                                    <li><a href="blog_full_width_content.html">Full Width Content</a></li>
+                                                    <li><a href="blog_full_width_grid.html">Full Width Grid</a></li>
+                                                    <li><a href="blog_two_column_grid.html">Two Column Grid</a></li>
+                                                    <li><a href="blog_grid.html">Grid</a></li>
+                                                    <li><a href="blog_masonry.html">Masonry</a></li>
+                                                    <li><a href="blog_simple.html">Simple</a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="index.html">WHMCS</a>
+                                    </li>
+                                    <li class="nav_right nav-item">
+                                        <a href="#" class="search_icon"><i class="ti-search search_icon"></i></a>
+                                    </li>
+                                    <li class="nav_right nav-item d-none d-lg-block">
+                                        <a href="#" class="offcanvas"><i class="ti-align-right"></i></a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <!-- End Header Section -->
+
+        <!-- Start Hero Section -->
+        <section class="hero_dark_in about d-flex justify-content-center align-items-center flex-column"  id="particles-js1">
+            <div class="particle_wrapper">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-10 offset-md-1 text-center ">
+                            <!-- Start breadcrumb -->
+                            <div class="page_title d-flex justify-content-center align-items-center flex-column">
+                                <h2>Blogs</h2>
+                                <h5 class="bread_crumb">Home/Page/Blogs</h5>
+                            </div>
+                            <!-- End breadcrumb-->
+                        </div>      
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- End Hero Section -->
+
+        <!-- Start Blog Section -->
+        <section class="blog_area_2 section_padding">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12">                       
+                        <div class="swiper-container blog_carousel">
+                           <div class="swiper-wrapper ">
+                                <div class="swiper-slide">
+                                    <div class=" single_blog_item_2">
+                                        <div class="blog_img blog_img_1"></div>
+                                        <div class="blog_content">
+                                            <h2>Relese New Hosting Plan From Us.</h2>
+                                            <p>Our most popular product! ared Web Hosting, orage Our ostWeb Hosting, hared web hSSD storage Our most pop product!</p>
+                                            <a href="about_us.html" class="boxed_btn"><span>Learn more</span></a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="swiper-slide">
+                                    <div class="single_blog_item_2">
+                                        <div class="blog_img blog_img_2"></div>
+                                        <div class="blog_content">
+                                            <h2>Relese New Hosting Plan From Us.</h2>
+                                            <p>Our most popular product! ared Web Hosting, orage Our ostWeb Hosting, hared web hSSD storage Our most pop product!</p>
+                                            <a href="about_us.html" class="boxed_btn"><span>Learn more</span></a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="swiper-slide">
+                                    <div class="single_blog_item_2">
+                                        <div class="blog_img blog_img_3"></div>    
+                                        <div class="blog_content">
+                                            <h2>Relese New Hosting Plan From Us.</h2>
+                                            <p>Our most popular product! ared Web Hosting, orage Our ostWeb Hosting, hared web hSSD storage Our most pop product!</p>
+                                            <a href="about_us.html" class="boxed_btn"><span>Learn more</span></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="swiper-pagination"></div>
+                        </div> 
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- End Blog Section -->
+
+        <!-- Start Blog Section -->
+        <section class="blog_area section_padding_2">
+            <div class="container">
+                <div class="row  justify-content-center">
+                    <div class="col-md-6 col-lg-4">
+                        <div class="single_blog_item">
+                            <div class="blog_img blog_bg_1"></div>
+                            <div class="blog_content">
+                               <h2>Enjoy New SSD Hosting Offer!</h2>
+                                <p>Our most popular product! Shared Web Hosting, fast SSD storage Our most pop product! Shared Web Hosting</p>
+                                <a href="#" class="boxed_btn">Learn More <i class="ti-angle-double-right"></i></a> 
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="single_blog_item">
+                            <div class="blog_img blog_bg_2"></div>
+                            <div class="blog_content">
+                               <h2>New Data center in UK & USA</h2>
+                                <p>Our most popular product! Shared Web Hosting, fast SSD storage Our most pop product! Shared Web Hosting</p>
+                                <a href="#" class="boxed_btn">Learn More<i class="ti-angle-double-right"></i></a> 
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="single_blog_item">
+                            <div class="blog_img blog_bg_3"></div>
+                            <div class="blog_content">
+                               <h2>Enjoy New SSD Hosting Offer!</h2>
+                                <p>Our most popular product! Shared Web Hosting, fast SSD storage Our most pop product! Shared Web Hosting</p>
+                                <a href="#" class="boxed_btn">Learn More<i class="ti-angle-double-right"></i></a> 
+                            </div>
+                        </div> 
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- End Blog Section -->
+
+        <!-- Start Blog Section -->
+        <section class="blog_area_4">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-4">                       
+                        <div class="single_blog_item_3">
+                            <div class="blog_img">
+                                <img src="img/blog/21.png" alt="blog">
+                            </div>
+                            <a class="blog_info" href="#">
+                                <p class="meta_date">16 Dec</p>
+                                <h2>Enjoy New SSD Hosting Offer with....!</h2>
+                            </a>
+                        </div>
+                    </div> 
+                    <div class="col-md-4">                       
+                        <div class="single_blog_item_3">
+                            <div class="blog_img">
+                                <img src="img/blog/22.png" alt="blog">
+                            </div>
+                            <a class="blog_info" href="#">
+                                <p class="meta_date">Apr 23</p>
+                                <h2>Enjoy New SSD Hosting Offer with....!</h2>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-4">                       
+                        <div class="single_blog_item_3">
+                            <div class="blog_img">
+                                <img src="img/blog/21.png" alt="blog">
+                            </div>
+                            <a class="blog_info" href="#">
+                                <p class="meta_date">24 Jan</p>
+                                <h2>Enjoy New SSD Hosting Offer with....!</h2>
+                            </a>
+                        </div>
+                    </div> 
+                </div>
+            </div>
+        </section>
+        <!-- End Blog Section -->
+
+
+        <!-- Start Blog Section -->
+        <section class="blog_area_5">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-md-6 col-lg-4">                       
+                        <div class="single_blog_item_4">
+                            <div class="meta_date">16 Dec</div>
+                            <h2>Enjoy New SSD Hosting Offer!</h2>
+                            <p>Creative ipsum dolor sit amet, conetur adip on isicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna</p>
+                            <a href="#" class="boxed_btn">Read More</a>
+                        </div>
+                    </div> 
+                    <div class="col-md-6 col-lg-4">                       
+                        <div class="single_blog_item_4">
+                            <div class="meta_date">16 Dec</div>
+                            <h2>Enjoy New SSD Hosting Offer!</h2>
+                            <p>Creative ipsum dolor sit amet, conetur adip on isicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna</p>
+                            <a href="#" class="boxed_btn">Read More</a>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4">                       
+                        <div class="single_blog_item_4">
+                            <div class="meta_date">16 Dec</div>
+                            <h2>Enjoy New SSD Hosting Offer!</h2>
+                            <p>Creative ipsum dolor sit amet, conetur adip on isicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna</p>
+                            <a href="#" class="boxed_btn">Read More</a>
+                        </div>
+                    </div> 
+                </div>
+            </div>
+        </section>
+        <!-- End Blog Section -->
+
+
+        <!-- Start Footer Section -->
+        <footer class="footer_dark_in">
+            <div class="container">
+                <div class="footer_top">
+                    <div class="row">
+                        <div class="col-md-4 col-12">
+                            <div class="f_widget_1">
+                                <h2><a href="#" class="footer_logo"><img src="img/logo.png" alt="Logo"></a></h2>
+                                <p class="footer_text">We design and develop user-friendly and highly responsive web templates to help business owners to grow their businesses.</p>
+                                <ul class="social_link">
+                                    <li><a href="#"><i class="ti-facebook"></i></a></li>
+                                    <li><a href="#"><i class="ti-vimeo-alt"></i></a></li>
+                                    <li><a href="#"><i class="ti-twitter-alt"></i></a></li>
+                                    <li><a href="#"><i class="ti-pinterest"></i></a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-6">
+                            <div class="f_widget_2">
+                                <h3>Services</h3>
+                                <ul>
+                                    <li><a href="#">VPS Hosting<span class="batch_yellow">New</span></a></li>
+                                    <li><a href="#">SSD Hosting<span class="batch_red">Hot</span></a></li>
+                                    <li><a href="#">Reguler</a></li>
+                                    <li><a href="#">Dedicated</a></li>
+                                </ul>
+                            </div>
+                        </div> 
+                        <div class="col-md-2 col-6">
+                            <div class="f_widget_2">
+                                <h3>Features</h3>
+                                <ul>
+                                    <li><a href="#">SSL Facility</a></li>
+                                    <li><a href="#">iccan Certified<span class="batch_green">Pro</span></a></li>
+                                    <li><a href="#">Control Panel</a></li>
+                                    <li><a href="#">One-Click Apps</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-6">
+                            <div class="f_widget_3">
+                                <h3>Community</h3>
+                                <ul>
+                                    <li><a href="#">VPS Hosting</a></li>
+                                    <li><a href="#">SSD Hosting</a></li>
+                                    <li><a href="#">Reguler</a></li>
+                                    <li><a href="#">Dedicated</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-6">
+                            <div class="f_widget_4">
+                                <h3>Support</h3>
+                                <ul>
+                                    <li><a href="#">Contact</a></li>
+                                    <li><a href="#">FAQ</a></li>
+                                    <li><a href="#">Coplain<span class="batch_red">Hot</span></a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer_bottom">
+                <a class="scrolltop" > <i class="ti-angle-up"></i></a>
+                <div class="row">
+                    <div class="col-md-4 d-flex justify-content-md-start justify-content-center">
+                        <div class="paypent_list">
+                           <h3>We Accept</h3>
+                            <div>
+                                <a href="#"><img src="img/payment/1.png" alt="payment"></a>
+                                <a href="#"><img src="img/payment/2.png" alt="payment"></a>
+                                <a href="#"><img src="img/payment/3.png" alt="payment"></a>
+                                <a href="#"><img src="img/payment/4.png" alt="payment"></a>
+                                <a href="#"><img src="img/payment/5.png" alt="payment"></a>
+                            </div>
+                        </div>   
+                    </div>
+                    <div class="col-md-4">
+                        <div class="copy_right_text">
+                           <p>&copy;<script>document.write(new Date().getFullYear())</script> Spree Themes. All rights reserved.
+</p>
+                        </div>   
+                    </div>
+                    <div class="col-md-4  d-flex justify-content-md-end justify-content-center">
+                        <div class="top_certified">
+                           <h3>Trusted By</h3>
+                            <div>
+                                <a href="#"><img src="img/trusted/1.png" alt="trusted"></a>
+                                <a href="#"><img src="img/trusted/2.png" alt="trusted"></a>
+                                <a href="#"><img src="img/trusted/3.png" alt="trusted"></a>
+                                <a href="#"><img src="img/trusted/4.png" alt="trusted"></a>
+                                <a href="#"><img src="img/trusted/5.png" alt="trusted"></a>
+                            </div>
+                        </div>   
+                    </div>
+                </div>
+            </div>
+        </footer>
+        <!-- End Footer Section -->
+
+
+        <!--jQuery JS-->
+        <script src="js/jquery-3.6.0.min.js"></script>
+        
+        <!-- Bootstrap -->
+        <script src="js/bootstrap.bundle.min.js"></script>
+        <!-- colorbox popup -->
+        <script src="js/jquery.colorbox-min.js"></script>
+        <!-- Swiper Slider -->
+        <script src="js/swiper.min.js"></script>
+         <!-- waypoints  -->
+        <script src="js/jquery.waypoints.min.js"></script>
+        <!-- Counterup  -->
+        <script src="js/jquery.counterup.min.js"></script>
+        <!-- Isotope Masonry -->
+        <script src="js/isotope.pkgd.min.js"></script>
+        <!-- particles -->
+        <script src="js/particles.min.js"></script>
+        <script src="js/app.js"></script>
+        <!-- Custom js -->
+        <script src="js/main.js"></script> 
+
+    </body>
+</html>

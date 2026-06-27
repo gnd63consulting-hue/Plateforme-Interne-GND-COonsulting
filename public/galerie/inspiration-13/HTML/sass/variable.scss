@@ -1,0 +1,67 @@
+@import url('https://fonts.googleapis.com/css?family=Lora:400,400i,700|Ubuntu');
+
+$font-primary : 'Ubuntu', sans-serif;
+$font-secondary : 'Lora', serif;
+$font-tertiary : '', sans-serif;
+$font-heading : $font-secondary;
+$font-icon: FontAwesome;
+$font-sas: 'sas-webfont';
+
+
+$black: #222222;
+$white: #ffffff;
+
+// Global
+$color-body: #999999;
+$color-primary: #977e4f;
+$color-secondary: #1e1e1e;
+$color-tertiary: #000000;
+$color-quaternary: #ffffff;
+$body-bg: #000000;
+
+/* -------------------- 
+TOPBAR SETTING
+-----------------------*/
+$topbar-bg: #000000;
+$topbar-color: $white;
+$topbar-nav-color: $white;
+$topbar-nav-hover-color: $color-primary;
+$topbar-font: $font-secondary;
+
+/* -------------------- 
+NAVBAR SETTING
+-----------------------*/
+$navbar-bg: $color-secondary;
+$navbar-font: $font-primary;
+$navbar-color: $color-primary;
+$navbar-hover-color: $white;
+$navbar-active-color: $white;
+$navbar-stiky-color: $color-primary;
+
+/* -------------------- 
+FOOTER SETTING
+-----------------------*/
+$footer-bg: #000000;
+$footer-font-color: $color-primary;
+
+/* -------------------- 
+BUTTON SETTING
+-----------------------*/
+$btn-primary-hover: lighten($color-secondary, 20%);
+
+
+// Background
+$bg__topbar: $color-primary;
+
+.bolder{
+	font-weight: 600;
+}
+
+.cfix{
+	content: '';
+	display: block;
+	width: 100%;
+	clear: both;
+}
+
+@import "mixin.scss";

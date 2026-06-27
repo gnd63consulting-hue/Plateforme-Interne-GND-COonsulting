@@ -1,0 +1,580 @@
+/*----------------------------------------------------------------------------------- 
+
+Template Name: Bistly - Restaurant & Cafe HTML Template
+URI: pixelfit.agency
+Description: Bistly is a clean, modern, and fully responsive HTML template designed specifically for restaurants, cafes, bakeries, coffee shops, and food-related businesses. Crafted with attention to detail and built using the latest web technologies, Bistly ensures an exceptional user experience on all devices.
+Author: Pixelfit
+Author URI: https://themeforest.net/user/pixelfit
+Version: 1.0 
+
+
+------------------------------------------------------
+   CSS INDEX
+-----------------------------------------------------
+
+    # Common CSS
+    # Hero Section CSS
+    # About Section CSS
+    # Enjoy Section CSS
+    # Popular Section CSS
+    # Menu Section CSS
+    # Team Section CSS
+    # Time Section CSS
+    # Blog Section CSS
+
+-------------------------------------------------------    */
+/* Common CSS */
+:root {
+  --primary-color: #F8CCB9;
+  --primary-black-color: #0F0E0E;
+  --heading-color: #0F0E0E;
+  --text-color: #3B3C3D;
+}
+
+.theme-btn.style-one {
+  background-color: var(--primary-black-color);
+  color: var(--white-color);
+}
+.theme-btn.style-one:hover {
+  background-color: var(--primary-color);
+  color: var(--heading-color);
+}
+.theme-btn.style-two:hover {
+  color: var(--heading-color);
+}
+
+@-webkit-keyframes playpopup {
+  0% {
+    -webkit-transform: translate(-50%, -50%), scale(1);
+            transform: translate(-50%, -50%), scale(1);
+    -webkit-transition: all 0.3s;
+    transition: all 0.3s;
+    opacity: 0.6;
+  }
+  50% {
+    -webkit-transform: translate(-50%, -50%), scale(1.5);
+            transform: translate(-50%, -50%), scale(1.5);
+    -webkit-transition: all 0.4s;
+    transition: all 0.4s;
+    opacity: 0.3;
+  }
+  100% {
+    -webkit-transform: translate(-50%, -50%), scale(2);
+            transform: translate(-50%, -50%), scale(2);
+    -webkit-transition: all 0.3s;
+    transition: all 0.3s;
+    opacity: 0;
+  }
+}
+
+@keyframes playpopup {
+  0% {
+    -webkit-transform: translate(-50%, -50%), scale(1);
+            transform: translate(-50%, -50%), scale(1);
+    -webkit-transition: all 0.3s;
+    transition: all 0.3s;
+    opacity: 0.6;
+  }
+  50% {
+    -webkit-transform: translate(-50%, -50%), scale(1.5);
+            transform: translate(-50%, -50%), scale(1.5);
+    -webkit-transition: all 0.4s;
+    transition: all 0.4s;
+    opacity: 0.3;
+  }
+  100% {
+    -webkit-transform: translate(-50%, -50%), scale(2);
+            transform: translate(-50%, -50%), scale(2);
+    -webkit-transition: all 0.3s;
+    transition: all 0.3s;
+    opacity: 0;
+  }
+}
+/* Hero Section */
+.cs-hero-sec {
+  padding: 190px 0 120px;
+}
+.cs-hero-sec:after {
+  position: absolute;
+  top: 0;
+  left: 0;
+  content: "";
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.55);
+  z-index: -1;
+}
+.cs-hero-sec .hero-content {
+  position: relative;
+  z-index: 1;
+}
+@media (max-width: 767.98px) {
+  .cs-hero-sec .hero-content {
+    text-align: center;
+  }
+}
+.cs-hero-sec .hero-content h1 {
+  font-size: 300px;
+  color: var(--white-color);
+  line-height: 1;
+}
+@media (max-width: 1650px) {
+  .cs-hero-sec .hero-content h1 {
+    font-size: 250px;
+  }
+}
+@media screen and (max-width: 1199.98px) {
+  .cs-hero-sec .hero-content h1 {
+    font-size: 150px;
+    line-height: 1.1;
+  }
+}
+@media screen and (max-width: 991.98px) {
+  .cs-hero-sec .hero-content h1 {
+    font-size: 120px;
+  }
+}
+@media (max-width: 767.98px) {
+  .cs-hero-sec .hero-content h1 {
+    font-size: 70px;
+  }
+}
+.cs-hero-sec .hero-content .text-box {
+  position: absolute;
+  bottom: 80px;
+  right: 0;
+  max-width: 470px;
+}
+@media screen and (max-width: 1199.98px) {
+  .cs-hero-sec .hero-content .text-box {
+    position: relative;
+    bottom: 0;
+    left: 0;
+    margin-top: 30px;
+  }
+}
+.cs-hero-sec .hero-content .text-box p {
+  color: var(--white-color);
+  font-size: 24px;
+  line-height: 35px;
+}
+@media (max-width: 767.98px) {
+  .cs-hero-sec .hero-content .text-box p {
+    font-size: 18px;
+  }
+}
+.cs-hero-sec .play-button {
+  position: absolute;
+  bottom: 95px;
+  right: 95px;
+}
+@media (max-width: 767.98px) {
+  .cs-hero-sec .play-button {
+    position: relative;
+    bottom: auto;
+    right: auto;
+    text-align: center;
+    margin-bottom: 50px;
+  }
+}
+.cs-hero-sec .play-button .video-popup {
+  position: relative;
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.03);
+  display: -webkit-inline-box;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  z-index: 2;
+  font-size: 30px;
+  color: var(--white-color);
+}
+.cs-hero-sec .play-button .video-popup:after, .cs-hero-sec .play-button .video-popup:before {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  -webkit-transform: translate(-50%, -50%);
+          transform: translate(-50%, -50%);
+  content: "";
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.03);
+  -webkit-animation: playpopup infinite ease-in 2s;
+          animation: playpopup infinite ease-in 2s;
+  z-index: -1;
+}
+.cs-hero-sec .play-button .video-popup:before {
+  width: 140px;
+  height: 140px;
+}
+.cs-hero-sec .play-button .video-popup:after {
+  width: 170px;
+  height: 170px;
+}
+
+/* About Section */
+.cs-about-sec .bistly-content-box h2 {
+  margin-bottom: 25px;
+}
+@media screen and (max-width: 1199.98px) {
+  .cs-about-sec .bistly-content-box h2 {
+    font-size: 32px;
+    line-height: 50px;
+  }
+}
+.cs-about-sec .bistly-content-box p {
+  margin-bottom: 25px;
+}
+.cs-about-sec .text-box h2 {
+  margin-bottom: 15px;
+}
+@media screen and (max-width: 1199.98px) {
+  .cs-about-sec .text-box h2 {
+    font-size: 32px;
+    line-height: 50px;
+  }
+}
+.cs-about-sec .text-box .position {
+  font-size: 24px;
+  font-weight: 500;
+  color: var(--heading-color);
+  margin-bottom: 20px;
+}
+@media screen and (max-width: 1199.98px) {
+  .cs-about-sec .text-box .position {
+    font-size: 18px;
+    line-height: 30px;
+  }
+}
+.cs-about-sec .text-box p {
+  margin-bottom: 20px;
+}
+
+/* Enjoy Section */
+.cs-enjoy-coffee {
+  background-color: var(--primary-black-color);
+  padding: 0 30px;
+}
+.cs-enjoy-coffee .bistly-image {
+  position: absolute;
+  z-index: -1;
+}
+.cs-enjoy-coffee .bistly-image img {
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+}
+@media (max-width: 1650px) {
+  .cs-enjoy-coffee .bistly-image img {
+    width: 350px;
+    height: 350px;
+  }
+}
+@media screen and (max-width: 1199.98px) {
+  .cs-enjoy-coffee .bistly-image img {
+    width: 250px;
+    height: 250px;
+  }
+}
+@media screen and (max-width: 991.98px) {
+  .cs-enjoy-coffee .bistly-image img {
+    width: 200px;
+    height: 200px;
+  }
+}
+.cs-enjoy-coffee .bistly-image.image_one {
+  left: 100px;
+  top: -50px;
+}
+@media screen and (max-width: 1199.98px) {
+  .cs-enjoy-coffee .bistly-image.image_one {
+    left: 50px;
+  }
+}
+.cs-enjoy-coffee .bistly-image.image_two {
+  right: 100px;
+  bottom: -50px;
+}
+@media screen and (max-width: 1199.98px) {
+  .cs-enjoy-coffee .bistly-image.image_two {
+    right: 50px;
+  }
+}
+.cs-enjoy-coffee .bistly-content-box .section-title h2 {
+  color: var(--white-color);
+  margin-bottom: 32px;
+}
+.cs-enjoy-coffee .bistly-content-box p {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/*  Popular Section */
+.popular-item-list.item-list-left {
+  direction: rtl;
+}
+@media screen and (max-width: 1199.98px) {
+  .popular-item-list.item-list-left {
+    direction: ltr;
+  }
+}
+
+.bistly-popular-item {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+.bistly-popular-item .icon {
+  -webkit-margin-end: 30px;
+          margin-inline-end: 30px;
+  -webkit-box-flex: 0;
+      -ms-flex: 0 0 auto;
+          flex: 0 0 auto;
+  width: 50px;
+  font-size: 50px;
+  color: var(--heading-color);
+}
+.bistly-popular-item .content {
+  margin-top: -5px;
+}
+.bistly-popular-item .content h4 {
+  margin-bottom: 5px;
+}
+
+/* Menu Section CSS */
+.bistly-menu-sec .menu-image-wrap {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+@media screen and (max-width: 1199.98px) {
+  .bistly-menu-sec .menu-image-wrap {
+    display: none;
+  }
+}
+.bistly-menu-sec .menu-logo-thumb {
+  position: absolute;
+  top: 0;
+  right: 16%;
+}
+.bistly-menu-sec .menu-logo-thumb img {
+  border-radius: 0 0 200px 200px;
+}
+@media screen and (max-width: 1199.98px) {
+  .bistly-menu-sec .menu-logo-thumb {
+    display: none;
+  }
+}
+.bistly-menu-sec .menu-item-list h3 {
+  color: var(--white-color);
+}
+.bistly-menu-sec .menu-item-list.left-item-list {
+  padding-right: 40px;
+}
+@media screen and (max-width: 991.98px) {
+  .bistly-menu-sec .menu-item-list.left-item-list {
+    padding-right: 0;
+  }
+}
+.bistly-menu-sec .menu-item-list.item-right-list {
+  padding-left: 40px;
+}
+@media screen and (max-width: 991.98px) {
+  .bistly-menu-sec .menu-item-list.item-right-list {
+    padding-left: 0;
+  }
+}
+.bistly-menu-sec .menu-item-list.item-right-list:nth-child(2) {
+  margin-top: 110px;
+}
+@media (max-width: 767.98px) {
+  .bistly-menu-sec .menu-item-list.item-right-list:nth-child(2) {
+    margin-top: 40px;
+  }
+}
+
+.bistly-menu-item {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: start;
+      -ms-flex-align: start;
+          align-items: flex-start;
+  padding: 20px 25px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.bistly-menu-item .content-price-wrap {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  width: 100%;
+}
+@media (max-width: 767.98px) {
+  .bistly-menu-item .content-price-wrap {
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+        -ms-flex-direction: column;
+            flex-direction: column;
+    -webkit-box-align: start;
+        -ms-flex-align: start;
+            align-items: flex-start;
+  }
+}
+.bistly-menu-item .thumbnail {
+  -webkit-box-flex: 0;
+      -ms-flex: 0 0 auto;
+          flex: 0 0 auto;
+  width: 60px;
+  -webkit-margin-end: 20px;
+          margin-inline-end: 20px;
+}
+.bistly-menu-item .content {
+  position: relative;
+  padding-right: 20px;
+  width: 75%;
+  -webkit-box-flex: 0;
+      -ms-flex: 0 0 auto;
+          flex: 0 0 auto;
+}
+@media (max-width: 767.98px) {
+  .bistly-menu-item .content {
+    width: 100%;
+    padding-right: 0;
+  }
+}
+.bistly-menu-item .content:after {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  -webkit-transform: translateY(-50%);
+          transform: translateY(-50%);
+  content: "";
+  width: 1px;
+  height: 55px;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+@media (max-width: 767.98px) {
+  .bistly-menu-item .content:after {
+    display: none;
+  }
+}
+.bistly-menu-item .content h4 {
+  font-size: 20px;
+  color: var(--white-color);
+}
+.bistly-menu-item .content p {
+  font-size: 14px;
+  line-height: 20px;
+  color: rgba(255, 255, 255, 0.8);
+}
+.bistly-menu-item .price {
+  padding-left: 20px;
+  font-size: 24px;
+  color: var(--primary-color);
+  font-family: var(--heading-font);
+}
+@media (max-width: 767.98px) {
+  .bistly-menu-item .price {
+    padding-left: 0;
+    margin-top: 20px;
+  }
+}
+
+/* Team Section */
+.cs-team-item:hover .member-image img {
+  border-radius: 50%;
+}
+.cs-team-item .member-image img {
+  width: 100%;
+  height: 100%;
+  -webkit-transition: all 0.35s;
+  transition: all 0.35s;
+}
+.cs-team-item .member-info {
+  padding-top: 32px;
+}
+
+/*  Time Section */
+.cs-time-sec {
+  background-color: var(--primary-black-color);
+}
+.cs-time-sec .bistly-content-box p {
+  font-size: 20px;
+  line-height: 32px;
+  color: rgba(255, 255, 255, 0.8);
+}
+.cs-time-sec .map-box iframe {
+  height: 325px;
+}
+.cs-time-sec .opening-time-box {
+  padding: 40px 50px 45px;
+  -webkit-margin-start: 70px;
+          margin-inline-start: 70px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+@media screen and (max-width: 1199.98px) {
+  .cs-time-sec .opening-time-box {
+    padding: 30px 30px 35px;
+    -webkit-margin-start: 0;
+            margin-inline-start: 0;
+  }
+}
+.cs-time-sec .opening-time-box h3 {
+  color: var(--white-color);
+  margin-bottom: 35px;
+}
+.cs-time-sec .opening-time-box ul li {
+  color: var(--white-color);
+}
+.cs-time-sec .opening-time-box ul li span {
+  float: right;
+}
+.cs-time-sec .opening-time-box ul li .close {
+  color: var(--primary-color);
+}
+.cs-time-sec .opening-time-box ul li:not(:last-child) {
+  margin-bottom: 25px;
+  padding-bottom: 30px;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
+}
+
+/* Blog Section CSS */
+.bistly-blog-post .post-thumbnail img {
+  width: 100%;
+}
+.bistly-blog-post .post-content {
+  padding-top: 22px;
+}
+.bistly-blog-post .post-content .post-meta span {
+  margin-bottom: 15px;
+}
+.bistly-blog-post .post-content .post-meta span i {
+  -webkit-margin-end: 10px;
+          margin-inline-end: 10px;
+}
+.bistly-blog-post .post-content .post-meta span:not(:last-child) {
+  -webkit-margin-end: 20px;
+          margin-inline-end: 20px;
+}
+.bistly-blog-post .post-content h4 {
+  margin-bottom: 10px;
+}
+.bistly-blog-post .post-content p a {
+  color: var(--heading-color);
+  font-size: 20px;
+  font-weight: 600;
+  -webkit-margin-start: 5px;
+          margin-inline-start: 5px;
+  text-decoration: underline;
+}

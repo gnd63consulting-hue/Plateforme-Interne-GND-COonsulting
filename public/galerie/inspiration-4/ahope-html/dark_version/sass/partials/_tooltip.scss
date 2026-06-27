@@ -1,0 +1,8 @@
+ 	// Tooltip style 
+.tooltip .tooltip-inner {
+    background-color: #0cc3ff;
+    color: #fff;
+    border-radius: 7px;
+    padding: 0 10px !important;
+}
+ .tooltip.bs-tooltip-top .arrow:before {  border-top-color: #0cc3ff !important; }

@@ -1,0 +1,238 @@
+
+// sign in, sign up, reset password.
+.sign_in_up_body{
+	background: -webkit-linear-gradient(bottom, #052554 0%, #000000 100%);
+	background: -o-linear-gradient(bottom, #052554 0%, #000000 100%);
+	background: linear-gradient(to top, #052554 0%, #000000 100%);
+}
+.sign_in_area, .sign_up_area, .reset_pass{
+    text-align: center;
+	@extend .section_padding;
+    h1 {
+	    font-size: 100px;
+	    color: #fff;
+	    margin-bottom: 55px;
+	    @include firasans(300);
+	}
+	.sign_form{
+		background: #242858;
+    	border-radius: 10px;
+    	padding: 80px 100px 120px;
+    	margin: 0 40px;
+    	z-index: 0;
+    	position: relative;
+    	@include boxshadow(0, 8px, 10px, -5px, #060613, false);
+    	&:after, &:before{
+    		position: absolute;
+		    content: '';	    	    
+		    background: #242858;
+		    border-radius: 10px;
+		    @include boxshadow(0, 8px, 10px, -5px, #060613, false);
+    	}	
+    	&:after{
+		    left: -40px;
+		    bottom: 40px;
+		    height: calc(100% - 40px);
+		    z-index: -1;
+		    width: calc(100% + 80px)
+    	}
+    	&:before{
+		    left: -20px;
+		    bottom: 20px;
+		    height: calc(100% - 20px);
+		    z-index: -3;
+		    width: calc(100% + 40px)
+    	}
+    	h2{
+    		font-size: 30px;
+    		color: #fff;
+    		margin-bottom: 40px;
+    	}
+		label{
+		    color: #fff;
+		    font-size: 18px;
+		    margin: 15px 0;
+		    text-transform: uppercase;
+		}
+		input[type="email"], input[type="text"], input[type="password"]{
+		    height: 55px;
+		    margin-bottom: 15px;
+		    font-size: 18px;
+		    border-radius: 3px;
+		    background: #0000003d;
+		    border: 1px solid #535bb5;
+		    transition: border-color 0s;
+		    color: #fff;
+		    &:focus{ 
+		    	outline: none; 
+		    	border: none;  
+		    }
+		}
+		a{ display: inline-block; font-size: 18px; }
+		.boxed_btn{ 
+		    width: 100%;
+		    border-radius: 3px;
+		    padding: 16px;
+		    background: $brand_2;
+		    display: block;
+		    margin-top: 40px;
+		    color: #fff;
+		    font-size: 18px;
+		    text-transform: uppercase;
+		    outline: none;
+		    border: none;
+		    cursor: pointer;
+		    @include transition(all, .3s, ease-in-out);
+		    &:hover{
+		    	background: $green;
+		    }
+		}
+		.pas_show {
+			position: relative;
+			.ptxt {
+			    position: absolute;
+			    top: 50%;
+			    right: 10px;
+			    z-index: 1;
+			    color: #0cbafc;
+			    margin-top: -10px;
+			    cursor: pointer;
+			    transition: .3s ease all;
+			    &.show{ opacity: .5; }
+			}
+		}
+		p {
+		    font-size: 18px;
+		    margin-top: 45px;
+		    line-height: 1.5;
+		    color: #fff;
+		}
+	}
+	.sign_up{	
+		p {
+		    font-size: 18px;
+		    color: #fff;
+		    background: rgba(0, 0, 0, 0.3);
+		    padding: 18px;
+		    width: 75%;
+		    border-radius: 3px;
+		    margin: 0 auto;
+		    margin-top: 110px;
+		}
+	}
+}
+
+@media #{$medium_device}{
+	.sign_in_area, .sign_up_area, .reset_pass{
+	    h1 {
+		    font-size: 80px;
+		    color: #fff;
+		    margin-bottom: 45px;
+		    @include firasans(300);
+		}
+		.sign_form{
+	    	padding: 40px 50px 100px;
+	    	margin: 0 50px;
+	    	&:after{
+		    left: -30px;
+		    bottom: 35px;
+		    height: calc(100% - 35px);
+		    z-index: -1;
+		    width: calc(100% + 60px);
+	    	}
+	    	&:before{
+			    left: -15px;
+			    bottom: 15px;
+			    height: calc(100% - 15px);
+			    z-index: -3;
+			    width: calc(100% + 30px);
+	    	}
+	    	h2{
+	    		font-size: 24px;
+	    		margin-bottom: 30px;
+	    	}
+			label{
+			    font-size: 16px;
+			    margin: 12px 0;
+
+			}
+			input[type="text"], input[type="email"],  input[type="password"]{
+			    height: 45px;
+			    margin-bottom: 12px;
+			    font-size: 16px;
+			}
+			a{ display: inline-block; font-size: 16px; margin-top: 5px; }
+			.boxed_btn{ 
+			    margin-top: 30px;
+			    font-size: 16px;
+			}
+		}
+		.sign_up p {
+		    font-size: 16px;
+		    padding: 16px;
+		    margin-top: 70px;
+		}
+	}
+
+}
+@media #{$tab_device_below}{
+	.sign_in_area, .sign_up_area, .reset_pass{
+	    h1 {
+		    font-size: 60px;
+		    margin-bottom: 35px;
+		}
+		.sign_form{
+	    	padding: 30px 10px 90px;
+	    	margin: 0 50px;
+	    	&:after{
+		    left: -30px;
+		    bottom: 35px;
+		    height: calc(100% - 35px);
+		    z-index: -1;
+		    width: calc(100% + 60px);
+	    	}
+	    	&:before{
+			    left: -15px;
+			    bottom: 15px;
+			    height: calc(100% - 15px);
+			    z-index: -3;
+			    width: calc(100% + 30px);
+	    	}
+	    	h2{
+	    		font-size: 20px;
+	    		margin-bottom: 20px;
+	    	}
+			label{
+			    font-size: 14px;
+			    margin: 12px 0;
+
+			}
+			input[type="text"], input[type="email"], input[type="password"]{
+			    height: 40px;
+			    margin-bottom: 12px;
+			    font-size: 14px;
+
+			}
+			a{ display: inline-block; font-size: 14px; margin-top: 5px; }
+			.boxed_btn{ 
+			    margin-top: 30px;
+			    font-size: 14px;
+			    padding: 14px;
+			}
+		}
+		.sign_up p {
+		    font-size: 14px;
+		    padding: 14px;
+		    margin-top: 50px;
+		    width: 70%;
+		}
+	}
+}
+
+@media #{$small_mobile}{
+
+	
+}
+@media #{$large_mobile}{
+	
+}

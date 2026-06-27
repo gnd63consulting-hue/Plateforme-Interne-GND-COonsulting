@@ -1,0 +1,112 @@
+/*-------------------------------------------------------
+47. Team Single css 
+---------------------------------------------------------*/
+
+/*Team Single*/
+
+.team-details-wrapper {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    grid-gap: 4rem;
+}
+
+.team-details-wrapper .team-single-box .team-single-desc {
+    padding: 3rem;
+    background-color: rgb(255, 255, 255);
+    box-shadow: 0px 19px 109px 0px rgba(0, 0, 0, 0.04);
+}
+
+.team-details-wrapper .team-single-box .team-single-desc h4 {
+    margin-bottom: 6px;
+    text-transform: capitalize;
+}
+
+.team-details-wrapper .team-single-box .team-single-desc p {
+    margin-bottom: 5px;
+}
+
+.team-details-wrapper .team-single-box .team-single-desc span {
+    margin-bottom: 1rem;
+	display: block;
+}
+
+.team-details-wrapper .team-single-box .team-single-desc .team-single-social {
+	display: flex;
+	align-items: center;
+}
+
+.team-details-wrapper .team-single-box .team-single-desc .team-single-social li {
+	margin-right: 1.5rem;
+}
+
+.team-details-wrapper .team-single-box .team-single-desc .team-single-social li:last-child {
+	margin-right: 0;
+}
+
+.team-details-wrapper .team-single-box .team-single-desc .team-single-social li a i:hover {
+	color: var(--theme-color-3);
+}
+
+.team-details-wrapper .table {
+    width: 80%;
+    margin-bottom: 0;
+    color: var(--body-color);
+}
+
+.team-single-personal {
+    padding: 3rem;
+    background-color: rgb(255, 255, 255);
+    box-shadow: 0px 19px 109px 0px rgba(0, 0, 0, 0.04);
+    margin-top: 3rem;
+}
+
+.team-single-personal ul li {
+    display: flex;
+	margin-bottom: 1rem;
+}
+
+
+.team-single-personal ul li:last-child {
+	margin-bottom: 0;
+}
+
+.team-single-personal ul li p {
+    margin-bottom: 0rem;
+    margin-right: 2rem;
+}
+
+h4.team-single-title {
+    text-transform: capitalize;
+    position: relative;
+    z-index: 1;
+    padding-bottom: 1.5rem;
+}
+
+h4.team-single-title::before {
+	position: absolute;
+	content: '';
+	background-image: -moz-linear-gradient( 90deg, rgb(14,140,209) 0%, rgb(25,47,171) 99%);
+	background-image: -webkit-linear-gradient( 90deg, rgb(14,140,209) 0%, rgb(25,47,171) 99%);
+	background-image: -ms-linear-gradient( 90deg, rgb(14,140,209) 0%, rgb(25,47,171) 99%);
+	width: 65px;
+	height: 2px;
+	bottom: 0;
+	left: 0;
+}
+
+
+.team-single-about.about p {
+    margin-bottom: 0;
+}
+
+.team-single-about {
+    margin-bottom: 3rem;
+}
+
+.team-single-about:last-child {
+    margin-bottom: 0;
+}
+
+.team-area.t-de .site-title {
+	margin-top: 0;
+}

@@ -1,0 +1,746 @@
+
+/*----------------------------------------------------------------------------------- 
+
+Template Name: Bistly - Restaurant & Cafe HTML Template
+URI: pixelfit.agency
+Description: Bistly is a clean, modern, and fully responsive HTML template designed specifically for restaurants, cafes, bakeries, coffee shops, and food-related businesses. Crafted with attention to detail and built using the latest web technologies, Bistly ensures an exceptional user experience on all devices.
+Author: Pixelfit
+Author URI: https://themeforest.net/user/pixelfit
+Version: 1.0 
+
+
+------------------------------------------------------
+   CSS INDEX
+-----------------------------------------------------
+
+    # Common CSS
+    # Hero Section CSS
+    # Categories Section CSS
+    # About Section CSS
+    # Promo Section CSS
+    # Choose Section CSS
+    # Menu Section CSS
+    # Offer Section CSS
+    # Testimonial Section CSS
+    # Gallery Section CSS
+    # CTA Section CSS
+    # Blog Section CSS
+    
+-------------------------------------------------------    */
+
+
+@import "../abstract";
+
+/* Common CSS */ 
+
+:root{
+    --primary-color: #E3C7F2;
+    --primary-black-color: #502965;
+    --heading-color: #0A0B0C;
+    --text-color: #3B3C3D;
+    --accent-color: #ED696E;
+    --rating-color: #FF9F1A;
+}
+
+.sub-title{
+    color: $heading-color;
+    font-weight: 500;
+    &:before,
+    &:after{
+        display: none;
+    }
+}
+
+.section-title{
+    &.text-center{
+        & .sub-title{
+            &:after{
+                display: none;
+            }
+        }
+    }
+}
+
+.theme-btn{
+    &.style-one{
+        color: $heading-color;
+    }
+}
+.container-fluid{
+    padding-left: 30px;
+    padding-right: 30px;
+    @include respond(xl){
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+}
+
+
+/* Hero Section CSS */ 
+
+.ds-hero-sec{
+    padding: 325px 0 130px;
+    background-color: #F9F4FC;
+    overflow: hidden;
+    @include respond(xxxl){
+        padding: 190px 0 130px;
+    }
+    & .container-fluid{
+        padding-left: 100px;
+        padding-right: 100px;
+        @include respond(xxxl){
+            padding-left: 50px;
+            padding-right: 50px;
+        }
+        @include respond(xl){
+            padding-left: 15px;
+            padding-right: 15px;
+        }
+    }
+    & .hero-shape{
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+        z-index: -1;
+    }
+    & .hero-content{
+        margin-bottom: 60px;
+        & h1{
+            font-size: 360px;
+            line-height: 1;
+            @include respond(xxxl){
+                font-size: 240px;
+            }
+            @include respond(xl){
+                font-size: 200px;
+            }
+            @include respond(lg){
+                font-size: 150px;
+            }
+            @include respond(md){
+                font-size: 60px;
+            }
+        }
+    }
+    & .text-box{
+        max-width: 655px;
+        @include respond(xxxl){
+            max-width: 450px;
+        }
+        @include respond(lg){
+            max-width: 100%;
+            text-align: center;
+        }
+        & p{
+            font-size: 24px;
+            line-height: 35px;
+            font-weight: 500;
+            color: $heading-color;
+            margin-bottom: 50px;
+            @include respond(md){
+                font-size: 18px;
+            }
+        }
+    }
+    & .hero-image-wrap{
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 55%;
+        @include respond(xl){
+            display: none;
+        }
+        & .hero-image{
+            text-align: center;
+            margin-left: -150px;
+            @include respond(xxxl){
+                margin-left: -100px;
+            }
+            & img{
+                object-position: bottom;
+                object-fit: contain;
+                margin: 0 auto;
+                @include respond(xxxl){
+                    width: 50%;
+                }
+                @include respond(xxl){
+                    width: 55%;
+                }
+            }
+        }
+    }
+    & .bistly-author-box{
+        margin-inline-start: auto;
+        @include respond(lg){
+            margin-inline-start: inherit;
+            margin: 40px auto 0;
+        }
+    }
+}
+.bistly-author-box{
+    background-color: $primary-color;
+    max-width: 380px;
+    padding: 30px 30px 10px;
+    border-radius: 20px;
+    & .author-thumbs{
+        margin-bottom: 10px;
+        & img{
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            border: 2px solid $white-color;
+            &:not(:first-child){
+                margin-left: -15px;
+            }
+        }
+    }
+    & h2{
+        display: inline-flex;
+        align-items: center;
+        font-size: 48px;
+        & span{
+            margin-left: 15px;
+            font-size: 24px;
+            font-family: $body-font;
+            font-weight: 400;
+        }
+    }
+}
+
+/* Categories Section CSS */
+
+.categories-wrapper{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: space-between;
+    @include respond(xl){
+        justify-content: center;
+    }
+    & .bistly-category-item{
+        max-width: 240px;
+        @include respond(xxxl){
+            max-width: 220px;
+        }
+    }
+}
+
+.bistly-category-item{
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    width: 100%;
+    border-radius: 50px;
+    
+    & .icon{
+        flex: 0 0 auto;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: $heading-color;
+        font-size: 24px;
+        margin-right: 15px;
+    }
+    &.bg_one{
+        background-color: #F9F4FC;
+        & .icon{
+            background-color: #E3C7F2;
+        }
+    }
+    &.bg_two{
+        background-color: #FFEEEE;
+        & .icon{
+            background-color: #F3B9B9;
+        }
+    }
+    &.bg_three{
+        background-color: #F6F9E1;
+        & .icon{
+            background-color: #C5E5A3;
+        }
+    }
+    &.bg_four{
+        background-color: #E7F4FC;
+        & .icon{
+            background-color: #B9E2FB;
+        }
+    }
+    &.bg_five{
+        background-color: #FCEFD5;
+        & .icon{
+            background-color: #F6C872;
+        }
+    }
+}
+
+/* About Section */ 
+
+.ds-about-sec{
+    & .about-wrapper{
+        display: flex;
+        flex-wrap: wrap;
+        & .about-left-wrap{
+            width: calc(50% - 15px);
+            margin-right: 15px;
+            min-height: 700px;
+            @include respond(xl){
+                background-position: top center;
+                width: 100%;
+                margin-right: 0;
+                margin-bottom: 30px;
+            }
+        }
+        & .about-right-wrap{
+            width: 50%;
+            @include respond(xl){
+                width: 100%;
+            }
+        }
+    }
+    & .bistly-about-box{
+        position: relative;
+        z-index: 1;
+        overflow: hidden;
+        padding: 45px 50px;
+        background-color: #F9F4FC;
+        margin-bottom: 10px;
+        & .shape{
+            position: absolute;
+            top: 0;
+            right: -150px;
+            z-index: -1;
+            & img{
+                opacity: 0.05;
+            }
+        }
+        & .content{
+            max-width: 580px;
+            @include respond(xl){
+                padding: 0 150px;
+                max-width: 100%;
+            }
+            @include respond(md){
+                padding: 0 15px;
+            }
+        }
+        & .section-title{
+            margin-bottom: 20px;
+            & .sub-title{
+                margin-bottom: 5px;
+            }
+        }
+        & p{
+            line-height: 27px;
+        }
+        @include respond(xl){
+            text-align: center;
+            padding: 40px 30px;
+        }
+    }
+    & .bistly-experience-box{
+        padding: 40px 50px;
+        background-color: #E3C7F2;
+        & .content{
+            max-width: 580px;
+            @include respond(xl){
+                padding: 0 150px;
+                max-width: 100%;
+            }
+            @include respond(md){
+                padding: 0 15px;
+            }
+        }
+        & .section-title{
+            margin-bottom: 20px;
+            & .sub-title{
+                margin-bottom: 5px;
+            }
+        }
+        & p{
+            line-height: 27px;
+        }
+        @include respond(xl){
+            text-align: center;
+            padding: 40px 30px;
+        }
+    }
+}
+
+/* Promo Section CSS */ 
+
+.bistly-promo-item{
+    padding: 165px 30px;
+    border-radius: 20px;
+    @include respond(xl){
+        padding: 70px 30px;
+    }
+    & .content{
+        & span{
+            font-weight: 700;
+            font-family: $heading-font;
+            color: $heading-color;
+            line-height: 1;
+        }
+        & h2{
+            font-size: 40px;
+            line-height: 50px;
+            @include respond(xl){
+                font-size: 24px;
+                line-height: 40px;
+            }
+        }
+    }
+}
+
+
+/* Why Choose Section */ 
+
+.ds-choose-sec{
+    & .item-choose-list{
+        &.choose-list-left{
+            padding-right: 30px;
+            @include respond(xl){
+                padding-right: 0;
+            }
+        }
+        &.choose-list-right{
+            padding-left: 30px;
+            @include respond(xl){
+                padding-left: 0;
+            }
+        }
+    }
+}
+
+.bistly-choose-item{
+    background-color: $white-color;
+    border-radius: 30px;
+    border: 1px solid rgba(0, 0, 0, 0.10);
+    & .content{
+        & h4{
+            padding: 11px 30px;
+            border-radius: 30px;
+            border: 1px solid rgba(0, 0, 0, 0.10);
+            &.bg-one{
+                background-color: #F9F4FC;
+            }
+            &.bg-two{
+                background-color: #F6F9E1;
+            }
+            &.bg-three{
+                background-color: #E7F4FC;
+            }
+            &.bg-four{
+                background-color: #FEE;
+            }
+            @include respond(xl){
+                font-size: 18px;
+            }
+        }
+        & p{
+            padding: 20px 30px;
+        }
+    }
+}
+
+/* Menu Section CSS */ 
+
+.ds-menu-sec{
+    background: linear-gradient(96deg, #F5FEFF 0%, #FFF3EB 40.52%, #F7F5FB 69.21%, #F5EAF6 100%);
+}
+.menu-slider{
+    margin-left: -15px;
+    margin-right: -15px;
+    & .slick-slide{
+        margin-left: 15px;
+        margin-right: 15px;
+    }
+}
+.bistly-product-item{
+    background-color: $white-color;
+    padding: 10px;
+    border-radius: 10px;
+    &:hover{
+        & .thumbnail{
+            & .add-to-cart{
+                bottom: 10px;
+            }
+        }
+    }
+    & .thumbnail{
+        position: relative;
+        z-index: 1;
+        overflow: hidden;
+        & .wishlist-btn{
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: $white-color;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all .3s;
+            &:hover{
+                color: $primary-color;
+            }
+        }
+        & .add-to-cart{
+            position: absolute;
+            bottom: -50%;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: all .3s;
+            & a{
+                padding: 12px 20px;
+                color: $heading-color;
+                border-radius: 40px;
+                line-height: 1;
+                font-weight: 500;
+                background-color: $primary-color;
+            }
+        }
+    }
+    & img{
+        width: 100%;
+        border-radius: 10px;
+    }
+    & .content{
+        padding: 15px 20px 10px;
+        & .ratings-price-wrap{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            & .ratings{
+                & i{
+                    color: var(--rating-color);
+                }
+            }
+            & .price{
+                font-size: 24px;
+                font-weight: 600;
+                color: var(--accent-color);
+            }
+        }
+        & h4{
+            margin-bottom: 8px;
+        }
+    }
+}
+
+/* Offer Section */ 
+
+.ds-offer-sec{
+    & .bistly-image-box{
+        position: relative;
+        & .shape{
+            position: absolute;
+            top: 60px;
+            left: 120px;
+            transform: rotate(-30deg);
+            @include respond(xxxl){
+                left: 70px;
+            }
+            @include respond(md){
+                display: none;
+            }
+        }
+        & .discount-box{
+            position: absolute;
+            top: 40%;
+            left: 13%;
+            width: 100px;
+            height: 100px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            @include respond(md){
+                display: none;
+            }
+            & .content{
+                text-align: center;
+                & h4{
+                    & span{
+                        line-height: 1;
+                        display: block;
+                        font-size: 16px;
+                    }
+                }
+            }
+            @include respond(xxxl){
+                left: 7%;
+            }
+        }
+    }
+}
+
+/* Testimonial Section */ 
+
+.ds-testimonial{
+    background: linear-gradient(96deg, #F5FEFF 0%, #FFF3EB 40.52%, #F7F5FB 69.21%, #F5EAF6 100%);
+    padding-bottom: 240px;
+}
+.testimonial-slider{
+    & .slick-arrow{
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 50px;
+        color: $heading-color;
+        cursor: pointer;
+        &.next{
+            right: -15%;
+        }
+        &.prev{
+            left: -15%;
+        }
+    }
+}
+.bistly-testimonial-item{
+    text-align: center;
+    & .testimonial-content{
+        & p{
+            font-size: 32px;
+            line-height: 50px;
+            color: $heading-color;
+            font-family: $heading-font;
+            margin-bottom: 25px;
+            @include respond(md){
+                font-size: 20px;
+                line-height: 35px;
+            }
+        }
+        & span{
+            color: $heading-color;
+        }
+    }
+}
+
+/* Gallery Section CSS */ 
+
+.ds-gallery{
+    margin-top: -220px;
+}
+.gallery-slider{
+    margin-left: -15px;
+    margin-right: -15px;
+    & .slick-slide{
+        margin-left: 15px;
+        margin-right: 15px;
+    }
+}
+
+.bistly-gallery-item{
+    & .gallery-img{
+        & img{
+            border-radius: 10px;
+        }
+    }
+}
+
+
+/* CTA Section CSS */ 
+
+.ds-cta{
+    & .shape{
+        position: absolute;
+        z-index: 1;
+        @include respond(xl){
+            display: none;
+        }
+        &.shape-one{
+            left: 80px;
+            & img{
+                @include respond(xxxl){
+                    width: 80%;
+                }
+            }
+        }
+        &.shape-two{
+            bottom: 0;
+            right: 80px;
+            @include respond(xxxl){
+                right: 50px;
+                text-align: right;
+            }
+            & img{
+                @include respond(xxxl){
+                    width: 60%;
+                }
+            }
+        }
+    }
+}
+.ds-cta-wrapper{
+    padding: 85px 30px 100px;
+    & .ds-cta-box{
+        & h2{
+            margin-bottom: 12px;
+        }
+        & p{
+            margin-bottom: 45px;
+        }
+        & form{
+            & .form_control{
+                padding: 10px 20px;
+                border-radius: 50px;
+                border: none;
+            }
+            & .theme-btn{
+                position: absolute;
+                top: 0;
+                right: 0;
+                &.style-one{
+                    border-radius: 50px;
+                }
+                @include respond(md){
+                    position: relative;
+                    top: auto;
+                    right: auto;
+                    margin-top: 30px;
+                }
+            }
+        }
+    }
+}
+
+/* Blog Section CSS */ 
+
+.bistly-blog-post{
+    & .post-thumbnail{
+        & img{
+            width: 100%;
+        }
+    }
+    & .post-content{
+        padding-top: 25px;
+        & .post-meta{
+            & span{
+                margin-bottom: 15px;
+                &:not(:last-child){
+                    margin-inline-end: 25px;
+                }
+                & i{
+                    margin-inline-end: 10px;
+                }
+            }
+        }
+        & h4{
+            margin-bottom: 10px;
+            &:hover{
+                color: $primary-black-color;
+            }
+        }
+    }
+}
