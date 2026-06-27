@@ -1,0 +1,17 @@
+-- 0054_design_ref_batch_37_43.sql — Constructor, Darna, Elever, HomeRise, Konta, Pixelr, Wekala. Idempotent.
+BEGIN;
+DELETE FROM public.design_references WHERE kind='template' AND name IN (
+ 'Constructor - Construction HTML','Darna - Building Construction HTML','Elever - Construction HTML',
+ 'HomeRise - Construction PHP','Konta - Construction HTML','Pixelr - Creative Agency Portfolio HTML','Wekala - Construction HTML');
+INSERT INTO public.design_references (name, kind, url, repo_url, preview_url, sector, tags, notes) VALUES
+ ('Constructor - Construction HTML','template','/galerie/inspiration-37/constructor%20-%20placehold/index.html','https://github.com/gnd63consulting-hue/gnd-template-library/tree/main/inspiration-37','/inspiration/inspiration-37.png','construction / building',ARRAY['construction','building','industry','services','multipage'],'Template HTML5 construction (placeholders auteur conserves). Apercu auto-heberge GND.'),
+ ('Darna - Building Construction HTML','template','/galerie/inspiration-38/Markup/index.html','https://github.com/gnd63consulting-hue/gnd-template-library/tree/main/inspiration-38','/inspiration/inspiration-38.png','construction / architecture',ARRAY['construction','building','architecture','industry','multipage'],'Template HTML5 construction. Apercu auto-heberge GND.'),
+ ('Elever - Construction HTML','template','/galerie/inspiration-39/elever-html/index.html','https://github.com/gnd63consulting-hue/gnd-template-library/tree/main/inspiration-39','/inspiration/inspiration-39.png','construction / industry',ARRAY['construction','building','industry','rtl','multipage'],'Template HTML5 construction (vraies images, light + RTL). Apercu auto-heberge GND.'),
+ ('HomeRise - Construction PHP','template','https://github.com/gnd63consulting-hue/gnd-template-library/tree/main/inspiration-40','https://github.com/gnd63consulting-hue/gnd-template-library/tree/main/inspiration-40','/inspiration/inspiration-40.png','construction / industry',ARRAY['construction','php','industry','code-only','building'],'Template PHP (index.php). Pas d apercu statique (PHP server requis). Code pour Cyrus.'),
+ ('Konta - Construction HTML','template','/galerie/inspiration-41/download-version/index.html','https://github.com/gnd63consulting-hue/gnd-template-library/tree/main/inspiration-41','/inspiration/inspiration-41.png','construction / building',ARRAY['construction','building','industry','services','multipage'],'Template HTML5 construction. Apercu auto-heberge GND.'),
+ ('Pixelr - Creative Agency Portfolio HTML','template','/galerie/inspiration-42/buyer-file/index.html','https://github.com/gnd63consulting-hue/gnd-template-library/tree/main/inspiration-42','/inspiration/inspiration-42.png','agence creative / portfolio',ARRAY['agency','portfolio','creative','studio','multipage'],'Template HTML5 agence creative (vraies images). Apercu auto-heberge GND.'),
+ ('Wekala - Construction HTML','template','/galerie/inspiration-43/wekala-main/index.html','https://github.com/gnd63consulting-hue/gnd-template-library/tree/main/inspiration-43','/inspiration/inspiration-43.png','construction / building',ARRAY['construction','building','industry','services','multipage'],'Template HTML5 construction. Apercu auto-heberge GND.')
+ON CONFLICT DO NOTHING;
+NOTIFY pgrst, 'reload schema';
+COMMIT;
+SELECT count(*) AS templates FROM public.design_references WHERE kind='template';
