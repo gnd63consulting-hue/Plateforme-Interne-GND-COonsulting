@@ -1,0 +1,76 @@
+ .contact {
+     @extend %p-rel,
+     %of-hidden;
+
+     &__social {
+         @extend %mb-60;
+
+         h3 {
+             @extend %text-capitalize,
+             %mb-40;
+             max-inline-size: 18ch;
+
+
+             span {
+                 color: $brand-color;
+             }
+         }
+     }
+
+     &__item {
+         &:not(:last-child) {
+             @extend %mb-30;
+         }
+
+         &-inner {
+             @extend %d-flex,
+             %align-i-center;
+             gap: 24px;
+
+         }
+
+         &-thumb {
+             span {
+                 @extend %p-15;
+                 background-color: $bg-color-3;
+                 border-radius: 50%;
+             }
+         }
+
+         &-content {
+             p {
+                 @extend %mb-0,
+                 %text-medium;
+                 @include font-size(18px);
+                 color: $title-color;
+
+             }
+         }
+     }
+
+     &__form {
+        textarea{
+            min-height: 250px;
+        }
+        
+        @include breakpoint(md){
+            &::before {
+                // @extend %p-abs;
+                position: absolute;
+                content: "";
+                top: -6%;
+                left: 38%;
+                height: 100%;
+                width: 100%;
+                background: linear-gradient(188.07deg, rgba(237, 242, 248, 0) 31.91%, #EDF2F8 98.96%);
+                border-radius: 100px;
+                //  transform: matrix(0.99, -0.14, 0.15, 0.99, 0, 0);
+                transform: rotate(-5deg);
+    
+                
+            }
+        }
+
+     }
+
+ }

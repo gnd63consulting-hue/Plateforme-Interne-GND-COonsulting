@@ -1,0 +1,127 @@
+.blog {
+    @extend %of-hidden;
+    
+    &__item {
+        &-inner {
+            @extend %px-25,
+            %pt-25,
+            %pb-30,
+            %of-hidden;
+            @include add-prefix(transition, $transition);
+            background-color: $white-color;
+            // trk-rgba 
+            box-shadow: 0px 16px 40px rgba(162, 170, 177, 0.12);
+            border-radius: 16px;
+
+            &:hover {
+
+                .blog {
+                    &__item{
+                        &-inner{
+                            box-shadow: 0px 16px 40px rgba(123, 131, 138, 0.24);
+                        }
+                    }
+                    &__thumb {
+                        img {
+                            @include add-prefix(transform, scale(1.05));
+                        }
+                    }
+
+                    &__content {
+                        h5 {
+                            color: $brand-color;
+                        }
+                    }
+                }
+
+            }
+
+
+        }
+
+        &--style2{
+            @extend %pb-35;
+        }
+
+
+    }
+
+    &__thumb {
+        @extend %of-hidden;
+        border-radius: 8px;
+
+        img {
+            @extend %w-100;
+            @include add-prefix(transition, $transition);
+        }
+    }
+
+    &__content {
+        h5 {
+            @extend %text-medium,
+            %text-capitalize;
+            @include add-prefix(transition, $transition);
+            @include text-clamp(1);
+        }
+        p{
+            @include text-clamp(3);
+        }
+    }
+
+    &__writer {
+        @extend %d-flex,
+        %align-i-center;
+        gap: 10px;
+
+        &-thumb {
+            img {
+                border-radius: 99px;
+                max-width: 50px;
+            }
+        }
+
+
+        &-designation {
+            p {
+                @extend %text-medium;
+                color: $title-color;
+                font-family: $title-font;
+            }
+
+            span {
+                @include font-size(14px);
+                color: $text-color;
+            }
+        }
+    }
+
+    &__meta {
+        @extend %py-15;
+
+        @include breakpoint(xl) {
+            padding-block: 16px;
+        }
+
+        &-tag {
+            @extend %d-inline-block,
+            %text-semibold;
+            @include font-size(16px);
+            padding: 3px 12px;
+            border-radius: 8px;
+            text-transform: capitalize;
+            // background-color: rgba($brand-color-1, $alpha: .1);
+            
+            &--style1 {
+                // trk-rgba 
+                color: $brand-color;
+                background-color: rgba(249, 77, 28, 0.08);
+            }
+            &--style2 {
+                color: $title-color;
+                background-color: $tertiary-color;
+            }
+        }
+    }
+
+
+}

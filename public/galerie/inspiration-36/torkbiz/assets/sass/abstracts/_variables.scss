@@ -1,0 +1,296 @@
+// -----------------------------------------------------------------------------
+// This file contains all application-wide Sass variables.
+// -----------------------------------------------------------------------------
+
+
+//*-----------------------------------
+//*** Custom variables for theme starthite
+//*-----------------------------------
+
+$thm-brand-color:#F94D1C;
+$thm-brand-color-dark:#F94D1C;
+
+$thm-secondary-color:#121111;
+$thm-secondary-color-dark:#201F1F;
+
+$thm-tertiary-color:#F5F8FC;
+$thm-tertiary-color-dark:#121111;
+
+$thm-body-color-light:#fff;
+$thm-body-color-dark:#121111;
+
+$thm-border-color-light: #F0F5FC; 
+$thm-border-color-dark: #252424; 
+
+$thm-social-border-color-light: #F0F4FA; 
+$thm-social-border-color-dark: #ffffff14; 
+
+$thm-form-border-light: #CFDEF1;
+$thm-form-border-dark: #CFDEF1;
+
+
+
+// text colors
+$thm-title-color: #021738;
+$thm-title-color-dark: #FFFFFF;
+
+$thm-text-color: #6B6F7F;
+$thm-text-color-dark: #FFF9;
+
+$thm-text-color-light: #6B6F7F;
+$thm-text-color-light-dark: #FFFFFF;
+
+
+
+// background colors
+$thm-bg-color:#f8f8f8;
+$thm-bg-color-dark:#050505;
+
+
+$thm-bg-color-2-light:#F5F8FC;
+$thm-bg-color-2-dark:#2D2C2C;
+
+$thm-bg-color-3-light:#FFEFEB;
+$thm-bg-color-3-dark:#2D2C2C;
+
+$thm-bg-color-4-light:#F0F4FA;
+$thm-bg-color-4-dark:#201F1F;
+
+$thm-bg-color-5-light:#F6F9FD;
+$thm-bg-color-5-dark:#2D2C2C;
+
+
+$thm-bg-color-6-light:#F5F7FC;
+$thm-bg-color-6-dark:#2D2C2C;
+
+$thm-bg-color-7-light:#F5F8FC;
+$thm-bg-color-7-dark:#201F1F;
+
+$thm-bg-color-8-light:#F5F8FC;
+$thm-bg-color-8-dark:#050505;
+
+$thm-bg-color-9-light:#FFFF;
+$thm-bg-color-9-dark:#000;
+
+
+
+$thm-bg-white-light:#ffffff;
+$thm-bg-white-dark:#ffffff;
+
+
+$thm-bg-team-light:#ffffffd9;
+$thm-bg-team-dark:#00000080;
+
+
+
+// form colors
+$thm-form-border-light: #DCDFE8;
+$thm-form-border-dark:  #DCDFE8;
+
+$thm-form-focus-light: #366CD5;
+$thm-form-focus-dark: #366CD5;
+
+
+
+// other colors
+$thm-white-color:#ffff;
+$thm-white-color-dark:#201F1F;
+
+$thm-black-color:#000;
+$thm-black-color-dark:#fff;
+
+
+
+// action colors
+$thm-error-light: #F04438;
+$thm-error-dark: #F04438;
+
+$thm-warning-light: #F79009;
+$thm-warning-dark: #F79009;
+
+$thm-success-light: #12B76A;
+$thm-success-dark: #12B76A;
+
+$thm-danger-light: #FF0000;
+$thm-danger-dark: #FF0000;
+
+
+
+//===================== Theme varibale for  ** Light ** ===================== //
+[data-bs-theme="light"] {
+    --brand-color:#{$thm-brand-color};
+    --secondary-color:#{$thm-secondary-color};
+    --tertiary-color:#{$thm-tertiary-color};
+    --body-color:#{$thm-body-color-light};
+    --border-color:#{$thm-border-color-light};
+    --social-border-color:#{$thm-social-border-color-light};
+    --form-border:#{$thm-form-border-light};
+    
+    // text colors
+    --title-color:#{$thm-title-color};
+    --text-color:#{$thm-text-color};
+    --text-color-light:#{$thm-text-color-light};
+
+    // background colors
+    --bg-color:#{$thm-bg-color};
+    --bg-color-2:#{$thm-bg-color-2-light};
+    --bg-color-3:#{$thm-bg-color-3-light};
+    --bg-color-4:#{$thm-bg-color-4-light};
+    --bg-color-5:#{$thm-bg-color-5-light};
+    --bg-color-6:#{$thm-bg-color-6-light};
+    --bg-color-7:#{$thm-bg-color-7-light};
+    --bg-color-8:#{$thm-bg-color-8-light};
+    --bg-color-9:#{$thm-bg-color-9-light};
+
+    --bg-white:#{$thm-bg-white-light};
+    --bg-team:#{$thm-bg-team-light};
+
+    // form colors
+    --form-focus-color:#{$thm-form-focus-light};
+
+    // others colors
+    --white-color:#{$thm-white-color};
+    --black-color:#{$thm-black-color};
+
+    // action colors
+    --error-color:#{$thm-error-light};
+    --warning-color:#{$thm-warning-light};
+    --success-color:#{$thm-success-light};
+    --danger-color:#{$thm-danger-light};
+}
+
+
+//===================== Theme varibale for  ** Dark ** ===================== //
+[data-bs-theme="dark"] {
+    --brand-color:#{$thm-brand-color-dark};
+    --secondary-color:#{$thm-secondary-color-dark};
+    --tertiary-color:#{$thm-tertiary-color-dark};
+    --body-color:#{$thm-body-color-dark};
+    --border-color:#{$thm-border-color-dark};
+    --social-border-color:#{$thm-social-border-color-dark};
+    --form-border:#{$thm-form-border-dark};
+    
+    // text colors
+    --title-color:#{$thm-title-color-dark};
+    --text-color:#{$thm-text-color-dark};
+    --text-color-light:#{$thm-text-color-light-dark};
+
+    // background colors
+    --bg-color:#{$thm-bg-color-dark};
+    --bg-color-2:#{$thm-bg-color-2-dark};
+    --bg-color-3:#{$thm-bg-color-3-dark};
+    --bg-color-4:#{$thm-bg-color-4-dark};
+    --bg-color-5:#{$thm-bg-color-5-dark};
+    --bg-color-6:#{$thm-bg-color-6-dark};
+    --bg-color-7:#{$thm-bg-color-7-dark};
+    --bg-color-8:#{$thm-bg-color-8-dark};
+    --bg-color-9:#{$thm-bg-color-9-dark};
+
+    --bg-white:#{$thm-bg-white-dark};
+    --bg-team:#{$thm-bg-team-dark};
+
+    // form colors
+    --form-focus-color:#{$thm-form-focus-dark};
+
+    // others colors
+    --white-color:#{$thm-white-color-dark};
+    --black-color:#{$thm-black-color-dark};
+
+    // action colors
+    --error-color:#{$thm-error-dark};
+    --warning-color:#{$thm-warning-dark};
+    --success-color:#{$thm-success-dark};
+    --danger-color:#{$thm-danger-dark};
+}
+
+
+
+//*-----------------------------------
+//*** Custom variables for theme end
+//*-----------------------------------
+
+
+//===================== Variables start===================== //
+
+// theme colors
+$brand-color: var(--brand-color);
+$secondary-color: var(--secondary-color);
+$tertiary-color: var(--tertiary-color);
+
+
+$body-color: var(--body-color);
+$border-color: var(--border-color);
+$social-border-color: var(--social-border-color);
+
+$form-border: var(--form-border);
+
+// text colors
+$title-color: var(--title-color);
+$text-color: var(--text-color);
+$text-color-light: var(--text-color-light);
+
+
+$white-color: var(--white-color);
+$black-color: var(--black-color);
+
+// background colors
+$bg-color: var(--bg-color);
+$bg-color-1: var(--bg-color-1);
+$bg-color-2: var(--bg-color-2); 
+$bg-color-3: var(--bg-color-3);
+$bg-color-4: var(--bg-color-4);
+$bg-color-5: var(--bg-color-5);
+$bg-color-6: var(--bg-color-6);
+$bg-color-7: var(--bg-color-7);
+$bg-color-8: var(--bg-color-8);
+$bg-color-9: var(--bg-color-9);
+
+$bg-white: var(--bg-white);
+
+// extra colors
+$bg-team: var(--bg-team);
+
+
+// form
+$form-border: var(--form-border);
+$form-focus: var(--form-focus);
+
+// Action colors
+$error: var(--error-color);
+$warning: var(--warning-color);
+$success: var(--success-color);
+$danger: var(--danger-color);
+
+
+
+
+
+//=====================>>>\ Variables end ===================== //
+
+
+
+//Template Font family
+
+$title-font:'Ubuntu',
+sans-serif;
+
+$text-font:'Nunito Sans',
+sans-serif;
+
+//Template font sizes
+$fs-base: 16px !default;
+$fs-small:14px;
+
+$fs-h1: 56px;
+$fs-h2: 40px;
+$fs-h3: 32px;
+$fs-h4: 28px;
+$fs-h5: 24px;
+$fs-h6: 18px;
+
+
+//Template transition
+
+$transition:all .3s ease-out;
+
+

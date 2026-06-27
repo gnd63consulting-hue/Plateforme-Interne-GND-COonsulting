@@ -1,0 +1,73 @@
+.pricing {
+    @extend %of-hidden;
+    &__item {
+
+        &-inner {
+            @extend %py-30,
+            %px-25;
+            @include add-prefix(transition, $transition);
+            background-color: $white-color;
+            // border: 1px solid $border-color;
+            border: 2px solid #E5EDF8;
+            box-shadow: 0px 24px 60px rgba(3, 33, 55, 0.06);
+            border-radius: 16px;
+
+            &.active,
+            &:hover {
+                border: 2px solid $brand-color;
+                box-shadow: 0px 24px 60px rgba(3, 33, 55, 0.12);
+            }
+
+            @include breakpoint(sm) {
+                padding-block: 32px;
+                padding-inline: 25px;
+            }
+        }
+
+        &-top {
+            @extend %p-rel;
+            // border-bottom: 1px solid rgba($brand-color,.1);
+            border-bottom: 1px solid #E6E6E6;
+
+            h6 {
+                text-transform: uppercase;
+            }
+
+            h3 {
+                color: $brand-color;
+
+                span {
+                    @extend %text-semibold;
+                    @include font-size(18px);
+                    font-family: $text-font;
+                    color: #B0B3BF;
+
+                }
+            }
+        }
+
+        &-middle {
+            @extend %py-40;
+        }
+
+    }
+
+    &__list {
+        @extend %mb-0,
+        %ps-0;
+
+        &-item {
+            color: $title-color;
+
+            span {
+                @extend %me-5;
+            }
+
+
+            &:not(:last-child) {
+                @extend %mb-15;
+            }
+        }
+    }
+
+}

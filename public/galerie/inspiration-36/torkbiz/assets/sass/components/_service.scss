@@ -1,0 +1,90 @@
+.service {
+    @extend %p-rel,
+    %of-hidden;
+
+    &__item {
+
+        &-inner {
+            @extend %p-rel,
+            %py-35,
+            %px-15;
+            @include add-prefix(transition, $transition);
+            background-color: $white-color;
+            border-radius: 16px;
+
+            @include breakpoint(md) {
+                padding-block: 52px;
+                padding-inline: 32px;
+            }
+
+            &:hover {
+                transform: translateY(-5px);
+                box-shadow: 0px 16px 24px rgba(200, 209, 222, 0.4);
+            }
+        }
+
+ 
+
+    }
+
+    &__thumb {
+        &-inner {
+            @extend %p-25,
+            %d-inline-flex;
+            border-radius: 99px;
+            background-color: $bg-color-2;
+        }
+    }
+
+    &__content {
+        h5 {
+            @extend %text-medium;
+            @include add-prefix(transition, $transition);
+
+
+        }
+
+        &:hover {
+            h5 {
+                color: $brand-color;
+            }
+        }
+    }
+
+
+    &__shape {
+        &-item {
+            @extend %p-abs;
+            width: 40px;
+            top: 1%;
+            left: 6%;
+            @include animation(rotate 3s cubic-bezier(0.41, 0.15, 0.64, 0.86) infinite alternate);
+
+            @include breakpoint(sm) {
+                top: 3%;
+                left: 7%;
+            }
+
+            @include breakpoint(md) {
+                width: auto;
+                top: 6%;
+                left: 6%;
+            }
+
+            @include breakpoint(lg) {
+                left: 5%;
+                top: 5%;
+            }
+
+            @include breakpoint(xl) {
+                top: 6%;
+                left: 6%;
+            }
+
+            @include breakpoint(xxl) {
+                top: 11%;
+                left: 17%;
+            }
+        }
+    }
+}

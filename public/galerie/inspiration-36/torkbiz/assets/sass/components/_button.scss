@@ -1,0 +1,274 @@
+// -----------------------------------------------------------------------------
+// This file contains all styles related to the button component.
+// -----------------------------------------------------------------------------
+//default button style
+.trk-btn {
+  @extend %p-rel,
+  %d-inline-block,
+  %of-hidden,
+  %text-center,
+  %text-bold;
+  @include font-size(16px);
+  border: transparent;
+  color: $bg-white;
+  font-family: $text-font;
+  padding: 1rem 1.25rem;
+  text-decoration: none;
+  @include add-prefix(transition, $transition);
+  text-transform: capitalize;
+  line-height: 1;
+
+  &:after {
+    @extend %p-abs;
+    background: $bg-white;
+    content: "";
+    height: 155px;
+    left: -75px;
+    opacity: .2;
+    top: -50px;
+    transform: rotate(35deg);
+    transition: all 550ms cubic-bezier(0.19, 1, 0.22, 1);
+    width: 50px;
+    z-index: -10;
+  }
+
+
+  @include breakpoint(sm) {
+    padding: 1rem 1.5rem;
+  }
+
+  @include breakpoint(lg) {
+    padding: 1rem 1.75rem;
+  }
+
+  @include breakpoint(xl) {
+    padding: 1rem 1.875rem;
+  }
+
+  &--small {
+    padding: 0.75rem 1.5rem;
+  }
+  &--large {
+    @include breakpoint(lg){
+      padding: 1.3rem 1.875rem;
+    }
+  }
+
+  svg,
+  i {
+    @extend %me-5;
+    transition: $transition;
+  }
+
+  &--arrow {
+    span {
+      svg {
+        @include font-size(16px);
+        transform: rotate(-45deg);
+      }
+    }
+  }
+
+  &--left {
+    @extend %d-inline-flex,
+    %align-i-center;
+    gap: 8px;
+
+    span {
+      @extend %d-inline-flex,
+      %align-i-center;
+      @include box(24px);
+      background-color: $bg-white;
+      border-radius: 99px;
+      padding: 4px;
+
+      svg {
+        @include font-size(14px);
+        color: $brand-color;
+        line-height: 24px;
+      }
+    }
+  }
+
+  &--primary1 {
+    background-color: $brand-color;
+  }
+
+
+  &--border {
+    border-radius: 8px;
+  }
+
+  &--outline {
+    @extend %text-center,
+    %d-block;
+    @include add-prefix(transition, $transition);
+    width: 100%;
+    border: 1px solid $brand-color;
+    border-radius: 8px;
+    color: $title-color;
+  }
+
+
+
+  &.search-btn {
+    padding: 1.2rem 1.85rem;
+    @include font-size(18px);
+  }
+
+
+
+  span {
+    position: inherit;
+    z-index: 1;
+
+    svg,
+    img {
+      @extend %ms-5;
+    }
+  }
+
+
+  // &--small {
+  //   // line-height: 46px;
+  //   padding: 1.125rem 2.5rem;
+  // }
+
+
+
+  &.active,
+  &:hover {
+
+    // Home One
+    &.trk-btn--primary1 {
+      color: $white-color;
+      transform: translateY(-3px);
+
+      &:after {
+        left: 120%;
+        transition: all 550ms cubic-bezier(0.19, 1, 0.22, 1);
+      }
+    }
+
+    &.trk-btn--secondary1 {
+      transform: translateY(-3px);
+    }
+
+    &.trk-btn--arrow {
+      transform: rotate(0deg);
+    }
+
+    &.trk-btn--outline {
+      background-color: $brand-color;
+      color: $white-color;
+    }
+
+
+    // Home Two
+    &.trk-btn--primary2 {
+      svg {
+        @include add-prefix(transform, translateX(5px));
+      }
+    }
+
+
+  }
+
+  &-active {
+    background-color: $secondary-color;
+    border-color: $secondary-color;
+  }
+
+  &--secondary {
+    background-color: transparent;
+    color: $title-color;
+    border-color: $title-color;
+  }
+}
+
+
+.text-btn {
+  @extend %align-i-center,
+  %p-rel,
+  %text-capitalize, %text-bold;
+  @include add-prefix(transition, $transition);
+  display: inline-flex;
+  color: $brand-color;
+
+  &::after {
+    @extend %p-abs;
+    @include add-prefix(transition, $transition);
+    content: "";
+    left: 0;
+    bottom: -4px;
+    height: 2px;
+    width: 0%;
+    background-color: $brand-color;
+
+  }
+
+  i,
+  svg {
+    @include add-prefix(transition, $transition);
+    @extend %ms-10;
+  }
+
+
+  &.text-btn--small {
+    @extend %text-regular;
+    @include font-size(16px);
+    color: $title-color;
+    font-family: $text-font;
+
+    span {
+      @extend %me-10;
+      @include add-prefix(transition, $transition);
+    }
+  }
+
+  span {
+    @extend %ms-10;
+    @include add-prefix(transition, $transition);
+  }
+
+  &:hover {
+    color: $brand-color;
+
+    &::after {
+      width: 100%;
+      background-color: $brand-color;
+    }
+
+    i,
+    svg {
+      @extend %ms-15;
+    }
+
+    span {
+      @include add-prefix(transform, translateX(5px));
+    }
+  }
+}
+
+
+.btn-group {
+  @extend %d-flex,
+  %align-i-center;
+  gap: 2rem;
+
+  &--gap-xs {
+    gap: .75rem;
+  }
+
+  &--gap-sm {
+    gap: 1rem;
+  }
+
+  &--gap-md {
+    gap: 1.5rem;
+  }
+
+  &--gap-lg {
+    gap: 2rem;
+  }
+}

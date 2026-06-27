@@ -1,0 +1,395 @@
+// background image use 
+.bg-image {
+    background-repeat: no-repeat;
+}
+
+.of-hidden {
+    overflow: hidden;
+}
+
+
+
+
+
+
+// scrollTop
+.scrollToTop {
+    @include add-prefix(transition, $transition);
+    position: fixed;
+    // bottom: -20%;
+    bottom: 5%;
+    right: 5%;
+    z-index: 9;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    border-radius: 5px;
+    color: $bg-white;
+
+    &--home1 {
+        background-color: $brand-color;
+    }
+
+    &:hover {
+        @include add-prefix (transform, translateY(-5px));
+        color: $bg-white;
+    }
+
+
+}
+
+
+
+// cta form
+.cta-form {
+    max-width: 500px;
+
+    @include breakpoint(sm) {
+        @include breakpoint (max-sm) {
+            max-width: 600px;
+        }
+    }
+
+    .form-control {
+        @include add-prefix(transition, $transition);
+        background-color: $tertiary-color;
+        border: 1px solid $form-border;
+        z-index: 1;
+
+        ::placeholder {
+            color: $white-color;
+            opacity: 999;
+        }
+
+        &:focus {
+            box-shadow: none;
+            // t
+            // border-color: rgba($brand-color, $alpha: 0.50);
+            // border-color: $brand-color;
+            border-color: $brand-color;
+        }
+
+        &--style1 {
+            @extend %py-10,
+            %px-20;
+            border-top-left-radius: 8px;
+            border-bottom-left-radius: 8px;
+
+            @include breakpoint(sm) {
+                padding: 16px 20px;
+            }
+        }
+
+        &--style2 {
+            @extend %py-10,
+            %px-20,
+            %me-10;
+
+            @include breakpoint(sm) {
+                max-width: 60%;
+                padding: 11px 20px;
+            }
+
+            @include breakpoint(lg) {
+                max-width: 60%;
+                padding: 16px 20px;
+            }
+
+            @include breakpoint(lg) {
+                max-width: 70%;
+            }
+        }
+    }
+
+    .cta-btn {
+        @extend %py-15,
+        %px-25,
+        %text-bold;
+        border-top-right-radius: 8px !important;
+        border-bottom-right-radius: 8px !important;
+        background: $brand-color;
+        border-color: $brand-color;
+        @include font-size(16px);
+
+        @include breakpoint(sm) {
+            padding: 16px 32px;
+        }
+    }
+
+}
+
+
+// password show hide toggle
+.form-pass {
+    @extend %p-rel;
+
+    &__ctoggle,
+    &__toggle {
+        @extend %p-abs;
+        background: none;
+        border: none;
+        color: $text-color;
+        font-weight: 600;
+        right: .75em;
+        top: 53px;
+        z-index: 9;
+    }
+}
+
+
+// swiper nav
+.swiper-nav {
+    @extend %d-flex,
+    %align-i-center;
+    gap: 15px;
+
+    @include breakpoint(max-md) {
+        margin-block-start: 15px;
+    }
+
+
+    &__btn {
+        @extend %d-grid,
+        %place-i-center;
+        @include box(40px);
+        @include add-prefix(transition, $transition);
+        border: 1px solid rgba(249, 77, 28, 0.12);
+        // trk-rgba
+        // border: 1px solid rgba(#{$brand-color}, $alpha: 0.20) ;
+        border-radius: 99px;
+        background-color: $bg-white;
+
+        @include breakpoint(sm){
+            @include box(46px);
+        }
+
+        i,
+        svg {
+            @include add-prefix(transition, $transition);
+            color: $brand-color;
+        }
+
+        &.active,
+        &:hover {
+            background-color: $brand-color;
+
+            i,
+            svg {
+                color: $bg-white;
+            }
+        }
+    }
+
+    &--style2 {
+        .swiper-nav {
+
+            &__btn {
+                @extend %d-none;
+                // trk-rgba 
+                background-color: #FFE1D8;
+                border-color: #FFE1D8;
+
+                @include breakpoint(md){
+                    display: block;
+                }
+
+
+                i,
+                svg {
+                    @include add-prefix(transition, $transition);
+                    color: $title-color;
+                }
+
+                &-prev {
+                    @extend %p-abs;
+                    content: "";
+                    top: 36%;
+                    left: -23px;
+                    z-index: 1;
+
+                    i,
+                    svg {
+                        color: $title-color;
+                    }
+
+                }
+
+                &-next {
+                    @extend %p-abs;
+                    content: "";
+                    top: 36%;
+                    right: -23px;
+                    z-index: 1;
+
+
+
+                }
+
+                &.active,
+                &:hover {
+                    background-color: $brand-color;
+                    border-color: $brand-color;
+
+                    i,
+                    svg {
+                        color: $bg-white;
+                    }
+                }
+            }
+        }
+    }
+
+}
+
+
+
+
+// pagination start here
+.paginations {
+    background-color: $white-color;
+    box-shadow: 0px -16px 48px rgba(6, 35, 63, 0.03), 0px 16px 48px rgba(6, 35, 63, 0.03);
+    border-radius: 8px;
+    padding: 12px 16px;
+    max-width: 450px;
+    margin: 0 auto;
+    margin-top: 40px;
+
+
+    ul {
+        li {
+            @extend %px-5;
+
+
+            &:not(:first-child, :last-child) {
+                a {
+                    @extend %p-rel,
+                    %d-flex,
+                    %text-bold,
+                    %align-i-center,
+                    %justify-center;
+                    @include add-prefix(transition, $transition);
+                    width: 36px;
+                    height: 36px;
+                    background: $white-color;
+                    color: $title-color;
+                    z-index: 1;
+                    // @include border-radius(50%);
+                    border-radius: 4px;
+                    // border: 1px solid rgba($brand-color, $alpha: 0.20);
+
+                    &.active,
+                    &:hover {
+                        color: $brand-color;
+                        // trk-rgba
+                        background-color: #FFF3F0;
+                        // background-color: rgba($brand-color, $alpa 0.2);
+                    }
+
+                    &.dot {
+                        color: $brand-color;
+                        font-weight: 700;
+
+                        &:hover {
+                            color: $brand-color;
+                        }
+                    }
+                }
+            }
+
+            a {
+                @extend %p-rel,
+                %d-flex,
+                %text-bold,
+                %align-i-center,
+                %justify-center;
+                @include add-prefix(transition, $transition);
+                @include font-size(18px);
+                width: 70px;
+                height: 36px;
+                // trk-rgba
+                color: $text-color-light;
+
+                &.active,
+                &:hover {
+                    color: $brand-color;
+
+                    i,
+                    svg {
+                        color: $brand-color;
+                    }
+                }
+            }
+
+
+        }
+    }
+}
+
+
+// playbtn
+.playbtn {
+    @extend %d-inline-flex,
+    %align-i-center,
+    %text-bold;
+    @include add-prefix(transition, $transition);
+    font-family: $text-font;
+    color: $title-color;
+    gap: 10px;
+
+    &--style2 {
+        color: $bg-white;
+    }
+
+    &__thumb {
+        @include box(45px);
+        @include add-prefix(transition, $transition);
+        border-radius: 99px;
+        border: 2px solid currentColor;
+        display: grid;
+        place-items: center;
+
+        i,
+        svg {
+            @extend %text-regular;
+            @include font-size(20px);
+            @include add-prefix(transition, $transition);
+            margin-inline-start: 3px;
+            color: currentColor;
+        }
+
+    }
+
+    &__content {
+        @extend %d-none;
+        @include font-size(16px);
+
+        @include breakpoint(lg) {
+            display: block;
+        }
+    }
+
+    &:hover {
+        .playbtn {
+            color: $brand-color;
+
+            &__thumb {
+                border: 2px solid $brand-color;
+
+                i,
+                svg {
+                    color: $brand-color;
+                }
+            }
+
+            &__content {
+                color: $brand-color;
+            }
+        }
+
+    }
+
+
+
+
+}

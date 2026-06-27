@@ -1,0 +1,43 @@
+// partner
+.partner {
+    overflow-x: clip;
+    
+    @extend %py-30;
+    &__wrapper{
+        @extend %p-rel;
+        z-index: 333;
+    }
+
+    //background overlay
+    &--gradient {
+        @extend %p-rel;
+
+        &:before {
+            @extend %p-abs;
+            content: "";
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 100%;
+            background-color: $secondary-color;
+            z-index: 3;
+        }
+
+        &::after {
+            @extend %p-abs;
+            content: "";
+            left: -2px;
+            top: 4px;
+            height: 86px;
+            width: 102%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0) 0%, var(--brand-color) 100%);
+            transform: rotate(2deg);
+            z-index: 2;
+
+            @include breakpoint(max-md){
+                left: -4px;
+                transform: rotate(-4deg);
+            }
+        }
+    }
+}

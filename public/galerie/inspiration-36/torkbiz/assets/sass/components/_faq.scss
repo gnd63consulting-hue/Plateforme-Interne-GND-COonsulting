@@ -1,0 +1,116 @@
+.accordion {
+    &__item {
+        @extend %of-hidden;
+    }
+
+    &__button {
+        @extend %w-100,
+        %text-bold,
+        %text-capitalize;
+        @extend %text-left;
+        @extend %d-flex;
+        @extend %justify-between;
+        @include font-size(18px);
+        color: $brand-color;
+        font-family: $title-font;
+        border: none;
+
+        &-content{
+            flex: 1;
+        }
+
+
+        &-plusicon {
+            @extend %p-rel;
+            @include box(25px);
+            border: 1.5px solid $brand-color;
+            border-radius: 99px;
+            display: none;
+
+            @include breakpoint(sm) {
+                display: initial;
+            }
+
+            &:before,
+            &:after {
+                @extend %p-abs;
+                background-color: $brand-color;
+            }
+
+            &::before {
+                @include add-prefix(transform, translateY(-50%));
+                content: "";
+                width: 14px;
+                height: 2px;
+                top: 50%;
+                left: 5px;
+                background-color: $brand-color;
+            }
+
+        }
+
+        &.collapsed {
+            color: $title-color;
+
+            .accordion__button{
+                &-plusicon {
+                    // trk-rgba
+                    border: 1.5px solid rgba(3, 49, 75, 0.04);
+    
+                    &::before {
+                        background-color: $title-color;
+                    }
+    
+                    &::after {
+                        @include add-prefix(transform, translateY(-50%));
+                        content: "";
+                        height: 14px;
+                        width: 2px;
+                        top: 50%;
+                        left: 11px;
+                        background-color: $title-color;
+                    }
+                }
+            }
+        }
+    }
+
+    &--style1 {
+        .accordion {
+            &__item {
+                //todo need daynamic
+                border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            }
+
+            &__button {
+                @extend %py-20;
+                background-color: $white-color;
+
+                &--style2 {
+                    background-color: $tertiary-color;
+                }
+            }
+        }
+    }
+
+    &--style2 {
+        .accordion {
+            &__item {
+                // @extend %mb-15;
+                border-radius: 16px;
+            }
+
+            &__button {
+                @extend %p-25;
+                background-color: $bg-color-5;
+            }
+
+            &__body {
+                @extend %px-25,
+                %pb-25;
+                background-color: $bg-color-5;
+            }
+        }
+    }
+
+}

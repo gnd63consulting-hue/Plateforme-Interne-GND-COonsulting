@@ -1,0 +1,52 @@
+.story {
+    @extend %of-hidden;
+
+    &__thumb {
+        &-inner {
+            @extend %p-rel;
+            object-fit: cover;
+            transition: $transition;
+
+            img {
+                border-radius: 24px;
+            }
+        }
+
+        &-playbtn {
+            @extend %p-abs,
+            %pos-center;
+
+            a {
+
+                i,
+                svg {
+                    color: $bg-white;
+                    @include font-size(56px);
+
+                    @include breakpoint(md) {
+                        @include font-size(60px);
+                    }
+
+                    @include breakpoint(lg) {
+                        @include font-size(62px);
+                    }
+
+                    @include add-prefix(transition, $transition);
+                }
+            }
+
+            &:hover {
+                a {
+
+                    i,
+                    svg {
+                        color: $brand-color;
+                    }
+
+                }
+            }
+
+        }
+
+    }
+}

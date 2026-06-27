@@ -1,0 +1,245 @@
+.about {
+    @extend %p-rel,
+    %of-hidden;
+
+    &--style1{
+        padding-block-start: 140px;
+        padding-block-end: 82px;
+    
+        @include breakpoint(lg) {
+            padding-block-start: 145px;
+            padding-block-end: 110px;
+        }
+    
+        @include breakpoint(xl) {
+            padding-block-start: 177px;
+            padding-block-end: 143px;
+        }
+    }
+
+    &__thumb {
+        &-image {
+            img {
+                @extend %p-rel;
+                border-radius: 20px;
+            }
+        }
+    }
+
+    &__content {
+        @extend %mt-20;
+        @include breakpoint(lg){
+            margin-block-start: 0;
+        }
+
+        &:not(:last-child) {
+            @extend %mb-30;
+
+            @include breakpoint(xl) {
+                margin-bottom: 32px;
+            }
+        }
+
+        &-details {
+            flex: 1;
+
+            h5 {
+                @extend %text-capitalize;
+            }
+        }
+
+        &-inner {
+            @extend %d-flex;
+            gap: 15px;
+        }
+
+        p {
+            color: $text-color;
+        }
+    }
+
+    &__icon {
+        width: 70px;
+
+        &-inner {
+            @extend %text-center, %d-grid, %place-i-center;
+            @include box(70px);
+            background-color: $bg-color-3;
+            border-radius: 50%;
+        }
+    }
+
+
+
+    &__shape {
+        &--style1 {
+            .about__shape {
+                &-item {
+                    @extend %p-abs;
+                    width: 40px;
+                    top: 5%;
+                    right: 6%;
+                    @include animation(rotate 3s cubic-bezier(0.41, 0.15, 0.64, 0.86) infinite alternate);
+
+                    @include breakpoint(sm) {
+                        top: 5%;
+                        right: 7%;
+                    }
+
+                    @include breakpoint(md) {
+                        width: auto;
+                        top: 6%;
+                        right: 6%;
+                    }
+
+                    @include breakpoint(lg) {
+                        right: 5%;
+                        top: 16%;
+                    }
+
+                    @include breakpoint(xl) {
+                        top: 16%;
+                        right: 6%;
+                    }
+
+                    @include breakpoint(xxl) {
+                        top: 16%;
+                        right: 9%;
+                    }
+                }
+            }
+        }
+
+        &--style2 {
+            .about__shape {
+                &-item {
+                    @extend %p-abs;
+
+                    &--1 {
+                        top: 5%;
+                        right: 6%;
+                        @include animation(rotateY 3s cubic-bezier(0.41, 0.15, 0.64, 0.86) infinite alternate);
+
+                        @include breakpoint(sm) {
+                            top: 5%;
+                            right: 7%;
+                        }
+
+                        @include breakpoint(md) {
+                            top: 6%;
+                            right: 6%;
+                        }
+
+                        @include breakpoint(lg) {
+                            right: 12%;
+                            top: 5%;
+                        }
+
+                        @include breakpoint(xl) {
+                            top: 12%;
+                            right: 5%;
+                        }
+
+                        @include breakpoint(xxl) {
+                            top: 5%;
+                            right: 17%;
+                        }
+                    }
+
+                    &--2 {
+                        top: 9%;
+                        right: 23%;
+                        @include animation(rotate 3s cubic-bezier(0.41, 0.15, 0.64, 0.86) infinite alternate);
+
+                        @include breakpoint(sm) {
+                            top: 10%;
+                            right: 17%;
+                        }
+
+                        @include breakpoint(md) {
+                            top: 17%;
+                            right: 15%;
+                        }
+
+                        @include breakpoint(lg) {
+                            top: 8%;
+                            right: 3%;
+                        }
+
+                        @include breakpoint(xl) {
+                            top: 7%;
+                            right: 11%;
+                        }
+
+                        @include breakpoint(xxl) {
+                            top: 15%;
+                            right: 14%;
+                        }
+                    }
+
+
+                    &--3 {
+                        @extend %d-none;
+                        right: 40%;
+                        z-index: 1;
+                        top: 71%;
+                        @include animation(rotate 3s cubic-bezier(0.41, 0.15, 0.64, 0.86) infinite alternate);
+
+
+                        @include breakpoint(md) {
+                            display: block;
+                            top: 71%;
+                            right: 6%;
+                        }
+
+                        @include breakpoint(lg) {
+                            top: 80%;
+                            right: 52%;
+                        }
+
+
+                        @include breakpoint(xl) {
+                            top: auto;
+                            bottom: 15%;
+                            right: 52%;
+                        }
+
+                        @include breakpoint(xxl) {
+                            right: 52%;
+                        }
+                    }
+                    &--4 {
+                        @extend %d-none;
+                        right: 40%;
+                        z-index: 1;
+                        top: 71%;
+                        @include animation(rotate 3s cubic-bezier(0.41, 0.15, 0.64, 0.86) infinite alternate);
+
+                        @include breakpoint(md) {
+                            display: block;
+                            top: 81%;
+                            right: 8%;
+                        }
+
+                        @include breakpoint(lg) {
+                            top: 88%;
+                            right: 43%;
+                        }
+
+
+                        @include breakpoint(xl) {
+                            top: auto;
+                            bottom: 6%;
+                            left: 52%;
+                        }
+
+                        @include breakpoint(xxl) {
+                            right: 48%;
+                            left: auto;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

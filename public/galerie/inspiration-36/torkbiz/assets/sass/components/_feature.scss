@@ -1,0 +1,170 @@
+.feature {
+    @extend %p-rel,
+    %of-hidden;
+
+    padding-block-start: 80px;
+    padding-block-end: 111px;
+
+    @include breakpoint(lg) {
+        padding-block-start: 100px;
+        padding-block-end: 100px;
+    }
+
+    @include breakpoint(xl) {
+        padding-block-start: 100px;
+        padding-block-end: 130px;
+    }
+
+    &__item {
+        &-content {
+            h6 {
+                @extend %mb-0,
+                %text-capitalize,
+                %text-semibold;
+                color: $text-color;
+
+                @include breakpoint(md) {
+                    font-weight: 700;
+                }
+            }
+        }
+    }
+
+    &__image {
+        img {
+            border-radius: 20px;
+        }
+    }
+
+    &__shape {
+        &-item {
+            @extend %p-abs;
+
+            &--1 {
+                top: 5%;
+                right: 6%;
+                @include animation(rotateY 3s cubic-bezier(0.41, 0.15, 0.64, 0.86) infinite alternate);
+
+                @include breakpoint(sm) {
+                    top: 5%;
+                    right: 7%;
+                }
+
+                @include breakpoint(md) {
+                    top: 6%;
+                    right: 6%;
+                }
+
+                @include breakpoint(lg) {
+                    right: 12%;
+                    top: 5%;
+                }
+
+                @include breakpoint(xl) {
+                    top: 12%;
+                    right: 5%;
+                }
+
+                @include breakpoint(xxl) {
+                    top: 5%;
+                    right: 17%;
+                }
+            }
+
+            &--2 {
+                top: 9%;
+                right: 23%;
+                @include animation(rotate 3s cubic-bezier(0.41, 0.15, 0.64, 0.86) infinite alternate);
+
+                @include breakpoint(sm) {
+                    top: 10%;
+                    right: 17%;
+                }
+
+                @include breakpoint(md) {
+                    top: 17%;
+                    right: 15%;
+                }
+
+                @include breakpoint(lg) {
+                    top: 8%;
+                    right: 3%;
+                }
+
+                @include breakpoint(xl) {
+                    top: 7%;
+                    right: 11%;
+                }
+
+                @include breakpoint(xxl) {
+                    top: 15%;
+                    right: 14%;
+                }
+            }
+
+
+            &--3 {
+                @extend %d-none;
+                right: 40%;
+                z-index: 1;
+                top: 71%;
+                @include animation(rotate 3s cubic-bezier(0.41, 0.15, 0.64, 0.86) infinite alternate);
+
+
+                @include breakpoint(md) {
+                    display: block;
+                    top: 71%;
+                    right: 6%;
+                }
+
+                @include breakpoint(lg) {
+                    top: 80%;
+                    right: 52%;
+                }
+
+
+                @include breakpoint(xl) {
+                    top: auto;
+                    bottom: 15%;
+                    right: 52%;
+                }
+
+                @include breakpoint(xxl) {
+                    right: 52%;
+                }
+            }
+
+            &--4 {
+                @extend %d-none;
+                right: 40%;
+                z-index: 1;
+                top: 71%;
+                @include animation(rotate 3s cubic-bezier(0.41, 0.15, 0.64, 0.86) infinite alternate);
+
+                @include breakpoint(md) {
+                    display: block;
+                    top: 81%;
+                    right: 8%;
+                }
+
+                @include breakpoint(lg) {
+                    top: 88%;
+                    right: 43%;
+                }
+
+
+                @include breakpoint(xl) {
+                    top: auto;
+                    bottom: 6%;
+                    left: 52%;
+                }
+
+                @include breakpoint(xxl) {
+                    right: 48%;
+                    left: auto;
+                }
+            }
+        }
+    }
+
+}

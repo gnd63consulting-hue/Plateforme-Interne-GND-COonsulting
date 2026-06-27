@@ -1,0 +1,129 @@
+.social {
+    @extend %d-flex;
+    @extend %align-i-center;
+    @extend %list-none;
+    @extend %ps-0;
+    @extend %mb-0;
+    gap: 15px;
+
+    &--style2 {
+        gap: 25px;
+    }
+
+    &__link {
+        @extend %d-inline-block;
+        @extend %text-center;
+        @include add-prefix(transition, background-color .2s linear);
+        background-color: transparent;
+        // border: 2px solid rgba($white-color, $alpha: .70);
+        @include font-size(18px);
+
+        &--style1 {
+            @include add-prefix(transition, $transition);
+            background-color: transparent;
+            border: 1px solid $border-color;
+            @include box(34px);
+            line-height: 34px;
+            border-radius: 99px;
+            transition: $transition;
+
+            svg,
+            i {
+                @include font-size(16px);
+                color: $title-color;
+            }
+
+
+            @include breakpoint(lg){
+                height: 40px;
+                width: 40px;
+                line-height: 40px;
+                i,svg{
+                    @include font-size(18px)
+                }
+            }
+        }
+
+        &--style2 {
+            @include add-prefix(transition, $transition);
+            background-color: $thm-white-color-dark;
+            @include box(36px);
+            line-height: 36px;
+            border-radius: 99px;
+            
+
+            svg,
+            i {
+                @include font-size(16px);
+                color: $bg-white;
+            }
+
+            
+            @include breakpoint(lg){
+                height: 40px;
+                width: 40px;
+                line-height: 40px;
+                i,svg{
+                    @include font-size(18px)
+                }
+            }
+        }
+
+        &--style3 {
+            @extend %p-rel;
+            @include add-prefix(transition, $transition);
+            @include font-size(16px);
+            @include box(32px);
+            line-height: 32px;
+            background-color: transparent;
+            border: 1.3px solid $social-border-color;
+            border-radius: 99px;
+            z-index: 222;
+
+            svg,
+            i {
+                color: $title-color;
+                font-size: inherit;
+            }
+        }
+
+
+        &.active,
+        &:hover {
+
+            &.social__link--style1 {
+                background-color: $brand-color;
+                border-color: $brand-color;
+
+                svg,
+                i {
+                    color: $bg-white;
+                }
+
+            }
+
+
+            &.social__link--style2 {
+                background-color: $brand-color;
+
+                svg,
+                i {
+                    color: $bg-white;
+                }
+
+            }
+
+            &.social__link--style3 {
+                background-color: $brand-color;
+                border-color: $brand-color;
+
+                svg,
+                i {
+                    color: $bg-white;
+                }
+
+            }
+
+        }
+    }
+}

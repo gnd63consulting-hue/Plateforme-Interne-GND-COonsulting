@@ -1,0 +1,151 @@
+/*!
+Template Name: Torkbiz - Professional Multipurpose HTML Template for Business Consulting & Financial Services
+Template URI: https://themeforest.net/item/torkbiz-professional-multipurpose-html-template-for-business-consulting-financial-services/46320460
+Author: thetork
+Author URI: https: //themeforest.net/user/thetork/portfolio
+Description: Torkbiz provides a professional online platform to showcase your products, services, and expertise.
+      From captivating visuals to seamless navigation, Torkbiz ensures an engaging user experience that leaves a lasting impression.
+      Whether you're looking to attract new clients, expand your reach, or establish your brand presence,
+      Torkbiz is the perfect choice for crafting a modern business website that stands out in today's competitive landscape.
+Version: 1.0.0
+Text Domain: Torkbiz
+Tags: Torkbiz, corporate business, consultancy agency.
+
+*/
+
+
+/*
+-----------------Table of content start -----------------
+
+1. Configuration and helpers
+    -extends,
+    -variables,
+    -functions,
+    -mixins
+
+2. Vendors
+    -normalize,
+    -text-rotator,
+    -nice-select,
+    -rfs
+
+3. Base stuff
+    -fonts,
+    -typography,
+    -animations,
+    -common,
+    -helpers
+
+
+4. Layout-related sections
+    -header,
+    -banner,
+    -contact,
+    -account,
+    -form,
+    -footer
+
+
+5. Components
+    -button,
+    -preloader,
+    -lightdark-switch,
+    -social-link,
+    -foating-content,
+    -partner,
+    -feature,
+    -service,
+    -pricing,
+    -team,
+    -blog,
+    -blog-details,
+    -testimonial,
+    -cta,
+    -story,
+    -sidebar,
+    -faq,
+    -error,
+    -servicer-details,
+    -nav,
+    -comment,
+    -about
+
+6. Page-specific styles
+    -home
+
+
+7. Themes
+    -theme
+
+-----------------Table of content end -----------------
+
+
+*/
+
+
+
+
+
+/*=====================================================================*/
+
+@charset "UTF-8";
+
+// 1. Configuration and helpers
+@import 'abstracts/extends',
+'abstracts/variables',
+'abstracts/functions',
+'abstracts/mixins';
+
+// 2. Vendors
+@import 'vendors/normalize',
+// 'vendors/text-rotator',
+'vendors/nice-select',
+'vendors/rfs';
+
+// 3. Base stuff
+@import 'base/fonts',
+'base/typography',
+'base/animations',
+'base/common',
+'base/helpers';
+
+
+// 4. Layout-related sections
+@import 'layout/header',
+'layout/banner',
+'layout/contact',
+'layout/account',
+'layout/form',
+'layout/footer';
+
+
+// 5. Components
+@import 'components/button',
+'components/preloader',
+'components/lightdark-switch',
+'components/social-link',
+'components/foating-content',
+'components/partner',
+'components/feature',
+'components/service',
+'components/pricing',
+'components/team',
+'components/blog',
+'components/blog-details',
+'components/testimonial',
+'components/cta',
+'components/story',
+'components/sidebar',
+'components/faq',
+'components/error',
+'components/servicer-details',
+'components/nav',
+'components/comment',
+'components/about';
+
+// 6. Page-specific styles
+@import 'pages/home';
+
+
+// 7. Themes
+@import 'themes/theme';

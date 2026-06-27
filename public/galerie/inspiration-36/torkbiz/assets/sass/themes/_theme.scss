@@ -1,0 +1,271 @@
+// -----------------------------------------------------------------------------
+// When having several themes, this file contains everything related to the
+// default one.
+// -----------------------------------------------------------------------------
+html[data-bs-theme='dark'] {
+
+  .blog {
+    &__item {
+      &-inner {
+        box-shadow: none;
+      }
+    }
+  }
+
+  .service {
+    &__item {
+      &-inner {
+        &:hover {
+          box-shadow: none;
+        }
+      }
+
+      &--style2 {
+        .service {
+          &__item {
+            &-inner {
+              background-color: $thm-bg-color-2-dark;
+
+              &:hover {
+                box-shadow: 0px 12px 30px rgba(14, 4, 0, 0.64);
+              }
+            }
+          }
+
+          &__thumb {
+            &-inner {
+              background-color: rgba(255, 255, 255, 0.04);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .pricing {
+    &__item {
+      &-inner {
+        @include add-prefix(transition, $transition);
+        background-color: $thm-bg-color-6-dark;
+        border-color: $thm-bg-color-6-dark;
+
+        &.active,
+        &:hover {
+          border: 2px solid $brand-color;
+          box-shadow: 0px 24px 60px rgba(3, 33, 55, 0.12);
+        }
+      }
+
+      &-top {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+    }
+  }
+
+
+  .blog {
+    &__item {
+      &-inner {
+        background-color: $thm-bg-color-6-dark;
+
+        &:hover {
+          box-shadow: 0px 24px 60px rgba(13, 14, 16, 0.5);
+        }
+      }
+    }
+  }
+
+  .swiper-nav {
+
+    &--style1,
+    &--style2 {
+      .swiper-nav {
+        &__btn {
+          background-color: $thm-bg-color-6-dark;
+          border-color: $thm-bg-color-6-dark;
+
+          i,
+          svg {
+            color: $bg-white;
+          }
+
+          &.active,
+          &:hover {
+            background-color: $brand-color;
+            border-color: $brand-color;
+
+            i,
+            svg {
+              color: $bg-white;
+            }
+          }
+        }
+      }
+    }
+
+
+  }
+
+  .testimonial {
+    &__item {
+      &-content {
+        p {
+          // trk-rgba 
+          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+      }
+
+      &:hover {
+        .testimonial {
+          &__item {
+            &-inner {
+              box-shadow: none;
+            }
+          }
+
+          &__quote {
+            span {
+
+              i,
+              svg {
+                opacity: 0.6;
+              }
+            }
+
+          }
+        }
+      }
+    }
+
+    &__quote {
+      span {
+
+        i,
+        svg {
+          // trk-rgba 
+          @include add-prefix(transition, $transition);
+          color: rgba(255, 255, 255);
+          opacity: 0.3;
+        }
+      }
+
+    }
+
+  }
+
+  .accordion {
+    &--style1 {
+
+      // trk-rgba 
+      .accordion {
+        &__item {
+          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+      }
+    }
+  }
+
+  .cta {
+    &--style1 {
+      .cta {
+        &__content {
+          &-inner {
+            background-color: $thm-bg-color-6-dark;
+            border-color: $thm-bg-color-6-dark;
+          }
+        }
+      }
+    }
+
+    &--style2 {
+      .cta {
+        &__subscribe {
+          .form-control {
+            background-color: $thm-tertiary-color-dark;
+            border: 1px solid $thm-tertiary-color-dark;
+          }
+        }
+      }
+    }
+  }
+
+  .form-control {
+    background-color: $thm-bg-color-4-dark;
+    border-color: $thm-bg-color-4-dark;
+    
+    &--style1{
+      border-color: #dcdfe80d;
+      border-right: none;
+    }
+  }
+
+  .sidebar {
+    &__search {
+      form {
+        input {
+          background-color: $thm-tertiary-color-dark;
+        }
+      }
+    }
+  }
+
+  .account {
+    &__social {
+      &-btn {
+        border-color: $thm-bg-color-4-dark;
+      }
+    }
+  }
+
+
+  .trk-btn {
+
+    &.active,
+    &:hover {
+      color: $bg-white;
+    }
+  }
+
+  .account {
+    &__divider {
+      &--style1 {
+        &::before {
+          background-color: $thm-bg-color-4-dark;
+        }
+      }
+    }
+  }
+
+  .contact {
+    &__form {
+
+      @include breakpoint(md) {
+        &::before {
+          background: linear-gradient(188.07deg, rgba(157, 157, 157, 0) 31.91%, #97999B75 98.96%);
+        }
+      }
+
+    }
+  }
+
+  .nav {
+    &--feature {
+      .nav {
+        &-link {
+          box-shadow: 0px 12px 30px rgba(14, 4, 0, 0.24);
+        }
+      }
+
+    }
+  }
+
+  .social{
+    &__link{
+      &--style2{
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+    }
+  }
+
+}
