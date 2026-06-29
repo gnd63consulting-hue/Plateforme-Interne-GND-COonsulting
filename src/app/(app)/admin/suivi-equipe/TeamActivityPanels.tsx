@@ -6,8 +6,10 @@ import { formatMinutes, formatLastSeen } from '@/lib/team-activity';
 
 /**
  * Panneaux client de /admin/suivi-equipe :
- *   - « Activité » : tableau par commercial (Appels / Notes / Emails / RDV /
- *     Tâches faites + total), avec un toggle Aujourd'hui ↔ 7 jours.
+ *   - « Activité » : tableau par commercial (Appels / Contacts / Notes / Emails
+ *     / RDV / Statuts / Tâches faites + total), avec un toggle Aujourd'hui ↔
+ *     7 jours. « Contacts » est DÉRIVÉ (passages à un statut de contact) — il
+ *     n'entre donc pas dans le total (sinon double comptage avec Statuts).
  *   - « Connexions équipe » : tableau par membre (dernière connexion, sessions
  *     7j, temps 7j, durée moyenne), avec lignes dépliables (sessions récentes).
  *
@@ -15,8 +17,9 @@ import { formatMinutes, formatLastSeen } from '@/lib/team-activity';
  * mêmes classes que la page (panel, label-eyebrow, brand-burnt, choco…).
  */
 
-const ACT_COLS: { key: keyof RepActivity['today']; label: string }[] = [
+const ACT_COLS: { key: keyof RepActivity['today']; label: string; derived?: boolean }[] = [
   { key: 'appels', label: 'Appels' },
+  { key: 'contacts', label: 'Contacts', derived: true },
   { key: 'notes', label: 'Notes' },
   { key: 'emails', label: 'Emails' },
   { key: 'rdv', label: 'RDV' },
@@ -79,10 +82,16 @@ export function ActivityPanel({ reps }: { reps: RepActivity[] }) {
               {ACT_COLS.map((c) => (
                 <th
                   key={c.key}
+                  title={c.derived ? 'Contacts = passages à un statut de contact (auto)' : undefined}
                   className="px-4 py-3 text-center font-grotesk text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-burnt"
                   style={{ borderBottom: '1px solid rgba(74,36,26,0.10)' }}
                 >
                   {c.label}
+                  {c.derived && (
+                    <span className="ml-0.5 align-super text-[8px] text-brand" aria-hidden>
+                      auto
+                    </span>
+                  )}
                 </th>
               ))}
               <th
@@ -113,7 +122,11 @@ export function ActivityPanel({ reps }: { reps: RepActivity[] }) {
                       <td
                         key={col.key}
                         className={`px-4 py-2.5 text-center font-num text-sm tabular-nums ${
-                          c[col.key] > 0 ? 'text-ink-warm font-bold' : 'text-muted-warm'
+                          c[col.key] > 0
+                            ? col.derived
+                              ? 'font-bold text-brand-dark'
+                              : 'font-bold text-ink-warm'
+                            : 'text-muted-warm'
                         }`}
                       >
                         {c[col.key]}
@@ -148,7 +161,9 @@ export function ActivityPanel({ reps }: { reps: RepActivity[] }) {
       </div>
       <p className="mt-2 text-[12px] leading-relaxed text-muted-warm">
         Activité saisie réelle (timeline prospects) + tâches cochées terminées.
-        Fenêtre {win === 'today' ? "depuis 00 h aujourd'hui" : 'glissante sur 7 jours'}.
+        <span className="text-brand-burnt"> Contacts</span> = passages à un statut
+        de contact (auto, dérivé des changements de statut — hors total). Fenêtre{' '}
+        {win === 'today' ? "depuis 00 h aujourd'hui" : 'glissante sur 7 jours'}.
       </p>
     </section>
   );
