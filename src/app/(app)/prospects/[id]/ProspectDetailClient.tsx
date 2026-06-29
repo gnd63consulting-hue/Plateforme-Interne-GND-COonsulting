@@ -1,4 +1,3 @@
-'use client';
 
 import { useCallback, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
@@ -281,6 +280,27 @@ export default function ProspectDetailClient({
     },
     [insertActivity]
   );
+
+  /* ---- Bouton « Appel passé » : 1 clic = 1 trace call ----------------- */
+  /**
+   * Log direct d'un appel (kind='call', body='Appel passé') sans ouvrir de
+   * modale. Chaque clic = 1 appel compté (répondeur / tentative incluse —
+   * idempotence volontairement absente). owner_id = auth.uid() (default BDD),
+   * RLS owner. La trace est prepend à la timeline locale = feedback immédiat.
+   */
+  const [callLogging, setCallLogging] = useState(false);
+  const handleLogCall = useCallback(async () => {
+    if (callLogging) return;
+    setCallLogging(true);
+    setErrorMsg('');
+    const ok = await insertActivity('call', { body: 'Appel passé' });
+    setCallLogging(false);
+    if (ok) {
+      announce('Appel enregistré dans la timeline.');
+    } else {
+      setErrorMsg('Appel non enregistré. Réessaie.');
+    }
+  }, [callLogging, insertActivity]);
 
   /* ---- Planifier une relance (update next_action_at + log note) ------- */
   const handlePlanRelance = useCallback(
@@ -711,9 +731,25 @@ export default function ProspectDetailClient({
 
           {/* E. TIMELINE */}
           <section className="panel p-4">
-            <div className="mb-3 flex items-center gap-2 font-grotesk text-[11px] uppercase tracking-[0.12em] text-brand-burnt">
-              <span aria-hidden className="h-px w-4 bg-gradient-to-r from-brand to-transparent" />
-              Historique d&apos;activité
+            <div className="mb-3 flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 font-grotesk text-[11px] uppercase tracking-[0.12em] text-brand-burnt">
+                <span aria-hidden className="h-px w-4 bg-gradient-to-r from-brand to-transparent" />
+                Historique d&apos;activité
+              </div>
+              <button
+                type="button"
+                onClick={handleLogCall}
+                disabled={callLogging}
+                title="Enregistrer un appel passé (chaque clic = 1 appel compté)"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-brand px-3 py-1.5 text-[12px] font-semibold text-choco transition-colors hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {callLogging ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
+                ) : (
+                  <Phone className="h-3.5 w-3.5" aria-hidden />
+                )}
+                Appel passé
+              </button>
             </div>
             {activities.length === 0 ? (
               <div className="divider-warm flex items-center gap-2.5 pt-3 text-left">
