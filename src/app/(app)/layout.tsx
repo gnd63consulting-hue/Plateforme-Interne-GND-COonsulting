@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import AppShell from '@/components/app-shell/AppShell';
+import PresenceHeartbeat from '@/components/PresenceHeartbeat';
 import { createClient } from '@/lib/supabase-server';
 
 /**
@@ -59,6 +60,8 @@ export default async function AppLayout({
         avatarUrl,
       }}
     >
+      {/* Sonde de présence silencieuse (suivi connexions, aucun rendu). */}
+      <PresenceHeartbeat />
       {children}
     </AppShell>
   );
