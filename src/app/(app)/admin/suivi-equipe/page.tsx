@@ -10,6 +10,15 @@ import {
   overdueAgeDays,
   type RepSummary,
 } from '@/lib/manager-digest';
+import {
+  buildRepActivity,
+  buildRepConnections,
+  startOfWeekWindow,
+  type ActivityRow,
+  type DoneTaskRow,
+  type LoginSessionRow,
+} from '@/lib/team-activity';
+import { ActivityPanel, ConnectionsPanel } from './TeamActivityPanels';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,8 +29,12 @@ export const dynamic = 'force-dynamic';
  * Vue admin : pour CHAQUE commercial, ses relances + tâches en retard /
  * aujourd'hui, triées par criticité. Permet de ne laisser personne sans suivi.
  *
- * Données via service-role (les tâches sont RLS owner — un admin ne les verrait
- * pas autrement). Accès gardé par la permission de section `suivi`.
+ * Enrichi (Sprint connexions) : (a) activité réelle par commercial (timeline
+ * `activities` + tâches cochées) sur aujourd'hui / 7 jours ; (b) connexions
+ * équipe (table `login_sessions`, sans IP).
+ *
+ * Données via service-role (les tâches/activités/sessions sont RLS owner — un
+ * admin ne les verrait pas autrement). Accès gardé par la permission `suivi`.
  */
 export default async function SuiviEquipePage() {
   const supabase = await createClient();
@@ -43,19 +56,34 @@ export default async function SuiviEquipePage() {
   const end = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   end.setDate(end.getDate() + 1);
   const endIso = end.toISOString();
+  // Bornes pour les agrégats activité (7 jours glissants) — on filtre côté
+  // requête pour ne pas tirer tout l'historique.
+  const weekStartIso = startOfWeekWindow(now).toISOString();
 
-  const [{ data: usersRaw }, { data: prosRaw }, { data: tasksRaw }] =
-    await Promise.all([
-      admin.from('users').select('id, full_name, email, role, active'),
-      admin
-        .from('prospects')
-        .select(
-          'id, company_name, status, next_action_at, assigned_to, created_by'
-        )
-        .not('next_action_at', 'is', null)
-        .lte('next_action_at', endIso),
-      admin.from('tasks').select(TASK_SELECT_COLUMNS).eq('done', false),
-    ]);
+  const [
+    { data: usersRaw },
+    { data: prosRaw },
+    { data: tasksRaw },
+    { data: actsRaw },
+    { data: sessionsRaw },
+  ] = await Promise.all([
+    admin.from('users').select('id, full_name, email, role, active'),
+    admin
+      .from('prospects')
+      .select(
+        'id, company_name, status, next_action_at, assigned_to, created_by'
+      )
+      .not('next_action_at', 'is', null)
+      .lte('next_action_at', endIso),
+    admin.from('tasks').select(TASK_SELECT_COLUMNS).eq('done', false),
+    admin
+      .from('activities')
+      .select('kind, owner_id, occurred_at')
+      .gte('occurred_at', weekStartIso),
+    admin
+      .from('login_sessions')
+      .select('user_id, started_at, last_seen_at'),
+  ]);
 
   const allUsers = (usersRaw ?? []) as {
     id: string;
@@ -72,6 +100,32 @@ export default async function SuiviEquipePage() {
     tracked,
     (prosRaw ?? []) as unknown as DigestProspectRow[],
     (tasksRaw ?? []) as unknown as Task[],
+    now
+  );
+
+  // Pour l'activité : on a besoin des tâches FAITES aujourd'hui/7j → requête
+  // dédiée (la requête ci-dessus ne tire que les tâches non-faites).
+  const { data: doneTasksRaw } = await admin
+    .from('tasks')
+    .select('owner_id, done, done_at')
+    .eq('done', true)
+    .gte('done_at', weekStartIso);
+
+  // Liste { id, name } des membres suivis pour seeder activité + connexions.
+  const nameOf = (u: (typeof tracked)[number]) =>
+    u.full_name ?? (u.email ? u.email.split('@')[0] : '—');
+  const trackedLite = tracked.map((u) => ({ id: u.id, name: nameOf(u) }));
+
+  const activity = buildRepActivity(
+    trackedLite,
+    (actsRaw ?? []) as ActivityRow[],
+    (doneTasksRaw ?? []) as DoneTaskRow[],
+    now
+  );
+
+  const connections = buildRepConnections(
+    trackedLite,
+    (sessionsRaw ?? []) as LoginSessionRow[],
     now
   );
 
@@ -162,6 +216,12 @@ export default async function SuiviEquipePage() {
           </table>
         </div>
       )}
+
+      {/* Activité réelle par commercial (timeline + tâches faites) */}
+      <ActivityPanel reps={activity} />
+
+      {/* Connexions équipe (login_sessions, sans IP) */}
+      <ConnectionsPanel reps={connections} nowIso={now.toISOString()} />
     </div>
   );
 }
