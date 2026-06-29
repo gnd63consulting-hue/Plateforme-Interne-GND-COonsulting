@@ -1,7 +1,9 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase-server';
+import { createAdminClient } from '@/lib/supabase-admin';
 import { PROSPECT_SELECT_COLUMNS, type Prospect } from '@/lib/prospects';
 import { sumCaMidpointGndPriceEur, sumCaMidpointEntrepriseEur } from '@/lib/ca-utils';
+import { labelForActivityKind } from '@/lib/activities';
 import { MODULES } from '@/lib/modules-registry';
 import AdminV2Client from './AdminV2Client';
 
@@ -133,6 +135,15 @@ export default async function AdminV2Page() {
   const prospects = (prospectsRaw ?? []) as unknown as Prospect[];
   const progressions = (progRaw ?? []) as Progression[];
 
+  // Activité récente RÉELLE (timeline `activities`) — service-role pour lire
+  // toute l'équipe (RLS owner sinon). On joint company_name + full_name en TS.
+  const admin = createAdminClient();
+  const { data: actsRaw } = await admin
+    .from('activities')
+    .select('id, kind, body, owner_id, prospect_id, occurred_at')
+    .order('occurred_at', { ascending: false })
+    .limit(8);
+
   const freelances = users
     .filter((u) => FREELANCE_ROLES.has(u.role) && u.active !== false)
     .sort((a, b) => (a.full_name ?? a.email).localeCompare(b.full_name ?? b.email));
@@ -205,40 +216,32 @@ export default async function AdminV2Page() {
     prospects: c.total,
   }));
 
-  const typeMap: Record<string, string> = {
-    rdv_pris: 'STATUT CHANGED',
-    devis_envoye: 'DEVIS SENT',
-    gagne: 'STATUT CHANGED',
-    contacte: 'STATUT CHANGED',
-    a_contacter: 'NOTE ADDED',
-    archived: 'STATUT CHANGED',
-    perdu: 'STATUT CHANGED',
-  };
-  const detailMap: Record<string, string> = {
-    rdv_pris: '→ RDV pris',
-    devis_envoye: 'Devis envoyé',
-    gagne: '→ Devis signé',
-    contacte: '→ Contacté',
-    a_contacter: 'Relance planifiée',
-    archived: '→ Archivé',
-    perdu: '→ Perdu',
-  };
-  const activity: ActivityEntry[] = prospects
-    .filter(p => p.updated_at)
-    .slice(0, 8)
-    .map(p => {
-      const d = new Date(p.updated_at!);
-      const dd = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-      const com = freelances.find(u => u.id === p.assigned_to);
-      return {
-        date: dd,
-        type: typeMap[p.status] ?? 'PROSPECT UPDATED',
-        company: p.company_name,
-        detail: detailMap[p.status] ?? '',
-        user: com?.id ?? 'system',
-        userInitials: com ? initialsOf(com.full_name, com.email)[0] : '⋄',
-      };
-    });
+  // Activité récente : vraies traces de la timeline. Type = libellé FR par kind
+  // (ActivityLog colore les kinds connus, fallback gris sinon). Auteur + société
+  // résolus via maps users/prospects.
+  const prospectName = new Map(prospects.map((p) => [p.id, p.company_name]));
+  const userById = new Map(users.map((u) => [u.id, u]));
+  const activity: ActivityEntry[] = ((actsRaw ?? []) as {
+    id: string;
+    kind: string;
+    body: string | null;
+    owner_id: string;
+    prospect_id: string;
+    occurred_at: string;
+  }[]).map((a) => {
+    const d = new Date(a.occurred_at);
+    const dd = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+    const owner = userById.get(a.owner_id);
+    const detail = a.body ? (a.body.length > 60 ? `${a.body.slice(0, 60)}…` : a.body) : '';
+    return {
+      date: dd,
+      type: labelForActivityKind(a.kind).toUpperCase(),
+      company: prospectName.get(a.prospect_id) ?? '—',
+      detail,
+      user: owner?.id ?? 'system',
+      userInitials: owner ? initialsOf(owner.full_name, owner.email)[0] : '⋄',
+    };
+  });
 
   // Formation : branché sur la table progressions Supabase
   const moduleSlugByOrder = MODULES.reduce<Record<number, string>>((acc, m) => {
