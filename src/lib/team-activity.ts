@@ -11,6 +11,7 @@ import type { ActivityKind } from './activities';
  *     emails, rdv, changements de statut) + tâches terminées aujourd'hui, sur
  *     deux fenêtres : « aujourd'hui » (>= début de journée locale) et
  *     « 7 derniers jours » (>= début de journée locale il y a 6 jours).
+ *     S'y ajoute la métrique DÉRIVÉE `contacts` (cf. CONTACT_STATUSES).
  *
  *  2. CONNEXIONS : par user, dernière connexion, nb de sessions (7j / 30j),
  *     temps cumulé (total / 7j) et durée moyenne par session, à partir de
@@ -21,11 +22,44 @@ import type { ActivityKind } from './activities';
 // 1. ACTIVITÉ PAR COMMERCIAL
 // ─────────────────────────────────────────────────────────────────────────────
 
+/**
+ * Statuts dont l'ATTEINTE prouve un contact abouti (une vraie interaction a eu
+ * lieu). Dérivés des valeurs réelles de `prospects.status` (cf.
+ * src/lib/prospects.ts → ProspectStatus / STATUS_OPTIONS).
+ *
+ * On compte un « contact » à chaque activité `status_change` dont le NOUVEAU
+ * statut (`metadata.to`) appartient à cet ensemble.
+ *
+ * INCLUS (contact établi / conversation engagée ou plus) :
+ *   contacte · en_discussion · a_rappeler · en_attente_retour · rdv_pris ·
+ *   devis_envoye · gagne · a_recontacter · pas_interesse
+ *   (« pas_interesse » : un refus suppose qu'on a parlé à la cible → contact).
+ *
+ * EXCLUS :
+ *   a_contacter (état initial, aucun contact) · tentative_appel (tentative non
+ *   aboutie : répondeur, pas de réponse) · perdu / coordonnees_invalides /
+ *   ne_plus_demarcher / processus_termine / archived / prospecte (sorties ou
+ *   états techniques qui ne prouvent pas un échange).
+ */
+export const CONTACT_STATUSES = new Set<string>([
+  'contacte',
+  'en_discussion',
+  'a_rappeler',
+  'en_attente_retour',
+  'rdv_pris',
+  'devis_envoye',
+  'gagne',
+  'a_recontacter',
+  'pas_interesse',
+]);
+
 /** Ligne `activities` minimale nécessaire au comptage. */
 export type ActivityRow = {
   kind: ActivityKind | string;
   owner_id: string;
   occurred_at: string;
+  /** Pour kind='status_change' : { from, to }. Sert au comptage `contacts`. */
+  metadata?: Record<string, unknown> | null;
 };
 
 /** Ligne `tasks` minimale pour les tâches terminées. */
@@ -38,12 +72,14 @@ export type DoneTaskRow = {
 /** Compteurs d'activité d'un commercial sur une fenêtre temporelle. */
 export type ActivityCounts = {
   appels: number;
+  /** Passages à un statut de contact (dérivé de status_change.to). */
+  contacts: number;
   notes: number;
   emails: number;
   rdv: number;
   changementsStatut: number;
   tachesFaites: number;
-  /** Somme des 5 types d'activité + tâches faites. */
+  /** Somme des 5 types d'activité + tâches faites (PAS `contacts` : dérivé). */
   total: number;
 };
 
@@ -58,6 +94,7 @@ export type RepActivity = {
 function emptyCounts(): ActivityCounts {
   return {
     appels: 0,
+    contacts: 0,
     notes: 0,
     emails: 0,
     rdv: 0,
@@ -83,6 +120,12 @@ function kindKey(kind: string): keyof ActivityCounts | null {
     default:
       return null; // 'task' et kinds inconnus : non comptés ici.
   }
+}
+
+/** Lit le nouveau statut (`metadata.to`) d'une activité status_change. */
+function statusTo(metadata: Record<string, unknown> | null | undefined): string | null {
+  if (!metadata) return null;
+  return typeof metadata.to === 'string' ? metadata.to : null;
 }
 
 /** Début de journée locale (00:00) pour une date donnée. */
@@ -146,9 +189,15 @@ export function buildRepActivity(
     const s = ensure(a.owner_id);
     s.week[key]++;
     s.week.total++;
+    // Métrique dérivée « contacts » : un status_change vers un statut de
+    // contact (NON ajoutée à .total pour ne pas double-compter status_change).
+    const isContact =
+      a.kind === 'status_change' && CONTACT_STATUSES.has(statusTo(a.metadata) ?? '');
+    if (isContact) s.week.contacts++;
     if (t >= startToday) {
       s.today[key]++;
       s.today.total++;
+      if (isContact) s.today.contacts++;
     }
   }
 
