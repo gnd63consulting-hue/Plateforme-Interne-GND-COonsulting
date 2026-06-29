@@ -78,7 +78,7 @@ export default async function SuiviEquipePage() {
     admin.from('tasks').select(TASK_SELECT_COLUMNS).eq('done', false),
     admin
       .from('activities')
-      .select('kind, owner_id, occurred_at')
+      .select('kind, owner_id, occurred_at, metadata')
       .gte('occurred_at', weekStartIso),
     admin
       .from('login_sessions')
